@@ -21,6 +21,7 @@ import {
   Copy,
   Smartphone,
   Laptop,
+  HardDrive,
 } from 'lucide-react';
 import { AppSettings } from '@/types';
 import { StorageService } from '@/lib/storage';
@@ -58,10 +59,20 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
   const [isSyncing, setIsSyncing] = useState(false);
   const [lastSyncTime, setLastSyncTime] = useState<string | null>(null);
 
+  // Storage quota state
+  const [storageStats, setStorageStats] = useState({
+    usedBytes: 0,
+    usedKB: '0',
+    quotaMB: 5,
+    percentUsed: '0.00',
+    approximateCapacity: '~30,000 to 50,000 transactions',
+  });
+
   React.useEffect(() => {
     if (typeof window !== 'undefined') {
       setSyncKey(StorageService.getSyncPasskey());
       setLastSyncTime(StorageService.getLastSyncTime());
+      setStorageStats(StorageService.getStorageStats());
     }
   }, []);
 
@@ -484,6 +495,29 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
           <div>
             <h3 className="font-bold text-white text-sm">Backup, Restore & Export</h3>
             <p className="text-xs text-zinc-400">You fully own your data. Export backups or CSV spreadsheets anytime.</p>
+          </div>
+        </div>
+
+        {/* Device Storage Capacity Gauge */}
+        <div className="p-3.5 rounded-xl bg-[#161821] border border-white/5 space-y-2">
+          <div className="flex items-center justify-between text-xs">
+            <span className="font-semibold text-white flex items-center gap-1.5">
+              <HardDrive className="w-3.5 h-3.5 text-zinc-400" />
+              <span>Local Device Storage</span>
+            </span>
+            <span className="font-mono text-zinc-400 text-[11px]">
+              {storageStats.usedKB} KB / ~5,000 KB ({storageStats.percentUsed}% used)
+            </span>
+          </div>
+          <div className="w-full h-1.5 rounded-full bg-white/5 overflow-hidden">
+            <div
+              className="h-full bg-zinc-300 rounded-full transition-all duration-500"
+              style={{ width: `${Math.max(1, parseFloat(storageStats.percentUsed))}%` }}
+            />
+          </div>
+          <div className="text-[11px] text-zinc-500 flex flex-col sm:flex-row sm:items-center justify-between gap-1">
+            <span>Capacity: {storageStats.approximateCapacity} (~10+ years of daily use)</span>
+            <span className="text-zinc-400">Cloud Sync & file backups: Unlimited</span>
           </div>
         </div>
 

@@ -552,4 +552,32 @@ export const StorageService = {
     localStorage.removeItem(KEYS.SYNC_PASSKEY);
     localStorage.removeItem(KEYS.LAST_SYNC);
   },
+
+  getStorageStats(): { usedBytes: number; usedKB: string; quotaMB: number; percentUsed: string; approximateCapacity: string } {
+    if (typeof window === 'undefined') {
+      return { usedBytes: 0, usedKB: '0', quotaMB: 5, percentUsed: '0.00', approximateCapacity: '~30,000 to 50,000 records' };
+    }
+    let totalBytes = 0;
+    try {
+      for (let i = 0; i < localStorage.length; i++) {
+        const k = localStorage.key(i);
+        if (k) {
+          const v = localStorage.getItem(k) || '';
+          totalBytes += k.length + v.length;
+        }
+      }
+    } catch {
+      // ignore
+    }
+    const quotaBytes = 5 * 1024 * 1024; // 5 MB standard browser quota
+    const usedKB = (totalBytes / 1024).toFixed(1);
+    const percentUsed = Math.max(0.01, (totalBytes / quotaBytes) * 100).toFixed(2);
+    return {
+      usedBytes: totalBytes,
+      usedKB,
+      quotaMB: 5,
+      percentUsed,
+      approximateCapacity: '~30,000 to 50,000 transactions',
+    };
+  },
 };
