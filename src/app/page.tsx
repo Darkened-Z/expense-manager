@@ -56,8 +56,10 @@ export default function Home() {
 
   // Modals
   const [addTxModalType, setAddTxModalType] = useState<TransactionType | null>(null);
+  const [editingTransaction, setEditingTransaction] = useState<Transaction | null>(null);
   const [showAddReminderModal, setShowAddReminderModal] = useState<boolean>(false);
   const [addReminderType, setAddReminderType] = useState<ReminderType>('receivable');
+  const [editingReminder, setEditingReminder] = useState<PaymentReminder | null>(null);
 
   const reloadAllFromStorage = () => {
     setTransactions(StorageService.getTransactions());
@@ -274,9 +276,22 @@ export default function Home() {
     setWallets(StorageService.getWallets());
   };
 
+  const handleUpdateTransaction = (id: string, updates: Partial<Transaction>) => {
+    StorageService.updateTransaction(id, updates);
+    setTransactions(StorageService.getTransactions());
+    setWallets(StorageService.getWallets());
+  };
+
   const handleAddReminder = (remData: any) => {
     StorageService.addReminder(remData);
     setReminders(StorageService.getReminders());
+  };
+
+  const handleUpdateReminder = (id: string, updates: Partial<PaymentReminder>) => {
+    StorageService.updateReminder(id, updates);
+    setReminders(StorageService.getReminders());
+    setTransactions(StorageService.getTransactions());
+    setWallets(StorageService.getWallets());
   };
 
   const handleCollectReminder = (reminderId: string, walletId?: string) => {
@@ -568,6 +583,10 @@ export default function Home() {
                 categories={categories}
                 wallets={wallets}
                 currencySymbol={settings.currencySymbol}
+                onEditTransaction={(tx) => {
+                  setEditingTransaction(tx);
+                  setAddTxModalType(tx.type);
+                }}
                 onDeleteTransaction={handleDeleteTransaction}
                 onExportCSV={handleExportCSV}
                 searchQuery={searchQuery}
@@ -584,6 +603,10 @@ export default function Home() {
                 categories={categories}
                 wallets={wallets}
                 currencySymbol={settings.currencySymbol}
+                onEditTransaction={(tx) => {
+                  setEditingTransaction(tx);
+                  setAddTxModalType(tx.type);
+                }}
                 onDeleteTransaction={handleDeleteTransaction}
                 onExportCSV={handleExportCSV}
                 searchQuery={searchQuery}
@@ -601,7 +624,13 @@ export default function Home() {
                 wallets={wallets}
                 currencySymbol={settings.currencySymbol}
                 onOpenAddModal={() => {
+                  setEditingReminder(null);
                   setAddReminderType('receivable');
+                  setShowAddReminderModal(true);
+                }}
+                onEditReminder={(rem) => {
+                  setEditingReminder(rem);
+                  setAddReminderType(rem.type || 'receivable');
                   setShowAddReminderModal(true);
                 }}
                 onCollectReminder={handleCollectReminder}
@@ -619,6 +648,12 @@ export default function Home() {
                 wallets={wallets}
                 currencySymbol={settings.currencySymbol}
                 onOpenAddModal={() => {
+                  setEditingReminder(null);
+                  setAddReminderType('payable');
+                  setShowAddReminderModal(true);
+                }}
+                onEditReminder={(rem) => {
+                  setEditingReminder(rem);
                   setAddReminderType('payable');
                   setShowAddReminderModal(true);
                 }}
@@ -702,28 +737,38 @@ export default function Home() {
         </main>
       </div>
 
-      {/* Add Transaction Modal */}
+      {/* Add / Edit Transaction Modal */}
       {addTxModalType && (
         <AddTransactionModal
           isOpen={true}
           initialType={addTxModalType}
+          transactionToEdit={editingTransaction}
           categories={categories}
           wallets={wallets}
           currencySymbol={settings.currencySymbol}
-          onClose={() => setAddTxModalType(null)}
+          onClose={() => {
+            setAddTxModalType(null);
+            setEditingTransaction(null);
+          }}
           onSubmit={handleAddTransaction}
+          onUpdate={handleUpdateTransaction}
         />
       )}
 
-      {/* Add Receivable / Reminder Modal */}
+      {/* Add / Edit Receivable / Reminder Modal */}
       {showAddReminderModal && (
         <AddReminderModal
           isOpen={true}
           initialType={addReminderType}
+          reminderToEdit={editingReminder}
           currencySymbol={settings.currencySymbol}
           categories={categories}
-          onClose={() => setShowAddReminderModal(false)}
+          onClose={() => {
+            setShowAddReminderModal(false);
+            setEditingReminder(null);
+          }}
           onSubmit={handleAddReminder}
+          onUpdate={handleUpdateReminder}
         />
       )}
     </div>

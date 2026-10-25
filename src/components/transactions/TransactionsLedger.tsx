@@ -20,6 +20,7 @@ import {
   ShoppingBag,
   Repeat,
   ChevronDown,
+  Pencil,
 } from 'lucide-react';
 import { Transaction, Category, Wallet } from '@/types';
 import { formatDateTimeDDMMYYYY, formatCash } from '@/lib/formatters';
@@ -29,6 +30,7 @@ interface TransactionsLedgerProps {
   categories: Category[];
   wallets: Wallet[];
   currencySymbol: string;
+  onEditTransaction?: (tx: Transaction) => void;
   onDeleteTransaction: (id: string) => void;
   onExportCSV: () => void;
   searchQuery: string;
@@ -40,6 +42,7 @@ export const TransactionsLedger: React.FC<TransactionsLedgerProps> = ({
   categories,
   wallets,
   currencySymbol,
+  onEditTransaction,
   onDeleteTransaction,
   onExportCSV,
   searchQuery,
@@ -226,9 +229,19 @@ export const TransactionsLedger: React.FC<TransactionsLedgerProps> = ({
                     </span>
                   </div>
 
+                  {onEditTransaction && (
+                    <button
+                      onClick={() => onEditTransaction(tx)}
+                      className="p-1.5 text-zinc-500 hover:text-white rounded-lg transition-colors cursor-pointer"
+                      title="Edit transaction"
+                    >
+                      <Pencil className="w-3.5 h-3.5" />
+                    </button>
+                  )}
+
                   <button
                     onClick={() => onDeleteTransaction(tx.id)}
-                    className="p-1.5 text-zinc-600 hover:text-rose-400 rounded-lg transition-colors"
+                    className="p-1.5 text-zinc-600 hover:text-rose-400 rounded-lg transition-colors cursor-pointer"
                     title="Delete"
                   >
                     <Trash2 className="w-3.5 h-3.5" />
@@ -316,13 +329,24 @@ export const TransactionsLedger: React.FC<TransactionsLedgerProps> = ({
                       {formatDateTime(tx.date, tx.time)}
                     </td>
                     <td className="py-3.5 px-4 text-right">
-                      <button
-                        onClick={() => onDeleteTransaction(tx.id)}
-                        className="opacity-0 group-hover:opacity-100 p-1.5 text-zinc-500 hover:text-rose-400 hover:bg-rose-500/10 rounded-lg transition-all"
-                        title="Delete transaction"
-                      >
-                        <Trash2 className="w-3.5 h-3.5" />
-                      </button>
+                      <div className="flex items-center justify-end gap-1">
+                        {onEditTransaction && (
+                          <button
+                            onClick={() => onEditTransaction(tx)}
+                            className="opacity-0 group-hover:opacity-100 p-1.5 text-zinc-400 hover:text-white hover:bg-white/10 rounded-lg transition-all cursor-pointer"
+                            title="Edit transaction"
+                          >
+                            <Pencil className="w-3.5 h-3.5" />
+                          </button>
+                        )}
+                        <button
+                          onClick={() => onDeleteTransaction(tx.id)}
+                          className="opacity-0 group-hover:opacity-100 p-1.5 text-zinc-500 hover:text-rose-400 hover:bg-rose-500/10 rounded-lg transition-all cursor-pointer"
+                          title="Delete transaction"
+                        >
+                          <Trash2 className="w-3.5 h-3.5" />
+                        </button>
+                      </div>
                     </td>
                   </tr>
                 );

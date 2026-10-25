@@ -19,6 +19,7 @@ import {
   ArrowDownLeft,
   Filter,
   Repeat,
+  Pencil,
 } from 'lucide-react';
 import confetti from 'canvas-confetti';
 import { PaymentReminder, Wallet } from '@/types';
@@ -30,6 +31,7 @@ interface FreelanceRemindersViewProps {
   wallets: Wallet[];
   currencySymbol: string;
   onOpenAddModal: () => void;
+  onEditReminder: (reminder: PaymentReminder) => void;
   onCollectReminder: (id: string, walletId: string) => void;
   onDeleteReminder: (id: string) => void;
 }
@@ -40,6 +42,7 @@ export const FreelanceRemindersView: React.FC<FreelanceRemindersViewProps> = ({
   wallets,
   currencySymbol,
   onOpenAddModal,
+  onEditReminder,
   onCollectReminder,
   onDeleteReminder,
 }) => {
@@ -457,6 +460,15 @@ export const FreelanceRemindersView: React.FC<FreelanceRemindersViewProps> = ({
                             <span>{rem.type === 'payable' ? 'Paid & Deducted' : 'Paid & Deposited'}</span>
                           </div>
                         )}
+
+                        {/* Edit Button */}
+                        <button
+                          onClick={() => onEditReminder(rem)}
+                          className="p-2 text-zinc-400 hover:text-white hover:bg-white/10 rounded-xl transition-colors cursor-pointer"
+                          title={rem.type === 'payable' ? "Edit payable obligation & schedule" : "Edit invoice & schedule"}
+                        >
+                          <Pencil className="w-3.5 h-3.5" />
+                        </button>
 
                         {/* Delete Button */}
                         <button

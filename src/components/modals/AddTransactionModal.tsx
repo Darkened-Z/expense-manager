@@ -1,13 +1,14 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { X, ArrowDownLeft, ArrowUpRight, DollarSign, Calendar, Clock, Tag, Wallet as WalletIcon } from 'lucide-react';
-import { Category, Wallet, TransactionType } from '@/types';
+import { X, ArrowDownLeft, ArrowUpRight, DollarSign, Calendar, Clock, Tag, Wallet as WalletIcon, Pencil } from 'lucide-react';
+import { Category, Wallet, TransactionType, Transaction } from '@/types';
 import { formatDateDDMMYYYY, formatCash } from '@/lib/formatters';
 
 interface AddTransactionModalProps {
   isOpen: boolean;
   initialType?: TransactionType;
+  transactionToEdit?: Transaction | null;
   categories: Category[];
   wallets: Wallet[];
   currencySymbol: string;
@@ -26,16 +27,19 @@ interface AddTransactionModalProps {
     frequency?: 'once' | 'monthly';
     createReminder?: boolean;
   }) => void;
+  onUpdate?: (id: string, updates: Partial<Transaction>) => void;
 }
 
 export const AddTransactionModal: React.FC<AddTransactionModalProps> = ({
   isOpen,
   initialType = 'expense',
+  transactionToEdit = null,
   categories,
   wallets,
   currencySymbol,
   onClose,
   onSubmit,
+  onUpdate,
 }) => {
   const [type, setType] = useState<TransactionType>(initialType);
   const [amount, setAmount] = useState<string>('');
@@ -53,27 +57,43 @@ export const AddTransactionModal: React.FC<AddTransactionModalProps> = ({
 
   useEffect(() => {
     if (isOpen) {
-      setType(initialType);
-      setAmount('');
-      setTitle('');
-      setClientOrPayer('');
-      setNotes('');
-      setError(null);
-      setFrequency('once');
-      setCreateReminder(false);
+      if (transactionToEdit) {
+        setType(transactionToEdit.type);
+        setAmount(transactionToEdit.amount ? transactionToEdit.amount.toString() : '');
+        setTitle(transactionToEdit.title || '');
+        setClientOrPayer(transactionToEdit.clientOrPayer || '');
+        setCategoryId(transactionToEdit.categoryId || '');
+        setWalletId(transactionToEdit.walletId || wallets[0]?.id || '');
+        setDate(transactionToEdit.date || new Date().toISOString().split('T')[0]);
+        setTime(transactionToEdit.time || new Date().toTimeString().slice(0, 5));
+        setToken(transactionToEdit.token || 'PKR');
+        setFrequency(transactionToEdit.frequency || 'once');
+        setCreateReminder(false);
+        setNotes(transactionToEdit.notes || '');
+        setError(null);
+      } else {
+        setType(initialType);
+        setAmount('');
+        setTitle('');
+        setClientOrPayer('');
+        setNotes('');
+        setError(null);
+        setFrequency('once');
+        setCreateReminder(false);
 
-      // Default date & time to right now
-      const now = new Date();
-      setDate(now.toISOString().split('T')[0]);
-      setTime(now.toTimeString().slice(0, 5));
+        // Default date & time to right now
+        const now = new Date();
+        setDate(now.toISOString().split('T')[0]);
+        setTime(now.toTimeString().slice(0, 5));
 
-      // Filter available categories for type
-      const suitableCats = categories.filter((c) => c.type === initialType);
-      setCategoryId(suitableCats[0]?.id || categories[0]?.id || '');
-      setWalletId(wallets[0]?.id || '');
-      setToken(wallets[0]?.currency || 'PKR');
+        // Filter available categories for type
+        const suitableCats = categories.filter((c) => c.type === initialType);
+        setCategoryId(suitableCats[0]?.id || categories[0]?.id || '');
+        setWalletId(wallets[0]?.id || '');
+        setToken(wallets[0]?.currency || 'PKR');
+      }
     }
-  }, [isOpen, initialType, categories, wallets]);
+  }, [isOpen, initialType, transactionToEdit, categories, wallets]);
 
   if (!isOpen) return null;
 
@@ -97,20 +117,36 @@ export const AddTransactionModal: React.FC<AddTransactionModalProps> = ({
       return;
     }
 
-    onSubmit({
-      amount: parsedAmount,
-      type,
-      title: title.trim(),
-      clientOrPayer: clientOrPayer.trim() || undefined,
-      categoryId,
-      walletId,
-      date,
-      time,
-      token,
-      frequency,
-      createReminder: frequency === 'monthly' ? createReminder : false,
-      notes: notes.trim() || undefined,
-    });
+    if (transactionToEdit && onUpdate) {
+      onUpdate(transactionToEdit.id, {
+        amount: parsedAmount,
+        type,
+        title: title.trim(),
+        clientOrPayer: clientOrPayer.trim() || undefined,
+        categoryId,
+        walletId,
+        date,
+        time,
+        token,
+        frequency,
+        notes: notes.trim() || undefined,
+      });
+    } else {
+      onSubmit({
+        amount: parsedAmount,
+        type,
+        title: title.trim(),
+        clientOrPayer: clientOrPayer.trim() || undefined,
+        categoryId,
+        walletId,
+        date,
+        time,
+        token,
+        frequency,
+        createReminder: frequency === 'monthly' ? createReminder : false,
+        notes: notes.trim() || undefined,
+      });
+    }
 
     onClose();
   };
@@ -122,10 +158,21 @@ export const AddTransactionModal: React.FC<AddTransactionModalProps> = ({
       <div className="bg-[#12141a] border border-white/10 rounded-2xl sm:rounded-3xl w-full max-w-lg p-4 sm:p-6 max-h-[92vh] overflow-y-auto shadow-2xl animate-in fade-in zoom-in-95">
         {/* Header */}
         <div className="flex items-center justify-between pb-4 border-b border-white/5">
-          <h2 className="text-base font-bold text-white tracking-wide">
-            Add {type === 'expense' ? 'Expense' : 'Income'}
-          </h2>
-          <button onClick={onClose} className="p-1 rounded-lg text-zinc-500 hover:text-white transition-colors">
+          <div className="flex items-center gap-2">
+            <div className="p-1.5 rounded-lg bg-white/5 text-zinc-300 border border-white/5">
+              {transactionToEdit ? (
+                <Pencil className="w-4 h-4 text-emerald-400" />
+              ) : (
+                <Tag className="w-4 h-4" />
+              )}
+            </div>
+            <h2 className="text-base font-bold text-white tracking-wide">
+              {transactionToEdit
+                ? 'Edit Transaction'
+                : (type === 'expense' ? 'Add Expense' : 'Add Income')}
+            </h2>
+          </div>
+          <button onClick={onClose} className="p-1 rounded-lg text-zinc-500 hover:text-white transition-colors cursor-pointer">
             <X className="w-4 h-4" />
           </button>
         </div>
@@ -375,9 +422,11 @@ export const AddTransactionModal: React.FC<AddTransactionModalProps> = ({
             </button>
             <button
               type="submit"
-              className="px-5 py-2.5 rounded-xl text-xs font-semibold text-zinc-950 bg-zinc-100 hover:bg-white transition-colors shadow-sm"
+              className="px-5 py-2.5 rounded-xl text-xs font-semibold text-zinc-950 bg-zinc-100 hover:bg-white transition-colors shadow-sm cursor-pointer"
             >
-              Save {type === 'expense' ? 'Expense' : 'Income'}
+              {transactionToEdit
+                ? 'Save Changes'
+                : (type === 'expense' ? 'Save Expense' : 'Save Income')}
             </button>
           </div>
         </form>

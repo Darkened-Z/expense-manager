@@ -110,6 +110,36 @@ export const StorageService = {
     this.saveTransactions(filtered);
   },
 
+  updateTransaction(id: string, updates: Partial<Transaction>): void {
+    const txs = this.getTransactions();
+    const existing = txs.find(t => t.id === id);
+    if (!existing) return;
+
+    // Adjust wallet balances if amount, type, or walletId changed
+    const oldAmount = existing.amount;
+    const oldType = existing.type;
+    const oldWalletId = existing.walletId;
+
+    const newAmount = updates.amount !== undefined ? updates.amount : oldAmount;
+    const newType = updates.type !== undefined ? updates.type : oldType;
+    const newWalletId = updates.walletId !== undefined ? updates.walletId : oldWalletId;
+
+    if (oldWalletId === newWalletId) {
+      const revertDelta = oldType === 'income' ? -oldAmount : oldAmount;
+      const applyDelta = newType === 'income' ? newAmount : -newAmount;
+      const totalDelta = revertDelta + applyDelta;
+      if (totalDelta !== 0) {
+        this.updateWalletBalance(oldWalletId, totalDelta);
+      }
+    } else {
+      this.updateWalletBalance(oldWalletId, oldType === 'income' ? -oldAmount : oldAmount);
+      this.updateWalletBalance(newWalletId, newType === 'income' ? newAmount : -newAmount);
+    }
+
+    const updated = txs.map(t => (t.id === id ? { ...t, ...updates } : t));
+    this.saveTransactions(updated);
+  },
+
   // --- Payment Reminders ---
   getReminders(): PaymentReminder[] {
     if (typeof window === 'undefined') return INITIAL_REMINDERS;
@@ -151,7 +181,44 @@ export const StorageService = {
 
   updateReminder(id: string, updates: Partial<PaymentReminder>): void {
     const reminders = this.getReminders();
-    const updated = reminders.map(r => (r.id === id ? { ...r, ...updates } : r));
+    const existing = reminders.find(r => r.id === id);
+    if (!existing) return;
+
+    const newDueDate = updates.dueDate || existing.dueDate;
+    const newStatus = existing.status === 'collected'
+      ? 'collected'
+      : computeReminderStatus(newDueDate, updates.status || existing.status);
+
+    const updatedReminder: PaymentReminder = {
+      ...existing,
+      ...updates,
+      status: newStatus,
+    };
+
+    // If already collected and has a linked transaction, sync linked transaction details
+    if (existing.status === 'collected' && existing.collectedTransactionId) {
+      const txUpdates: Partial<Transaction> = {};
+      if (updates.amount !== undefined && updates.amount !== existing.amount) {
+        txUpdates.amount = updates.amount;
+      }
+      if (updates.projectTitle !== undefined || updates.clientName !== undefined) {
+        const isPayable = (updates.type || existing.type) === 'payable';
+        const client = updates.clientName || existing.clientName;
+        const project = updates.projectTitle || existing.projectTitle;
+        txUpdates.title = isPayable
+          ? `Payment Paid: ${client} (${project})`
+          : `Client Payment: ${client} - ${project}`;
+        txUpdates.clientOrPayer = client;
+      }
+      if (updates.frequency !== undefined) {
+        txUpdates.frequency = updates.frequency;
+      }
+      if (Object.keys(txUpdates).length > 0) {
+        this.updateTransaction(existing.collectedTransactionId, txUpdates);
+      }
+    }
+
+    const updated = reminders.map(r => (r.id === id ? updatedReminder : r));
     this.saveReminders(updated);
   },
 

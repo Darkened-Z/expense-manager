@@ -1,13 +1,14 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { X, Clock, Calendar, DollarSign, User, FileText, Bell, ArrowUpRight, ArrowDownLeft, AlertTriangle } from 'lucide-react';
-import { Category, ReminderType } from '@/types';
+import { X, Clock, Calendar, DollarSign, User, FileText, Bell, ArrowUpRight, ArrowDownLeft, AlertTriangle, Pencil } from 'lucide-react';
+import { Category, ReminderType, PaymentReminder } from '@/types';
 import { formatDateDDMMYYYY } from '@/lib/formatters';
 
 interface AddReminderModalProps {
   isOpen: boolean;
   initialType?: ReminderType;
+  reminderToEdit?: PaymentReminder | null;
   currencySymbol: string;
   categories?: Category[];
   onClose: () => void;
@@ -28,15 +29,18 @@ interface AddReminderModalProps {
     reminderDate: string;
     notes?: string;
   }) => void;
+  onUpdate?: (id: string, updates: Partial<PaymentReminder>) => void;
 }
 
 export const AddReminderModal: React.FC<AddReminderModalProps> = ({
   isOpen,
   initialType = 'receivable',
+  reminderToEdit = null,
   currencySymbol,
   categories = [],
   onClose,
   onSubmit,
+  onUpdate,
 }) => {
   const [type, setType] = useState<ReminderType>(initialType);
   const [clientName, setClientName] = useState('');
@@ -55,35 +59,52 @@ export const AddReminderModal: React.FC<AddReminderModalProps> = ({
 
   useEffect(() => {
     if (isOpen) {
-      const now = new Date();
-      const todayStr = now.toISOString().split('T')[0];
+      if (reminderToEdit) {
+        setType(reminderToEdit.type || 'receivable');
+        setClientName(reminderToEdit.clientName || '');
+        setClientEmail(reminderToEdit.clientEmail || '');
+        setClientPhone(reminderToEdit.clientPhone || '');
+        setProjectTitle(reminderToEdit.projectTitle || '');
+        setInvoiceNumber(reminderToEdit.invoiceNumber || '');
+        setAmount(reminderToEdit.amount ? reminderToEdit.amount.toString() : '');
+        setCurrency(reminderToEdit.currency || 'PKR');
+        setFrequency(reminderToEdit.frequency || 'once');
+        setInvoiceDate(reminderToEdit.invoiceDate || new Date().toISOString().split('T')[0]);
+        setDueDate(reminderToEdit.dueDate || '');
+        setReminderDate(reminderToEdit.reminderDate || reminderToEdit.dueDate || '');
+        setNotes(reminderToEdit.notes || '');
+        setError(null);
+      } else {
+        const now = new Date();
+        const todayStr = now.toISOString().split('T')[0];
 
-      // Default due date: 14 days from now (Net-14)
-      const due = new Date(now);
-      due.setDate(due.getDate() + 14);
-      const dueStr = due.toISOString().split('T')[0];
+        // Default due date: 14 days from now (Net-14)
+        const due = new Date(now);
+        due.setDate(due.getDate() + 14);
+        const dueStr = due.toISOString().split('T')[0];
 
-      // Default reminder date: 2 days before due date
-      const rem = new Date(due);
-      rem.setDate(rem.getDate() - 2);
-      const remStr = rem.toISOString().split('T')[0];
+        // Default reminder date: 2 days before due date
+        const rem = new Date(due);
+        rem.setDate(rem.getDate() - 2);
+        const remStr = rem.toISOString().split('T')[0];
 
-      setType(initialType);
-      setClientName('');
-      setClientEmail('');
-      setClientPhone('');
-      setProjectTitle('');
-      setInvoiceNumber(initialType === 'payable' ? `PAY-${new Date().getFullYear()}-${Math.floor(10 + Math.random() * 90)}` : `INV-${new Date().getFullYear()}-${Math.floor(10 + Math.random() * 90)}`);
-      setAmount('');
-      setCurrency('PKR');
-      setFrequency(initialType === 'payable' ? 'monthly' : 'once');
-      setInvoiceDate(todayStr);
-      setDueDate(dueStr);
-      setReminderDate(remStr);
-      setNotes('');
-      setError(null);
+        setType(initialType);
+        setClientName('');
+        setClientEmail('');
+        setClientPhone('');
+        setProjectTitle('');
+        setInvoiceNumber(initialType === 'payable' ? `PAY-${new Date().getFullYear()}-${Math.floor(10 + Math.random() * 90)}` : `INV-${new Date().getFullYear()}-${Math.floor(10 + Math.random() * 90)}`);
+        setAmount('');
+        setCurrency('PKR');
+        setFrequency(initialType === 'payable' ? 'monthly' : 'once');
+        setInvoiceDate(todayStr);
+        setDueDate(dueStr);
+        setReminderDate(remStr);
+        setNotes('');
+        setError(null);
+      }
     }
-  }, [isOpen, initialType, categories]);
+  }, [isOpen, initialType, reminderToEdit, categories]);
 
   // When due date changes, automatically propose reminder date 2 days before
   const handleDueDateChange = (newDue: string) => {
@@ -119,22 +140,41 @@ export const AddReminderModal: React.FC<AddReminderModalProps> = ({
       return;
     }
 
-    onSubmit({
-      type,
-      clientName: clientName.trim(),
-      clientEmail: clientEmail.trim() || undefined,
-      clientPhone: clientPhone.trim() || undefined,
-      projectTitle: projectTitle.trim(),
-      invoiceNumber: invoiceNumber.trim() || undefined,
-      amount: parsedAmount,
-      currency,
-      token: currency,
-      frequency,
-      invoiceDate: invoiceDate || new Date().toISOString().split('T')[0],
-      dueDate,
-      reminderDate: reminderDate || dueDate,
-      notes: notes.trim() || undefined,
-    });
+    if (reminderToEdit && onUpdate) {
+      onUpdate(reminderToEdit.id, {
+        type,
+        clientName: clientName.trim(),
+        clientEmail: clientEmail.trim() || undefined,
+        clientPhone: clientPhone.trim() || undefined,
+        projectTitle: projectTitle.trim(),
+        invoiceNumber: invoiceNumber.trim() || undefined,
+        amount: parsedAmount,
+        currency,
+        token: currency,
+        frequency,
+        invoiceDate: invoiceDate || new Date().toISOString().split('T')[0],
+        dueDate,
+        reminderDate: reminderDate || dueDate,
+        notes: notes.trim() || undefined,
+      });
+    } else {
+      onSubmit({
+        type,
+        clientName: clientName.trim(),
+        clientEmail: clientEmail.trim() || undefined,
+        clientPhone: clientPhone.trim() || undefined,
+        projectTitle: projectTitle.trim(),
+        invoiceNumber: invoiceNumber.trim() || undefined,
+        amount: parsedAmount,
+        currency,
+        token: currency,
+        frequency,
+        invoiceDate: invoiceDate || new Date().toISOString().split('T')[0],
+        dueDate,
+        reminderDate: reminderDate || dueDate,
+        notes: notes.trim() || undefined,
+      });
+    }
 
     onClose();
   };
@@ -145,10 +185,16 @@ export const AddReminderModal: React.FC<AddReminderModalProps> = ({
         <div className="flex items-center justify-between pb-4 border-b border-white/5">
           <div className="flex items-center gap-2">
             <div className="p-1.5 rounded-lg bg-white/5 text-zinc-300 border border-white/5">
-              <Clock className="w-4 h-4" />
+              {reminderToEdit ? (
+                <Pencil className="w-4 h-4 text-emerald-400" />
+              ) : (
+                <Clock className="w-4 h-4" />
+              )}
             </div>
             <h2 className="text-base font-bold text-white tracking-wide">
-              {type === 'payable' ? 'New Payable Due Date' : 'New Client Invoice Due Date'}
+              {reminderToEdit
+                ? (type === 'payable' ? 'Edit Payable Due Date' : 'Edit Invoice Due Date')
+                : (type === 'payable' ? 'New Payable Due Date' : 'New Client Invoice Due Date')}
             </h2>
           </div>
           <button onClick={onClose} className="p-1 rounded-lg text-zinc-500 hover:text-white transition-colors">
@@ -416,9 +462,11 @@ export const AddReminderModal: React.FC<AddReminderModalProps> = ({
             </button>
             <button
               type="submit"
-              className="px-5 py-2.5 rounded-xl text-xs font-semibold text-zinc-950 bg-zinc-100 hover:bg-white transition-colors shadow-sm"
+              className="px-5 py-2.5 rounded-xl text-xs font-semibold text-zinc-950 bg-zinc-100 hover:bg-white transition-colors shadow-sm cursor-pointer"
             >
-              Save {type === 'payable' ? 'Expense' : 'Invoice'} Reminder
+              {reminderToEdit
+                ? 'Save Changes'
+                : (type === 'payable' ? 'Add Payable Due Date' : 'Add Client Invoice')}
             </button>
           </div>
         </form>
