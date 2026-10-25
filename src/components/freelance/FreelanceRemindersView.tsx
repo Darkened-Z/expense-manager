@@ -25,6 +25,7 @@ import { PaymentReminder, Wallet } from '@/types';
 import { formatDateDDMMYYYY } from '@/lib/formatters';
 
 interface FreelanceRemindersViewProps {
+  mode?: 'receivables' | 'payables';
   reminders: PaymentReminder[];
   wallets: Wallet[];
   currencySymbol: string;
@@ -34,6 +35,7 @@ interface FreelanceRemindersViewProps {
 }
 
 export const FreelanceRemindersView: React.FC<FreelanceRemindersViewProps> = ({
+  mode = 'receivables',
   reminders,
   wallets,
   currencySymbol,
@@ -41,39 +43,38 @@ export const FreelanceRemindersView: React.FC<FreelanceRemindersViewProps> = ({
   onCollectReminder,
   onDeleteReminder,
 }) => {
-  const [filterTab, setFilterTab] = useState<'all' | 'receivable' | 'payable' | 'urgent' | 'collected'>('all');
+  const isPayablesMode = mode === 'payables';
+  const [filterTab, setFilterTab] = useState<'all' | 'urgent' | 'pending' | 'collected'>('all');
   const [copiedId, setCopiedId] = useState<string | null>(null);
   const [collectingReminder, setCollectingReminder] = useState<PaymentReminder | null>(null);
   const [targetWalletId, setTargetWalletId] = useState<string>(wallets[0]?.id || 'wal-bank');
 
-  // Compute metrics
-  const totalReceivablePending = reminders
-    .filter((r) => r.status !== 'collected' && r.type !== 'payable')
+  // Filter base reminders for this tab mode
+  const baseReminders = reminders.filter((r) =>
+    isPayablesMode ? r.type === 'payable' : r.type !== 'payable'
+  );
+
+  // Compute metrics for this specific tab mode
+  const totalPending = baseReminders
+    .filter((r) => r.status !== 'collected')
     .reduce((sum, r) => sum + r.amount, 0);
 
-  const totalCollected = reminders
-    .filter((r) => r.status === 'collected' && r.type !== 'payable')
-    .reduce((sum, r) => sum + r.amount, 0);
-
-  const totalPayablePending = reminders
-    .filter((r) => r.status !== 'collected' && r.type === 'payable')
-    .reduce((sum, r) => sum + r.amount, 0);
-
-  const collectedCount = reminders.filter((r) => r.status === 'collected' && r.type !== 'payable').length;
-
-  const totalSettled = reminders
+  const totalSettled = baseReminders
     .filter((r) => r.status === 'collected')
     .reduce((sum, r) => sum + r.amount, 0);
 
-  const overdueList = reminders.filter((r) => r.status === 'overdue');
-  const dueTodayList = reminders.filter((r) => r.status === 'due_today');
+  const overdueList = baseReminders.filter((r) => r.status === 'overdue');
+  const dueTodayList = baseReminders.filter((r) => r.status === 'due_today');
   const urgentCount = overdueList.length + dueTodayList.length;
 
-  // Filter list
-  const filteredList = reminders.filter((r) => {
-    if (filterTab === 'receivable') return r.type !== 'payable' && r.status !== 'collected';
-    if (filterTab === 'payable') return r.type === 'payable' && r.status !== 'collected';
+  const activeCount = baseReminders.filter((r) => r.status !== 'collected').length;
+  const settledCount = baseReminders.filter((r) => r.status === 'collected').length;
+  const upcomingCount = baseReminders.filter((r) => r.status === 'pending').length;
+
+  // Filter list by selected tab
+  const filteredList = baseReminders.filter((r) => {
     if (filterTab === 'urgent') return r.status === 'overdue' || r.status === 'due_today';
+    if (filterTab === 'pending') return r.status === 'pending';
     if (filterTab === 'collected') return r.status === 'collected';
     return true;
   });
@@ -170,54 +171,53 @@ export const FreelanceRemindersView: React.FC<FreelanceRemindersViewProps> = ({
       {/* Top Section Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
         <div>
-          <h2 className="text-base font-bold text-white tracking-wide">Invoices & Due Dates</h2>
-          <p className="text-xs text-zinc-400">Track client receivables, monthly salaries, and recurring obligations</p>
+          <h2 className="text-base font-bold text-white tracking-wide">
+            {isPayablesMode ? 'Cash Payable' : 'Cash Receivable'}
+          </h2>
+          <p className="text-xs text-zinc-400">
+            {isPayablesMode
+              ? 'Track salaries, rent, vendor bills, and must-pay recurring obligations'
+              : 'Track client invoices, milestones, and incoming retainers'}
+          </p>
         </div>
         <button
           onClick={onOpenAddModal}
           className="bg-zinc-100 hover:bg-white text-zinc-950 font-semibold py-2 px-3.5 rounded-xl text-xs flex items-center justify-center gap-1.5 transition-colors shadow-sm cursor-pointer self-start sm:self-auto"
         >
           <Plus className="w-4 h-4 stroke-[2.5]" />
-          <span>Add Due Date</span>
+          <span>{isPayablesMode ? 'Add Payable Due Date' : 'Add Receivable Due Date'}</span>
         </button>
       </div>
 
       {/* Top Banner Metric Cards (4 Cards) */}
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4">
-        {/* Card 1: To Collect */}
+        {/* Card 1: Total Remaining */}
         <div className="bg-[#12141a] border border-white/5 rounded-2xl p-4 sm:p-5 shadow-xl relative overflow-hidden">
-          <div className="text-xs text-zinc-400 font-medium">To Collect (Receivables)</div>
+          <div className="text-xs text-zinc-400 font-medium">
+            {isPayablesMode ? 'Total Remaining (To Pay)' : 'Total Remaining (To Collect)'}
+          </div>
           <div className="text-xl sm:text-2xl font-bold text-white font-mono mt-1">
-            {currencySymbol}{totalReceivablePending.toFixed(2)}
+            {currencySymbol}{totalPending.toFixed(2)}
           </div>
           <div className="text-[11px] text-zinc-500 mt-1">
-            Across {reminders.filter((r) => r.status !== 'collected' && r.type !== 'payable').length} active receivables
+            Across {activeCount} active {isPayablesMode ? 'obligations' : 'receivables'}
           </div>
         </div>
 
-        {/* Card 2: Collected (Second in the row) */}
+        {/* Card 2: Cash Collected / Cash Paid (Second in the row) */}
         <div className="bg-[#12141a] border border-white/5 rounded-2xl p-4 sm:p-5 shadow-xl relative overflow-hidden">
-          <div className="text-xs text-zinc-400 font-medium">Collected Revenue</div>
+          <div className="text-xs text-zinc-400 font-medium">
+            {isPayablesMode ? 'Cash Paid' : 'Cash Collected'}
+          </div>
           <div className="text-xl sm:text-2xl font-bold text-white font-mono mt-1">
-            {currencySymbol}{totalCollected.toFixed(2)}
+            {currencySymbol}{totalSettled.toFixed(2)}
           </div>
           <div className="text-[11px] text-zinc-500 mt-1">
-            Across {collectedCount} settled invoice{collectedCount === 1 ? '' : 's'}
+            Across {settledCount} {isPayablesMode ? 'disbursed payments' : 'settled payments'}
           </div>
         </div>
 
-        {/* Card 3: To Pay */}
-        <div className="bg-[#12141a] border border-white/5 rounded-2xl p-4 sm:p-5 shadow-xl relative overflow-hidden">
-          <div className="text-xs text-zinc-400 font-medium">To Pay (Salaries & Bills)</div>
-          <div className="text-xl sm:text-2xl font-bold text-white font-mono mt-1">
-            {currencySymbol}{totalPayablePending.toFixed(2)}
-          </div>
-          <div className="text-[11px] text-zinc-500 mt-1">
-            Across {reminders.filter((r) => r.status !== 'collected' && r.type === 'payable').length} recurring expenses
-          </div>
-        </div>
-
-        {/* Card 4: Action Required */}
+        {/* Card 3: Action Required */}
         <div className="bg-[#12141a] border border-white/5 rounded-2xl p-4 sm:p-5 shadow-xl relative overflow-hidden">
           <div className="text-xs text-zinc-400 font-medium">Action Required</div>
           <div className="text-xl sm:text-2xl font-bold text-white font-mono mt-1 flex items-center gap-2">
@@ -230,6 +230,19 @@ export const FreelanceRemindersView: React.FC<FreelanceRemindersViewProps> = ({
           </div>
           <div className="text-[11px] text-zinc-500 mt-1">
             {dueTodayList.length} item{dueTodayList.length === 1 ? '' : 's'} due today
+          </div>
+        </div>
+
+        {/* Card 4: Total Records */}
+        <div className="bg-[#12141a] border border-white/5 rounded-2xl p-4 sm:p-5 shadow-xl relative overflow-hidden">
+          <div className="text-xs text-zinc-400 font-medium">
+            {isPayablesMode ? 'Total Payables' : 'Total Receivables'}
+          </div>
+          <div className="text-xl sm:text-2xl font-bold text-white font-mono mt-1">
+            {baseReminders.length}
+          </div>
+          <div className="text-[11px] text-zinc-500 mt-1">
+            {isPayablesMode ? 'Salaries, bills & recurring expenses' : 'Client milestones & retainers'}
           </div>
         </div>
       </div>
@@ -245,23 +258,7 @@ export const FreelanceRemindersView: React.FC<FreelanceRemindersViewProps> = ({
                 filterTab === 'all' ? 'bg-white/10 text-white font-medium' : 'text-zinc-400 hover:text-zinc-200'
               }`}
             >
-              All ({reminders.length})
-            </button>
-            <button
-              onClick={() => setFilterTab('receivable')}
-              className={`px-3 py-1.5 rounded-lg transition-colors whitespace-nowrap cursor-pointer ${
-                filterTab === 'receivable' ? 'bg-white/10 text-white font-medium' : 'text-zinc-400 hover:text-zinc-200'
-              }`}
-            >
-              To Collect ({reminders.filter((r) => r.type !== 'payable' && r.status !== 'collected').length})
-            </button>
-            <button
-              onClick={() => setFilterTab('payable')}
-              className={`px-3 py-1.5 rounded-lg transition-colors whitespace-nowrap cursor-pointer ${
-                filterTab === 'payable' ? 'bg-white/10 text-white font-medium' : 'text-zinc-400 hover:text-zinc-200'
-              }`}
-            >
-              To Pay ({reminders.filter((r) => r.type === 'payable' && r.status !== 'collected').length})
+              All ({baseReminders.length})
             </button>
             <button
               onClick={() => setFilterTab('urgent')}
@@ -277,12 +274,20 @@ export const FreelanceRemindersView: React.FC<FreelanceRemindersViewProps> = ({
               )}
             </button>
             <button
+              onClick={() => setFilterTab('pending')}
+              className={`px-3 py-1.5 rounded-lg transition-colors whitespace-nowrap cursor-pointer ${
+                filterTab === 'pending' ? 'bg-white/10 text-white font-medium' : 'text-zinc-400 hover:text-zinc-200'
+              }`}
+            >
+              Upcoming ({upcomingCount})
+            </button>
+            <button
               onClick={() => setFilterTab('collected')}
               className={`px-3 py-1.5 rounded-lg transition-colors whitespace-nowrap cursor-pointer ${
                 filterTab === 'collected' ? 'bg-white/10 text-white font-medium' : 'text-zinc-400 hover:text-zinc-200'
               }`}
             >
-              Settled ({reminders.filter((r) => r.status === 'collected').length})
+              {isPayablesMode ? `Paid (${settledCount})` : `Collected (${settledCount})`}
             </button>
           </div>
 
@@ -292,7 +297,7 @@ export const FreelanceRemindersView: React.FC<FreelanceRemindersViewProps> = ({
               className="sm:hidden bg-zinc-100 hover:bg-white text-zinc-950 font-semibold py-1.5 px-3 rounded-lg text-xs flex items-center justify-center gap-1 transition-colors shadow-sm cursor-pointer whitespace-nowrap"
             >
               <Plus className="w-3.5 h-3.5 stroke-[2.5]" />
-              <span>Add Due Date</span>
+              <span>{isPayablesMode ? 'Add Payable' : 'Add Receivable'}</span>
             </button>
             <span className="text-xs text-zinc-400 hidden lg:inline">
               Due dates calculate alerts automatically
@@ -305,7 +310,9 @@ export const FreelanceRemindersView: React.FC<FreelanceRemindersViewProps> = ({
           {filteredList.length === 0 ? (
             <div className="py-16 text-center text-zinc-500 text-xs">
               <CheckCircle2 className="w-8 h-8 mx-auto text-emerald-500/80 mb-2" />
-              No invoices in this category. You&apos;re completely up to date!
+              {isPayablesMode
+                ? "No payable obligations in this view. You're completely up to date!"
+                : "No invoices in this category. You're completely up to date!"}
             </div>
           ) : (
             filteredList.map((rem) => {

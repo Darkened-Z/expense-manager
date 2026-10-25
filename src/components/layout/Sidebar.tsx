@@ -13,13 +13,19 @@ import {
   Search,
   X,
   PiggyBank,
+  ArrowUpRight,
+  ArrowDownLeft,
 } from 'lucide-react';
 
 interface SidebarProps {
   currentTab: string;
   setCurrentTab: (tab: string) => void;
-  pendingRemindersCount: number;
-  overdueRemindersCount: number;
+  pendingReceivablesCount?: number;
+  overdueReceivablesCount?: number;
+  pendingPayablesCount?: number;
+  overduePayablesCount?: number;
+  pendingRemindersCount?: number;
+  overdueRemindersCount?: number;
   isLockEnabled: boolean;
   onLockApp: () => void;
   userName: string;
@@ -33,8 +39,12 @@ interface SidebarProps {
 export const Sidebar: React.FC<SidebarProps> = ({
   currentTab,
   setCurrentTab,
-  pendingRemindersCount,
-  overdueRemindersCount,
+  pendingReceivablesCount = 0,
+  overdueReceivablesCount = 0,
+  pendingPayablesCount = 0,
+  overduePayablesCount = 0,
+  pendingRemindersCount = 0,
+  overdueRemindersCount = 0,
   isLockEnabled,
   onLockApp,
   userName,
@@ -44,15 +54,25 @@ export const Sidebar: React.FC<SidebarProps> = ({
   isMobileOpen,
   setIsMobileOpen,
 }) => {
+  const effectiveOverdueRec = overdueReceivablesCount || overdueRemindersCount;
+  const effectivePendingRec = pendingReceivablesCount || pendingRemindersCount;
+
   const navItems = [
     { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard },
     { id: 'transactions', label: 'Transactions', icon: ArrowLeftRight },
     {
-      id: 'reminders',
-      label: 'Client Receivables',
-      icon: Clock,
-      badge: overdueRemindersCount > 0 ? `${overdueRemindersCount} overdue` : pendingRemindersCount > 0 ? `${pendingRemindersCount} due` : null,
-      badgeType: overdueRemindersCount > 0 ? 'danger' : 'warning',
+      id: 'receivables',
+      label: 'Cash Receivable',
+      icon: ArrowUpRight,
+      badge: effectiveOverdueRec > 0 ? `${effectiveOverdueRec} overdue` : effectivePendingRec > 0 ? `${effectivePendingRec} due` : null,
+      badgeType: effectiveOverdueRec > 0 ? 'danger' : 'warning',
+    },
+    {
+      id: 'payables',
+      label: 'Cash Payable',
+      icon: ArrowDownLeft,
+      badge: overduePayablesCount > 0 ? `${overduePayablesCount} overdue` : pendingPayablesCount > 0 ? `${pendingPayablesCount} due` : null,
+      badgeType: overduePayablesCount > 0 ? 'danger' : 'warning',
     },
     { id: 'savings', label: 'Savings & Goals', icon: PiggyBank },
     { id: 'wallets', label: 'Wallets & Accounts', icon: Wallet },
@@ -113,7 +133,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
           <div className="px-3 pb-2 text-[11px] font-medium text-zinc-500 uppercase tracking-wider">Main menu</div>
           {navItems.map((item) => {
             const Icon = item.icon;
-            const isActive = currentTab === item.id;
+            const isActive = currentTab === item.id || (item.id === 'receivables' && currentTab === 'reminders');
             return (
               <button
                 key={item.id}
@@ -233,30 +253,37 @@ export const Sidebar: React.FC<SidebarProps> = ({
         </button>
 
         <button
-          onClick={() => setCurrentTab('reminders')}
-          className={`relative flex flex-col items-center gap-1 p-1 rounded-xl transition-colors ${
-            currentTab === 'reminders' ? 'text-white font-medium' : 'text-zinc-500 hover:text-zinc-300'
+          onClick={() => setCurrentTab('receivables')}
+          className={`relative flex flex-col items-center gap-1 p-1 rounded-xl transition-colors cursor-pointer ${
+            currentTab === 'receivables' || currentTab === 'reminders' ? 'text-white font-medium' : 'text-zinc-500 hover:text-zinc-300'
           }`}
         >
-          <Clock className="w-5 h-5" />
-          {(overdueRemindersCount > 0 || pendingRemindersCount > 0) && (
+          <ArrowUpRight className="w-5 h-5" />
+          {(effectiveOverdueRec > 0 || effectivePendingRec > 0) && (
             <span
               className={`absolute top-0 right-1 w-2 h-2 rounded-full ${
-                overdueRemindersCount > 0 ? 'bg-rose-400' : 'bg-zinc-300'
+                effectiveOverdueRec > 0 ? 'bg-rose-400' : 'bg-zinc-300'
               }`}
             />
           )}
-          <span className="text-[10px]">Due Dates</span>
+          <span className="text-[10px]">Receivable</span>
         </button>
 
         <button
-          onClick={() => setCurrentTab('savings')}
-          className={`flex flex-col items-center gap-1 p-1 rounded-xl transition-colors ${
-            currentTab === 'savings' ? 'text-white font-medium' : 'text-zinc-500 hover:text-zinc-300'
+          onClick={() => setCurrentTab('payables')}
+          className={`relative flex flex-col items-center gap-1 p-1 rounded-xl transition-colors cursor-pointer ${
+            currentTab === 'payables' ? 'text-white font-medium' : 'text-zinc-500 hover:text-zinc-300'
           }`}
         >
-          <PiggyBank className="w-5 h-5" />
-          <span className="text-[10px]">Savings</span>
+          <ArrowDownLeft className="w-5 h-5" />
+          {(overduePayablesCount > 0 || pendingPayablesCount > 0) && (
+            <span
+              className={`absolute top-0 right-1 w-2 h-2 rounded-full ${
+                overduePayablesCount > 0 ? 'bg-rose-400' : 'bg-zinc-300'
+              }`}
+            />
+          )}
+          <span className="text-[10px]">Payable</span>
         </button>
 
         <button

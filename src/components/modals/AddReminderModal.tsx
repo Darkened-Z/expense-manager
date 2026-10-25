@@ -7,6 +7,7 @@ import { formatDateDDMMYYYY } from '@/lib/formatters';
 
 interface AddReminderModalProps {
   isOpen: boolean;
+  initialType?: ReminderType;
   currencySymbol: string;
   categories?: Category[];
   onClose: () => void;
@@ -31,12 +32,13 @@ interface AddReminderModalProps {
 
 export const AddReminderModal: React.FC<AddReminderModalProps> = ({
   isOpen,
+  initialType = 'receivable',
   currencySymbol,
   categories = [],
   onClose,
   onSubmit,
 }) => {
-  const [type, setType] = useState<ReminderType>('receivable');
+  const [type, setType] = useState<ReminderType>(initialType);
   const [clientName, setClientName] = useState('');
   const [clientEmail, setClientEmail] = useState('');
   const [clientPhone, setClientPhone] = useState('');
@@ -67,6 +69,7 @@ export const AddReminderModal: React.FC<AddReminderModalProps> = ({
       rem.setDate(rem.getDate() - 2);
       const remStr = rem.toISOString().split('T')[0];
 
+      setType(initialType);
       setClientName('');
       setClientEmail('');
       setClientPhone('');
@@ -74,7 +77,7 @@ export const AddReminderModal: React.FC<AddReminderModalProps> = ({
       setInvoiceNumber(`INV-${new Date().getFullYear()}-${Math.floor(10 + Math.random() * 90)}`);
       setAmount('');
       setCurrency('PKR');
-      setFrequency('once');
+      setFrequency(initialType === 'payable' ? 'monthly' : 'once');
       const expCat = categories.find((c) => c.type === 'expense');
       setCategoryId(expCat?.id || '');
       setInvoiceDate(todayStr);
@@ -83,7 +86,7 @@ export const AddReminderModal: React.FC<AddReminderModalProps> = ({
       setNotes('');
       setError(null);
     }
-  }, [isOpen, categories]);
+  }, [isOpen, initialType, categories]);
 
   // When due date changes, automatically propose reminder date 2 days before
   const handleDueDateChange = (newDue: string) => {

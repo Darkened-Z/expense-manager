@@ -20,7 +20,7 @@ import { AddReminderModal } from '@/components/modals/AddReminderModal';
 import { StorageService } from '@/lib/storage';
 import { NotificationService } from '@/lib/notifications';
 import { PwaInstallPrompt } from '@/components/pwa/PwaInstallPrompt';
-import { Transaction, PaymentReminder, Category, Wallet, AppSettings, TransactionType, SavingsGoal } from '@/types';
+import { Transaction, PaymentReminder, Category, Wallet, AppSettings, TransactionType, SavingsGoal, ReminderType } from '@/types';
 
 export default function Home() {
   const [mounted, setMounted] = useState(false);
@@ -45,6 +45,7 @@ export default function Home() {
   // Modals
   const [addTxModalType, setAddTxModalType] = useState<TransactionType | null>(null);
   const [showAddReminderModal, setShowAddReminderModal] = useState<boolean>(false);
+  const [addReminderType, setAddReminderType] = useState<ReminderType>('receivable');
 
   // Load state on mount
   useEffect(() => {
@@ -309,6 +310,12 @@ export default function Home() {
   const overdueCount = reminders.filter((r) => r.status === 'overdue').length;
   const pendingCount = reminders.filter((r) => r.status === 'pending' || r.status === 'due_today').length;
 
+  const overdueReceivablesCount = reminders.filter((r) => r.type !== 'payable' && r.status === 'overdue').length;
+  const pendingReceivablesCount = reminders.filter((r) => r.type !== 'payable' && (r.status === 'pending' || r.status === 'due_today')).length;
+
+  const overduePayablesCount = reminders.filter((r) => r.type === 'payable' && r.status === 'overdue').length;
+  const pendingPayablesCount = reminders.filter((r) => r.type === 'payable' && (r.status === 'pending' || r.status === 'due_today')).length;
+
   return (
     <div className="flex min-h-screen bg-[#090a0d] text-zinc-100 font-sans">
       {/* Passcode Lock Screen Overlay */}
@@ -335,8 +342,12 @@ export default function Home() {
       <Sidebar
         currentTab={currentTab}
         setCurrentTab={setCurrentTab}
-        pendingRemindersCount={pendingCount}
-        overdueRemindersCount={overdueCount}
+        pendingReceivablesCount={pendingReceivablesCount}
+        overdueReceivablesCount={overdueReceivablesCount}
+        pendingPayablesCount={pendingPayablesCount}
+        overduePayablesCount={overduePayablesCount}
+        pendingRemindersCount={pendingReceivablesCount}
+        overdueRemindersCount={overdueReceivablesCount}
         isLockEnabled={settings.isLockEnabled}
         onLockApp={() => {
           setIsLocked(true);
@@ -362,9 +373,12 @@ export default function Home() {
           reminders={reminders}
           currencySymbol={settings.currencySymbol}
           onOpenAddTx={(type) => setAddTxModalType(type)}
-          onOpenAddReminder={() => setShowAddReminderModal(true)}
+          onOpenAddReminder={() => {
+            setAddReminderType(currentTab === 'payables' ? 'payable' : 'receivable');
+            setShowAddReminderModal(true);
+          }}
           onCollectReminder={(id) => handleCollectReminder(id)}
-          onNavigateToReminders={() => setCurrentTab('reminders')}
+          onNavigateToReminders={() => setCurrentTab('receivables')}
           onToggleMobileMenu={() => setIsMobileMenuOpen(true)}
         />
 
@@ -437,14 +451,36 @@ export default function Home() {
             </div>
           )}
 
-          {/* TAB: REMINDERS / RECEIVABLES */}
-          {currentTab === 'reminders' && (
+          {/* TAB: CASH RECEIVABLE */}
+          {(currentTab === 'receivables' || currentTab === 'reminders') && (
             <div className="animate-in fade-in duration-200">
               <FreelanceRemindersView
+                mode="receivables"
                 reminders={reminders}
                 wallets={wallets}
                 currencySymbol={settings.currencySymbol}
-                onOpenAddModal={() => setShowAddReminderModal(true)}
+                onOpenAddModal={() => {
+                  setAddReminderType('receivable');
+                  setShowAddReminderModal(true);
+                }}
+                onCollectReminder={handleCollectReminder}
+                onDeleteReminder={handleDeleteReminder}
+              />
+            </div>
+          )}
+
+          {/* TAB: CASH PAYABLE */}
+          {currentTab === 'payables' && (
+            <div className="animate-in fade-in duration-200">
+              <FreelanceRemindersView
+                mode="payables"
+                reminders={reminders}
+                wallets={wallets}
+                currencySymbol={settings.currencySymbol}
+                onOpenAddModal={() => {
+                  setAddReminderType('payable');
+                  setShowAddReminderModal(true);
+                }}
                 onCollectReminder={handleCollectReminder}
                 onDeleteReminder={handleDeleteReminder}
               />
@@ -539,6 +575,7 @@ export default function Home() {
       {showAddReminderModal && (
         <AddReminderModal
           isOpen={true}
+          initialType={addReminderType}
           currencySymbol={settings.currencySymbol}
           categories={categories}
           onClose={() => setShowAddReminderModal(false)}
