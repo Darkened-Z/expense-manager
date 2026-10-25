@@ -174,6 +174,11 @@ export default function Home() {
     setCategories(StorageService.getCategories());
   };
 
+  const handleDeleteCategory = (id: string) => {
+    StorageService.deleteCategory(id);
+    setCategories(StorageService.getCategories());
+  };
+
   const handleAddWallet = (walletData: any) => {
     const newWallet: Wallet = {
       ...walletData,
@@ -451,6 +456,7 @@ export default function Home() {
                 transactions={transactions}
                 currencySymbol={settings.currencySymbol}
                 onAddCategory={handleAddCategory}
+                onDeleteCategory={handleDeleteCategory}
               />
             </div>
           )}

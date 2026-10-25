@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
-import { Tag, Plus, Coffee, Car, Laptop, Briefcase, Box, Zap, Globe, FileText, ShoppingBag, Repeat, TrendingUp, DollarSign } from 'lucide-react';
+import { Tag, Plus, Coffee, Car, Laptop, Briefcase, Box, Zap, Globe, FileText, ShoppingBag, Repeat, TrendingUp, DollarSign, Trash2 } from 'lucide-react';
 import { Category, Transaction } from '@/types';
 
 interface CategoriesViewProps {
@@ -9,6 +9,7 @@ interface CategoriesViewProps {
   transactions: Transaction[];
   currencySymbol: string;
   onAddCategory: (cat: Omit<Category, 'id'>) => void;
+  onDeleteCategory: (id: string) => void;
 }
 
 export const CategoriesView: React.FC<CategoriesViewProps> = ({
@@ -16,6 +17,7 @@ export const CategoriesView: React.FC<CategoriesViewProps> = ({
   transactions,
   currencySymbol,
   onAddCategory,
+  onDeleteCategory,
 }) => {
   const [activeTab, setActiveTab] = useState<'expense' | 'income'>('expense');
   const [showAddModal, setShowAddModal] = useState(false);
@@ -112,49 +114,85 @@ export const CategoriesView: React.FC<CategoriesViewProps> = ({
         </div>
       </div>
 
-      {/* Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-        {displayedList.map((cat) => {
-          const Icon = getCategoryIcon(cat.icon);
-          const total = categoryTotals[cat.id] || 0;
-          const limit = cat.budgetLimit;
-          const percent = limit ? Math.min((total / limit) * 100, 100) : 0;
-          const isOverBudget = limit && total > limit;
+      {/* Grid or Empty State */}
+      {displayedList.length === 0 ? (
+        <div className="bg-[#12141a] border border-white/5 rounded-2xl p-12 text-center max-w-lg mx-auto shadow-xl">
+          <div className="w-12 h-12 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center mx-auto text-zinc-400 mb-3">
+            <Tag className="w-6 h-6 stroke-[1.75]" />
+          </div>
+          <h4 className="text-sm font-semibold text-white">
+            No {activeTab === 'expense' ? 'Expense Categories' : 'Income Sources'} Yet
+          </h4>
+          <p className="text-xs text-zinc-400 mt-1 max-w-xs mx-auto">
+            Create custom tags to track your {activeTab === 'expense' ? 'expenditures' : 'revenue channels'}.
+          </p>
+          <button
+            onClick={() => setShowAddModal(true)}
+            className="mt-4 inline-flex items-center gap-1.5 px-4 py-2 bg-zinc-100 hover:bg-white text-zinc-950 font-semibold text-xs rounded-xl transition-colors shadow-sm"
+          >
+            <Plus className="w-4 h-4 stroke-[2.5]" />
+            <span>Create New {activeTab === 'expense' ? 'Category' : 'Source'}</span>
+          </button>
+        </div>
+      ) : (
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          {displayedList.map((cat) => {
+            const Icon = getCategoryIcon(cat.icon);
+            const total = categoryTotals[cat.id] || 0;
+            const limit = cat.budgetLimit;
+            const percent = limit ? Math.min((total / limit) * 100, 100) : 0;
+            const isOverBudget = limit && total > limit;
 
-          return (
-            <div
-              key={cat.id}
-              className="bg-[#12141a] border border-white/5 hover:border-white/10 rounded-2xl p-5 shadow-xl transition-all"
-            >
-              <div className="flex items-start justify-between">
-                <div className="flex items-center gap-3">
-                  <div
-                    className="p-3 rounded-2xl border transition-colors"
-                    style={{
-                      backgroundColor: `${cat.color}15`,
-                      borderColor: `${cat.color}35`,
-                      color: cat.color,
-                    }}
-                  >
-                    <Icon className="w-5 h-5" />
-                  </div>
-                  <div>
-                    <h4 className="font-bold text-white text-sm">{cat.name}</h4>
-                    <span className="text-[10px] font-mono text-zinc-500 uppercase">
-                      {cat.type === 'expense' ? 'Expense' : 'Income'}
-                    </span>
+            return (
+              <div
+                key={cat.id}
+                className="bg-[#12141a] border border-white/5 hover:border-white/10 rounded-2xl p-5 shadow-xl transition-all flex flex-col justify-between"
+              >
+                <div>
+                  <div className="flex items-start justify-between gap-2">
+                    <div className="flex items-center gap-3 min-w-0">
+                      <div
+                        className="p-3 rounded-2xl border transition-colors shrink-0"
+                        style={{
+                          backgroundColor: `${cat.color}15`,
+                          borderColor: `${cat.color}35`,
+                          color: cat.color,
+                        }}
+                      >
+                        <Icon className="w-5 h-5" />
+                      </div>
+                      <div className="min-w-0">
+                        <h4 className="font-bold text-white text-sm truncate">{cat.name}</h4>
+                        <span className="text-[10px] font-mono text-zinc-500 uppercase">
+                          {cat.type === 'expense' ? 'Expense' : 'Income'}
+                        </span>
+                      </div>
+                    </div>
+
+                    <div className="flex items-start gap-2 shrink-0">
+                      <div className="text-right">
+                        <div className="font-mono font-bold text-sm text-white">
+                          {currencySymbol}{total.toFixed(2)}
+                        </div>
+                        <div className="text-[10px] text-zinc-500">
+                          {cat.type === 'income' ? 'Revenue' : 'Spent'}
+                        </div>
+                      </div>
+
+                      <button
+                        onClick={() => {
+                          if (confirm(`Delete "${cat.name}"?`)) {
+                            onDeleteCategory(cat.id);
+                          }
+                        }}
+                        className="p-1.5 text-zinc-600 hover:text-rose-400 hover:bg-rose-500/10 rounded-lg transition-colors -mr-1"
+                        title={`Delete ${cat.name}`}
+                      >
+                        <Trash2 className="w-3.5 h-3.5" />
+                      </button>
+                    </div>
                   </div>
                 </div>
-
-                <div className="text-right">
-                  <div className="font-mono font-bold text-sm text-white">
-                    {currencySymbol}{total.toFixed(2)}
-                  </div>
-                  <div className="text-[10px] text-zinc-500">
-                    {cat.type === 'income' ? 'Revenue' : 'Spent'}
-                  </div>
-                </div>
-              </div>
 
               {/* Budget Limit Progress Bar for Expenses */}
               {cat.type === 'expense' && limit && (
@@ -184,6 +222,7 @@ export const CategoriesView: React.FC<CategoriesViewProps> = ({
           );
         })}
       </div>
+    )}
 
       {/* Add Modal */}
       {showAddModal && (

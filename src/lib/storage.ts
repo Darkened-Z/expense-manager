@@ -232,6 +232,11 @@ export const StorageService = {
     return newCat;
   },
 
+  deleteCategory(id: string): void {
+    const cats = this.getCategories();
+    this.saveCategories(cats.filter((c) => c.id !== id));
+  },
+
   // --- Wallets ---
   getWallets(): Wallet[] {
     if (typeof window === 'undefined') return DEFAULT_WALLETS;
