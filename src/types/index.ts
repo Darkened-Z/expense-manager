@@ -19,6 +19,8 @@ export interface Wallet {
   accountNumber?: string;
 }
 
+export type PaymentFrequency = 'once' | 'monthly';
+
 export interface Transaction {
   id: string;
   amount: number;
@@ -32,6 +34,7 @@ export interface Transaction {
   notes?: string;
   token?: string;
   reminderId?: string;
+  frequency?: PaymentFrequency;
   createdAt: string;
 }
 
@@ -51,6 +54,7 @@ export interface PaymentReminder {
   dueDate: string; // YYYY-MM-DD
   reminderDate: string; // YYYY-MM-DD
   status: PaymentReminderStatus;
+  frequency?: PaymentFrequency;
   notes?: string;
   collectedAt?: string;
   collectedWalletId?: string;

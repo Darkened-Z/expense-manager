@@ -212,6 +212,12 @@ export const TransactionsLedger: React.FC<TransactionsLedgerProps> = ({
                       <span className="text-zinc-400 font-medium">{cat?.name || 'Uncategorized'}</span>
                       <span>•</span>
                       <span>{formatDateTime(tx.date, tx.time)}</span>
+                      {tx.frequency === 'monthly' && (
+                        <>
+                          <span>•</span>
+                          <span className="text-zinc-400 font-mono">Monthly</span>
+                        </>
+                      )}
                     </div>
                   </div>
                 </div>
@@ -281,17 +287,24 @@ export const TransactionsLedger: React.FC<TransactionsLedgerProps> = ({
                       </span>
                     </td>
                     <td className="py-3.5 px-4">
-                      {isExpense ? (
-                        <span className="inline-flex items-center gap-1.5 text-rose-400 font-medium">
-                          <ArrowDownLeft className="w-3.5 h-3.5 text-rose-400" />
-                          <span>Spent</span>
-                        </span>
-                      ) : (
-                        <span className="inline-flex items-center gap-1.5 text-emerald-400 font-medium">
-                          <ArrowUpRight className="w-3.5 h-3.5 text-emerald-400" />
-                          <span>Received</span>
-                        </span>
-                      )}
+                      <div className="flex items-center gap-1.5">
+                        {isExpense ? (
+                          <span className="inline-flex items-center gap-1.5 text-rose-400 font-medium">
+                            <ArrowDownLeft className="w-3.5 h-3.5 text-rose-400" />
+                            <span>Spent</span>
+                          </span>
+                        ) : (
+                          <span className="inline-flex items-center gap-1.5 text-emerald-400 font-medium">
+                            <ArrowUpRight className="w-3.5 h-3.5 text-emerald-400" />
+                            <span>Received</span>
+                          </span>
+                        )}
+                        {tx.frequency === 'monthly' && (
+                          <span className="text-[10px] text-zinc-500 font-mono">
+                            (Monthly)
+                          </span>
+                        )}
+                      </div>
                     </td>
                     <td className="py-3.5 px-4">
                       <div className="font-semibold text-zinc-200">{tx.title}</div>

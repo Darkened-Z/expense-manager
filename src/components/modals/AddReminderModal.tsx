@@ -16,6 +16,7 @@ interface AddReminderModalProps {
     amount: number;
     currency: string;
     token?: string;
+    frequency?: 'once' | 'monthly';
     invoiceDate: string;
     dueDate: string;
     reminderDate: string;
@@ -36,6 +37,7 @@ export const AddReminderModal: React.FC<AddReminderModalProps> = ({
   const [invoiceNumber, setInvoiceNumber] = useState('');
   const [amount, setAmount] = useState('');
   const [currency, setCurrency] = useState('PKR');
+  const [frequency, setFrequency] = useState<'once' | 'monthly'>('once');
   const [invoiceDate, setInvoiceDate] = useState('');
   const [dueDate, setDueDate] = useState('');
   const [reminderDate, setReminderDate] = useState('');
@@ -64,6 +66,7 @@ export const AddReminderModal: React.FC<AddReminderModalProps> = ({
       setInvoiceNumber(`INV-${new Date().getFullYear()}-${Math.floor(10 + Math.random() * 90)}`);
       setAmount('');
       setCurrency('PKR');
+      setFrequency('once');
       setInvoiceDate(todayStr);
       setDueDate(dueStr);
       setReminderDate(remStr);
@@ -115,6 +118,7 @@ export const AddReminderModal: React.FC<AddReminderModalProps> = ({
       amount: parsedAmount,
       currency,
       token: currency,
+      frequency,
       invoiceDate: invoiceDate || new Date().toISOString().split('T')[0],
       dueDate,
       reminderDate: reminderDate || dueDate,
@@ -209,6 +213,42 @@ export const AddReminderModal: React.FC<AddReminderModalProps> = ({
                 <option value="PKR">PKR (Rs.)</option>
               </select>
             </div>
+          </div>
+
+          {/* Payment Schedule: Once vs Monthly */}
+          <div>
+            <label className="block text-[11px] font-medium text-zinc-400 mb-1.5">
+              Payment Schedule
+            </label>
+            <div className="grid grid-cols-2 gap-2 bg-[#171922] p-1 rounded-xl border border-white/5">
+              <button
+                type="button"
+                onClick={() => setFrequency('once')}
+                className={`py-2 text-xs font-semibold rounded-lg transition-all ${
+                  frequency === 'once'
+                    ? 'bg-white/10 text-white shadow-sm'
+                    : 'text-zinc-400 hover:text-zinc-200'
+                }`}
+              >
+                Once (One-off)
+              </button>
+              <button
+                type="button"
+                onClick={() => setFrequency('monthly')}
+                className={`py-2 text-xs font-semibold rounded-lg transition-all ${
+                  frequency === 'monthly'
+                    ? 'bg-white/10 text-white shadow-sm'
+                    : 'text-zinc-400 hover:text-zinc-200'
+                }`}
+              >
+                Monthly (Recurring)
+              </button>
+            </div>
+            {frequency === 'monthly' && (
+              <p className="text-[10px] text-zinc-400 mt-1 pl-1">
+                Upon collection, the next month’s reminder will automatically be scheduled.
+              </p>
+            )}
           </div>
 
           {/* Due Date & Reminder Trigger Date */}

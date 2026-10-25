@@ -22,6 +22,7 @@ interface AddTransactionModalProps {
     time: string;
     notes?: string;
     token?: string;
+    frequency?: 'once' | 'monthly';
   }) => void;
 }
 
@@ -43,6 +44,7 @@ export const AddTransactionModal: React.FC<AddTransactionModalProps> = ({
   const [date, setDate] = useState<string>('');
   const [time, setTime] = useState<string>('');
   const [token, setToken] = useState<string>('PKR');
+  const [frequency, setFrequency] = useState<'once' | 'monthly'>('once');
   const [notes, setNotes] = useState<string>('');
   const [error, setError] = useState<string | null>(null);
 
@@ -54,6 +56,7 @@ export const AddTransactionModal: React.FC<AddTransactionModalProps> = ({
       setClientOrPayer('');
       setNotes('');
       setError(null);
+      setFrequency('once');
 
       // Default date & time to right now
       const now = new Date();
@@ -99,8 +102,9 @@ export const AddTransactionModal: React.FC<AddTransactionModalProps> = ({
       walletId,
       date,
       time,
-      notes: notes.trim() || undefined,
       token,
+      frequency,
+      notes: notes.trim() || undefined,
     });
 
     onClose();
@@ -188,6 +192,37 @@ export const AddTransactionModal: React.FC<AddTransactionModalProps> = ({
                 readOnly
                 className="w-full bg-[#171922] text-zinc-400 text-xs font-mono uppercase px-3 py-3 rounded-xl border border-white/10 cursor-not-allowed"
               />
+            </div>
+          </div>
+
+          {/* Payment Schedule: Once vs Monthly */}
+          <div>
+            <label className="block text-[11px] font-medium text-zinc-400 mb-1.5">
+              Payment Schedule
+            </label>
+            <div className="grid grid-cols-2 gap-2 bg-[#171922] p-1 rounded-xl border border-white/5">
+              <button
+                type="button"
+                onClick={() => setFrequency('once')}
+                className={`py-1.5 text-xs font-semibold rounded-lg transition-all ${
+                  frequency === 'once'
+                    ? 'bg-white/10 text-white shadow-sm'
+                    : 'text-zinc-400 hover:text-zinc-200'
+                }`}
+              >
+                Once (One-off)
+              </button>
+              <button
+                type="button"
+                onClick={() => setFrequency('monthly')}
+                className={`py-1.5 text-xs font-semibold rounded-lg transition-all ${
+                  frequency === 'monthly'
+                    ? 'bg-white/10 text-white shadow-sm'
+                    : 'text-zinc-400 hover:text-zinc-200'
+                }`}
+              >
+                Monthly (Recurring)
+              </button>
             </div>
           </div>
 

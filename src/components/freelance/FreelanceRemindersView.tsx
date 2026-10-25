@@ -17,6 +17,7 @@ import {
   User,
   ArrowUpRight,
   Filter,
+  Repeat,
 } from 'lucide-react';
 import confetti from 'canvas-confetti';
 import { PaymentReminder, Wallet } from '@/types';
@@ -278,6 +279,16 @@ export const FreelanceRemindersView: React.FC<FreelanceRemindersViewProps> = ({
                             #{rem.invoiceNumber}
                           </span>
                         )}
+                        {rem.frequency === 'monthly' ? (
+                          <span className="text-[10px] font-mono text-zinc-300 flex items-center gap-1">
+                            <Repeat className="w-3 h-3 text-zinc-400" />
+                            <span>Monthly</span>
+                          </span>
+                        ) : (
+                          <span className="text-[10px] font-mono text-zinc-500">
+                            Once
+                          </span>
+                        )}
                         <span
                           className={`text-[10px] px-2 py-0.5 rounded-full font-medium uppercase tracking-wider ${
                             dueInfo.color === 'rose'
@@ -436,6 +447,7 @@ export const FreelanceRemindersView: React.FC<FreelanceRemindersViewProps> = ({
                 </select>
                 <p className="text-[11px] text-zinc-500 mt-1.5">
                   This will mark the invoice as Collected, immediately deposit {currencySymbol}{collectingReminder.amount.toFixed(2)} into the selected wallet, and log an Income transaction.
+                  {collectingReminder.frequency === 'monthly' && ' Next month’s recurring retainer will automatically be scheduled.'}
                 </p>
               </div>
             </div>

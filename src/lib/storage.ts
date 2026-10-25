@@ -181,6 +181,38 @@ export const StorageService = {
       collectedWalletId: walletId,
       collectedTransactionId: tx.id,
     });
+
+    // If this payment is monthly, automatically schedule the next month's reminder
+    if (rem.frequency === 'monthly') {
+      try {
+        const curDue = new Date(rem.dueDate + 'T00:00:00');
+        const nextDue = new Date(curDue);
+        nextDue.setMonth(nextDue.getMonth() + 1);
+        const nextDueStr = nextDue.toISOString().split('T')[0];
+
+        const nextRem = new Date(nextDue);
+        nextRem.setDate(nextRem.getDate() - 2);
+        const nextRemStr = nextRem.toISOString().split('T')[0];
+
+        this.addReminder({
+          clientName: rem.clientName,
+          clientEmail: rem.clientEmail,
+          clientPhone: rem.clientPhone,
+          projectTitle: rem.projectTitle,
+          invoiceNumber: rem.invoiceNumber ? rem.invoiceNumber.replace(/(-R\d*)?$/, '') + '-R' : undefined,
+          amount: rem.amount,
+          currency: rem.currency,
+          token: rem.token,
+          frequency: 'monthly',
+          invoiceDate: todayStr,
+          dueDate: nextDueStr,
+          reminderDate: nextRemStr,
+          notes: rem.notes,
+        });
+      } catch {
+        // Fallback gracefully
+      }
+    }
   },
 
   deleteReminder(id: string): void {
