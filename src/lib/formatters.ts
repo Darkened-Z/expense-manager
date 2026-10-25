@@ -51,3 +51,27 @@ export function formatDateTimeDDMMYYYY(dateStr: string, timeStr?: string): strin
     return timeStr ? `${dateStr} ${timeStr}` : dateStr;
   }
 }
+
+/**
+ * Formats a cash amount with commas as thousand separators and no decimal places.
+ * E.g., 50000 -> "50,000", 1250000 -> "1,250,000", -3000 -> "-3,000", null/undefined -> "0"
+ */
+export function formatCash(amount?: number | null): string {
+  if (amount === undefined || amount === null || isNaN(amount)) {
+    return '0';
+  }
+  const rounded = Math.round(amount);
+  return rounded.toLocaleString('en-US');
+}
+
+/**
+ * Formats a cash amount with currency symbol, commas, and no decimal places.
+ * E.g., 50000, "Rs. " -> "Rs. 50,000", -1500, "Rs. " -> "-Rs. 1,500"
+ */
+export function formatCurrency(amount?: number | null, symbol: string = 'Rs. '): string {
+  const val = amount || 0;
+  if (val < 0) {
+    return `-${symbol}${formatCash(Math.abs(val))}`;
+  }
+  return `${symbol}${formatCash(val)}`;
+}

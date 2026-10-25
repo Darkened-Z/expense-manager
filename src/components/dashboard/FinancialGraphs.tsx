@@ -3,6 +3,7 @@
 import React, { useState } from 'react';
 import { BarChart3, TrendingUp, PieChart, Layers } from 'lucide-react';
 import { Transaction, Category } from '@/types';
+import { formatCash } from '@/lib/formatters';
 
 interface FinancialGraphsProps {
   transactions: Transaction[];
@@ -166,7 +167,7 @@ export const FinancialGraphs: React.FC<FinancialGraphsProps> = ({
                         <div
                           className="w-full rounded-t-lg bg-emerald-500 group-hover:bg-emerald-400 transition-all"
                           style={{ height: `${incHeight}%` }}
-                          title={`${d.month} Income: ${currencySymbol}${d.income.toFixed(2)}`}
+                          title={`${d.month} Income: ${currencySymbol}${formatCash(d.income)}`}
                         />
                       </div>
 
@@ -175,7 +176,7 @@ export const FinancialGraphs: React.FC<FinancialGraphsProps> = ({
                         <div
                           className="w-full rounded-t-lg bg-rose-500 group-hover:bg-rose-400 transition-all"
                           style={{ height: `${expHeight}%` }}
-                          title={`${d.month} Expenses: ${currencySymbol}${d.expense.toFixed(2)}`}
+                          title={`${d.month} Expenses: ${currencySymbol}${formatCash(d.expense)}`}
                         />
                       </div>
                     </div>
@@ -206,7 +207,7 @@ export const FinancialGraphs: React.FC<FinancialGraphsProps> = ({
                     <span className="font-medium text-zinc-200">{c.name}</span>
                   </div>
                   <span className="font-mono text-zinc-300">
-                    {currencySymbol}{c.amount.toFixed(2)}{' '}
+                    {currencySymbol}{formatCash(c.amount)}{' '}
                     <span className="text-zinc-500">({c.pct.toFixed(1)}%)</span>
                   </span>
                 </div>
@@ -239,7 +240,7 @@ export const FinancialGraphs: React.FC<FinancialGraphsProps> = ({
                     <span className="font-medium text-zinc-200">{c.name}</span>
                   </div>
                   <span className="font-mono text-white font-medium">
-                    {currencySymbol}{c.amount.toFixed(2)}{' '}
+                    {currencySymbol}{formatCash(c.amount)}{' '}
                     <span className="text-zinc-500 font-normal">({c.pct.toFixed(1)}%)</span>
                   </span>
                 </div>

@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import { X, ArrowDownLeft, ArrowUpRight, DollarSign, Calendar, Clock, Tag, Wallet as WalletIcon } from 'lucide-react';
 import { Category, Wallet, TransactionType } from '@/types';
-import { formatDateDDMMYYYY } from '@/lib/formatters';
+import { formatDateDDMMYYYY, formatCash } from '@/lib/formatters';
 
 interface AddTransactionModalProps {
   isOpen: boolean;
@@ -79,7 +79,7 @@ export const AddTransactionModal: React.FC<AddTransactionModalProps> = ({
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    const parsedAmount = parseFloat(amount);
+    const parsedAmount = Math.round(parseFloat(amount));
     if (isNaN(parsedAmount) || parsedAmount <= 0) {
       setError('Please enter a valid amount greater than 0');
       return;
@@ -178,8 +178,8 @@ export const AddTransactionModal: React.FC<AddTransactionModalProps> = ({
                 </span>
                 <input
                   type="number"
-                  step="0.01"
-                  placeholder="0.00"
+                  step="1"
+                  placeholder="0"
                   value={amount}
                   onChange={(e) => setAmount(e.target.value)}
                   className="w-full bg-[#171922] text-white text-base font-mono font-bold pl-12 pr-3 py-2.5 rounded-xl border border-white/10 focus:outline-none focus:border-white/30 transition-colors"
@@ -314,7 +314,7 @@ export const AddTransactionModal: React.FC<AddTransactionModalProps> = ({
               >
                 {wallets.map((w) => (
                   <option key={w.id} value={w.id}>
-                    {w.name} ({w.symbol}{w.balance.toFixed(2)})
+                    {w.name} ({w.symbol}{formatCash(w.balance)})
                   </option>
                 ))}
               </select>

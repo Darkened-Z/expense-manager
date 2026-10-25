@@ -3,6 +3,7 @@
 import React from 'react';
 import { Sparkles, TrendingUp, TrendingDown, Target, ShieldCheck, DollarSign, PieChart, Users } from 'lucide-react';
 import { Transaction, PaymentReminder, Category } from '@/types';
+import { formatCash, formatCurrency } from '@/lib/formatters';
 
 interface InsightsViewProps {
   transactions: Transaction[];
@@ -99,7 +100,7 @@ export const InsightsView: React.FC<InsightsViewProps> = ({
             <TrendingUp className="w-4 h-4 text-zinc-400" />
           </div>
           <div className="text-2xl font-extrabold text-white font-mono mt-2">
-            {currencySymbol}{netSavings.toFixed(2)}
+            {formatCurrency(netSavings, currencySymbol)}
           </div>
           <div className="text-[11px] text-zinc-400 font-medium mt-1">
             {savingsRate.toFixed(1)}% savings retention rate
@@ -112,7 +113,7 @@ export const InsightsView: React.FC<InsightsViewProps> = ({
             <TrendingDown className="w-4 h-4 text-zinc-400" />
           </div>
           <div className="text-2xl font-extrabold text-white font-mono mt-2">
-            {currencySymbol}{avgExpense.toFixed(2)}
+            {currencySymbol}{formatCash(avgExpense)}
           </div>
           <div className="text-[11px] text-zinc-500 mt-1">
             {expenseCount > 0 ? `Across ${expenseCount} purchase${expenseCount === 1 ? '' : 's'}` : 'No purchases recorded'}
@@ -140,7 +141,7 @@ export const InsightsView: React.FC<InsightsViewProps> = ({
               <span>Spending Breakdown by Category</span>
             </h3>
             <span className="text-xs font-mono text-zinc-400">
-              Total {currencySymbol}{totalExpense.toFixed(2)}
+              Total {currencySymbol}{formatCash(totalExpense)}
             </span>
           </div>
 
@@ -153,7 +154,7 @@ export const InsightsView: React.FC<InsightsViewProps> = ({
                   <div className="flex items-center justify-between text-xs">
                     <span className="font-medium text-zinc-300">{cat.name}</span>
                     <span className="font-mono text-zinc-400">
-                      {currencySymbol}{cat.amount.toFixed(2)}{' '}
+                      {currencySymbol}{formatCash(cat.amount)}{' '}
                       <span className="text-zinc-500 font-normal">({cat.percentage.toFixed(1)}%)</span>
                     </span>
                   </div>
@@ -180,7 +181,7 @@ export const InsightsView: React.FC<InsightsViewProps> = ({
               <span>Top Freelance Clients by Revenue</span>
             </h3>
             <span className="text-xs font-mono text-zinc-400">
-              Total {currencySymbol}{totalIncome.toFixed(2)}
+              Total {currencySymbol}{formatCash(totalIncome)}
             </span>
           </div>
 
@@ -202,7 +203,7 @@ export const InsightsView: React.FC<InsightsViewProps> = ({
                     <span className="font-semibold text-white">{c.client}</span>
                   </div>
                   <span className="font-mono font-bold text-white text-sm">
-                    {currencySymbol}{c.amount.toFixed(2)}
+                    {currencySymbol}{formatCash(c.amount)}
                   </span>
                 </div>
               ))

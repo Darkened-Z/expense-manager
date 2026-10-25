@@ -3,6 +3,7 @@
 import React, { useState } from 'react';
 import { Wallet as WalletIcon, Plus, ArrowLeftRight, Landmark, CreditCard, Shield, Coins } from 'lucide-react';
 import { Wallet, Transaction } from '@/types';
+import { formatCash } from '@/lib/formatters';
 
 interface WalletsViewProps {
   wallets: Wallet[];
@@ -48,7 +49,7 @@ export const WalletsView: React.FC<WalletsViewProps> = ({
       type: walletType,
       currency: currency.toUpperCase(),
       symbol,
-      balance: parseFloat(initialBalance) || 0,
+      balance: Math.round(parseFloat(initialBalance)) || 0,
       accountNumber: accountNumber.trim() || undefined,
     });
 
@@ -65,7 +66,7 @@ export const WalletsView: React.FC<WalletsViewProps> = ({
         <div>
           <div className="text-xs text-zinc-400 font-medium">Total Liquidity & Balance</div>
           <div className="text-3xl font-extrabold text-white font-mono mt-1">
-            {currencySymbol}{totalAssets.toLocaleString(undefined, { minimumFractionDigits: 2 })}
+            {currencySymbol}{formatCash(totalAssets)}
           </div>
           <p className="text-xs text-zinc-500 mt-1">Combined balance across {wallets.length} active channels</p>
         </div>
@@ -115,12 +116,12 @@ export const WalletsView: React.FC<WalletsViewProps> = ({
                 <div>
                   <div className="text-[11px] text-zinc-400">Current Balance</div>
                   <div className="text-2xl font-bold font-mono text-white mt-0.5">
-                    {w.symbol}{w.balance.toLocaleString(undefined, { minimumFractionDigits: 2 })}
+                    {w.symbol}{formatCash(w.balance)}
                   </div>
                 </div>
 
                 <div className="text-right text-[11px] text-zinc-500 font-mono">
-                  <div>Spent: {w.symbol}{spentThisMonth.toFixed(2)}</div>
+                  <div>Spent: {w.symbol}{formatCash(spentThisMonth)}</div>
                   <div>{walletTxs.length} transactions</div>
                 </div>
               </div>
@@ -182,8 +183,8 @@ export const WalletsView: React.FC<WalletsViewProps> = ({
                   <label className="block text-[11px] font-medium text-zinc-400 mb-1">Initial Balance</label>
                   <input
                     type="number"
-                    step="0.01"
-                    placeholder="0.00"
+                    step="1"
+                    placeholder="0"
                     value={initialBalance}
                     onChange={(e) => setInitialBalance(e.target.value)}
                     className="w-full bg-[#171922] text-white text-xs font-mono px-3 py-2.5 rounded-xl border border-white/10 focus:outline-none focus:border-white/30"

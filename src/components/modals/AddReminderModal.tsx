@@ -104,7 +104,7 @@ export const AddReminderModal: React.FC<AddReminderModalProps> = ({
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    const parsedAmount = parseFloat(amount);
+    const parsedAmount = Math.round(parseFloat(amount));
     if (!clientName.trim()) {
       setError(type === 'payable' ? 'Please enter the payee or person name' : 'Please enter the client or company name');
       return;
@@ -275,8 +275,8 @@ export const AddReminderModal: React.FC<AddReminderModalProps> = ({
                 </span>
                 <input
                   type="number"
-                  step="0.01"
-                  placeholder="2500.00"
+                  step="1"
+                  placeholder="0"
                   value={amount}
                   onChange={(e) => setAmount(e.target.value)}
                   className="w-full bg-[#171922] text-white text-base font-mono font-bold pl-12 pr-3 py-2.5 rounded-xl border border-white/10 focus:outline-none focus:border-white/30"

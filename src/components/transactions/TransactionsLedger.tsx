@@ -22,7 +22,7 @@ import {
   ChevronDown,
 } from 'lucide-react';
 import { Transaction, Category, Wallet } from '@/types';
-import { formatDateTimeDDMMYYYY } from '@/lib/formatters';
+import { formatDateTimeDDMMYYYY, formatCash } from '@/lib/formatters';
 
 interface TransactionsLedgerProps {
   transactions: Transaction[];
@@ -219,7 +219,7 @@ export const TransactionsLedger: React.FC<TransactionsLedgerProps> = ({
                 <div className="flex items-center gap-2 shrink-0">
                   <div className="text-right">
                     <div className={`font-mono font-bold text-xs ${isExpense ? 'text-zinc-200' : 'text-emerald-400'}`}>
-                      {isExpense ? '-' : '+'}{currencySymbol}{tx.amount.toFixed(2)}
+                      {isExpense ? '-' : '+'}{currencySymbol}{formatCash(tx.amount)}
                     </div>
                     <span className="text-[9px] font-mono text-zinc-500 uppercase">
                       {tx.token || wallet?.currency || 'PKR'}
@@ -271,7 +271,7 @@ export const TransactionsLedger: React.FC<TransactionsLedgerProps> = ({
                 return (
                   <tr key={tx.id} className="hover:bg-white/[0.02] transition-colors group">
                     <td className="py-3.5 px-5 font-mono font-bold text-white text-sm">
-                      {currencySymbol}{tx.amount.toFixed(2)}
+                      {currencySymbol}{formatCash(tx.amount)}
                     </td>
                     <td className="py-3.5 px-4 font-mono">
                       <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-white/5 text-zinc-300 border border-white/5 font-semibold text-[11px]">

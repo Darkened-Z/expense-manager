@@ -3,6 +3,7 @@
 import React, { useState } from 'react';
 import { Tag, Plus, Coffee, Car, Laptop, Briefcase, Box, Zap, Globe, FileText, ShoppingBag, Repeat, TrendingUp, DollarSign, Trash2 } from 'lucide-react';
 import { Category, Transaction } from '@/types';
+import { formatCash } from '@/lib/formatters';
 
 interface CategoriesViewProps {
   categories: Category[];
@@ -60,7 +61,7 @@ export const CategoriesView: React.FC<CategoriesViewProps> = ({
       type: activeTab,
       color,
       icon: activeTab === 'income' ? 'TrendingUp' : 'Tag',
-      budgetLimit: activeTab === 'expense' && budgetLimit ? parseFloat(budgetLimit) : undefined,
+      budgetLimit: activeTab === 'expense' && budgetLimit ? Math.round(parseFloat(budgetLimit)) : undefined,
     });
 
     setShowAddModal(false);
@@ -172,7 +173,7 @@ export const CategoriesView: React.FC<CategoriesViewProps> = ({
                     <div className="flex items-start gap-2 shrink-0">
                       <div className="text-right">
                         <div className="font-mono font-bold text-sm text-white">
-                          {currencySymbol}{total.toFixed(2)}
+                          {currencySymbol}{formatCash(total)}
                         </div>
                         <div className="text-[10px] text-zinc-500">
                           {cat.type === 'income' ? 'Revenue' : 'Spent'}
@@ -202,7 +203,7 @@ export const CategoriesView: React.FC<CategoriesViewProps> = ({
                       {percent.toFixed(0)}% of limit
                     </span>
                     <span className="text-zinc-500">
-                      Cap: {currencySymbol}{limit.toFixed(2)}
+                      Cap: {currencySymbol}{formatCash(limit)}
                     </span>
                   </div>
 
@@ -269,8 +270,8 @@ export const CategoriesView: React.FC<CategoriesViewProps> = ({
                   <label className="block text-[11px] font-medium text-zinc-400 mb-1">Monthly Budget Cap (Optional)</label>
                   <input
                     type="number"
-                    step="0.01"
-                    placeholder="e.g. 500.00"
+                    step="1"
+                    placeholder="e.g. 50000"
                     value={budgetLimit}
                     onChange={(e) => setBudgetLimit(e.target.value)}
                     className="w-full bg-[#171922] text-white text-xs font-mono px-3.5 py-2.5 rounded-xl border border-white/10 focus:outline-none focus:border-white/30"

@@ -317,7 +317,7 @@ export const StorageService = {
 
   updateWalletBalance(walletId: string, delta: number): void {
     const wallets = this.getWallets();
-    const updated = wallets.map(w => (w.id === walletId ? { ...w, balance: Number((w.balance + delta).toFixed(2)) } : w));
+    const updated = wallets.map(w => (w.id === walletId ? { ...w, balance: Math.round(w.balance + delta) } : w));
     this.saveWallets(updated);
   },
 
@@ -447,7 +447,7 @@ export const StorageService = {
         `"${(t.clientOrPayer || '').replace(/"/g, '""')}"`,
         `"${cat}"`,
         `"${wal}"`,
-        t.amount.toFixed(2),
+        Math.round(t.amount),
         `"${t.token || 'PKR'}"`,
         `"${(t.notes || '').replace(/"/g, '""')}"`,
       ].join(',');

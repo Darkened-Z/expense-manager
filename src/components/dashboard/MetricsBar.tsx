@@ -3,6 +3,7 @@
 import React from 'react';
 import { ArrowUpRight, ArrowDownLeft, Wallet, PiggyBank, Clock } from 'lucide-react';
 import { Transaction, PaymentReminder, Wallet as WalletType } from '@/types';
+import { formatCash, formatCurrency } from '@/lib/formatters';
 
 interface MetricsBarProps {
   transactions: Transaction[];
@@ -45,7 +46,7 @@ export const MetricsBar: React.FC<MetricsBarProps> = ({
           <Wallet className="w-3.5 h-3.5 text-zinc-500" />
         </div>
         <div className="text-xl sm:text-2xl font-bold font-mono text-white mt-1.5 tracking-tight">
-          {currencySymbol}{totalBalance.toLocaleString(undefined, { minimumFractionDigits: 2 })}
+          {currencySymbol}{formatCash(totalBalance)}
         </div>
         <div className="text-[10px] text-zinc-500 mt-1 font-mono">
           Across {wallets.length} accounts
@@ -62,7 +63,7 @@ export const MetricsBar: React.FC<MetricsBarProps> = ({
           </span>
         </div>
         <div className="text-xl sm:text-2xl font-bold font-mono text-white mt-1.5 tracking-tight">
-          {currencySymbol}{totalReceived.toLocaleString(undefined, { minimumFractionDigits: 2 })}
+          {currencySymbol}{formatCash(totalReceived)}
         </div>
         <div className="text-[10px] text-zinc-500 mt-1 font-mono">
           {transactions.filter((t) => t.type === 'income').length} deposits
@@ -79,7 +80,7 @@ export const MetricsBar: React.FC<MetricsBarProps> = ({
           </span>
         </div>
         <div className="text-xl sm:text-2xl font-bold font-mono text-white mt-1.5 tracking-tight">
-          {currencySymbol}{totalSpent.toLocaleString(undefined, { minimumFractionDigits: 2 })}
+          {currencySymbol}{formatCash(totalSpent)}
         </div>
         <div className="text-[10px] text-zinc-500 mt-1 font-mono">
           {transactions.filter((t) => t.type === 'expense').length} purchases
@@ -96,7 +97,7 @@ export const MetricsBar: React.FC<MetricsBarProps> = ({
           </span>
         </div>
         <div className="text-xl sm:text-2xl font-bold font-mono text-white mt-1.5 tracking-tight">
-          {currencySymbol}{netSavings.toLocaleString(undefined, { minimumFractionDigits: 2 })}
+          {formatCurrency(netSavings, currencySymbol)}
         </div>
         <div className="text-[10px] text-zinc-500 mt-1 font-mono">
           Retention surplus
@@ -110,7 +111,7 @@ export const MetricsBar: React.FC<MetricsBarProps> = ({
           <Clock className="w-3.5 h-3.5 text-zinc-500" />
         </div>
         <div className="text-xl sm:text-2xl font-bold font-mono text-white mt-1.5 tracking-tight">
-          {currencySymbol}{pendingReceivables.toLocaleString(undefined, { minimumFractionDigits: 2 })}
+          {currencySymbol}{formatCash(pendingReceivables)}
         </div>
         <div className="text-[10px] text-zinc-400 mt-1 font-mono">
           {pendingCount} pending invoice{pendingCount === 1 ? '' : 's'}

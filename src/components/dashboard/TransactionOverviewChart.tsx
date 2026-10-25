@@ -3,6 +3,7 @@
 import React, { useState } from 'react';
 import { ChevronDown } from 'lucide-react';
 import { Transaction } from '@/types';
+import { formatCash } from '@/lib/formatters';
 
 interface TransactionOverviewChartProps {
   transactions: Transaction[];
@@ -112,7 +113,7 @@ export const TransactionOverviewChart: React.FC<TransactionOverviewChartProps> =
             >
               <div className="text-[10px] text-zinc-400">{monthlyData[hoveredIndex].month} Total</div>
               <div className="font-mono font-bold text-white">
-                {currencySymbol}{monthlyData[hoveredIndex].value.toFixed(2)}
+                {currencySymbol}{formatCash(monthlyData[hoveredIndex].value)}
               </div>
             </div>
           )}

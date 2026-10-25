@@ -16,7 +16,7 @@ import {
   Cloud,
 } from 'lucide-react';
 import { Wallet, PaymentReminder } from '@/types';
-import { formatDateDDMMYYYY } from '@/lib/formatters';
+import { formatDateDDMMYYYY, formatCash } from '@/lib/formatters';
 
 interface HeaderProps {
   currentTab: string;
@@ -161,7 +161,7 @@ export const Header: React.FC<HeaderProps> = ({
                       <div className="text-[10px] text-zinc-500 font-mono">{w.accountNumber || w.type.toUpperCase()}</div>
                     </div>
                     <div className="font-mono font-medium text-zinc-200">
-                      {w.symbol}{w.balance.toLocaleString(undefined, { minimumFractionDigits: 2 })}
+                      {w.symbol}{formatCash(w.balance)}
                     </div>
                   </button>
                 ))}
@@ -272,7 +272,7 @@ export const Header: React.FC<HeaderProps> = ({
                             <div className="text-[11px] text-zinc-400 truncate max-w-[140px]">{rem.projectTitle}</div>
                           </div>
                           <div className="text-right">
-                            <div className="font-mono font-bold text-white">{currencySymbol}{rem.amount.toFixed(2)}</div>
+                            <div className="font-mono font-bold text-white">{currencySymbol}{formatCash(rem.amount)}</div>
                             <span
                               className={`text-[9px] uppercase px-1.5 py-0.5 rounded font-bold ${
                                 rem.status === 'overdue'

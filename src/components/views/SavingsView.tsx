@@ -3,6 +3,7 @@
 import React, { useState } from 'react';
 import { PiggyBank, Plus, TrendingUp, Target, Calendar, ArrowUpRight, ArrowDownLeft, Trash2, CheckCircle2 } from 'lucide-react';
 import { SavingsGoal, Wallet } from '@/types';
+import { formatCash } from '@/lib/formatters';
 
 interface SavingsViewProps {
   savingsGoals: SavingsGoal[];
@@ -43,13 +44,13 @@ export const SavingsView: React.FC<SavingsViewProps> = ({
 
   const handleCreateGoal = (e: React.FormEvent) => {
     e.preventDefault();
-    const target = parseFloat(targetAmount);
+    const target = Math.round(parseFloat(targetAmount));
     if (!title.trim() || isNaN(target) || target <= 0) return;
 
     onAddSavingsGoal({
       title: title.trim(),
       targetAmount: target,
-      currentAmount: parseFloat(currentAmount) || 0,
+      currentAmount: Math.round(parseFloat(currentAmount)) || 0,
       targetDate: targetDate || undefined,
       category,
       color,
@@ -66,7 +67,7 @@ export const SavingsView: React.FC<SavingsViewProps> = ({
   const handleConfirmDeposit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!depositGoal) return;
-    const amount = parseFloat(depositAmount);
+    const amount = Math.round(parseFloat(depositAmount));
     if (isNaN(amount) || amount <= 0) return;
 
     onDepositToGoal(depositGoal.id, amount, selectedWalletId);
@@ -84,7 +85,7 @@ export const SavingsView: React.FC<SavingsViewProps> = ({
             <PiggyBank className="w-4 h-4 text-zinc-400" />
           </div>
           <div className="text-2xl font-bold font-mono text-white mt-1.5">
-            {currencySymbol}{totalSaved.toLocaleString(undefined, { minimumFractionDigits: 2 })}
+            {currencySymbol}{formatCash(totalSaved)}
           </div>
           <div className="text-[11px] text-zinc-500 mt-1">
             Allocated across {savingsGoals.length} savings funds
@@ -97,7 +98,7 @@ export const SavingsView: React.FC<SavingsViewProps> = ({
             <Target className="w-4 h-4 text-zinc-400" />
           </div>
           <div className="text-2xl font-bold font-mono text-white mt-1.5">
-            {currencySymbol}{totalTarget.toLocaleString(undefined, { minimumFractionDigits: 2 })}
+            {currencySymbol}{formatCash(totalTarget)}
           </div>
           <div className="text-[11px] text-zinc-500 mt-1">
             {overallPercentage.toFixed(1)}% of total targets reached
@@ -169,13 +170,13 @@ export const SavingsView: React.FC<SavingsViewProps> = ({
                     <div>
                       <div className="text-xs text-zinc-400">Current Balance</div>
                       <div className="text-xl font-bold text-white">
-                        {currencySymbol}{goal.currentAmount.toLocaleString(undefined, { minimumFractionDigits: 2 })}
+                        {currencySymbol}{formatCash(goal.currentAmount)}
                       </div>
                     </div>
                     <div className="text-right">
                       <div className="text-xs text-zinc-500">Target</div>
                       <div className="text-xs text-zinc-300 font-medium">
-                        {currencySymbol}{goal.targetAmount.toLocaleString(undefined, { minimumFractionDigits: 2 })}
+                        {currencySymbol}{formatCash(goal.targetAmount)}
                       </div>
                     </div>
                   </div>
@@ -184,7 +185,7 @@ export const SavingsView: React.FC<SavingsViewProps> = ({
                   <div className="mt-3">
                     <div className="flex items-center justify-between text-[11px] mb-1 font-mono">
                       <span className="text-zinc-400">{pct.toFixed(0)}% funded</span>
-                      <span className="text-zinc-500">{currencySymbol}{remaining.toFixed(2)} remaining</span>
+                      <span className="text-zinc-500">{currencySymbol}{formatCash(remaining)} remaining</span>
                     </div>
                     <div className="w-full h-2 bg-white/5 rounded-full overflow-hidden">
                       <div
@@ -238,8 +239,8 @@ export const SavingsView: React.FC<SavingsViewProps> = ({
                   </span>
                   <input
                     type="number"
-                    step="0.01"
-                    placeholder="250.00"
+                    step="1"
+                    placeholder="0"
                     value={depositAmount}
                     onChange={(e) => setDepositAmount(e.target.value)}
                     className="w-full bg-[#171922] text-white text-base font-mono font-bold pl-8 pr-3 py-2.5 rounded-xl border border-white/10 focus:outline-none focus:border-emerald-500"
@@ -257,7 +258,7 @@ export const SavingsView: React.FC<SavingsViewProps> = ({
                 >
                   {wallets.map((w) => (
                     <option key={w.id} value={w.id}>
-                      {w.name} ({w.symbol}{w.balance.toFixed(2)})
+                      {w.name} ({w.symbol}{formatCash(w.balance)})
                     </option>
                   ))}
                 </select>
@@ -309,8 +310,8 @@ export const SavingsView: React.FC<SavingsViewProps> = ({
                   <label className="block text-[11px] font-medium text-zinc-400 mb-1">Target Amount</label>
                   <input
                     type="number"
-                    step="0.01"
-                    placeholder="5000.00"
+                    step="1"
+                    placeholder="0"
                     value={targetAmount}
                     onChange={(e) => setTargetAmount(e.target.value)}
                     className="w-full bg-[#171922] text-white text-xs font-mono px-3.5 py-2.5 rounded-xl border border-white/10 focus:outline-none focus:border-white/30"
@@ -321,8 +322,8 @@ export const SavingsView: React.FC<SavingsViewProps> = ({
                   <label className="block text-[11px] font-medium text-zinc-400 mb-1">Initial Saved</label>
                   <input
                     type="number"
-                    step="0.01"
-                    placeholder="0.00"
+                    step="1"
+                    placeholder="0"
                     value={currentAmount}
                     onChange={(e) => setCurrentAmount(e.target.value)}
                     className="w-full bg-[#171922] text-white text-xs font-mono px-3.5 py-2.5 rounded-xl border border-white/10 focus:outline-none focus:border-white/30"

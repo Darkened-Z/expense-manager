@@ -1,5 +1,5 @@
 import { PaymentReminder } from '@/types';
-import { formatDateDDMMYYYY } from './formatters';
+import { formatDateDDMMYYYY, formatCash } from './formatters';
 
 export const NotificationService = {
   isSupported(): boolean {
@@ -76,7 +76,7 @@ export const NotificationService = {
         ? (isPayable ? `Overdue Payment to Give: ${first.clientName}` : `Overdue Invoice: ${first.clientName}`)
         : `${count} Overdue Payments Requiring Action`;
       const body = count === 1
-        ? `${first.projectTitle} - Rs. ${first.amount.toFixed(2)} was due on ${formatDateDDMMYYYY(first.dueDate)}.`
+        ? `${first.projectTitle} - Rs. ${formatCash(first.amount)} was due on ${formatDateDDMMYYYY(first.dueDate)}.`
         : `Check your pending expenses and receivables.`;
       this.send(title, body);
     } else if (dueTodayList.length > 0) {
@@ -87,7 +87,7 @@ export const NotificationService = {
         ? (isPayable ? `Payment Due Today: Pay ${first.clientName}` : `Payment Due Today: ${first.clientName}`)
         : `${count} Payments Due Today`;
       const body = count === 1
-        ? `${first.projectTitle} - Rs. ${first.amount.toFixed(2)} scheduled for today.`
+        ? `${first.projectTitle} - Rs. ${formatCash(first.amount)} scheduled for today.`
         : `Review your salaries/expenses to disburse and incoming settlements.`;
       this.send(title, body);
     }

@@ -22,7 +22,7 @@ import {
 } from 'lucide-react';
 import confetti from 'canvas-confetti';
 import { PaymentReminder, Wallet } from '@/types';
-import { formatDateDDMMYYYY } from '@/lib/formatters';
+import { formatDateDDMMYYYY, formatCash } from '@/lib/formatters';
 
 interface FreelanceRemindersViewProps {
   mode?: 'receivables' | 'payables';
@@ -107,8 +107,8 @@ export const FreelanceRemindersView: React.FC<FreelanceRemindersViewProps> = ({
     const isPayable = rem.type === 'payable';
     const formattedDue = formatDateDDMMYYYY(rem.dueDate);
     const text = isPayable
-      ? `Payment Reminder: ${rem.projectTitle}\nPayee: ${rem.clientName}\nAmount: ${currencySymbol}${rem.amount.toFixed(2)}\nDue Date: ${formattedDue}${rem.notes ? `\nNotes: ${rem.notes}` : ''}`
-      : `Hi ${rem.clientName},\n\nI hope you're having a great week! Friendly reminder that Invoice #${rem.invoiceNumber || 'INV'} for "${rem.projectTitle}" in the amount of ${currencySymbol}${rem.amount.toFixed(2)} was due on ${formattedDue}.\n\nPlease let me know once the payment has been initiated or if you need any additional invoice documentation.\n\nThank you!`;
+      ? `Payment Reminder: ${rem.projectTitle}\nPayee: ${rem.clientName}\nAmount: ${currencySymbol}${formatCash(rem.amount)}\nDue Date: ${formattedDue}${rem.notes ? `\nNotes: ${rem.notes}` : ''}`
+      : `Hi ${rem.clientName},\n\nI hope you're having a great week! Friendly reminder that Invoice #${rem.invoiceNumber || 'INV'} for "${rem.projectTitle}" in the amount of ${currencySymbol}${formatCash(rem.amount)} was due on ${formattedDue}.\n\nPlease let me know once the payment has been initiated or if you need any additional invoice documentation.\n\nThank you!`;
 
     navigator.clipboard.writeText(text);
     setCopiedId(rem.id);
@@ -127,8 +127,8 @@ export const FreelanceRemindersView: React.FC<FreelanceRemindersViewProps> = ({
       `DTSTAMP:${new Date().toISOString().replace(/[-:]/g, '').split('.')[0]}Z`,
       `DTSTART;VALUE=DATE:${rem.dueDate.replace(/-/g, '')}`,
       `DTEND;VALUE=DATE:${rem.dueDate.replace(/-/g, '')}`,
-      `SUMMARY:${isPayable ? 'Pay Expense' : 'Collect Payment'}: ${rem.clientName} (${currencySymbol}${rem.amount.toFixed(2)})`,
-      `DESCRIPTION:${isPayable ? 'Recurring / Constant Expense' : 'Freelance Invoice'}: ${rem.projectTitle}\\n${isPayable ? 'Payee' : 'Client'}: ${rem.clientName}\\nAmount: ${currencySymbol}${rem.amount.toFixed(2)}`,
+      `SUMMARY:${isPayable ? 'Pay Expense' : 'Collect Payment'}: ${rem.clientName} (${currencySymbol}${formatCash(rem.amount)})`,
+      `DESCRIPTION:${isPayable ? 'Recurring / Constant Expense' : 'Freelance Invoice'}: ${rem.projectTitle}\\n${isPayable ? 'Payee' : 'Client'}: ${rem.clientName}\\nAmount: ${currencySymbol}${formatCash(rem.amount)}`,
       'STATUS:CONFIRMED',
       'BEGIN:VALARM',
       'TRIGGER:-PT9H',
@@ -197,7 +197,7 @@ export const FreelanceRemindersView: React.FC<FreelanceRemindersViewProps> = ({
             {isPayablesMode ? 'Total Remaining (To Pay)' : 'Total Remaining (To Collect)'}
           </div>
           <div className="text-xl sm:text-2xl font-bold text-white font-mono mt-1">
-            {currencySymbol}{totalPending.toFixed(2)}
+            {currencySymbol}{formatCash(totalPending)}
           </div>
           <div className="text-[11px] text-zinc-500 mt-1">
             Across {activeCount} active {isPayablesMode ? 'obligations' : 'receivables'}
@@ -210,7 +210,7 @@ export const FreelanceRemindersView: React.FC<FreelanceRemindersViewProps> = ({
             {isPayablesMode ? 'Cash Paid' : 'Cash Collected'}
           </div>
           <div className="text-xl sm:text-2xl font-bold text-white font-mono mt-1">
-            {currencySymbol}{totalSettled.toFixed(2)}
+            {currencySymbol}{formatCash(totalSettled)}
           </div>
           <div className="text-[11px] text-zinc-500 mt-1">
             Across {settledCount} {isPayablesMode ? 'disbursed payments' : 'settled payments'}
@@ -404,7 +404,7 @@ export const FreelanceRemindersView: React.FC<FreelanceRemindersViewProps> = ({
                     <div className="flex flex-col sm:flex-row sm:items-center gap-3 shrink-0 self-end lg:self-center">
                       <div className="text-right">
                         <div className="text-lg font-bold text-white font-mono">
-                          {currencySymbol}{rem.amount.toFixed(2)}
+                          {currencySymbol}{formatCash(rem.amount)}
                         </div>
                         <div className="text-[10px] text-zinc-500 font-mono uppercase">
                           {rem.token || rem.currency || 'PKR'}
@@ -504,7 +504,7 @@ export const FreelanceRemindersView: React.FC<FreelanceRemindersViewProps> = ({
                 <div className="font-semibold text-white mt-0.5">{collectingReminder.clientName}</div>
                 <div className="text-xs text-zinc-400">{collectingReminder.projectTitle}</div>
                 <div className="text-lg font-mono font-bold text-white mt-2">
-                  {currencySymbol}{collectingReminder.amount.toFixed(2)} {collectingReminder.token}
+                  {currencySymbol}{formatCash(collectingReminder.amount)} {collectingReminder.token}
                 </div>
               </div>
 
@@ -519,14 +519,14 @@ export const FreelanceRemindersView: React.FC<FreelanceRemindersViewProps> = ({
                 >
                   {wallets.map((w) => (
                     <option key={w.id} value={w.id}>
-                      {w.name} ({w.currency} - Current Balance: {w.symbol}{w.balance.toFixed(2)})
+                      {w.name} ({w.currency} - Current Balance: {w.symbol}{formatCash(w.balance)})
                     </option>
                   ))}
                 </select>
                 <p className="text-[11px] text-zinc-500 mt-1.5">
                   {collectingReminder.type === 'payable'
-                    ? `This will mark the expense as Paid, deduct ${currencySymbol}${collectingReminder.amount.toFixed(2)} from the selected wallet, and log an Expense transaction.${collectingReminder.frequency === 'monthly' ? ' Next month’s recurring expense reminder will automatically be scheduled.' : ''}`
-                    : `This will mark the invoice as Collected, immediately deposit ${currencySymbol}${collectingReminder.amount.toFixed(2)} into the selected wallet, and log an Income transaction.${collectingReminder.frequency === 'monthly' ? ' Next month’s recurring retainer will automatically be scheduled.' : ''}`}
+                    ? `This will mark the expense as Paid, deduct ${currencySymbol}${formatCash(collectingReminder.amount)} from the selected wallet, and log an Expense transaction.${collectingReminder.frequency === 'monthly' ? ' Next month’s recurring expense reminder will automatically be scheduled.' : ''}`
+                    : `This will mark the invoice as Collected, immediately deposit ${currencySymbol}${formatCash(collectingReminder.amount)} into the selected wallet, and log an Income transaction.${collectingReminder.frequency === 'monthly' ? ' Next month’s recurring retainer will automatically be scheduled.' : ''}`}
                 </p>
               </div>
             </div>
