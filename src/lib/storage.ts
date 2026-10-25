@@ -161,18 +161,24 @@ export const StorageService = {
     const todayStr = new Date().toISOString().split('T')[0];
     const nowTime = new Date().toTimeString().slice(0, 5);
 
+    const isPayable = rem.type === 'payable';
     const tx = this.addTransaction({
       amount: rem.amount,
-      type: 'income',
-      title: `Client Payment: ${rem.clientName} - ${rem.projectTitle}`,
+      type: isPayable ? 'expense' : 'income',
+      title: isPayable
+        ? `Payment Paid: ${rem.clientName} (${rem.projectTitle})`
+        : `Client Payment: ${rem.clientName} - ${rem.projectTitle}`,
       clientOrPayer: rem.clientName,
-      categoryId: 'inc-freelance',
+      categoryId: isPayable ? (rem.categoryId || 'cat-misc') : 'inc-freelance',
       walletId: walletId,
       date: todayStr,
       time: nowTime,
       token: rem.token || 'PKR',
-      notes: `Settled Invoice #${rem.invoiceNumber || 'N/A'}. ${rem.notes || ''}`,
+      notes: isPayable
+        ? `Settled expense for ${rem.clientName}. ${rem.notes || ''}`
+        : `Settled Invoice #${rem.invoiceNumber || 'N/A'}. ${rem.notes || ''}`,
       reminderId: rem.id,
+      frequency: rem.frequency,
     });
 
     this.updateReminder(reminderId, {
@@ -195,6 +201,7 @@ export const StorageService = {
         const nextRemStr = nextRem.toISOString().split('T')[0];
 
         this.addReminder({
+          type: rem.type || 'receivable',
           clientName: rem.clientName,
           clientEmail: rem.clientEmail,
           clientPhone: rem.clientPhone,
@@ -203,6 +210,7 @@ export const StorageService = {
           amount: rem.amount,
           currency: rem.currency,
           token: rem.token,
+          categoryId: rem.categoryId,
           frequency: 'monthly',
           invoiceDate: todayStr,
           dueDate: nextDueStr,

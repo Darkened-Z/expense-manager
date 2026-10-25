@@ -70,14 +70,24 @@ export const NotificationService = {
     if (overdueList.length > 0) {
       const first = overdueList[0];
       const count = overdueList.length;
-      const title = count === 1 ? `Overdue Invoice: ${first.clientName}` : `${count} Overdue Invoices Requiring Follow-Up`;
-      const body = count === 1 ? `${first.projectTitle} - Rs. ${first.amount.toFixed(2)} due on ${first.dueDate}` : `Review your client receivables to send reminder messages.`;
+      const isPayable = first.type === 'payable';
+      const title = count === 1
+        ? (isPayable ? `Overdue Payment to Give: ${first.clientName}` : `Overdue Invoice: ${first.clientName}`)
+        : `${count} Overdue Payments Requiring Action`;
+      const body = count === 1
+        ? `${first.projectTitle} - Rs. ${first.amount.toFixed(2)} was due on ${first.dueDate}.`
+        : `Check your pending expenses and receivables.`;
       this.send(title, body);
     } else if (dueTodayList.length > 0) {
       const first = dueTodayList[0];
       const count = dueTodayList.length;
-      const title = count === 1 ? `Payment Due Today: ${first.clientName}` : `${count} Invoices Due Today`;
-      const body = count === 1 ? `${first.projectTitle} - Rs. ${first.amount.toFixed(2)} expected today.` : `Check your accounts for incoming settlements.`;
+      const isPayable = first.type === 'payable';
+      const title = count === 1
+        ? (isPayable ? `Payment Due Today: Pay ${first.clientName}` : `Payment Due Today: ${first.clientName}`)
+        : `${count} Payments Due Today`;
+      const body = count === 1
+        ? `${first.projectTitle} - Rs. ${first.amount.toFixed(2)} scheduled for today.`
+        : `Review your salaries/expenses to disburse and incoming settlements.`;
       this.send(title, body);
     }
   },

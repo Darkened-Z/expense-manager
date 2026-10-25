@@ -16,6 +16,7 @@ import {
   Check,
   User,
   ArrowUpRight,
+  ArrowDownLeft,
   Filter,
   Repeat,
 } from 'lucide-react';
@@ -39,17 +40,21 @@ export const FreelanceRemindersView: React.FC<FreelanceRemindersViewProps> = ({
   onCollectReminder,
   onDeleteReminder,
 }) => {
-  const [filterTab, setFilterTab] = useState<'all' | 'urgent' | 'pending' | 'collected'>('all');
+  const [filterTab, setFilterTab] = useState<'all' | 'receivable' | 'payable' | 'urgent' | 'collected'>('all');
   const [copiedId, setCopiedId] = useState<string | null>(null);
   const [collectingReminder, setCollectingReminder] = useState<PaymentReminder | null>(null);
   const [targetWalletId, setTargetWalletId] = useState<string>(wallets[0]?.id || 'wal-bank');
 
   // Compute metrics
-  const totalPending = reminders
-    .filter((r) => r.status !== 'collected')
+  const totalReceivablePending = reminders
+    .filter((r) => r.status !== 'collected' && r.type !== 'payable')
     .reduce((sum, r) => sum + r.amount, 0);
 
-  const totalCollected = reminders
+  const totalPayablePending = reminders
+    .filter((r) => r.status !== 'collected' && r.type === 'payable')
+    .reduce((sum, r) => sum + r.amount, 0);
+
+  const totalSettled = reminders
     .filter((r) => r.status === 'collected')
     .reduce((sum, r) => sum + r.amount, 0);
 
@@ -59,8 +64,9 @@ export const FreelanceRemindersView: React.FC<FreelanceRemindersViewProps> = ({
 
   // Filter list
   const filteredList = reminders.filter((r) => {
+    if (filterTab === 'receivable') return r.type !== 'payable' && r.status !== 'collected';
+    if (filterTab === 'payable') return r.type === 'payable' && r.status !== 'collected';
     if (filterTab === 'urgent') return r.status === 'overdue' || r.status === 'due_today';
-    if (filterTab === 'pending') return r.status === 'pending';
     if (filterTab === 'collected') return r.status === 'collected';
     return true;
   });
@@ -68,7 +74,10 @@ export const FreelanceRemindersView: React.FC<FreelanceRemindersViewProps> = ({
   // Calculate day difference for label
   const getDueLabel = (rem: PaymentReminder) => {
     if (rem.status === 'collected') {
-      return { text: `Collected ${rem.collectedAt || ''}`, color: 'emerald' };
+      return {
+        text: rem.type === 'payable' ? `Paid ${rem.collectedAt || ''}` : `Collected ${rem.collectedAt || ''}`,
+        color: 'emerald',
+      };
     }
     const today = new Date().toISOString().split('T')[0];
     const due = new Date(rem.dueDate + 'T00:00:00');
@@ -84,9 +93,12 @@ export const FreelanceRemindersView: React.FC<FreelanceRemindersViewProps> = ({
     return { text: `Due in ${diffDays} day${diffDays === 1 ? '' : 's'}`, color: 'neutral' };
   };
 
-  // Copy professional reminder text
+  // Copy reminder text
   const handleCopyReminderText = (rem: PaymentReminder) => {
-    const text = `Hi ${rem.clientName},\n\nI hope you're having a great week! Friendly reminder that Invoice #${rem.invoiceNumber || 'INV'} for "${rem.projectTitle}" in the amount of ${currencySymbol}${rem.amount.toFixed(2)} was due on ${rem.dueDate}.\n\nPlease let me know once the payment has been initiated or if you need any additional invoice documentation.\n\nThank you!`;
+    const isPayable = rem.type === 'payable';
+    const text = isPayable
+      ? `Payment Reminder: ${rem.projectTitle}\nPayee: ${rem.clientName}\nAmount: ${currencySymbol}${rem.amount.toFixed(2)}\nDue Date: ${rem.dueDate}${rem.notes ? `\nNotes: ${rem.notes}` : ''}`
+      : `Hi ${rem.clientName},\n\nI hope you're having a great week! Friendly reminder that Invoice #${rem.invoiceNumber || 'INV'} for "${rem.projectTitle}" in the amount of ${currencySymbol}${rem.amount.toFixed(2)} was due on ${rem.dueDate}.\n\nPlease let me know once the payment has been initiated or if you need any additional invoice documentation.\n\nThank you!`;
 
     navigator.clipboard.writeText(text);
     setCopiedId(rem.id);
@@ -95,6 +107,7 @@ export const FreelanceRemindersView: React.FC<FreelanceRemindersViewProps> = ({
 
   // Download .ics Calendar event
   const handleDownloadICS = (rem: PaymentReminder) => {
+    const isPayable = rem.type === 'payable';
     const icsContent = [
       'BEGIN:VCALENDAR',
       'VERSION:2.0',
@@ -104,13 +117,13 @@ export const FreelanceRemindersView: React.FC<FreelanceRemindersViewProps> = ({
       `DTSTAMP:${new Date().toISOString().replace(/[-:]/g, '').split('.')[0]}Z`,
       `DTSTART;VALUE=DATE:${rem.dueDate.replace(/-/g, '')}`,
       `DTEND;VALUE=DATE:${rem.dueDate.replace(/-/g, '')}`,
-      `SUMMARY:Collect Payment: ${rem.clientName} (${currencySymbol}${rem.amount.toFixed(2)})`,
-      `DESCRIPTION:Freelance Invoice #${rem.invoiceNumber || 'N/A'}\\nProject: ${rem.projectTitle}\\nClient: ${rem.clientName}\\nAmount: ${currencySymbol}${rem.amount.toFixed(2)}`,
+      `SUMMARY:${isPayable ? 'Pay Expense' : 'Collect Payment'}: ${rem.clientName} (${currencySymbol}${rem.amount.toFixed(2)})`,
+      `DESCRIPTION:${isPayable ? 'Recurring / Constant Expense' : 'Freelance Invoice'}: ${rem.projectTitle}\\n${isPayable ? 'Payee' : 'Client'}: ${rem.clientName}\\nAmount: ${currencySymbol}${rem.amount.toFixed(2)}`,
       'STATUS:CONFIRMED',
       'BEGIN:VALARM',
       'TRIGGER:-PT9H',
       'ACTION:DISPLAY',
-      `DESCRIPTION:Reminder to collect payment from ${rem.clientName}`,
+      `DESCRIPTION:${isPayable ? 'Reminder to pay' : 'Reminder to collect payment from'} ${rem.clientName}`,
       'END:VALARM',
       'END:VEVENT',
       'END:VCALENDAR',
@@ -148,12 +161,22 @@ export const FreelanceRemindersView: React.FC<FreelanceRemindersViewProps> = ({
       {/* Top Banner Metric Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4">
         <div className="bg-[#12141a] border border-white/5 rounded-2xl p-4 sm:p-5 shadow-xl relative overflow-hidden">
-          <div className="text-xs text-zinc-400 font-medium">Pending to Collect</div>
+          <div className="text-xs text-zinc-400 font-medium">To Collect (Receivables)</div>
           <div className="text-xl sm:text-2xl font-bold text-white font-mono mt-1">
-            {currencySymbol}{totalPending.toFixed(2)}
+            {currencySymbol}{totalReceivablePending.toFixed(2)}
           </div>
           <div className="text-[11px] text-zinc-500 mt-1">
-            Across {reminders.filter((r) => r.status !== 'collected').length} active receivables
+            Across {reminders.filter((r) => r.status !== 'collected' && r.type !== 'payable').length} active receivables
+          </div>
+        </div>
+
+        <div className="bg-[#12141a] border border-white/5 rounded-2xl p-4 sm:p-5 shadow-xl relative overflow-hidden">
+          <div className="text-xs text-zinc-400 font-medium">To Pay (Salaries & Bills)</div>
+          <div className="text-xl sm:text-2xl font-bold text-white font-mono mt-1">
+            {currencySymbol}{totalPayablePending.toFixed(2)}
+          </div>
+          <div className="text-[11px] text-zinc-500 mt-1">
+            Across {reminders.filter((r) => r.status !== 'collected' && r.type === 'payable').length} recurring expenses
           </div>
         </div>
 
@@ -168,29 +191,21 @@ export const FreelanceRemindersView: React.FC<FreelanceRemindersViewProps> = ({
             )}
           </div>
           <div className="text-[11px] text-zinc-500 mt-1">
-            {dueTodayList.length} invoice{dueTodayList.length === 1 ? '' : 's'} due today
+            {dueTodayList.length} item{dueTodayList.length === 1 ? '' : 's'} due today
           </div>
-        </div>
-
-        <div className="bg-[#12141a] border border-white/5 rounded-2xl p-4 sm:p-5 shadow-xl relative overflow-hidden">
-          <div className="text-xs text-zinc-400 font-medium">Collected Revenue</div>
-          <div className="text-xl sm:text-2xl font-bold text-white font-mono mt-1">
-            {currencySymbol}{totalCollected.toFixed(2)}
-          </div>
-          <div className="text-[11px] text-zinc-500 mt-1">Settled & credited to wallets</div>
         </div>
 
         <div className="bg-[#12141a] border border-white/10 rounded-2xl p-4 sm:p-5 shadow-xl flex flex-col justify-between sm:col-span-2 md:col-span-1">
           <div>
-            <div className="text-xs text-white font-semibold tracking-wide">New Invoice Due?</div>
-            <div className="text-xs text-zinc-400 mt-0.5">Schedule dates to get automated reminder alerts</div>
+            <div className="text-xs text-white font-semibold tracking-wide">Schedule Reminder</div>
+            <div className="text-xs text-zinc-400 mt-0.5">Track monthly salaries, bills, or client invoices</div>
           </div>
           <button
             onClick={onOpenAddModal}
-            className="mt-3 w-full bg-zinc-100 hover:bg-white text-zinc-950 font-semibold py-2 px-3 rounded-xl text-xs flex items-center justify-center gap-1.5 transition-colors shadow-sm"
+            className="mt-3 w-full bg-zinc-100 hover:bg-white text-zinc-950 font-semibold py-2 px-3 rounded-xl text-xs flex items-center justify-center gap-1.5 transition-colors shadow-sm cursor-pointer"
           >
             <Plus className="w-4 h-4 stroke-[2.5]" />
-            <span>Add Receivable Due Date</span>
+            <span>Add Due Date</span>
           </button>
         </div>
       </div>
@@ -202,15 +217,31 @@ export const FreelanceRemindersView: React.FC<FreelanceRemindersViewProps> = ({
           <div className="flex items-center gap-1.5 bg-[#181b23] p-1 rounded-xl border border-white/10 text-xs overflow-x-auto max-w-full pb-1 sm:pb-1">
             <button
               onClick={() => setFilterTab('all')}
-              className={`px-3 py-1.5 rounded-lg transition-colors whitespace-nowrap ${
+              className={`px-3 py-1.5 rounded-lg transition-colors whitespace-nowrap cursor-pointer ${
                 filterTab === 'all' ? 'bg-white/10 text-white font-medium' : 'text-zinc-400 hover:text-zinc-200'
               }`}
             >
-              All Invoices ({reminders.length})
+              All ({reminders.length})
+            </button>
+            <button
+              onClick={() => setFilterTab('receivable')}
+              className={`px-3 py-1.5 rounded-lg transition-colors whitespace-nowrap cursor-pointer ${
+                filterTab === 'receivable' ? 'bg-white/10 text-white font-medium' : 'text-zinc-400 hover:text-zinc-200'
+              }`}
+            >
+              To Collect ({reminders.filter((r) => r.type !== 'payable' && r.status !== 'collected').length})
+            </button>
+            <button
+              onClick={() => setFilterTab('payable')}
+              className={`px-3 py-1.5 rounded-lg transition-colors whitespace-nowrap cursor-pointer ${
+                filterTab === 'payable' ? 'bg-white/10 text-white font-medium' : 'text-zinc-400 hover:text-zinc-200'
+              }`}
+            >
+              To Pay ({reminders.filter((r) => r.type === 'payable' && r.status !== 'collected').length})
             </button>
             <button
               onClick={() => setFilterTab('urgent')}
-              className={`px-3 py-1.5 rounded-lg transition-colors flex items-center gap-1.5 whitespace-nowrap ${
+              className={`px-3 py-1.5 rounded-lg transition-colors flex items-center gap-1.5 whitespace-nowrap cursor-pointer ${
                 filterTab === 'urgent' ? 'bg-rose-500/20 text-rose-300 font-medium' : 'text-zinc-400 hover:text-zinc-200'
               }`}
             >
@@ -222,25 +253,17 @@ export const FreelanceRemindersView: React.FC<FreelanceRemindersViewProps> = ({
               )}
             </button>
             <button
-              onClick={() => setFilterTab('pending')}
-              className={`px-3 py-1.5 rounded-lg transition-colors whitespace-nowrap ${
-                filterTab === 'pending' ? 'bg-white/10 text-white font-medium' : 'text-zinc-400 hover:text-zinc-200'
-              }`}
-            >
-              Upcoming ({reminders.filter((r) => r.status === 'pending').length})
-            </button>
-            <button
               onClick={() => setFilterTab('collected')}
-              className={`px-3 py-1.5 rounded-lg transition-colors whitespace-nowrap ${
+              className={`px-3 py-1.5 rounded-lg transition-colors whitespace-nowrap cursor-pointer ${
                 filterTab === 'collected' ? 'bg-white/10 text-white font-medium' : 'text-zinc-400 hover:text-zinc-200'
               }`}
             >
-              Collected ({reminders.filter((r) => r.status === 'collected').length})
+              Settled ({reminders.filter((r) => r.status === 'collected').length})
             </button>
           </div>
 
           <div className="text-xs text-zinc-400">
-            Reminders auto-calculate daily based on invoice due dates
+            Due dates calculate alerts automatically
           </div>
         </div>
 
@@ -272,7 +295,18 @@ export const FreelanceRemindersView: React.FC<FreelanceRemindersViewProps> = ({
                   <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
                     {/* Left: Client & Project Info */}
                     <div className="space-y-1">
-                      <div className="flex items-center gap-2">
+                      <div className="flex items-center gap-2 flex-wrap">
+                        {rem.type === 'payable' ? (
+                          <span className="text-[11px] font-medium text-rose-400 flex items-center gap-0.5">
+                            <ArrowDownLeft className="w-3 h-3" />
+                            <span>To Pay</span>
+                          </span>
+                        ) : (
+                          <span className="text-[11px] font-medium text-emerald-400 flex items-center gap-0.5">
+                            <ArrowUpRight className="w-3 h-3" />
+                            <span>To Collect</span>
+                          </span>
+                        )}
                         <span className="font-bold text-white text-sm">{rem.clientName}</span>
                         {rem.invoiceNumber && (
                           <span className="text-[10px] bg-white/5 text-zinc-400 px-2 py-0.5 rounded font-mono border border-white/5">
@@ -341,20 +375,20 @@ export const FreelanceRemindersView: React.FC<FreelanceRemindersViewProps> = ({
                       <div className="flex items-center gap-1.5">
                         {!isCollected ? (
                           <>
-                            {/* Collect Button */}
+                            {/* Action Button */}
                             <button
                               onClick={() => setCollectingReminder(rem)}
                               className="bg-zinc-100 hover:bg-white text-zinc-950 font-semibold text-xs px-3 py-2 rounded-xl flex items-center gap-1.5 transition-colors shadow-sm cursor-pointer"
                             >
                               <CheckCircle2 className="w-3.5 h-3.5 stroke-[2.5]" />
-                              <span>Collect Payment</span>
+                              <span>{rem.type === 'payable' ? 'Mark as Paid' : 'Collect Payment'}</span>
                             </button>
 
                             {/* Copy Reminder Message */}
                             <button
                               onClick={() => handleCopyReminderText(rem)}
-                              className="bg-[#202430] hover:bg-[#282d3c] text-zinc-200 text-xs px-2.5 py-2 rounded-xl flex items-center gap-1 border border-white/10 transition-colors"
-                              title="Copy professional reminder message to clipboard"
+                              className="bg-[#202430] hover:bg-[#282d3c] text-zinc-200 text-xs px-2.5 py-2 rounded-xl flex items-center gap-1 border border-white/10 transition-colors cursor-pointer"
+                              title={rem.type === 'payable' ? "Copy expense reminder details" : "Copy professional reminder message to clipboard"}
                             >
                               {copiedId === rem.id ? (
                                 <>
@@ -364,7 +398,7 @@ export const FreelanceRemindersView: React.FC<FreelanceRemindersViewProps> = ({
                               ) : (
                                 <>
                                   <Copy className="w-3.5 h-3.5 text-zinc-400" />
-                                  <span>Follow-Up</span>
+                                  <span>{rem.type === 'payable' ? 'Copy Info' : 'Follow-Up'}</span>
                                 </>
                               )}
                             </button>
@@ -372,7 +406,7 @@ export const FreelanceRemindersView: React.FC<FreelanceRemindersViewProps> = ({
                             {/* Download ICS */}
                             <button
                               onClick={() => handleDownloadICS(rem)}
-                              className="p-2 text-zinc-400 hover:text-white bg-[#202430] hover:bg-[#282d3c] border border-white/10 rounded-xl transition-colors"
+                              className="p-2 text-zinc-400 hover:text-white bg-[#202430] hover:bg-[#282d3c] border border-white/10 rounded-xl transition-colors cursor-pointer"
                               title="Add reminder to Google / Apple Calendar (.ics)"
                             >
                               <Download className="w-3.5 h-3.5" />
@@ -381,14 +415,14 @@ export const FreelanceRemindersView: React.FC<FreelanceRemindersViewProps> = ({
                         ) : (
                           <div className="flex items-center gap-1 text-xs text-emerald-400 font-semibold px-3 py-1.5 rounded-xl bg-emerald-500/10 border border-emerald-500/20">
                             <CheckCircle2 className="w-3.5 h-3.5" />
-                            <span>Paid & Deposited</span>
+                            <span>{rem.type === 'payable' ? 'Paid & Deducted' : 'Paid & Deposited'}</span>
                           </div>
                         )}
 
                         {/* Delete Button */}
                         <button
                           onClick={() => onDeleteReminder(rem.id)}
-                          className="p-2 text-zinc-500 hover:text-rose-400 hover:bg-rose-500/10 rounded-xl transition-colors"
+                          className="p-2 text-zinc-500 hover:text-rose-400 hover:bg-rose-500/10 rounded-xl transition-colors cursor-pointer"
                           title="Delete invoice"
                         >
                           <Trash2 className="w-3.5 h-3.5" />
@@ -403,18 +437,20 @@ export const FreelanceRemindersView: React.FC<FreelanceRemindersViewProps> = ({
         </div>
       </div>
 
-      {/* Collect Settlement Modal */}
+      {/* Collect / Pay Settlement Modal */}
       {collectingReminder && (
         <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
           <div className="bg-[#14161d] border border-white/10 rounded-2xl w-full max-w-md p-6 shadow-2xl animate-in fade-in zoom-in-95">
             <div className="flex items-center justify-between pb-3 border-b border-white/5">
               <div className="flex items-center gap-2 text-emerald-400">
                 <CheckCircle2 className="w-5 h-5" />
-                <h3 className="font-bold text-white text-base">Collect Client Payment</h3>
+                <h3 className="font-bold text-white text-base">
+                  {collectingReminder.type === 'payable' ? 'Settle Outgoing Expense' : 'Collect Client Payment'}
+                </h3>
               </div>
               <button
                 onClick={() => setCollectingReminder(null)}
-                className="text-zinc-500 hover:text-white text-xs"
+                className="text-zinc-500 hover:text-white text-xs cursor-pointer"
               >
                 Cancel
               </button>
@@ -422,7 +458,9 @@ export const FreelanceRemindersView: React.FC<FreelanceRemindersViewProps> = ({
 
             <div className="py-4 space-y-4">
               <div className="bg-[#1c1f28] p-3 rounded-xl border border-white/5">
-                <div className="text-xs text-zinc-400">Client & Invoice</div>
+                <div className="text-xs text-zinc-400">
+                  {collectingReminder.type === 'payable' ? 'Payee & Expense' : 'Client & Invoice'}
+                </div>
                 <div className="font-semibold text-white mt-0.5">{collectingReminder.clientName}</div>
                 <div className="text-xs text-zinc-400">{collectingReminder.projectTitle}</div>
                 <div className="text-lg font-mono font-bold text-white mt-2">
@@ -432,7 +470,7 @@ export const FreelanceRemindersView: React.FC<FreelanceRemindersViewProps> = ({
 
               <div>
                 <label className="block text-xs font-medium text-zinc-300 mb-1.5">
-                  Select Deposit Account / Wallet:
+                  {collectingReminder.type === 'payable' ? 'Select Account / Wallet to Pay From:' : 'Select Deposit Account / Wallet:'}
                 </label>
                 <select
                   value={targetWalletId}
@@ -446,8 +484,9 @@ export const FreelanceRemindersView: React.FC<FreelanceRemindersViewProps> = ({
                   ))}
                 </select>
                 <p className="text-[11px] text-zinc-500 mt-1.5">
-                  This will mark the invoice as Collected, immediately deposit {currencySymbol}{collectingReminder.amount.toFixed(2)} into the selected wallet, and log an Income transaction.
-                  {collectingReminder.frequency === 'monthly' && ' Next month’s recurring retainer will automatically be scheduled.'}
+                  {collectingReminder.type === 'payable'
+                    ? `This will mark the expense as Paid, deduct ${currencySymbol}${collectingReminder.amount.toFixed(2)} from the selected wallet, and log an Expense transaction.${collectingReminder.frequency === 'monthly' ? ' Next month’s recurring expense reminder will automatically be scheduled.' : ''}`
+                    : `This will mark the invoice as Collected, immediately deposit ${currencySymbol}${collectingReminder.amount.toFixed(2)} into the selected wallet, and log an Income transaction.${collectingReminder.frequency === 'monthly' ? ' Next month’s recurring retainer will automatically be scheduled.' : ''}`}
                 </p>
               </div>
             </div>
@@ -455,15 +494,15 @@ export const FreelanceRemindersView: React.FC<FreelanceRemindersViewProps> = ({
             <div className="flex items-center justify-end gap-2 pt-3 border-t border-white/5">
               <button
                 onClick={() => setCollectingReminder(null)}
-                className="px-4 py-2 rounded-xl text-xs font-medium text-zinc-400 hover:text-white bg-white/5 hover:bg-white/10"
+                className="px-4 py-2 rounded-xl text-xs font-medium text-zinc-400 hover:text-white bg-white/5 hover:bg-white/10 cursor-pointer"
               >
                 Cancel
               </button>
               <button
                 onClick={handleConfirmCollect}
-                className="px-5 py-2.5 rounded-xl text-xs font-semibold text-zinc-950 bg-zinc-100 hover:bg-white transition-colors shadow-sm"
+                className="px-5 py-2.5 rounded-xl text-xs font-semibold text-zinc-950 bg-zinc-100 hover:bg-white transition-colors shadow-sm cursor-pointer"
               >
-                Confirm Collection
+                {collectingReminder.type === 'payable' ? 'Confirm Payment' : 'Confirm Collection'}
               </button>
             </div>
           </div>

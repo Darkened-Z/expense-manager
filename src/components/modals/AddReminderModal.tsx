@@ -1,13 +1,16 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { X, Clock, Calendar, DollarSign, User, FileText, Bell } from 'lucide-react';
+import { X, Clock, Calendar, DollarSign, User, FileText, Bell, ArrowUpRight, ArrowDownLeft, AlertTriangle } from 'lucide-react';
+import { Category, ReminderType } from '@/types';
 
 interface AddReminderModalProps {
   isOpen: boolean;
   currencySymbol: string;
+  categories?: Category[];
   onClose: () => void;
   onSubmit: (reminder: {
+    type?: ReminderType;
     clientName: string;
     clientEmail?: string;
     clientPhone?: string;
@@ -16,6 +19,7 @@ interface AddReminderModalProps {
     amount: number;
     currency: string;
     token?: string;
+    categoryId?: string;
     frequency?: 'once' | 'monthly';
     invoiceDate: string;
     dueDate: string;
@@ -27,14 +31,17 @@ interface AddReminderModalProps {
 export const AddReminderModal: React.FC<AddReminderModalProps> = ({
   isOpen,
   currencySymbol,
+  categories = [],
   onClose,
   onSubmit,
 }) => {
+  const [type, setType] = useState<ReminderType>('receivable');
   const [clientName, setClientName] = useState('');
   const [clientEmail, setClientEmail] = useState('');
   const [clientPhone, setClientPhone] = useState('');
   const [projectTitle, setProjectTitle] = useState('');
   const [invoiceNumber, setInvoiceNumber] = useState('');
+  const [categoryId, setCategoryId] = useState('');
   const [amount, setAmount] = useState('');
   const [currency, setCurrency] = useState('PKR');
   const [frequency, setFrequency] = useState<'once' | 'monthly'>('once');
@@ -67,13 +74,15 @@ export const AddReminderModal: React.FC<AddReminderModalProps> = ({
       setAmount('');
       setCurrency('PKR');
       setFrequency('once');
+      const expCat = categories.find((c) => c.type === 'expense');
+      setCategoryId(expCat?.id || '');
       setInvoiceDate(todayStr);
       setDueDate(dueStr);
       setReminderDate(remStr);
       setNotes('');
       setError(null);
     }
-  }, [isOpen]);
+  }, [isOpen, categories]);
 
   // When due date changes, automatically propose reminder date 2 days before
   const handleDueDateChange = (newDue: string) => {
@@ -93,11 +102,11 @@ export const AddReminderModal: React.FC<AddReminderModalProps> = ({
     e.preventDefault();
     const parsedAmount = parseFloat(amount);
     if (!clientName.trim()) {
-      setError('Please enter the client or company name');
+      setError(type === 'payable' ? 'Please enter the payee or person name' : 'Please enter the client or company name');
       return;
     }
     if (!projectTitle.trim()) {
-      setError('Please enter the project or milestone title');
+      setError(type === 'payable' ? 'Please enter the salary or expense purpose' : 'Please enter the project or milestone title');
       return;
     }
     if (isNaN(parsedAmount) || parsedAmount <= 0) {
@@ -105,11 +114,12 @@ export const AddReminderModal: React.FC<AddReminderModalProps> = ({
       return;
     }
     if (!dueDate) {
-      setError('Please set an invoice due date');
+      setError('Please set an invoice or payment due date');
       return;
     }
 
     onSubmit({
+      type,
       clientName: clientName.trim(),
       clientEmail: clientEmail.trim() || undefined,
       clientPhone: clientPhone.trim() || undefined,
@@ -118,6 +128,7 @@ export const AddReminderModal: React.FC<AddReminderModalProps> = ({
       amount: parsedAmount,
       currency,
       token: currency,
+      categoryId: type === 'payable' ? categoryId : undefined,
       frequency,
       invoiceDate: invoiceDate || new Date().toISOString().split('T')[0],
       dueDate,
@@ -137,7 +148,7 @@ export const AddReminderModal: React.FC<AddReminderModalProps> = ({
               <Clock className="w-4 h-4" />
             </div>
             <h2 className="text-base font-bold text-white tracking-wide">
-              New Client Invoice & Payment Reminder
+              {type === 'payable' ? 'New Constant Expense / Salary Reminder' : 'New Client Invoice & Payment Reminder'}
             </h2>
           </div>
           <button onClick={onClose} className="p-1 rounded-lg text-zinc-500 hover:text-white transition-colors">
@@ -146,13 +157,56 @@ export const AddReminderModal: React.FC<AddReminderModalProps> = ({
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-4 pt-4">
-          {/* Client Name & Project */}
+          {error && (
+            <div className="p-3 rounded-xl bg-rose-500/10 border border-rose-500/20 text-rose-300 text-xs flex items-center gap-2">
+              <AlertTriangle className="w-4 h-4 shrink-0" />
+              <span>{error}</span>
+            </div>
+          )}
+
+          {/* Reminder Direction: To Collect vs To Pay */}
+          <div className="grid grid-cols-2 gap-2 bg-[#171922] p-1 rounded-xl border border-white/5">
+            <button
+              type="button"
+              onClick={() => {
+                setType('receivable');
+                setFrequency('once');
+              }}
+              className={`py-2 text-xs font-semibold rounded-lg flex items-center justify-center gap-1.5 transition-all ${
+                type === 'receivable'
+                  ? 'bg-white/10 text-white shadow-sm'
+                  : 'text-zinc-400 hover:text-zinc-200'
+              }`}
+            >
+              <ArrowUpRight className="w-3.5 h-3.5 text-emerald-400" />
+              <span>To Collect (Client)</span>
+            </button>
+            <button
+              type="button"
+              onClick={() => {
+                setType('payable');
+                setFrequency('monthly');
+              }}
+              className={`py-2 text-xs font-semibold rounded-lg flex items-center justify-center gap-1.5 transition-all ${
+                type === 'payable'
+                  ? 'bg-white/10 text-white shadow-sm'
+                  : 'text-zinc-400 hover:text-zinc-200'
+              }`}
+            >
+              <ArrowDownLeft className="w-3.5 h-3.5 text-rose-400" />
+              <span>To Pay (Salary / Expense)</span>
+            </button>
+          </div>
+
+          {/* Client / Payee Name & Reference */}
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <label className="block text-[11px] font-medium text-zinc-400 mb-1">Client Name / Org</label>
+              <label className="block text-[11px] font-medium text-zinc-400 mb-1">
+                {type === 'payable' ? 'Payee / Person / Vendor' : 'Client Name / Org'}
+              </label>
               <input
                 type="text"
-                placeholder="e.g. Acme Labs"
+                placeholder={type === 'payable' ? 'e.g. Asim (Junior Dev), Landlord' : 'e.g. Acme Labs'}
                 value={clientName}
                 onChange={(e) => setClientName(e.target.value)}
                 className="w-full bg-[#171922] text-white text-xs px-3.5 py-2.5 rounded-xl border border-white/10 focus:outline-none focus:border-white/30"
@@ -160,10 +214,12 @@ export const AddReminderModal: React.FC<AddReminderModalProps> = ({
               />
             </div>
             <div>
-              <label className="block text-[11px] font-medium text-zinc-400 mb-1">Invoice Number</label>
+              <label className="block text-[11px] font-medium text-zinc-400 mb-1">
+                {type === 'payable' ? 'Reference / Voucher' : 'Invoice Number'}
+              </label>
               <input
                 type="text"
-                placeholder="INV-2026-01"
+                placeholder={type === 'payable' ? 'PAY-2026-01' : 'INV-2026-01'}
                 value={invoiceNumber}
                 onChange={(e) => setInvoiceNumber(e.target.value)}
                 className="w-full bg-[#171922] text-white text-xs font-mono px-3.5 py-2.5 rounded-xl border border-white/10 focus:outline-none focus:border-white/30"
@@ -172,10 +228,12 @@ export const AddReminderModal: React.FC<AddReminderModalProps> = ({
           </div>
 
           <div>
-            <label className="block text-[11px] font-medium text-zinc-400 mb-1">Project / Deliverable Title</label>
+            <label className="block text-[11px] font-medium text-zinc-400 mb-1">
+              {type === 'payable' ? 'Expense / Salary Purpose' : 'Project / Deliverable Title'}
+            </label>
             <input
               type="text"
-              placeholder="e.g. Mobile App Redesign, Fullstack API integration"
+              placeholder={type === 'payable' ? 'e.g. Monthly Salary, Office Rent, Hosting' : 'e.g. Mobile App Redesign, API integration'}
               value={projectTitle}
               onChange={(e) => setProjectTitle(e.target.value)}
               className="w-full bg-[#171922] text-white text-xs px-3.5 py-2.5 rounded-xl border border-white/10 focus:outline-none focus:border-white/30"
@@ -183,10 +241,30 @@ export const AddReminderModal: React.FC<AddReminderModalProps> = ({
             />
           </div>
 
+          {/* Expense Category (if payable) */}
+          {type === 'payable' && categories.length > 0 && (
+            <div>
+              <label className="block text-[11px] font-medium text-zinc-400 mb-1">Expense Category</label>
+              <select
+                value={categoryId}
+                onChange={(e) => setCategoryId(e.target.value)}
+                className="w-full bg-[#171922] text-white text-xs px-3.5 py-2.5 rounded-xl border border-white/10 focus:outline-none focus:border-white/30"
+              >
+                {categories.filter((c) => c.type === 'expense').map((cat) => (
+                  <option key={cat.id} value={cat.id}>
+                    {cat.name}
+                  </option>
+                ))}
+              </select>
+            </div>
+          )}
+
           {/* Amount & Currency */}
           <div className="grid grid-cols-3 gap-3">
             <div className="col-span-2">
-              <label className="block text-[11px] font-medium text-zinc-400 mb-1">Receivable Amount</label>
+              <label className="block text-[11px] font-medium text-zinc-400 mb-1">
+                {type === 'payable' ? 'Payment Amount' : 'Receivable Amount'}
+              </label>
               <div className="relative">
                 <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-zinc-400 font-mono text-xs font-semibold select-none">
                   {currencySymbol}
@@ -246,7 +324,9 @@ export const AddReminderModal: React.FC<AddReminderModalProps> = ({
             </div>
             {frequency === 'monthly' && (
               <p className="text-[10px] text-zinc-400 mt-1 pl-1">
-                Upon collection, the next month’s reminder will automatically be scheduled.
+                {type === 'payable'
+                  ? 'Upon settling this payment, the next month’s expense reminder will automatically be scheduled.'
+                  : 'Upon collection, the next month’s reminder will automatically be scheduled.'}
               </p>
             )}
           </div>
@@ -265,7 +345,9 @@ export const AddReminderModal: React.FC<AddReminderModalProps> = ({
                 className="w-full bg-[#12141a] text-white text-xs px-3 py-2 rounded-xl border border-white/10 focus:outline-none focus:border-white/30"
                 required
               />
-              <span className="text-[10px] text-zinc-500 mt-0.5 block">When payment is expected</span>
+              <span className="text-[10px] text-zinc-500 mt-0.5 block">
+                {type === 'payable' ? 'When payment must be disbursed' : 'When payment is expected'}
+              </span>
             </div>
 
             <div>
@@ -287,20 +369,24 @@ export const AddReminderModal: React.FC<AddReminderModalProps> = ({
           {/* Client Email & Phone */}
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <label className="block text-[11px] font-medium text-zinc-400 mb-1">Client Email (Optional)</label>
+              <label className="block text-[11px] font-medium text-zinc-400 mb-1">
+                {type === 'payable' ? 'Payee Email (Optional)' : 'Client Email (Optional)'}
+              </label>
               <input
                 type="email"
-                placeholder="billing@client.com"
+                placeholder={type === 'payable' ? 'payee@team.com' : 'billing@client.com'}
                 value={clientEmail}
                 onChange={(e) => setClientEmail(e.target.value)}
                 className="w-full bg-[#171922] text-white text-xs px-3.5 py-2.5 rounded-xl border border-white/10 focus:outline-none focus:border-white/30"
               />
             </div>
             <div>
-              <label className="block text-[11px] font-medium text-zinc-400 mb-1">Client Phone (Optional)</label>
+              <label className="block text-[11px] font-medium text-zinc-400 mb-1">
+                {type === 'payable' ? 'Payee Phone (Optional)' : 'Client Phone (Optional)'}
+              </label>
               <input
                 type="text"
-                placeholder="+1 555-0199"
+                placeholder="+92 300 1234567"
                 value={clientPhone}
                 onChange={(e) => setClientPhone(e.target.value)}
                 className="w-full bg-[#171922] text-white text-xs px-3.5 py-2.5 rounded-xl border border-white/10 focus:outline-none focus:border-white/30"
@@ -313,7 +399,7 @@ export const AddReminderModal: React.FC<AddReminderModalProps> = ({
             <label className="block text-[11px] font-medium text-zinc-400 mb-1">Notes / Terms (Optional)</label>
             <input
               type="text"
-              placeholder="e.g. Net-14 payment terms, 50% deposit remaining"
+              placeholder={type === 'payable' ? 'e.g. Monthly salary for Asim, Office maintenance' : 'e.g. Net-14 payment terms, 50% deposit remaining'}
               value={notes}
               onChange={(e) => setNotes(e.target.value)}
               className="w-full bg-[#171922] text-white text-xs px-3.5 py-2.5 rounded-xl border border-white/10 focus:outline-none focus:border-white/30"
@@ -335,7 +421,7 @@ export const AddReminderModal: React.FC<AddReminderModalProps> = ({
               type="submit"
               className="px-5 py-2.5 rounded-xl text-xs font-semibold text-zinc-950 bg-zinc-100 hover:bg-white transition-colors shadow-sm"
             >
-              Save Payment Reminder
+              Save {type === 'payable' ? 'Expense' : 'Invoice'} Reminder
             </button>
           </div>
         </form>

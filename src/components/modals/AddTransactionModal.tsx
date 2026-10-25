@@ -23,6 +23,7 @@ interface AddTransactionModalProps {
     notes?: string;
     token?: string;
     frequency?: 'once' | 'monthly';
+    createReminder?: boolean;
   }) => void;
 }
 
@@ -45,6 +46,7 @@ export const AddTransactionModal: React.FC<AddTransactionModalProps> = ({
   const [time, setTime] = useState<string>('');
   const [token, setToken] = useState<string>('PKR');
   const [frequency, setFrequency] = useState<'once' | 'monthly'>('once');
+  const [createReminder, setCreateReminder] = useState<boolean>(false);
   const [notes, setNotes] = useState<string>('');
   const [error, setError] = useState<string | null>(null);
 
@@ -57,6 +59,7 @@ export const AddTransactionModal: React.FC<AddTransactionModalProps> = ({
       setNotes('');
       setError(null);
       setFrequency('once');
+      setCreateReminder(false);
 
       // Default date & time to right now
       const now = new Date();
@@ -104,6 +107,7 @@ export const AddTransactionModal: React.FC<AddTransactionModalProps> = ({
       time,
       token,
       frequency,
+      createReminder: frequency === 'monthly' ? createReminder : false,
       notes: notes.trim() || undefined,
     });
 
@@ -203,8 +207,11 @@ export const AddTransactionModal: React.FC<AddTransactionModalProps> = ({
             <div className="grid grid-cols-2 gap-2 bg-[#171922] p-1 rounded-xl border border-white/5">
               <button
                 type="button"
-                onClick={() => setFrequency('once')}
-                className={`py-1.5 text-xs font-semibold rounded-lg transition-all ${
+                onClick={() => {
+                  setFrequency('once');
+                  setCreateReminder(false);
+                }}
+                className={`py-1.5 text-xs font-semibold rounded-lg transition-all cursor-pointer ${
                   frequency === 'once'
                     ? 'bg-white/10 text-white shadow-sm'
                     : 'text-zinc-400 hover:text-zinc-200'
@@ -214,8 +221,11 @@ export const AddTransactionModal: React.FC<AddTransactionModalProps> = ({
               </button>
               <button
                 type="button"
-                onClick={() => setFrequency('monthly')}
-                className={`py-1.5 text-xs font-semibold rounded-lg transition-all ${
+                onClick={() => {
+                  setFrequency('monthly');
+                  setCreateReminder(true);
+                }}
+                className={`py-1.5 text-xs font-semibold rounded-lg transition-all cursor-pointer ${
                   frequency === 'monthly'
                     ? 'bg-white/10 text-white shadow-sm'
                     : 'text-zinc-400 hover:text-zinc-200'
@@ -224,6 +234,22 @@ export const AddTransactionModal: React.FC<AddTransactionModalProps> = ({
                 Monthly (Recurring)
               </button>
             </div>
+
+            {frequency === 'monthly' && (
+              <label className="flex items-center gap-2 mt-2.5 cursor-pointer select-none text-zinc-300">
+                <input
+                  type="checkbox"
+                  checked={createReminder}
+                  onChange={(e) => setCreateReminder(e.target.checked)}
+                  className="rounded border-white/20 bg-[#171922] text-zinc-200 focus:ring-0 w-3.5 h-3.5 accent-white cursor-pointer"
+                />
+                <span className="text-[11px] text-zinc-300">
+                  {type === 'expense'
+                    ? 'Schedule monthly reminder for this expense (salaries, rent, bills)'
+                    : 'Schedule monthly reminder for this income (client retainer)'}
+                </span>
+              </label>
+            )}
           </div>
 
           {/* Title / Description */}

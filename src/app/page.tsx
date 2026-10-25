@@ -140,6 +140,37 @@ export default function Home() {
 
   const handleAddTransaction = (txData: any) => {
     StorageService.addTransaction(txData);
+
+    if (txData.createReminder) {
+      // Calculate next due date (1 month ahead on the same day)
+      const parts = (txData.date || new Date().toISOString().split('T')[0]).split('-');
+      const y = parseInt(parts[0], 10);
+      const m = parseInt(parts[1], 10) - 1;
+      const d = parseInt(parts[2], 10);
+
+      const nextDate = new Date(y, m + 1, d);
+      const nextYear = nextDate.getFullYear();
+      const nextMonth = String(nextDate.getMonth() + 1).padStart(2, '0');
+      const nextDay = String(nextDate.getDate()).padStart(2, '0');
+      const nextDueStr = `${nextYear}-${nextMonth}-${nextDay}`;
+
+      StorageService.addReminder({
+        type: txData.type === 'expense' ? 'payable' : 'receivable',
+        clientName: txData.clientOrPayer || txData.title,
+        projectTitle: txData.title,
+        amount: txData.amount,
+        currency: 'PKR',
+        token: txData.token || 'PKR',
+        categoryId: txData.categoryId,
+        frequency: 'monthly',
+        invoiceDate: txData.date,
+        dueDate: nextDueStr,
+        reminderDate: nextDueStr,
+        notes: txData.notes,
+      });
+      setReminders(StorageService.getReminders());
+    }
+
     setTransactions(StorageService.getTransactions());
     setWallets(StorageService.getWallets());
   };
@@ -509,6 +540,7 @@ export default function Home() {
         <AddReminderModal
           isOpen={true}
           currencySymbol={settings.currencySymbol}
+          categories={categories}
           onClose={() => setShowAddReminderModal(false)}
           onSubmit={handleAddReminder}
         />

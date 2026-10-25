@@ -39,9 +39,11 @@ export interface Transaction {
 }
 
 export type PaymentReminderStatus = 'pending' | 'due_today' | 'overdue' | 'collected';
+export type ReminderType = 'receivable' | 'payable';
 
 export interface PaymentReminder {
   id: string;
+  type?: ReminderType;
   clientName: string;
   clientEmail?: string;
   clientPhone?: string;
@@ -50,6 +52,7 @@ export interface PaymentReminder {
   amount: number;
   currency: string;
   token?: string;
+  categoryId?: string;
   invoiceDate: string; // YYYY-MM-DD
   dueDate: string; // YYYY-MM-DD
   reminderDate: string; // YYYY-MM-DD
