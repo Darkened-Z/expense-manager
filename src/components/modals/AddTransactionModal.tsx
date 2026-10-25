@@ -131,13 +131,13 @@ export const AddTransactionModal: React.FC<AddTransactionModalProps> = ({
                 const cats = categories.filter((c) => c.type === 'expense');
                 if (cats.length > 0) setCategoryId(cats[0].id);
               }}
-              className={`py-2 rounded-xl text-xs font-semibold flex items-center justify-center gap-1.5 transition-all ${
+              className={`py-2 rounded-xl text-xs font-medium flex items-center justify-center gap-1.5 transition-all ${
                 type === 'expense'
-                  ? 'bg-rose-500/20 text-rose-300 border border-rose-500/30 shadow-sm'
+                  ? 'bg-white/10 text-white border border-white/10 shadow-sm'
                   : 'text-zinc-400 hover:text-zinc-200'
               }`}
             >
-              <ArrowDownLeft className="w-3.5 h-3.5" />
+              <span className="w-1.5 h-1.5 rounded-full bg-rose-400/80" />
               <span>Expense (Spent)</span>
             </button>
 
@@ -148,13 +148,13 @@ export const AddTransactionModal: React.FC<AddTransactionModalProps> = ({
                 const cats = categories.filter((c) => c.type === 'income');
                 if (cats.length > 0) setCategoryId(cats[0].id);
               }}
-              className={`py-2 rounded-xl text-xs font-semibold flex items-center justify-center gap-1.5 transition-all ${
+              className={`py-2 rounded-xl text-xs font-medium flex items-center justify-center gap-1.5 transition-all ${
                 type === 'income'
-                  ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 shadow-sm'
+                  ? 'bg-white/10 text-white border border-white/10 shadow-sm'
                   : 'text-zinc-400 hover:text-zinc-200'
               }`}
             >
-              <ArrowUpRight className="w-3.5 h-3.5" />
+              <span className="w-1.5 h-1.5 rounded-full bg-emerald-400/80" />
               <span>Income (Received)</span>
             </button>
           </div>
@@ -173,7 +173,7 @@ export const AddTransactionModal: React.FC<AddTransactionModalProps> = ({
                   placeholder="0.00"
                   value={amount}
                   onChange={(e) => setAmount(e.target.value)}
-                  className="w-full bg-[#171922] text-white text-base font-mono font-bold pl-8 pr-3 py-2.5 rounded-xl border border-white/10 focus:outline-none focus:border-orange-500 transition-colors"
+                  className="w-full bg-[#171922] text-white text-base font-mono font-bold pl-8 pr-3 py-2.5 rounded-xl border border-white/10 focus:outline-none focus:border-white/30 transition-colors"
                   required
                 />
               </div>
@@ -186,7 +186,7 @@ export const AddTransactionModal: React.FC<AddTransactionModalProps> = ({
                 placeholder="USD"
                 value={token}
                 onChange={(e) => setToken(e.target.value.toUpperCase())}
-                className="w-full bg-[#171922] text-white text-xs font-mono uppercase px-3 py-3 rounded-xl border border-white/10 focus:outline-none focus:border-orange-500"
+                className="w-full bg-[#171922] text-white text-xs font-mono uppercase px-3 py-3 rounded-xl border border-white/10 focus:outline-none focus:border-white/30"
               />
             </div>
           </div>
@@ -201,7 +201,7 @@ export const AddTransactionModal: React.FC<AddTransactionModalProps> = ({
               placeholder={type === 'expense' ? 'e.g. Figma Subscription, Coffee, Uber' : 'e.g. Website Milestone 1, Retainer'}
               value={title}
               onChange={(e) => setTitle(e.target.value)}
-              className="w-full bg-[#171922] text-white text-xs px-3.5 py-2.5 rounded-xl border border-white/10 focus:outline-none focus:border-orange-500"
+              className="w-full bg-[#171922] text-white text-xs px-3.5 py-2.5 rounded-xl border border-white/10 focus:outline-none focus:border-white/30"
               required
             />
           </div>
@@ -216,7 +216,7 @@ export const AddTransactionModal: React.FC<AddTransactionModalProps> = ({
               placeholder="e.g. Apex Studio, Apple, Starbucks"
               value={clientOrPayer}
               onChange={(e) => setClientOrPayer(e.target.value)}
-              className="w-full bg-[#171922] text-white text-xs px-3.5 py-2.5 rounded-xl border border-white/10 focus:outline-none focus:border-orange-500"
+              className="w-full bg-[#171922] text-white text-xs px-3.5 py-2.5 rounded-xl border border-white/10 focus:outline-none focus:border-white/30"
             />
           </div>
 
@@ -229,7 +229,7 @@ export const AddTransactionModal: React.FC<AddTransactionModalProps> = ({
               <select
                 value={categoryId}
                 onChange={(e) => setCategoryId(e.target.value)}
-                className="w-full bg-[#171922] text-white text-xs px-3 py-2.5 rounded-xl border border-white/10 focus:outline-none focus:border-orange-500"
+                className="w-full bg-[#171922] text-white text-xs px-3 py-2.5 rounded-xl border border-white/10 focus:outline-none focus:border-white/30"
               >
                 {filteredCategories.map((c) => (
                   <option key={c.id} value={c.id}>
@@ -248,7 +248,7 @@ export const AddTransactionModal: React.FC<AddTransactionModalProps> = ({
                   const wal = wallets.find((w) => w.id === e.target.value);
                   if (wal) setToken(wal.currency);
                 }}
-                className="w-full bg-[#171922] text-white text-xs px-3 py-2.5 rounded-xl border border-white/10 focus:outline-none focus:border-orange-500"
+                className="w-full bg-[#171922] text-white text-xs px-3 py-2.5 rounded-xl border border-white/10 focus:outline-none focus:border-white/30"
               >
                 {wallets.map((w) => (
                   <option key={w.id} value={w.id}>
@@ -267,7 +267,7 @@ export const AddTransactionModal: React.FC<AddTransactionModalProps> = ({
                 type="date"
                 value={date}
                 onChange={(e) => setDate(e.target.value)}
-                className="w-full bg-[#171922] text-white text-xs px-3 py-2.5 rounded-xl border border-white/10 focus:outline-none focus:border-orange-500"
+                className="w-full bg-[#171922] text-white text-xs px-3 py-2.5 rounded-xl border border-white/10 focus:outline-none focus:border-white/30"
               />
             </div>
             <div>
@@ -276,7 +276,7 @@ export const AddTransactionModal: React.FC<AddTransactionModalProps> = ({
                 type="time"
                 value={time}
                 onChange={(e) => setTime(e.target.value)}
-                className="w-full bg-[#171922] text-white text-xs px-3 py-2.5 rounded-xl border border-white/10 focus:outline-none focus:border-orange-500"
+                className="w-full bg-[#171922] text-white text-xs px-3 py-2.5 rounded-xl border border-white/10 focus:outline-none focus:border-white/30"
               />
             </div>
           </div>
@@ -289,7 +289,7 @@ export const AddTransactionModal: React.FC<AddTransactionModalProps> = ({
               placeholder="e.g. Tax deductible, invoice #42"
               value={notes}
               onChange={(e) => setNotes(e.target.value)}
-              className="w-full bg-[#171922] text-white text-xs px-3.5 py-2.5 rounded-xl border border-white/10 focus:outline-none focus:border-orange-500"
+              className="w-full bg-[#171922] text-white text-xs px-3.5 py-2.5 rounded-xl border border-white/10 focus:outline-none focus:border-white/30"
             />
           </div>
 
@@ -306,11 +306,7 @@ export const AddTransactionModal: React.FC<AddTransactionModalProps> = ({
             </button>
             <button
               type="submit"
-              className={`px-5 py-2.5 rounded-xl text-xs font-bold text-black transition-all shadow-lg ${
-                type === 'expense'
-                  ? 'bg-rose-500 hover:bg-rose-400 shadow-rose-500/20'
-                  : 'bg-emerald-500 hover:bg-emerald-400 shadow-emerald-500/20'
-              }`}
+              className="px-5 py-2.5 rounded-xl text-xs font-semibold text-zinc-950 bg-zinc-100 hover:bg-white transition-colors shadow-sm"
             >
               Save {type === 'expense' ? 'Expense' : 'Income'}
             </button>

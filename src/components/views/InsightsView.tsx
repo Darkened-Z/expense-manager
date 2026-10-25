@@ -42,7 +42,7 @@ export const InsightsView: React.FC<InsightsViewProps> = ({
       return {
         id: catId,
         name: cat?.name || 'Other',
-        color: cat?.color || '#f97316',
+        color: cat?.color || '#64748b',
         amount,
         percentage: totalExpense > 0 ? (amount / totalExpense) * 100 : 0,
       };
@@ -69,12 +69,12 @@ export const InsightsView: React.FC<InsightsViewProps> = ({
         <div className="bg-[#12141a] border border-white/5 rounded-2xl p-5 shadow-xl">
           <div className="flex items-center justify-between text-xs text-zinc-400">
             <span>Net Freelance Profit</span>
-            <TrendingUp className="w-4 h-4 text-emerald-400" />
+            <TrendingUp className="w-4 h-4 text-zinc-400" />
           </div>
           <div className="text-2xl font-extrabold text-white font-mono mt-2">
             {currencySymbol}{netSavings.toFixed(2)}
           </div>
-          <div className="text-[11px] text-emerald-400 font-semibold mt-1">
+          <div className="text-[11px] text-zinc-400 font-medium mt-1">
             {savingsRate.toFixed(1)}% savings retention rate
           </div>
         </div>
@@ -82,7 +82,7 @@ export const InsightsView: React.FC<InsightsViewProps> = ({
         <div className="bg-[#12141a] border border-white/5 rounded-2xl p-5 shadow-xl">
           <div className="flex items-center justify-between text-xs text-zinc-400">
             <span>Average Expense per Transaction</span>
-            <TrendingDown className="w-4 h-4 text-rose-400" />
+            <TrendingDown className="w-4 h-4 text-zinc-400" />
           </div>
           <div className="text-2xl font-extrabold text-white font-mono mt-2">
             {currencySymbol}
@@ -97,9 +97,9 @@ export const InsightsView: React.FC<InsightsViewProps> = ({
         <div className="bg-[#12141a] border border-white/5 rounded-2xl p-5 shadow-xl">
           <div className="flex items-center justify-between text-xs text-zinc-400">
             <span>Financial Runway Score</span>
-            <ShieldCheck className="w-4 h-4 text-orange-400" />
+            <ShieldCheck className="w-4 h-4 text-zinc-400" />
           </div>
-          <div className="text-2xl font-extrabold text-orange-400 font-mono mt-2">
+          <div className="text-2xl font-extrabold text-white font-mono mt-2">
             Optimal (94/100)
           </div>
           <div className="text-[11px] text-zinc-500 mt-1">Income outpaces overheads 4.8x</div>
@@ -111,7 +111,7 @@ export const InsightsView: React.FC<InsightsViewProps> = ({
         <div className="bg-[#12141a] border border-white/5 rounded-2xl p-6 shadow-xl space-y-4">
           <div className="flex items-center justify-between border-b border-white/5 pb-3">
             <h3 className="text-sm font-bold text-white flex items-center gap-2">
-              <PieChart className="w-4 h-4 text-orange-400" />
+              <PieChart className="w-4 h-4 text-zinc-400" />
               <span>Spending Breakdown by Category</span>
             </h3>
             <span className="text-xs font-mono text-zinc-400">
@@ -151,7 +151,7 @@ export const InsightsView: React.FC<InsightsViewProps> = ({
         <div className="bg-[#12141a] border border-white/5 rounded-2xl p-6 shadow-xl space-y-4">
           <div className="flex items-center justify-between border-b border-white/5 pb-3">
             <h3 className="text-sm font-bold text-white flex items-center gap-2">
-              <Users className="w-4 h-4 text-emerald-400" />
+              <Users className="w-4 h-4 text-zinc-400" />
               <span>Top Freelance Clients by Revenue</span>
             </h3>
             <span className="text-xs font-mono text-zinc-400">
@@ -176,7 +176,7 @@ export const InsightsView: React.FC<InsightsViewProps> = ({
                     </span>
                     <span className="font-semibold text-white">{c.client}</span>
                   </div>
-                  <span className="font-mono font-bold text-emerald-400 text-sm">
+                  <span className="font-mono font-bold text-white text-sm">
                     {currencySymbol}{c.amount.toFixed(2)}
                   </span>
                 </div>

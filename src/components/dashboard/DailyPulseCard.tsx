@@ -61,7 +61,7 @@ export const DailyPulseCard: React.FC<DailyPulseCardProps> = ({
         </div>
 
         <div className="flex items-center gap-2 mt-2 text-xs text-zinc-400">
-          <span className="w-2 h-2 rounded-full bg-orange-500 shrink-0" />
+          <span className="w-2 h-2 rounded-full bg-zinc-400 shrink-0" />
           <span>Active daily expenditure run rate</span>
         </div>
       </div>
@@ -80,7 +80,7 @@ export const DailyPulseCard: React.FC<DailyPulseCardProps> = ({
             </div>
             <button
               onClick={onSeeDetails}
-              className="text-orange-400 hover:text-orange-300 font-medium flex items-center gap-0.5 mt-0.5 cursor-pointer pointer-events-auto"
+              className="text-zinc-300 hover:text-white font-medium flex items-center gap-0.5 mt-0.5 cursor-pointer pointer-events-auto"
             >
               <span>See details spending</span>
               <ChevronRight className="w-2.5 h-2.5" />
@@ -91,8 +91,8 @@ export const DailyPulseCard: React.FC<DailyPulseCardProps> = ({
         <svg viewBox={`0 0 ${width} ${height}`} className="w-full h-20 overflow-visible">
           <defs>
             <linearGradient id="sparkGradient" x1="0" y1="0" x2="0" y2="1">
-              <stop offset="0%" stopColor="#f97316" stopOpacity="0.35" />
-              <stop offset="100%" stopColor="#f97316" stopOpacity="0.0" />
+              <stop offset="0%" stopColor="#94a3b8" stopOpacity="0.25" />
+              <stop offset="100%" stopColor="#94a3b8" stopOpacity="0.0" />
             </linearGradient>
           </defs>
 
@@ -100,7 +100,7 @@ export const DailyPulseCard: React.FC<DailyPulseCardProps> = ({
           <path d={areaD} fill="url(#sparkGradient)" />
 
           {/* Line stroke */}
-          <path d={pathD} fill="none" stroke="#f97316" strokeWidth="2.5" strokeLinecap="round" />
+          <path d={pathD} fill="none" stroke="#94a3b8" strokeWidth="2" strokeLinecap="round" />
 
           {/* Interactive dots */}
           {coords.map((c, i) => (
@@ -108,8 +108,8 @@ export const DailyPulseCard: React.FC<DailyPulseCardProps> = ({
               key={i}
               cx={c.x}
               cy={c.y}
-              r={hoveredPoint === i ? 4.5 : 2.5}
-              fill={hoveredPoint === i ? '#ffffff' : '#f97316'}
+              r={hoveredPoint === i ? 4 : 2}
+              fill={hoveredPoint === i ? '#ffffff' : '#94a3b8'}
               stroke="#12141a"
               strokeWidth="1.5"
               className="cursor-pointer transition-all"

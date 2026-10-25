@@ -96,7 +96,7 @@ export const PasscodeLockModal: React.FC<PasscodeLockModalProps> = ({
         }`}
       >
         {/* Shield Icon */}
-        <div className="w-16 h-16 mx-auto rounded-2xl bg-gradient-to-tr from-amber-500/20 to-orange-500/10 border border-orange-500/30 flex items-center justify-center text-orange-400 mb-4 shadow-lg shadow-orange-500/10">
+        <div className="w-16 h-16 mx-auto rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center text-zinc-200 mb-4 shadow-sm">
           {step === 'enter' ? <Lock className="w-8 h-8" /> : <KeyRound className="w-8 h-8" />}
         </div>
 
@@ -125,7 +125,7 @@ export const PasscodeLockModal: React.FC<PasscodeLockModalProps> = ({
                 key={idx}
                 className={`w-4 h-4 rounded-full transition-all duration-200 ${
                   isFilled
-                    ? 'bg-gradient-to-r from-orange-400 to-amber-400 scale-110 shadow-md shadow-orange-500/50'
+                    ? 'bg-white scale-110 shadow-sm'
                     : 'bg-zinc-800 border border-white/10'
                 }`}
               />

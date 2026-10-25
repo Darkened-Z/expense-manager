@@ -129,7 +129,7 @@ export const Header: React.FC<HeaderProps> = ({
                     setShowWalletDropdown(false);
                   }}
                   className={`w-full text-left px-3 py-2 text-xs flex items-center justify-between hover:bg-white/5 ${
-                    selectedWalletId === 'all' ? 'text-orange-400 font-semibold bg-white/5' : 'text-zinc-300'
+                    selectedWalletId === 'all' ? 'text-white font-semibold bg-white/5' : 'text-zinc-300'
                   }`}
                 >
                   <span>All Wallets & Accounts</span>
@@ -143,7 +143,7 @@ export const Header: React.FC<HeaderProps> = ({
                       setShowWalletDropdown(false);
                     }}
                     className={`w-full text-left px-3 py-2 text-xs flex items-center justify-between hover:bg-white/5 ${
-                      selectedWalletId === w.id ? 'text-orange-400 font-semibold bg-white/5' : 'text-zinc-300'
+                      selectedWalletId === w.id ? 'text-white font-semibold bg-white/5' : 'text-zinc-300'
                     }`}
                   >
                     <div>
@@ -197,7 +197,7 @@ export const Header: React.FC<HeaderProps> = ({
                       setShowDateDropdown(false);
                     }}
                     className={`w-full text-left px-3 py-2 text-xs hover:bg-white/5 ${
-                      dateRange === opt.id ? 'text-orange-400 font-semibold bg-white/5' : 'text-zinc-300'
+                      dateRange === opt.id ? 'text-white font-semibold bg-white/5' : 'text-zinc-300'
                     }`}
                   >
                     {opt.label}
@@ -215,12 +215,12 @@ export const Header: React.FC<HeaderProps> = ({
                 setShowWalletDropdown(false);
                 setShowDateDropdown(false);
               }}
-              className="relative p-2 rounded-xl bg-[#14161d] hover:bg-[#1a1d26] border border-white/10 text-zinc-300 transition-colors"
+              className="relative p-2 rounded-xl bg-[#14161d] hover:bg-[#1a1d26] border border-white/10 text-zinc-300 hover:text-white transition-colors"
               title="Freelance Payment Reminders"
             >
               <Bell className="w-4 h-4" />
               {totalAlerts > 0 && (
-                <span className="absolute -top-1 -right-1 w-4 h-4 bg-orange-500 text-[10px] font-bold text-black rounded-full flex items-center justify-center animate-bounce">
+                <span className="absolute -top-1 -right-1 min-w-[16px] h-4 px-1 bg-zinc-200 text-[10px] font-bold text-zinc-950 rounded-full flex items-center justify-center">
                   {totalAlerts}
                 </span>
               )}
@@ -230,7 +230,7 @@ export const Header: React.FC<HeaderProps> = ({
               <div className="fixed sm:absolute right-4 sm:right-0 top-16 sm:top-auto mt-2 w-[calc(100vw-32px)] sm:w-80 max-w-sm bg-[#14161d] border border-white/10 rounded-2xl shadow-2xl p-3 z-50">
                 <div className="flex items-center justify-between pb-2 border-b border-white/5">
                   <div className="flex items-center gap-2">
-                    <Clock className="w-4 h-4 text-orange-400" />
+                    <Clock className="w-4 h-4 text-zinc-400" />
                     <span className="text-xs font-semibold text-white">Payment Reminders</span>
                   </div>
                   <button onClick={() => setShowNotifications(false)} className="text-zinc-500 hover:text-white">
@@ -241,7 +241,7 @@ export const Header: React.FC<HeaderProps> = ({
                 <div className="py-2 space-y-2 max-h-72 overflow-y-auto">
                   {urgentReminders.length === 0 ? (
                     <div className="text-center py-6 text-xs text-zinc-500">
-                      <CheckCircle2 className="w-6 h-6 mx-auto text-emerald-500 mb-1 opacity-80" />
+                      <CheckCircle2 className="w-6 h-6 mx-auto text-zinc-400 mb-1 opacity-80" />
                       All client receivables are settled!
                     </div>
                   ) : (
@@ -250,9 +250,9 @@ export const Header: React.FC<HeaderProps> = ({
                         key={rem.id}
                         className={`p-2.5 rounded-xl border text-xs transition-all ${
                           rem.status === 'overdue'
-                            ? 'bg-rose-500/10 border-rose-500/30'
+                            ? 'bg-rose-500/10 border-rose-500/20'
                             : rem.status === 'due_today'
-                            ? 'bg-amber-500/10 border-amber-500/30'
+                            ? 'bg-white/5 border-white/10'
                             : 'bg-zinc-900/60 border-white/5'
                         }`}
                       >
@@ -266,9 +266,9 @@ export const Header: React.FC<HeaderProps> = ({
                             <span
                               className={`text-[9px] uppercase px-1.5 py-0.5 rounded font-bold ${
                                 rem.status === 'overdue'
-                                  ? 'bg-rose-500 text-black'
+                                  ? 'bg-rose-500/15 text-rose-300 border border-rose-500/20'
                                   : rem.status === 'due_today'
-                                  ? 'bg-amber-500 text-black'
+                                  ? 'bg-white/10 text-zinc-200 border border-white/10'
                                   : 'bg-zinc-800 text-zinc-400'
                               }`}
                             >
@@ -283,7 +283,7 @@ export const Header: React.FC<HeaderProps> = ({
                               onCollectReminder(rem.id);
                               setShowNotifications(false);
                             }}
-                            className="text-[10px] bg-emerald-500 hover:bg-emerald-400 text-black font-semibold px-2 py-0.5 rounded transition-colors"
+                            className="text-[10px] bg-zinc-200 hover:bg-white text-zinc-950 font-semibold px-2 py-0.5 rounded transition-colors"
                           >
                             Mark Paid
                           </button>
@@ -298,7 +298,7 @@ export const Header: React.FC<HeaderProps> = ({
                     onNavigateToReminders();
                     setShowNotifications(false);
                   }}
-                  className="w-full text-center py-1.5 text-[11px] text-orange-400 hover:text-orange-300 font-medium transition-colors border-t border-white/5 mt-1 block"
+                  className="w-full text-center py-1.5 text-[11px] text-zinc-400 hover:text-white font-medium transition-colors border-t border-white/5 mt-1 block"
                 >
                   View all client receivables & reminders →
                 </button>
@@ -308,32 +308,32 @@ export const Header: React.FC<HeaderProps> = ({
         </div>
       </div>
 
-      {/* Action Buttons Row - Perfectly responsive */}
+      {/* Action Buttons Row - Dense minimal cohesive suite */}
       <div className="flex items-center gap-2 overflow-x-auto pb-1 no-scrollbar">
         <button
           onClick={() => onOpenAddTx('expense')}
-          className="flex-1 sm:flex-initial flex items-center justify-center gap-1.5 bg-[#171a22] hover:bg-rose-500/20 text-rose-400 border border-rose-500/20 px-3 py-1.5 rounded-xl text-xs font-medium transition-all whitespace-nowrap"
+          className="flex-1 sm:flex-initial flex items-center justify-center gap-1.5 bg-[#14151b] hover:bg-[#1b1d26] text-zinc-300 hover:text-white border border-white/10 px-3.5 py-1.5 rounded-xl text-xs font-medium transition-colors whitespace-nowrap shadow-sm"
           title="Add Expense"
         >
-          <ArrowUpRight className="w-3.5 h-3.5" />
+          <span className="w-1.5 h-1.5 rounded-full bg-rose-400/80" />
           <span>+ Expense</span>
         </button>
 
         <button
           onClick={() => onOpenAddTx('income')}
-          className="flex-1 sm:flex-initial flex items-center justify-center gap-1.5 bg-[#171a22] hover:bg-emerald-500/20 text-emerald-400 border border-emerald-500/20 px-3 py-1.5 rounded-xl text-xs font-medium transition-all whitespace-nowrap"
+          className="flex-1 sm:flex-initial flex items-center justify-center gap-1.5 bg-[#14151b] hover:bg-[#1b1d26] text-zinc-300 hover:text-white border border-white/10 px-3.5 py-1.5 rounded-xl text-xs font-medium transition-colors whitespace-nowrap shadow-sm"
           title="Add Income"
         >
-          <ArrowDownLeft className="w-3.5 h-3.5" />
+          <span className="w-1.5 h-1.5 rounded-full bg-emerald-400/80" />
           <span>+ Income</span>
         </button>
 
         <button
           onClick={onOpenAddReminder}
-          className="flex-1 sm:flex-initial flex items-center justify-center gap-1.5 bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 text-black font-semibold px-3 py-1.5 rounded-xl text-xs shadow-md shadow-orange-500/20 transition-all whitespace-nowrap"
+          className="flex-1 sm:flex-initial flex items-center justify-center gap-1.5 bg-zinc-100 hover:bg-white text-zinc-950 font-semibold px-3.5 py-1.5 rounded-xl text-xs transition-colors whitespace-nowrap shadow-sm"
           title="New Receivable / Invoice"
         >
-          <Plus className="w-3.5 h-3.5 stroke-[3]" />
+          <Plus className="w-3.5 h-3.5 stroke-[2.5]" />
           <span>+ Invoice Due</span>
         </button>
       </div>

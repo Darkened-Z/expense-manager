@@ -20,7 +20,7 @@ export const CategoriesView: React.FC<CategoriesViewProps> = ({
   const [activeTab, setActiveTab] = useState<'expense' | 'income'>('expense');
   const [showAddModal, setShowAddModal] = useState(false);
   const [name, setName] = useState('');
-  const [color, setColor] = useState('#f97316');
+  const [color, setColor] = useState('#64748b');
   const [budgetLimit, setBudgetLimit] = useState('');
 
   const getCategoryIcon = (iconName: string) => {
@@ -87,7 +87,7 @@ export const CategoriesView: React.FC<CategoriesViewProps> = ({
             <button
               onClick={() => setActiveTab('expense')}
               className={`px-3 py-1.5 rounded-lg transition-colors font-medium ${
-                activeTab === 'expense' ? 'bg-[#232733] text-rose-300' : 'text-zinc-400 hover:text-zinc-200'
+                activeTab === 'expense' ? 'bg-white/10 text-white' : 'text-zinc-400 hover:text-zinc-200'
               }`}
             >
               Expense Categories
@@ -95,7 +95,7 @@ export const CategoriesView: React.FC<CategoriesViewProps> = ({
             <button
               onClick={() => setActiveTab('income')}
               className={`px-3 py-1.5 rounded-lg transition-colors font-medium ${
-                activeTab === 'income' ? 'bg-[#232733] text-emerald-300' : 'text-zinc-400 hover:text-zinc-200'
+                activeTab === 'income' ? 'bg-white/10 text-white' : 'text-zinc-400 hover:text-zinc-200'
               }`}
             >
               Income Sources
@@ -104,9 +104,9 @@ export const CategoriesView: React.FC<CategoriesViewProps> = ({
 
           <button
             onClick={() => setShowAddModal(true)}
-            className="bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 text-black font-semibold text-xs px-3.5 py-2 rounded-xl flex items-center gap-1.5 shadow-md shadow-orange-500/20 transition-all shrink-0"
+            className="bg-zinc-100 hover:bg-white text-zinc-950 font-semibold text-xs px-3.5 py-2 rounded-xl flex items-center gap-1.5 transition-colors shadow-sm shrink-0"
           >
-            <Plus className="w-4 h-4 stroke-[3]" />
+            <Plus className="w-4 h-4 stroke-[2.5]" />
             <span>New {activeTab === 'expense' ? 'Category' : 'Source'}</span>
           </button>
         </div>
@@ -147,7 +147,7 @@ export const CategoriesView: React.FC<CategoriesViewProps> = ({
                 </div>
 
                 <div className="text-right">
-                  <div className={`font-mono font-bold text-sm ${cat.type === 'income' ? 'text-emerald-400' : 'text-white'}`}>
+                  <div className="font-mono font-bold text-sm text-white">
                     {currencySymbol}{total.toFixed(2)}
                   </div>
                   <div className="text-[10px] text-zinc-500">
@@ -160,7 +160,7 @@ export const CategoriesView: React.FC<CategoriesViewProps> = ({
               {cat.type === 'expense' && limit && (
                 <div className="mt-5 pt-3 border-t border-white/5">
                   <div className="flex items-center justify-between text-[11px] mb-1.5 font-mono">
-                    <span className={isOverBudget ? 'text-rose-400 font-bold' : 'text-zinc-400'}>
+                    <span className={isOverBudget ? 'text-rose-400 font-medium' : 'text-zinc-400'}>
                       {percent.toFixed(0)}% of limit
                     </span>
                     <span className="text-zinc-500">
@@ -172,10 +172,8 @@ export const CategoriesView: React.FC<CategoriesViewProps> = ({
                     <div
                       className={`h-full rounded-full transition-all duration-500 ${
                         isOverBudget
-                          ? 'bg-rose-500 shadow-sm shadow-rose-500/50'
-                          : percent > 75
-                          ? 'bg-amber-500'
-                          : 'bg-gradient-to-r from-orange-500 to-amber-400'
+                          ? 'bg-rose-400/90'
+                          : 'bg-zinc-300'
                       }`}
                       style={{ width: `${percent}%` }}
                     />
@@ -205,7 +203,7 @@ export const CategoriesView: React.FC<CategoriesViewProps> = ({
                   placeholder={activeTab === 'expense' ? 'e.g. Server Hosting, Equipment' : 'e.g. Retainer, Royalty, Salary'}
                   value={name}
                   onChange={(e) => setName(e.target.value)}
-                  className="w-full bg-[#171922] text-white text-xs px-3.5 py-2.5 rounded-xl border border-white/10 focus:outline-none focus:border-orange-500"
+                  className="w-full bg-[#171922] text-white text-xs px-3.5 py-2.5 rounded-xl border border-white/10 focus:outline-none focus:border-white/30"
                   required
                 />
               </div>
@@ -213,7 +211,7 @@ export const CategoriesView: React.FC<CategoriesViewProps> = ({
               <div>
                 <label className="block text-[11px] font-medium text-zinc-400 mb-1">Color Theme</label>
                 <div className="flex items-center gap-2 mt-1">
-                  {['#f97316', '#10b981', '#3b82f6', '#8b5cf6', '#ec4899', '#f59e0b', '#06b6d4'].map((c) => (
+                  {['#64748b', '#94a3b8', '#a89f91', '#71717a', '#78716c', '#52606d', '#8a4f4f', '#3d7a63', '#386b61'].map((c) => (
                     <button
                       key={c}
                       type="button"
@@ -236,7 +234,7 @@ export const CategoriesView: React.FC<CategoriesViewProps> = ({
                     placeholder="e.g. 500.00"
                     value={budgetLimit}
                     onChange={(e) => setBudgetLimit(e.target.value)}
-                    className="w-full bg-[#171922] text-white text-xs font-mono px-3.5 py-2.5 rounded-xl border border-white/10 focus:outline-none focus:border-orange-500"
+                    className="w-full bg-[#171922] text-white text-xs font-mono px-3.5 py-2.5 rounded-xl border border-white/10 focus:outline-none focus:border-white/30"
                   />
                 </div>
               )}
@@ -251,7 +249,7 @@ export const CategoriesView: React.FC<CategoriesViewProps> = ({
                 </button>
                 <button
                   type="submit"
-                  className="px-5 py-2.5 rounded-xl text-xs font-bold text-black bg-gradient-to-r from-orange-500 to-amber-500"
+                  className="px-5 py-2.5 rounded-xl text-xs font-semibold text-zinc-950 bg-zinc-100 hover:bg-white transition-colors shadow-sm"
                 >
                   Save {activeTab === 'expense' ? 'Category' : 'Source'}
                 </button>

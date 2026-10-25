@@ -113,7 +113,7 @@ export default function Home() {
     return (
       <div className="min-h-screen bg-[#090a0d] flex items-center justify-center">
         <div className="flex flex-col items-center gap-3">
-          <div className="w-10 h-10 rounded-full border-2 border-orange-500 border-t-transparent animate-spin" />
+          <div className="w-8 h-8 rounded-full border-2 border-zinc-700 border-t-zinc-200 animate-spin" />
           <span className="text-xs text-zinc-400 font-mono">Loading Expense Manager...</span>
         </div>
       </div>

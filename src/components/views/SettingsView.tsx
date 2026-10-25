@@ -74,7 +74,7 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
       <div className="bg-[#12141a] border border-white/5 rounded-2xl p-6 shadow-xl space-y-5">
         <div className="flex items-center justify-between border-b border-white/5 pb-4">
           <div className="flex items-center gap-3">
-            <div className="p-2.5 rounded-xl bg-orange-500/10 text-orange-400">
+            <div className="p-2.5 rounded-xl bg-white/5 text-zinc-300 border border-white/5">
               <Shield className="w-5 h-5" />
             </div>
             <div>
@@ -88,7 +88,7 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
           <span
             className={`text-xs px-2.5 py-1 rounded-full font-semibold ${
               settings.isLockEnabled && settings.passcodeHash
-                ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30'
+                ? 'bg-emerald-500/15 text-emerald-300 border border-emerald-500/20'
                 : 'bg-zinc-800 text-zinc-400'
             }`}
           >
@@ -109,7 +109,7 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
           <div className="flex items-center gap-2">
             <button
               onClick={onOpenSetPasscode}
-              className="bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 text-black font-semibold text-xs px-4 py-2 rounded-xl flex items-center gap-1.5 transition-all shadow-md shadow-orange-500/20"
+              className="bg-zinc-100 hover:bg-white text-zinc-950 font-semibold text-xs px-4 py-2 rounded-xl flex items-center gap-1.5 transition-colors shadow-sm"
             >
               <KeyRound className="w-3.5 h-3.5" />
               <span>{settings.passcodeHash ? 'Change Passcode' : 'Set New Passcode'}</span>
@@ -158,7 +158,7 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
       {/* User & Currency Profile */}
       <div className="bg-[#12141a] border border-white/5 rounded-2xl p-6 shadow-xl space-y-4">
         <div className="flex items-center gap-3 border-b border-white/5 pb-4">
-          <div className="p-2.5 rounded-xl bg-orange-500/10 text-orange-400">
+          <div className="p-2.5 rounded-xl bg-white/5 text-zinc-300 border border-white/5">
             <User className="w-5 h-5" />
           </div>
           <div>
@@ -175,7 +175,7 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
                 type="text"
                 value={userName}
                 onChange={(e) => setUserName(e.target.value)}
-                className="w-full bg-[#171922] text-white text-xs px-3.5 py-2.5 rounded-xl border border-white/10 focus:outline-none focus:border-orange-500"
+                className="w-full bg-[#171922] text-white text-xs px-3.5 py-2.5 rounded-xl border border-white/10 focus:outline-none focus:border-white/30"
               />
             </div>
 
@@ -185,7 +185,7 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
                 type="email"
                 value={userEmail}
                 onChange={(e) => setUserEmail(e.target.value)}
-                className="w-full bg-[#171922] text-white text-xs px-3.5 py-2.5 rounded-xl border border-white/10 focus:outline-none focus:border-orange-500"
+                className="w-full bg-[#171922] text-white text-xs px-3.5 py-2.5 rounded-xl border border-white/10 focus:outline-none focus:border-white/30"
               />
             </div>
           </div>
@@ -197,7 +197,7 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
                 type="text"
                 value={currencySymbol}
                 onChange={(e) => setCurrencySymbol(e.target.value)}
-                className="w-full bg-[#171922] text-white text-xs font-mono px-3.5 py-2.5 rounded-xl border border-white/10 focus:outline-none focus:border-orange-500"
+                className="w-full bg-[#171922] text-white text-xs font-mono px-3.5 py-2.5 rounded-xl border border-white/10 focus:outline-none focus:border-white/30"
               />
             </div>
 
@@ -207,7 +207,7 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
                 type="text"
                 value={currencyCode}
                 onChange={(e) => setCurrencyCode(e.target.value)}
-                className="w-full bg-[#171922] text-white text-xs font-mono uppercase px-3.5 py-2.5 rounded-xl border border-white/10 focus:outline-none focus:border-orange-500"
+                className="w-full bg-[#171922] text-white text-xs font-mono uppercase px-3.5 py-2.5 rounded-xl border border-white/10 focus:outline-none focus:border-white/30"
               />
             </div>
           </div>
@@ -232,7 +232,7 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
       {/* Notifications & Audio Alerts */}
       <div className="bg-[#12141a] border border-white/5 rounded-2xl p-6 shadow-xl space-y-4">
         <div className="flex items-center gap-3 border-b border-white/5 pb-4">
-          <div className="p-2.5 rounded-xl bg-orange-500/10 text-orange-400">
+          <div className="p-2.5 rounded-xl bg-white/5 text-zinc-300 border border-white/5">
             <Bell className="w-5 h-5" />
           </div>
           <div>
@@ -263,7 +263,7 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
                     }
                   }
                 }}
-                className="text-[11px] bg-white/5 hover:bg-white/10 text-orange-400 font-medium px-2.5 py-1 rounded-lg border border-white/10 transition-colors"
+                className="text-[11px] bg-white/5 hover:bg-white/10 text-zinc-300 hover:text-white font-medium px-2.5 py-1 rounded-lg border border-white/10 transition-colors"
               >
                 Send Test Alert
               </button>
@@ -276,7 +276,7 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
                   }
                   onUpdateSettings({ enableBrowserNotifications: e.target.checked });
                 }}
-                className="w-4 h-4 accent-orange-500 cursor-pointer"
+                className="w-4 h-4 accent-zinc-200 cursor-pointer"
               />
             </div>
           </div>
@@ -290,7 +290,7 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
               type="checkbox"
               checked={settings.enableAudioChime}
               onChange={(e) => onUpdateSettings({ enableAudioChime: e.target.checked })}
-              className="w-4 h-4 accent-orange-500 cursor-pointer"
+              className="w-4 h-4 accent-zinc-200 cursor-pointer"
             />
           </div>
         </div>
@@ -299,7 +299,7 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
       {/* PWA & Mobile Installation Section */}
       <div className="bg-[#12141a] border border-white/5 rounded-2xl p-6 shadow-xl space-y-4">
         <div className="flex items-center gap-3 border-b border-white/5 pb-4">
-          <div className="p-2.5 rounded-xl bg-orange-500/10 text-orange-400">
+          <div className="p-2.5 rounded-xl bg-white/5 text-zinc-300 border border-white/5">
             <Download className="w-5 h-5" />
           </div>
           <div>
@@ -327,7 +327,7 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
       {/* Data Backup & Disaster Recovery */}
       <div className="bg-[#12141a] border border-white/5 rounded-2xl p-6 shadow-xl space-y-4">
         <div className="flex items-center gap-3 border-b border-white/5 pb-4">
-          <div className="p-2.5 rounded-xl bg-orange-500/10 text-orange-400">
+          <div className="p-2.5 rounded-xl bg-white/5 text-zinc-300">
             <Download className="w-5 h-5" />
           </div>
           <div>
@@ -341,12 +341,12 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
             onClick={onExportBackup}
             className="p-4 rounded-xl bg-[#161821] hover:bg-[#1f222e] border border-white/5 flex flex-col items-center justify-center gap-2 text-xs font-semibold text-zinc-200 transition-colors"
           >
-            <Download className="w-5 h-5 text-orange-400" />
+            <Download className="w-5 h-5 text-zinc-300" />
             <span>Export JSON Backup</span>
           </button>
 
           <label className="p-4 rounded-xl bg-[#161821] hover:bg-[#1f222e] border border-white/5 flex flex-col items-center justify-center gap-2 text-xs font-semibold text-zinc-200 transition-colors cursor-pointer">
-            <Upload className="w-5 h-5 text-cyan-400" />
+            <Upload className="w-5 h-5 text-zinc-300" />
             <span>Restore from Backup</span>
             <input type="file" accept=".json" onChange={handleFileUpload} className="hidden" />
           </label>
@@ -355,7 +355,7 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
             onClick={onExportCSV}
             className="p-4 rounded-xl bg-[#161821] hover:bg-[#1f222e] border border-white/5 flex flex-col items-center justify-center gap-2 text-xs font-semibold text-zinc-200 transition-colors"
           >
-            <Download className="w-5 h-5 text-emerald-400" />
+            <Download className="w-5 h-5 text-zinc-300" />
             <span>Export CSV Ledger</span>
           </button>
         </div>

@@ -81,7 +81,7 @@ export const SavingsView: React.FC<SavingsViewProps> = ({
         <div className="bg-[#12141a] border border-white/5 rounded-2xl p-5 shadow-xl">
           <div className="flex items-center justify-between text-xs text-zinc-400">
             <span className="font-medium uppercase tracking-wider">Total Saved</span>
-            <PiggyBank className="w-4 h-4 text-emerald-400" />
+            <PiggyBank className="w-4 h-4 text-zinc-400" />
           </div>
           <div className="text-2xl font-bold font-mono text-white mt-1.5">
             {currencySymbol}{totalSaved.toLocaleString(undefined, { minimumFractionDigits: 2 })}
@@ -94,9 +94,9 @@ export const SavingsView: React.FC<SavingsViewProps> = ({
         <div className="bg-[#12141a] border border-white/5 rounded-2xl p-5 shadow-xl">
           <div className="flex items-center justify-between text-xs text-zinc-400">
             <span className="font-medium uppercase tracking-wider">Total Target Goal</span>
-            <Target className="w-4 h-4 text-orange-400" />
+            <Target className="w-4 h-4 text-zinc-400" />
           </div>
-          <div className="text-2xl font-bold font-mono text-orange-400 mt-1.5">
+          <div className="text-2xl font-bold font-mono text-white mt-1.5">
             {currencySymbol}{totalTarget.toLocaleString(undefined, { minimumFractionDigits: 2 })}
           </div>
           <div className="text-[11px] text-zinc-500 mt-1">
@@ -104,16 +104,16 @@ export const SavingsView: React.FC<SavingsViewProps> = ({
           </div>
         </div>
 
-        <div className="bg-gradient-to-br from-[#1c1a1f] to-[#16131c] border border-orange-500/20 rounded-2xl p-5 shadow-xl flex flex-col justify-between">
+        <div className="bg-[#12141a] border border-white/10 rounded-2xl p-5 shadow-xl flex flex-col justify-between">
           <div>
-            <div className="text-xs text-orange-400 font-semibold tracking-wide">Plan New Fund</div>
+            <div className="text-xs text-white font-semibold tracking-wide">Plan New Fund</div>
             <div className="text-xs text-zinc-400 mt-0.5">Establish emergency reserves, tax buffers, or assets</div>
           </div>
           <button
             onClick={() => setShowAddModal(true)}
-            className="mt-3 w-full bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 text-black font-semibold py-2 px-3 rounded-xl text-xs flex items-center justify-center gap-1.5 shadow-md shadow-orange-500/20 transition-all"
+            className="mt-3 w-full bg-zinc-100 hover:bg-white text-zinc-950 font-semibold py-2 px-3 rounded-xl text-xs flex items-center justify-center gap-1.5 transition-colors shadow-sm"
           >
-            <Plus className="w-4 h-4 stroke-[3]" />
+            <Plus className="w-4 h-4 stroke-[2.5]" />
             <span>Create Savings Goal</span>
           </button>
         </div>
@@ -254,7 +254,7 @@ export const SavingsView: React.FC<SavingsViewProps> = ({
                 </button>
                 <button
                   type="submit"
-                  className="px-5 py-2.5 rounded-xl text-xs font-bold text-black bg-emerald-500 hover:bg-emerald-400"
+                  className="px-5 py-2.5 rounded-xl text-xs font-semibold text-zinc-950 bg-zinc-100 hover:bg-white transition-colors shadow-sm"
                 >
                   Confirm Deposit
                 </button>
@@ -280,7 +280,7 @@ export const SavingsView: React.FC<SavingsViewProps> = ({
                   placeholder="e.g. Tax Reserve, Equipment Fund, Vacation"
                   value={title}
                   onChange={(e) => setTitle(e.target.value)}
-                  className="w-full bg-[#171922] text-white text-xs px-3.5 py-2.5 rounded-xl border border-white/10 focus:outline-none focus:border-orange-500"
+                  className="w-full bg-[#171922] text-white text-xs px-3.5 py-2.5 rounded-xl border border-white/10 focus:outline-none focus:border-white/30"
                   required
                 />
               </div>
@@ -294,7 +294,7 @@ export const SavingsView: React.FC<SavingsViewProps> = ({
                     placeholder="5000.00"
                     value={targetAmount}
                     onChange={(e) => setTargetAmount(e.target.value)}
-                    className="w-full bg-[#171922] text-white text-xs font-mono px-3.5 py-2.5 rounded-xl border border-white/10 focus:outline-none focus:border-orange-500"
+                    className="w-full bg-[#171922] text-white text-xs font-mono px-3.5 py-2.5 rounded-xl border border-white/10 focus:outline-none focus:border-white/30"
                     required
                   />
                 </div>
@@ -306,7 +306,7 @@ export const SavingsView: React.FC<SavingsViewProps> = ({
                     placeholder="0.00"
                     value={currentAmount}
                     onChange={(e) => setCurrentAmount(e.target.value)}
-                    className="w-full bg-[#171922] text-white text-xs font-mono px-3.5 py-2.5 rounded-xl border border-white/10 focus:outline-none focus:border-orange-500"
+                    className="w-full bg-[#171922] text-white text-xs font-mono px-3.5 py-2.5 rounded-xl border border-white/10 focus:outline-none focus:border-white/30"
                   />
                 </div>
               </div>
@@ -318,7 +318,7 @@ export const SavingsView: React.FC<SavingsViewProps> = ({
                     type="date"
                     value={targetDate}
                     onChange={(e) => setTargetDate(e.target.value)}
-                    className="w-full bg-[#171922] text-white text-xs px-3.5 py-2.5 rounded-xl border border-white/10 focus:outline-none focus:border-orange-500"
+                    className="w-full bg-[#171922] text-white text-xs px-3.5 py-2.5 rounded-xl border border-white/10 focus:outline-none focus:border-white/30"
                   />
                 </div>
                 <div>
@@ -326,7 +326,7 @@ export const SavingsView: React.FC<SavingsViewProps> = ({
                   <select
                     value={category}
                     onChange={(e) => setCategory(e.target.value)}
-                    className="w-full bg-[#171922] text-white text-xs px-3 py-2.5 rounded-xl border border-white/10 focus:outline-none focus:border-orange-500"
+                    className="w-full bg-[#171922] text-white text-xs px-3 py-2.5 rounded-xl border border-white/10 focus:outline-none focus:border-white/30"
                   >
                     <option value="Safety Net">Safety Net</option>
                     <option value="Taxes">Taxes</option>
@@ -347,7 +347,7 @@ export const SavingsView: React.FC<SavingsViewProps> = ({
                 </button>
                 <button
                   type="submit"
-                  className="px-5 py-2.5 rounded-xl text-xs font-bold text-black bg-gradient-to-r from-orange-500 to-amber-500"
+                  className="px-5 py-2.5 rounded-xl text-xs font-semibold text-zinc-950 bg-zinc-100 hover:bg-white transition-colors shadow-sm"
                 >
                   Create Goal
                 </button>

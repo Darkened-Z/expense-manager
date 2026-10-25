@@ -60,15 +60,15 @@ export const PwaInstallPrompt: React.FC = () => {
   if (isInstalled || !showBanner) return null;
 
   return (
-    <div className="bg-gradient-to-r from-[#171922] to-[#1a1d26] border border-orange-500/30 rounded-2xl p-3.5 sm:p-4 shadow-xl flex items-center justify-between gap-3 animate-in fade-in duration-300">
+    <div className="bg-[#12141a] border border-white/10 rounded-2xl p-3.5 sm:p-4 shadow-xl flex items-center justify-between gap-3 animate-in fade-in duration-300">
       <div className="flex items-center gap-3">
-        <div className="p-2.5 rounded-xl bg-orange-500/10 text-orange-400 border border-orange-500/20 shrink-0">
+        <div className="p-2.5 rounded-xl bg-white/5 text-zinc-300 border border-white/10 shrink-0">
           <Download className="w-5 h-5" />
         </div>
         <div>
           <h4 className="text-xs sm:text-sm font-bold text-white flex items-center gap-2">
             <span>Install App on PC / Phone</span>
-            <span className="text-[10px] bg-orange-500/20 text-orange-300 px-2 py-0.5 rounded font-mono border border-orange-500/30">
+            <span className="text-[10px] bg-white/5 text-zinc-300 px-2 py-0.5 rounded font-mono border border-white/10">
               Offline Ready
             </span>
           </h4>
@@ -81,7 +81,7 @@ export const PwaInstallPrompt: React.FC = () => {
       <div className="flex items-center gap-2 shrink-0">
         <button
           onClick={handleInstallClick}
-          className="bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 text-black font-semibold text-xs px-3.5 py-1.5 rounded-xl shadow-md shadow-orange-500/20 transition-all flex items-center gap-1.5"
+          className="bg-zinc-100 hover:bg-white text-zinc-950 font-semibold text-xs px-3.5 py-1.5 rounded-xl shadow-sm transition-all flex items-center gap-1.5"
         >
           <Download className="w-3.5 h-3.5 stroke-[2.5]" />
           <span>Install</span>

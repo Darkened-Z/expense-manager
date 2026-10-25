@@ -129,7 +129,7 @@ export const AddReminderModal: React.FC<AddReminderModalProps> = ({
       <div className="bg-[#12141a] border border-white/10 rounded-2xl sm:rounded-3xl w-full max-w-lg p-4 sm:p-6 max-h-[92vh] overflow-y-auto shadow-2xl animate-in fade-in zoom-in-95">
         <div className="flex items-center justify-between pb-4 border-b border-white/5">
           <div className="flex items-center gap-2">
-            <div className="p-1.5 rounded-lg bg-orange-500/10 text-orange-400">
+            <div className="p-1.5 rounded-lg bg-white/5 text-zinc-300 border border-white/5">
               <Clock className="w-4 h-4" />
             </div>
             <h2 className="text-base font-bold text-white tracking-wide">
@@ -151,7 +151,7 @@ export const AddReminderModal: React.FC<AddReminderModalProps> = ({
                 placeholder="e.g. Acme Labs"
                 value={clientName}
                 onChange={(e) => setClientName(e.target.value)}
-                className="w-full bg-[#171922] text-white text-xs px-3.5 py-2.5 rounded-xl border border-white/10 focus:outline-none focus:border-orange-500"
+                className="w-full bg-[#171922] text-white text-xs px-3.5 py-2.5 rounded-xl border border-white/10 focus:outline-none focus:border-white/30"
                 required
               />
             </div>
@@ -162,7 +162,7 @@ export const AddReminderModal: React.FC<AddReminderModalProps> = ({
                 placeholder="INV-2026-01"
                 value={invoiceNumber}
                 onChange={(e) => setInvoiceNumber(e.target.value)}
-                className="w-full bg-[#171922] text-white text-xs font-mono px-3.5 py-2.5 rounded-xl border border-white/10 focus:outline-none focus:border-orange-500"
+                className="w-full bg-[#171922] text-white text-xs font-mono px-3.5 py-2.5 rounded-xl border border-white/10 focus:outline-none focus:border-white/30"
               />
             </div>
           </div>
@@ -174,7 +174,7 @@ export const AddReminderModal: React.FC<AddReminderModalProps> = ({
               placeholder="e.g. Mobile App Redesign, Fullstack API integration"
               value={projectTitle}
               onChange={(e) => setProjectTitle(e.target.value)}
-              className="w-full bg-[#171922] text-white text-xs px-3.5 py-2.5 rounded-xl border border-white/10 focus:outline-none focus:border-orange-500"
+              className="w-full bg-[#171922] text-white text-xs px-3.5 py-2.5 rounded-xl border border-white/10 focus:outline-none focus:border-white/30"
               required
             />
           </div>
@@ -193,7 +193,7 @@ export const AddReminderModal: React.FC<AddReminderModalProps> = ({
                   placeholder="2500.00"
                   value={amount}
                   onChange={(e) => setAmount(e.target.value)}
-                  className="w-full bg-[#171922] text-white text-base font-mono font-bold pl-8 pr-3 py-2.5 rounded-xl border border-white/10 focus:outline-none focus:border-orange-500"
+                  className="w-full bg-[#171922] text-white text-base font-mono font-bold pl-8 pr-3 py-2.5 rounded-xl border border-white/10 focus:outline-none focus:border-white/30"
                   required
                 />
               </div>
@@ -204,7 +204,7 @@ export const AddReminderModal: React.FC<AddReminderModalProps> = ({
               <select
                 value={currency}
                 onChange={(e) => setCurrency(e.target.value)}
-                className="w-full bg-[#171922] text-white text-xs font-mono px-3 py-3 rounded-xl border border-white/10 focus:outline-none focus:border-orange-500"
+                className="w-full bg-[#171922] text-white text-xs font-mono px-3 py-3 rounded-xl border border-white/10 focus:outline-none focus:border-white/30"
               >
                 <option value="USD">USD ($)</option>
                 <option value="EUR">EUR (€)</option>
@@ -220,30 +220,30 @@ export const AddReminderModal: React.FC<AddReminderModalProps> = ({
           {/* Due Date & Reminder Trigger Date */}
           <div className="grid grid-cols-2 gap-3 bg-[#171922] p-3 rounded-2xl border border-white/5">
             <div>
-              <label className="block text-[11px] font-medium text-amber-400 mb-1 flex items-center gap-1">
-                <Calendar className="w-3 h-3" />
+              <label className="block text-[11px] font-medium text-zinc-300 mb-1 flex items-center gap-1">
+                <Calendar className="w-3 h-3 text-zinc-400" />
                 <span>Payment Due Date</span>
               </label>
               <input
                 type="date"
                 value={dueDate}
                 onChange={(e) => handleDueDateChange(e.target.value)}
-                className="w-full bg-[#12141a] text-white text-xs px-3 py-2 rounded-xl border border-white/10 focus:outline-none focus:border-amber-500"
+                className="w-full bg-[#12141a] text-white text-xs px-3 py-2 rounded-xl border border-white/10 focus:outline-none focus:border-white/30"
                 required
               />
               <span className="text-[10px] text-zinc-500 mt-0.5 block">When payment is expected</span>
             </div>
 
             <div>
-              <label className="block text-[11px] font-medium text-orange-400 mb-1 flex items-center gap-1">
-                <Bell className="w-3 h-3" />
+              <label className="block text-[11px] font-medium text-zinc-300 mb-1 flex items-center gap-1">
+                <Bell className="w-3 h-3 text-zinc-400" />
                 <span>Reminder Alert Date</span>
               </label>
               <input
                 type="date"
                 value={reminderDate}
                 onChange={(e) => setReminderDate(e.target.value)}
-                className="w-full bg-[#12141a] text-white text-xs px-3 py-2 rounded-xl border border-white/10 focus:outline-none focus:border-orange-500"
+                className="w-full bg-[#12141a] text-white text-xs px-3 py-2 rounded-xl border border-white/10 focus:outline-none focus:border-white/30"
                 required
               />
               <span className="text-[10px] text-zinc-500 mt-0.5 block">When app warns you to follow up</span>
@@ -259,7 +259,7 @@ export const AddReminderModal: React.FC<AddReminderModalProps> = ({
                 placeholder="billing@client.com"
                 value={clientEmail}
                 onChange={(e) => setClientEmail(e.target.value)}
-                className="w-full bg-[#171922] text-white text-xs px-3.5 py-2.5 rounded-xl border border-white/10 focus:outline-none focus:border-orange-500"
+                className="w-full bg-[#171922] text-white text-xs px-3.5 py-2.5 rounded-xl border border-white/10 focus:outline-none focus:border-white/30"
               />
             </div>
             <div>
@@ -269,7 +269,7 @@ export const AddReminderModal: React.FC<AddReminderModalProps> = ({
                 placeholder="+1 555-0199"
                 value={clientPhone}
                 onChange={(e) => setClientPhone(e.target.value)}
-                className="w-full bg-[#171922] text-white text-xs px-3.5 py-2.5 rounded-xl border border-white/10 focus:outline-none focus:border-orange-500"
+                className="w-full bg-[#171922] text-white text-xs px-3.5 py-2.5 rounded-xl border border-white/10 focus:outline-none focus:border-white/30"
               />
             </div>
           </div>
@@ -282,7 +282,7 @@ export const AddReminderModal: React.FC<AddReminderModalProps> = ({
               placeholder="e.g. Net-14 payment terms, 50% deposit remaining"
               value={notes}
               onChange={(e) => setNotes(e.target.value)}
-              className="w-full bg-[#171922] text-white text-xs px-3.5 py-2.5 rounded-xl border border-white/10 focus:outline-none focus:border-orange-500"
+              className="w-full bg-[#171922] text-white text-xs px-3.5 py-2.5 rounded-xl border border-white/10 focus:outline-none focus:border-white/30"
             />
           </div>
 
@@ -299,7 +299,7 @@ export const AddReminderModal: React.FC<AddReminderModalProps> = ({
             </button>
             <button
               type="submit"
-              className="px-5 py-2.5 rounded-xl text-xs font-bold text-black bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 shadow-lg shadow-orange-500/20"
+              className="px-5 py-2.5 rounded-xl text-xs font-semibold text-zinc-950 bg-zinc-100 hover:bg-white transition-colors shadow-sm"
             >
               Save Payment Reminder
             </button>

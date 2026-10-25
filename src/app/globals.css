@@ -1,59 +1,46 @@
 @import "tailwindcss";
 
 :root {
-  --background: #090a0d;
-  --foreground: #f3f4f6;
-  --surface-card: #111317;
-  --surface-card-hover: #161920;
-  --surface-subtle: #191c24;
+  --background: #090a0c;
+  --foreground: #f1f3f7;
+  --surface-card: #111215;
+  --surface-hover: #16181d;
+  --surface-muted: #1a1c22;
   --border-subtle: rgba(255, 255, 255, 0.07);
-  --border-hover: rgba(255, 255, 255, 0.15);
-  --accent-orange: #f97316;
-  --accent-orange-glow: rgba(249, 115, 22, 0.25);
-  --accent-green: #10b981;
-  --accent-rose: #f43f5e;
+  --border-hover: rgba(255, 255, 255, 0.12);
 }
 
 body {
-  background: #090a0d;
-  color: #f3f4f6;
+  background: #090a0c;
+  color: #f1f3f7;
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
   overflow-x: hidden;
   -webkit-font-smoothing: antialiased;
 }
 
-/* Custom scrollbar for sleek obsidian look */
+/* Custom scrollbar */
 ::-webkit-scrollbar {
-  width: 6px;
-  height: 6px;
+  width: 5px;
+  height: 5px;
 }
 ::-webkit-scrollbar-track {
-  background: #090a0d;
+  background: #090a0c;
 }
 ::-webkit-scrollbar-thumb {
-  background: #232732;
+  background: #202229;
   border-radius: 9999px;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: #374151;
+  background: #2e323c;
 }
 
-/* Glow utility classes */
-.glow-orange {
-  box-shadow: 0 0 25px -4px rgba(249, 115, 22, 0.35);
+/* Hide Next.js dev toast / route announcer that blocks the mobile bottom nav */
+nextjs-portal, [data-nextjs-toast], #__next-build-watcher {
+  display: none !important;
 }
 
-.glow-orange-sm {
-  box-shadow: 0 0 12px -2px rgba(249, 115, 22, 0.3);
-}
-
-.glow-green-sm {
-  box-shadow: 0 0 12px -2px rgba(16, 185, 129, 0.3);
-}
-
-.glass-panel {
-  background: rgba(18, 20, 24, 0.75);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  border: 1px solid rgba(255, 255, 255, 0.08);
+/* Dense minimal card styling */
+.dense-card {
+  background-color: #111215;
+  border: 1px solid rgba(255, 255, 255, 0.06);
 }

@@ -1,24 +1,24 @@
 import { Category, Wallet, Transaction, PaymentReminder, AppSettings, SavingsGoal } from '@/types';
 
-// Distinct Expense Categories and Income Sources
+// Distinct Expense Categories and Income Sources (Dense, cohesive minimal palette)
 export const DEFAULT_CATEGORIES: Category[] = [
-  // Expense Categories
-  { id: 'cat-software', name: 'Software & Tools', icon: 'Box', color: '#f59e0b', type: 'expense', budgetLimit: 300 },
-  { id: 'cat-hardware', name: 'Tech & Hardware', icon: 'Laptop', color: '#6366f1', type: 'expense', budgetLimit: 600 },
-  { id: 'cat-food', name: 'Groceries & Dining', icon: 'Coffee', color: '#ec4899', type: 'expense', budgetLimit: 400 },
-  { id: 'cat-travel', name: 'Transport & Travel', icon: 'Car', color: '#3b82f6', type: 'expense', budgetLimit: 250 },
-  { id: 'cat-utilities', name: 'Utilities & Bills', icon: 'Zap', color: '#eab308', type: 'expense', budgetLimit: 200 },
-  { id: 'cat-marketing', name: 'Marketing & Domains', icon: 'Globe', color: '#14b8a6', type: 'expense', budgetLimit: 150 },
-  { id: 'cat-taxes', name: 'Taxes & Accounting', icon: 'FileText', color: '#ef4444', type: 'expense', budgetLimit: 1000 },
-  { id: 'cat-misc', name: 'Miscellaneous', icon: 'ShoppingBag', color: '#a855f7', type: 'expense', budgetLimit: 200 },
+  // Expense Categories (Dense slate, zinc, stone, muted clay tones)
+  { id: 'cat-software', name: 'Software & Tools', icon: 'Box', color: '#64748b', type: 'expense', budgetLimit: 300 },
+  { id: 'cat-hardware', name: 'Tech & Hardware', icon: 'Laptop', color: '#94a3b8', type: 'expense', budgetLimit: 600 },
+  { id: 'cat-food', name: 'Groceries & Dining', icon: 'Coffee', color: '#a89f91', type: 'expense', budgetLimit: 400 },
+  { id: 'cat-travel', name: 'Transport & Travel', icon: 'Car', color: '#71717a', type: 'expense', budgetLimit: 250 },
+  { id: 'cat-utilities', name: 'Utilities & Bills', icon: 'Zap', color: '#78716c', type: 'expense', budgetLimit: 200 },
+  { id: 'cat-marketing', name: 'Marketing & Domains', icon: 'Globe', color: '#52606d', type: 'expense', budgetLimit: 150 },
+  { id: 'cat-taxes', name: 'Taxes & Accounting', icon: 'FileText', color: '#8a4f4f', type: 'expense', budgetLimit: 1000 },
+  { id: 'cat-misc', name: 'Miscellaneous', icon: 'ShoppingBag', color: '#52525b', type: 'expense', budgetLimit: 200 },
 
-  // Income Sources
-  { id: 'inc-freelance', name: 'Client Project Work', icon: 'Briefcase', color: '#10b981', type: 'income' },
-  { id: 'inc-retainer', name: 'Monthly Client Retainer', icon: 'Repeat', color: '#06b6d4', type: 'income' },
-  { id: 'inc-consulting', name: 'Consulting & Advisory', icon: 'Sparkles', color: '#8b5cf6', type: 'income' },
-  { id: 'inc-salary', name: 'Salary & Direct Deposit', icon: 'DollarSign', color: '#22c55e', type: 'income' },
-  { id: 'inc-investments', name: 'Investments & Dividends', icon: 'TrendingUp', color: '#38bdf8', type: 'income' },
-  { id: 'inc-sidehustle', name: 'Digital Products & Sales', icon: 'Box', color: '#f97316', type: 'income' },
+  // Income Sources (Dense muted sage, forest, spruce, and celadon tones)
+  { id: 'inc-freelance', name: 'Client Project Work', icon: 'Briefcase', color: '#3d7a63', type: 'income' },
+  { id: 'inc-retainer', name: 'Monthly Client Retainer', icon: 'Repeat', color: '#386b61', type: 'income' },
+  { id: 'inc-consulting', name: 'Consulting & Advisory', icon: 'Sparkles', color: '#53796f', type: 'income' },
+  { id: 'inc-salary', name: 'Salary & Direct Deposit', icon: 'DollarSign', color: '#3a6952', type: 'income' },
+  { id: 'inc-investments', name: 'Investments & Dividends', icon: 'TrendingUp', color: '#436b75', type: 'income' },
+  { id: 'inc-sidehustle', name: 'Digital Products & Sales', icon: 'Box', color: '#786b59', type: 'income' },
 ];
 
 export const DEFAULT_WALLETS: Wallet[] = [
@@ -48,7 +48,7 @@ export const INITIAL_SAVINGS_GOALS: SavingsGoal[] = [
     currentAmount: 6500,
     targetDate: '2026-12-31',
     category: 'Safety Net',
-    color: '#10b981',
+    color: '#3d7a63',
     walletId: 'wal-bank',
   },
   {
@@ -58,7 +58,7 @@ export const INITIAL_SAVINGS_GOALS: SavingsGoal[] = [
     currentAmount: 1850,
     targetDate: '2026-11-30',
     category: 'Tech',
-    color: '#f97316',
+    color: '#78716c',
     walletId: 'wal-bank',
   },
   {
@@ -68,7 +68,7 @@ export const INITIAL_SAVINGS_GOALS: SavingsGoal[] = [
     currentAmount: 3400,
     targetDate: '2026-12-15',
     category: 'Taxes',
-    color: '#3b82f6',
+    color: '#52606d',
     walletId: 'wal-stripe',
   },
 ];

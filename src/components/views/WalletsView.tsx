@@ -72,9 +72,9 @@ export const WalletsView: React.FC<WalletsViewProps> = ({
 
         <button
           onClick={() => setShowAddModal(true)}
-          className="bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 text-black font-semibold text-xs px-4 py-2.5 rounded-xl flex items-center gap-1.5 shadow-md shadow-orange-500/20 transition-all self-start sm:self-center"
+          className="bg-zinc-100 hover:bg-white text-zinc-950 font-semibold text-xs px-4 py-2.5 rounded-xl flex items-center gap-1.5 transition-colors shadow-sm self-start sm:self-center"
         >
-          <Plus className="w-4 h-4 stroke-[3]" />
+          <Plus className="w-4 h-4 stroke-[2.5]" />
           <span>Add Account / Wallet</span>
         </button>
       </div>
@@ -95,7 +95,7 @@ export const WalletsView: React.FC<WalletsViewProps> = ({
             >
               <div className="flex items-start justify-between">
                 <div className="flex items-center gap-3">
-                  <div className="p-3 rounded-2xl bg-white/5 border border-white/5 text-orange-400">
+                  <div className="p-3 rounded-2xl bg-white/5 border border-white/5 text-zinc-300">
                     <Icon className="w-5 h-5" />
                   </div>
                   <div>
@@ -145,7 +145,7 @@ export const WalletsView: React.FC<WalletsViewProps> = ({
                   placeholder="e.g. Mercury Business, Wise USD, MetaMask"
                   value={walletName}
                   onChange={(e) => setWalletName(e.target.value)}
-                  className="w-full bg-[#171922] text-white text-xs px-3.5 py-2.5 rounded-xl border border-white/10 focus:outline-none focus:border-orange-500"
+                  className="w-full bg-[#171922] text-white text-xs px-3.5 py-2.5 rounded-xl border border-white/10 focus:outline-none focus:border-white/30"
                   required
                 />
               </div>
@@ -156,7 +156,7 @@ export const WalletsView: React.FC<WalletsViewProps> = ({
                   <select
                     value={walletType}
                     onChange={(e) => setWalletType(e.target.value as any)}
-                    className="w-full bg-[#171922] text-white text-xs px-3 py-2.5 rounded-xl border border-white/10 focus:outline-none focus:border-orange-500"
+                    className="w-full bg-[#171922] text-white text-xs px-3 py-2.5 rounded-xl border border-white/10 focus:outline-none focus:border-white/30"
                   >
                     <option value="bank">Bank Account</option>
                     <option value="stripe">Stripe</option>
@@ -179,7 +179,7 @@ export const WalletsView: React.FC<WalletsViewProps> = ({
                       else if (e.target.value === 'USDT') setSymbol('₮');
                       else setSymbol('$');
                     }}
-                    className="w-full bg-[#171922] text-white text-xs font-mono uppercase px-3 py-2.5 rounded-xl border border-white/10 focus:outline-none focus:border-orange-500"
+                    className="w-full bg-[#171922] text-white text-xs font-mono uppercase px-3 py-2.5 rounded-xl border border-white/10 focus:outline-none focus:border-white/30"
                     required
                   />
                 </div>
@@ -194,7 +194,7 @@ export const WalletsView: React.FC<WalletsViewProps> = ({
                     placeholder="0.00"
                     value={initialBalance}
                     onChange={(e) => setInitialBalance(e.target.value)}
-                    className="w-full bg-[#171922] text-white text-xs font-mono px-3 py-2.5 rounded-xl border border-white/10 focus:outline-none focus:border-orange-500"
+                    className="w-full bg-[#171922] text-white text-xs font-mono px-3 py-2.5 rounded-xl border border-white/10 focus:outline-none focus:border-white/30"
                   />
                 </div>
                 <div>
@@ -204,7 +204,7 @@ export const WalletsView: React.FC<WalletsViewProps> = ({
                     placeholder="•••• 1234 or 0x..."
                     value={accountNumber}
                     onChange={(e) => setAccountNumber(e.target.value)}
-                    className="w-full bg-[#171922] text-white text-xs font-mono px-3 py-2.5 rounded-xl border border-white/10 focus:outline-none focus:border-orange-500"
+                    className="w-full bg-[#171922] text-white text-xs font-mono px-3 py-2.5 rounded-xl border border-white/10 focus:outline-none focus:border-white/30"
                   />
                 </div>
               </div>
@@ -219,7 +219,7 @@ export const WalletsView: React.FC<WalletsViewProps> = ({
                 </button>
                 <button
                   type="submit"
-                  className="px-5 py-2.5 rounded-xl text-xs font-bold text-black bg-gradient-to-r from-orange-500 to-amber-500"
+                  className="px-5 py-2.5 rounded-xl text-xs font-semibold text-zinc-950 bg-zinc-100 hover:bg-white transition-colors shadow-sm"
                 >
                   Create Account
                 </button>

@@ -62,7 +62,7 @@ export const TransactionOverviewChart: React.FC<TransactionOverviewChartProps> =
               onClick={() => setShowTypeDropdown(!showTypeDropdown)}
               className="flex items-center gap-1.5 bg-[#181b23] hover:bg-[#1f232e] border border-white/10 px-2.5 py-1 rounded-lg text-xs font-medium text-zinc-300 transition-colors"
             >
-              <span className={chartType === 'expense' ? 'text-orange-400' : 'text-emerald-400'}>
+              <span className="text-white font-medium">
                 {chartType === 'expense' ? 'Expenses' : 'Income'}
               </span>
               <ChevronDown className="w-3 h-3 text-zinc-500" />
@@ -75,7 +75,7 @@ export const TransactionOverviewChart: React.FC<TransactionOverviewChartProps> =
                     setChartType('expense');
                     setShowTypeDropdown(false);
                   }}
-                  className={`w-full text-left px-3 py-1.5 text-xs ${chartType === 'expense' ? 'text-orange-400 font-semibold' : 'text-zinc-300'}`}
+                  className={`w-full text-left px-3 py-1.5 text-xs ${chartType === 'expense' ? 'text-white font-semibold bg-white/5' : 'text-zinc-300'}`}
                 >
                   Expenses
                 </button>
@@ -84,7 +84,7 @@ export const TransactionOverviewChart: React.FC<TransactionOverviewChartProps> =
                     setChartType('income');
                     setShowTypeDropdown(false);
                   }}
-                  className={`w-full text-left px-3 py-1.5 text-xs ${chartType === 'income' ? 'text-emerald-400 font-semibold' : 'text-zinc-300'}`}
+                  className={`w-full text-left px-3 py-1.5 text-xs ${chartType === 'income' ? 'text-white font-semibold bg-white/5' : 'text-zinc-300'}`}
                 >
                   Income
                 </button>
@@ -128,11 +128,11 @@ export const TransactionOverviewChart: React.FC<TransactionOverviewChartProps> =
                   className={`w-full rounded-t-lg transition-all duration-300 ${
                     chartType === 'expense'
                       ? isSelected
-                        ? 'bg-gradient-to-t from-orange-600 to-amber-400 shadow-lg shadow-orange-500/30'
-                        : 'bg-gradient-to-t from-orange-700/60 to-orange-500/50 group-hover:from-orange-600 group-hover:to-amber-400'
+                        ? 'bg-[#64748b]'
+                        : 'bg-[#64748b]/60 group-hover:bg-[#64748b]'
                       : isSelected
-                      ? 'bg-gradient-to-t from-emerald-600 to-teal-400 shadow-lg shadow-emerald-500/30'
-                      : 'bg-gradient-to-t from-emerald-700/60 to-emerald-500/50 group-hover:from-emerald-600 group-hover:to-teal-400'
+                      ? 'bg-[#3d7a63]'
+                      : 'bg-[#3d7a63]/60 group-hover:bg-[#3d7a63]'
                   }`}
                   style={{ height: `${heightPercent}%` }}
                 />

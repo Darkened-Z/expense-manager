@@ -2,12 +2,12 @@ import { Transaction, PaymentReminder, Category, Wallet, AppSettings, PaymentRem
 import { DEFAULT_CATEGORIES, DEFAULT_WALLETS, DEFAULT_SETTINGS, INITIAL_REMINDERS, INITIAL_TRANSACTIONS, INITIAL_SAVINGS_GOALS } from './constants';
 
 const KEYS = {
-  TRANSACTIONS: 'expense_manager_txs_v2',
-  REMINDERS: 'expense_manager_reminders_v2',
-  CATEGORIES: 'expense_manager_cats_v2',
-  WALLETS: 'expense_manager_wallets_v2',
-  SAVINGS: 'expense_manager_savings_v2',
-  SETTINGS: 'expense_manager_settings_v2',
+  TRANSACTIONS: 'expense_manager_txs_v4',
+  REMINDERS: 'expense_manager_reminders_v4',
+  CATEGORIES: 'expense_manager_cats_v4',
+  WALLETS: 'expense_manager_wallets_v4',
+  SAVINGS: 'expense_manager_savings_v4',
+  SETTINGS: 'expense_manager_settings_v4',
   IS_LOCKED: 'expense_manager_session_locked',
 };
 
@@ -167,7 +167,30 @@ export const StorageService = {
       return DEFAULT_CATEGORIES;
     }
     try {
-      return JSON.parse(raw);
+      const parsed: Category[] = JSON.parse(raw);
+      let modified = false;
+      const updated = parsed.map(c => {
+        const defaultMatch = DEFAULT_CATEGORIES.find(d => d.id === c.id);
+        if (
+          defaultMatch &&
+          (c.color.startsWith('#ec') ||
+            c.color === '#f97316' ||
+            c.color === '#eab308' ||
+            c.color === '#3b82f6' ||
+            c.color === '#8b5cf6' ||
+            c.color === '#06b6d4' ||
+            c.color === '#10b981' ||
+            c.color === '#ef4444')
+        ) {
+          modified = true;
+          return { ...c, color: defaultMatch.color };
+        }
+        return c;
+      });
+      if (modified) {
+        localStorage.setItem(KEYS.CATEGORIES, JSON.stringify(updated));
+      }
+      return updated;
     } catch {
       return DEFAULT_CATEGORIES;
     }

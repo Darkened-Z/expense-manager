@@ -39,69 +39,80 @@ export const MetricsBar: React.FC<MetricsBarProps> = ({
   return (
     <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3">
       {/* Total Balance */}
-      <div className="bg-[#12141a] border border-white/5 rounded-2xl p-4 shadow-xl">
-        <div className="flex items-center justify-between text-zinc-400">
-          <span className="text-[11px] font-medium uppercase tracking-wider">Total Balance</span>
-          <Wallet className="w-4 h-4 text-zinc-500" />
+      <div className="bg-[#111215] border border-white/[0.06] hover:border-white/10 rounded-2xl p-4 shadow-sm transition-all">
+        <div className="flex items-center justify-between">
+          <span className="text-[11px] font-medium text-zinc-400 uppercase tracking-wider">Total Balance</span>
+          <Wallet className="w-3.5 h-3.5 text-zinc-500" />
         </div>
-        <div className="text-xl sm:text-2xl font-bold font-mono text-white mt-1.5">
+        <div className="text-xl sm:text-2xl font-bold font-mono text-white mt-1.5 tracking-tight">
           {currencySymbol}{totalBalance.toLocaleString(undefined, { minimumFractionDigits: 2 })}
         </div>
-        <div className="text-[10px] text-zinc-500 mt-1">Across {wallets.length} accounts</div>
+        <div className="text-[10px] text-zinc-500 mt-1 font-mono">
+          Across {wallets.length} accounts
+        </div>
       </div>
 
-      {/* Total Received */}
-      <div className="bg-[#12141a] border border-white/5 rounded-2xl p-4 shadow-xl">
-        <div className="flex items-center justify-between text-zinc-400">
-          <span className="text-[11px] font-medium uppercase tracking-wider">Income</span>
-          <ArrowUpRight className="w-4 h-4 text-emerald-400" />
+      {/* Income */}
+      <div className="bg-[#111215] border border-white/[0.06] hover:border-white/10 rounded-2xl p-4 shadow-sm transition-all">
+        <div className="flex items-center justify-between">
+          <span className="text-[11px] font-medium text-zinc-400 uppercase tracking-wider">Income</span>
+          <span className="inline-flex items-center gap-0.5 text-[10px] font-mono text-zinc-300 bg-white/5 border border-white/10 px-1.5 py-0.5 rounded">
+            <ArrowUpRight className="w-3 h-3 text-emerald-400" />
+            <span>+In</span>
+          </span>
         </div>
-        <div className="text-xl sm:text-2xl font-bold font-mono text-emerald-400 mt-1.5">
+        <div className="text-xl sm:text-2xl font-bold font-mono text-white mt-1.5 tracking-tight">
           {currencySymbol}{totalReceived.toLocaleString(undefined, { minimumFractionDigits: 2 })}
         </div>
-        <div className="text-[10px] text-zinc-500 mt-1">
+        <div className="text-[10px] text-zinc-500 mt-1 font-mono">
           {transactions.filter((t) => t.type === 'income').length} deposits
         </div>
       </div>
 
-      {/* Total Spent */}
-      <div className="bg-[#12141a] border border-white/5 rounded-2xl p-4 shadow-xl">
-        <div className="flex items-center justify-between text-zinc-400">
-          <span className="text-[11px] font-medium uppercase tracking-wider">Expenses</span>
-          <ArrowDownLeft className="w-4 h-4 text-rose-400" />
+      {/* Expenses */}
+      <div className="bg-[#111215] border border-white/[0.06] hover:border-white/10 rounded-2xl p-4 shadow-sm transition-all">
+        <div className="flex items-center justify-between">
+          <span className="text-[11px] font-medium text-zinc-400 uppercase tracking-wider">Expenses</span>
+          <span className="inline-flex items-center gap-0.5 text-[10px] font-mono text-zinc-300 bg-white/5 border border-white/10 px-1.5 py-0.5 rounded">
+            <ArrowDownLeft className="w-3 h-3 text-rose-400" />
+            <span>-Out</span>
+          </span>
         </div>
-        <div className="text-xl sm:text-2xl font-bold font-mono text-rose-400 mt-1.5">
+        <div className="text-xl sm:text-2xl font-bold font-mono text-white mt-1.5 tracking-tight">
           {currencySymbol}{totalSpent.toLocaleString(undefined, { minimumFractionDigits: 2 })}
         </div>
-        <div className="text-[10px] text-zinc-500 mt-1">
+        <div className="text-[10px] text-zinc-500 mt-1 font-mono">
           {transactions.filter((t) => t.type === 'expense').length} purchases
         </div>
       </div>
 
       {/* Net Savings */}
-      <div className="bg-[#12141a] border border-white/5 rounded-2xl p-4 shadow-xl">
-        <div className="flex items-center justify-between text-zinc-400">
-          <span className="text-[11px] font-medium uppercase tracking-wider">Net Savings</span>
-          <PiggyBank className="w-4 h-4 text-orange-400" />
+      <div className="bg-[#111215] border border-white/[0.06] hover:border-white/10 rounded-2xl p-4 shadow-sm transition-all">
+        <div className="flex items-center justify-between">
+          <span className="text-[11px] font-medium text-zinc-400 uppercase tracking-wider">Net Savings</span>
+          <span className="inline-flex items-center gap-0.5 text-[10px] font-mono text-zinc-300 bg-white/5 border border-white/10 px-1.5 py-0.5 rounded">
+            <PiggyBank className="w-3 h-3 text-zinc-400" />
+            <span>{savingsRate.toFixed(0)}%</span>
+          </span>
         </div>
-        <div className={`text-xl sm:text-2xl font-bold font-mono mt-1.5 ${netSavings >= 0 ? 'text-white' : 'text-rose-400'}`}>
+        <div className="text-xl sm:text-2xl font-bold font-mono text-white mt-1.5 tracking-tight">
           {currencySymbol}{netSavings.toLocaleString(undefined, { minimumFractionDigits: 2 })}
         </div>
-        <div className="text-[10px] text-orange-400/90 font-mono mt-1">
-          {savingsRate.toFixed(1)}% savings rate
+        <div className="text-[10px] text-zinc-500 mt-1 font-mono">
+          Retention surplus
         </div>
       </div>
 
       {/* Pending Receivables */}
-      <div className="bg-[#12141a] border border-white/5 rounded-2xl p-4 shadow-xl col-span-2 sm:col-span-1">
-        <div className="flex items-center justify-between text-zinc-400">
-          <span className="text-[11px] font-medium uppercase tracking-wider">To Collect</span>
-          <Clock className="w-4 h-4 text-amber-400" />
+      <div className="bg-[#111215] border border-white/[0.06] hover:border-white/10 rounded-2xl p-4 shadow-sm transition-all col-span-2 sm:col-span-1">
+        <div className="flex items-center justify-between">
+          <span className="text-[11px] font-medium text-zinc-400 uppercase tracking-wider">To Collect</span>
+          <Clock className="w-3.5 h-3.5 text-zinc-500" />
         </div>
-        <div className="text-xl sm:text-2xl font-bold font-mono text-amber-400 mt-1.5">
+        <div className="text-xl sm:text-2xl font-bold font-mono text-white mt-1.5 tracking-tight">
           {currencySymbol}{pendingReceivables.toLocaleString(undefined, { minimumFractionDigits: 2 })}
         </div>
-        <div className="text-[10px] text-zinc-500 mt-1">
+        <div className="text-[10px] text-zinc-400 mt-1 font-mono">
           {pendingCount} pending invoice{pendingCount === 1 ? '' : 's'}
         </div>
       </div>
