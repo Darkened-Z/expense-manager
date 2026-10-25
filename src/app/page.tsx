@@ -324,6 +324,7 @@ export default function Home() {
           dateRange={dateRange}
           setDateRange={setDateRange}
           reminders={reminders}
+          currencySymbol={settings.currencySymbol}
           onOpenAddTx={(type) => setAddTxModalType(type)}
           onOpenAddReminder={() => setShowAddReminderModal(true)}
           onCollectReminder={(id) => handleCollectReminder(id)}
@@ -477,6 +478,7 @@ export default function Home() {
                 onImportBackup={handleImportBackup}
                 onExportCSV={handleExportCSV}
                 onResetAllData={handleResetAllData}
+                onSyncComplete={handleResetAllData}
               />
             </div>
           )}

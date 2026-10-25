@@ -89,18 +89,8 @@ export const DailyPulseCard: React.FC<DailyPulseCardProps> = ({
         )}
 
         <svg viewBox={`0 0 ${width} ${height}`} className="w-full h-20 overflow-visible">
-          <defs>
-            <linearGradient id="sparkGradient" x1="0" y1="0" x2="0" y2="1">
-              <stop offset="0%" stopColor="#94a3b8" stopOpacity="0.25" />
-              <stop offset="100%" stopColor="#94a3b8" stopOpacity="0.0" />
-            </linearGradient>
-          </defs>
-
-          {/* Area under curve */}
-          <path d={areaD} fill="url(#sparkGradient)" />
-
-          {/* Line stroke */}
-          <path d={pathD} fill="none" stroke="#94a3b8" strokeWidth="2" strokeLinecap="round" />
+          {/* Clean minimal line stroke - zero gradients */}
+          <path d={pathD} fill="none" stroke="#71717a" strokeWidth="2" strokeLinecap="round" />
 
           {/* Interactive dots */}
           {coords.map((c, i) => (

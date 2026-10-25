@@ -85,7 +85,7 @@ export const FreelanceRemindersView: React.FC<FreelanceRemindersViewProps> = ({
 
   // Copy professional reminder text
   const handleCopyReminderText = (rem: PaymentReminder) => {
-    const text = `Hi ${rem.clientName},\n\nI hope you're having a great week! Friendly reminder that Invoice #${rem.invoiceNumber || 'INV'} for "${rem.projectTitle}" in the amount of $${rem.amount.toFixed(2)} was due on ${rem.dueDate}.\n\nPlease let me know once the payment has been initiated or if you need any additional invoice documentation.\n\nThank you!`;
+    const text = `Hi ${rem.clientName},\n\nI hope you're having a great week! Friendly reminder that Invoice #${rem.invoiceNumber || 'INV'} for "${rem.projectTitle}" in the amount of ${currencySymbol}${rem.amount.toFixed(2)} was due on ${rem.dueDate}.\n\nPlease let me know once the payment has been initiated or if you need any additional invoice documentation.\n\nThank you!`;
 
     navigator.clipboard.writeText(text);
     setCopiedId(rem.id);
@@ -103,8 +103,8 @@ export const FreelanceRemindersView: React.FC<FreelanceRemindersViewProps> = ({
       `DTSTAMP:${new Date().toISOString().replace(/[-:]/g, '').split('.')[0]}Z`,
       `DTSTART;VALUE=DATE:${rem.dueDate.replace(/-/g, '')}`,
       `DTEND;VALUE=DATE:${rem.dueDate.replace(/-/g, '')}`,
-      `SUMMARY:Collect Payment: ${rem.clientName} ($${rem.amount.toFixed(2)})`,
-      `DESCRIPTION:Freelance Invoice #${rem.invoiceNumber || 'N/A'}\\nProject: ${rem.projectTitle}\\nClient: ${rem.clientName}\\nAmount: $${rem.amount.toFixed(2)}`,
+      `SUMMARY:Collect Payment: ${rem.clientName} (${currencySymbol}${rem.amount.toFixed(2)})`,
+      `DESCRIPTION:Freelance Invoice #${rem.invoiceNumber || 'N/A'}\\nProject: ${rem.projectTitle}\\nClient: ${rem.clientName}\\nAmount: ${currencySymbol}${rem.amount.toFixed(2)}`,
       'STATUS:CONFIRMED',
       'BEGIN:VALARM',
       'TRIGGER:-PT9H',
@@ -322,7 +322,7 @@ export const FreelanceRemindersView: React.FC<FreelanceRemindersViewProps> = ({
                           {currencySymbol}{rem.amount.toFixed(2)}
                         </div>
                         <div className="text-[10px] text-zinc-500 font-mono uppercase">
-                          {rem.token || rem.currency || 'USD'}
+                          {rem.token || rem.currency || 'INR'}
                         </div>
                       </div>
 

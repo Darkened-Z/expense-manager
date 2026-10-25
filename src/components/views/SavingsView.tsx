@@ -34,7 +34,7 @@ export const SavingsView: React.FC<SavingsViewProps> = ({
   const [currentAmount, setCurrentAmount] = useState('');
   const [targetDate, setTargetDate] = useState('');
   const [category, setCategory] = useState('Safety Net');
-  const [color, setColor] = useState('#10b981');
+  const [color, setColor] = useState('#71717a');
 
   // Compute metrics
   const totalSaved = savingsGoals.reduce((s, g) => s + g.currentAmount, 0);
@@ -119,88 +119,107 @@ export const SavingsView: React.FC<SavingsViewProps> = ({
         </div>
       </div>
 
-      {/* Goals Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-        {savingsGoals.map((goal) => {
-          const pct = Math.min((goal.currentAmount / goal.targetAmount) * 100, 100);
-          const remaining = Math.max(goal.targetAmount - goal.currentAmount, 0);
+      {/* Goals Grid or Empty State */}
+      {savingsGoals.length === 0 ? (
+        <div className="bg-[#12141a] border border-white/5 rounded-2xl p-12 text-center max-w-xl mx-auto shadow-xl">
+          <div className="w-12 h-12 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center mx-auto text-zinc-400 mb-4">
+            <PiggyBank className="w-6 h-6 stroke-[1.75]" />
+          </div>
+          <h3 className="text-base font-semibold text-white">No Savings Goals Yet</h3>
+          <p className="text-xs text-zinc-400 mt-1 max-w-sm mx-auto">
+            Establish financial safety nets, tax buffers, or equipment reserve funds. Track progress as you deposit capital.
+          </p>
+          <button
+            onClick={() => setShowAddModal(true)}
+            className="mt-5 inline-flex items-center gap-1.5 px-4 py-2 bg-zinc-100 hover:bg-white text-zinc-950 font-semibold text-xs rounded-xl transition-colors shadow-sm"
+          >
+            <Plus className="w-4 h-4 stroke-[2.5]" />
+            <span>Create Your First Goal</span>
+          </button>
+        </div>
+      ) : (
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          {savingsGoals.map((goal) => {
+            const pct = Math.min((goal.currentAmount / goal.targetAmount) * 100, 100);
+            const remaining = Math.max(goal.targetAmount - goal.currentAmount, 0);
 
-          return (
-            <div
-              key={goal.id}
-              className="bg-[#12141a] border border-white/5 hover:border-white/10 rounded-2xl p-5 shadow-xl flex flex-col justify-between transition-all"
-            >
-              <div>
-                <div className="flex items-start justify-between">
-                  <div>
-                    <span className="text-[10px] uppercase font-mono tracking-wider px-2 py-0.5 rounded bg-white/5 text-zinc-400 border border-white/5">
-                      {goal.category}
-                    </span>
-                    <h4 className="font-bold text-white text-sm mt-2">{goal.title}</h4>
+            return (
+              <div
+                key={goal.id}
+                className="bg-[#12141a] border border-white/5 hover:border-white/10 rounded-2xl p-5 shadow-xl flex flex-col justify-between transition-all"
+              >
+                <div>
+                  <div className="flex items-start justify-between">
+                    <div>
+                      <span className="text-[10px] uppercase font-mono tracking-wider px-2 py-0.5 rounded bg-white/5 text-zinc-400 border border-white/5">
+                        {goal.category}
+                      </span>
+                      <h4 className="font-bold text-white text-sm mt-2">{goal.title}</h4>
+                    </div>
+                    <button
+                      onClick={() => onDeleteSavingsGoal(goal.id)}
+                      className="text-zinc-600 hover:text-rose-400 transition-colors p-1"
+                      title="Delete goal"
+                    >
+                      <Trash2 className="w-3.5 h-3.5" />
+                    </button>
                   </div>
+
+                  <div className="mt-4 flex items-baseline justify-between font-mono">
+                    <div>
+                      <div className="text-xs text-zinc-400">Current Balance</div>
+                      <div className="text-xl font-bold text-white">
+                        {currencySymbol}{goal.currentAmount.toLocaleString(undefined, { minimumFractionDigits: 2 })}
+                      </div>
+                    </div>
+                    <div className="text-right">
+                      <div className="text-xs text-zinc-500">Target</div>
+                      <div className="text-xs text-zinc-300 font-medium">
+                        {currencySymbol}{goal.targetAmount.toLocaleString(undefined, { minimumFractionDigits: 2 })}
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Progress bar */}
+                  <div className="mt-3">
+                    <div className="flex items-center justify-between text-[11px] mb-1 font-mono">
+                      <span className="text-zinc-400">{pct.toFixed(0)}% funded</span>
+                      <span className="text-zinc-500">{currencySymbol}{remaining.toFixed(2)} remaining</span>
+                    </div>
+                    <div className="w-full h-2 bg-white/5 rounded-full overflow-hidden">
+                      <div
+                        className="h-full rounded-full transition-all duration-500"
+                        style={{
+                          width: `${pct}%`,
+                          backgroundColor: goal.color,
+                        }}
+                      />
+                    </div>
+                  </div>
+
+                  {goal.targetDate && (
+                    <div className="mt-3 flex items-center gap-1.5 text-[11px] text-zinc-500 font-mono">
+                      <Calendar className="w-3 h-3" />
+                      <span>Target Date: {goal.targetDate}</span>
+                    </div>
+                  )}
+                </div>
+
+                {/* Deposit Button */}
+                <div className="mt-5 pt-3 border-t border-white/5">
                   <button
-                    onClick={() => onDeleteSavingsGoal(goal.id)}
-                    className="text-zinc-600 hover:text-rose-400 transition-colors p-1"
-                    title="Delete goal"
+                    onClick={() => setDepositGoal(goal)}
+                    className="w-full bg-[#181b23] hover:bg-[#20242f] text-zinc-200 border border-white/10 hover:border-white/20 py-2 rounded-xl text-xs font-semibold flex items-center justify-center gap-1.5 transition-all"
                   >
-                    <Trash2 className="w-3.5 h-3.5" />
+                    <Plus className="w-3.5 h-3.5" />
+                    <span>Deposit Funds</span>
                   </button>
                 </div>
-
-                <div className="mt-4 flex items-baseline justify-between font-mono">
-                  <div>
-                    <div className="text-xs text-zinc-400">Current Balance</div>
-                    <div className="text-xl font-bold text-white">
-                      {currencySymbol}{goal.currentAmount.toLocaleString(undefined, { minimumFractionDigits: 2 })}
-                    </div>
-                  </div>
-                  <div className="text-right">
-                    <div className="text-xs text-zinc-500">Target</div>
-                    <div className="text-xs text-zinc-300 font-medium">
-                      {currencySymbol}{goal.targetAmount.toLocaleString(undefined, { minimumFractionDigits: 2 })}
-                    </div>
-                  </div>
-                </div>
-
-                {/* Progress bar */}
-                <div className="mt-3">
-                  <div className="flex items-center justify-between text-[11px] mb-1 font-mono">
-                    <span className="text-zinc-400">{pct.toFixed(0)}% funded</span>
-                    <span className="text-zinc-500">{currencySymbol}{remaining.toFixed(2)} remaining</span>
-                  </div>
-                  <div className="w-full h-2 bg-white/5 rounded-full overflow-hidden">
-                    <div
-                      className="h-full rounded-full transition-all duration-500"
-                      style={{
-                        width: `${pct}%`,
-                        backgroundColor: goal.color,
-                      }}
-                    />
-                  </div>
-                </div>
-
-                {goal.targetDate && (
-                  <div className="mt-3 flex items-center gap-1.5 text-[11px] text-zinc-500 font-mono">
-                    <Calendar className="w-3 h-3" />
-                    <span>Target Date: {goal.targetDate}</span>
-                  </div>
-                )}
               </div>
-
-              {/* Deposit Button */}
-              <div className="mt-5 pt-3 border-t border-white/5">
-                <button
-                  onClick={() => setDepositGoal(goal)}
-                  className="w-full bg-[#181b23] hover:bg-[#20242f] text-zinc-200 border border-white/10 hover:border-white/20 py-2 rounded-xl text-xs font-semibold flex items-center justify-center gap-1.5 transition-all"
-                >
-                  <Plus className="w-3.5 h-3.5" />
-                  <span>Deposit Funds</span>
-                </button>
-              </div>
-            </div>
-          );
-        })}
-      </div>
+            );
+          })}
+        </div>
+      )}
 
       {/* Deposit Modal */}
       {depositGoal && (

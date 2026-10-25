@@ -15,8 +15,15 @@ import {
   DollarSign,
   Check,
   AlertTriangle,
+  Cloud,
+  CloudUpload,
+  CloudDownload,
+  Copy,
+  Smartphone,
+  Laptop,
 } from 'lucide-react';
 import { AppSettings } from '@/types';
+import { StorageService } from '@/lib/storage';
 
 interface SettingsViewProps {
   settings: AppSettings;
@@ -26,6 +33,7 @@ interface SettingsViewProps {
   onImportBackup: (jsonStr: string) => void;
   onExportCSV: () => void;
   onResetAllData: () => void;
+  onSyncComplete?: () => void;
 }
 
 export const SettingsView: React.FC<SettingsViewProps> = ({
@@ -36,12 +44,64 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
   onImportBackup,
   onExportCSV,
   onResetAllData,
+  onSyncComplete,
 }) => {
   const [userName, setUserName] = useState(settings.userName);
   const [userEmail, setUserEmail] = useState(settings.userEmail);
   const [currencySymbol, setCurrencySymbol] = useState(settings.currencySymbol);
   const [currencyCode, setCurrencyCode] = useState(settings.currencyCode);
   const [savedSuccess, setSavedSuccess] = useState(false);
+
+  // Cloud Sync state
+  const [syncKey, setSyncKey] = useState('');
+  const [syncStatus, setSyncStatus] = useState<string | null>(null);
+  const [isSyncing, setIsSyncing] = useState(false);
+  const [lastSyncTime, setLastSyncTime] = useState<string | null>(null);
+
+  React.useEffect(() => {
+    if (typeof window !== 'undefined') {
+      setSyncKey(StorageService.getSyncPasskey());
+      setLastSyncTime(StorageService.getLastSyncTime());
+    }
+  }, []);
+
+  const handleGenerateKey = () => {
+    const randomKey = 'SYNC-' + Math.random().toString(36).substring(2, 8).toUpperCase();
+    setSyncKey(randomKey);
+    StorageService.setSyncPasskey(randomKey);
+    setSyncStatus('Generated new passkey. Tap "Push to Cloud" to initialize vault.');
+  };
+
+  const handlePushCloud = async () => {
+    if (!syncKey.trim()) {
+      setSyncStatus('Please enter or generate a Sync Passkey first.');
+      return;
+    }
+    setIsSyncing(true);
+    setSyncStatus('Backing up data to cloud vault...');
+    const res = await StorageService.pushToCloud(syncKey);
+    setIsSyncing(false);
+    setSyncStatus(res.message);
+    if (res.success && res.lastSyncedAt) {
+      setLastSyncTime(res.lastSyncedAt);
+    }
+  };
+
+  const handlePullCloud = async () => {
+    if (!syncKey.trim()) {
+      setSyncStatus('Please enter your Sync Passkey to pull.');
+      return;
+    }
+    setIsSyncing(true);
+    setSyncStatus('Fetching data from cloud vault...');
+    const res = await StorageService.pullFromCloud(syncKey);
+    setIsSyncing(false);
+    setSyncStatus(res.message);
+    if (res.success) {
+      if (res.lastSyncedAt) setLastSyncTime(res.lastSyncedAt);
+      if (onSyncComplete) onSyncComplete();
+    }
+  };
 
   const handleSaveProfile = (e: React.FormEvent) => {
     e.preventDefault();
@@ -324,6 +384,97 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
         </div>
       </div>
 
+      {/* Cross-Device Cloud Sync Section */}
+      <div className="bg-[#12141a] border border-white/5 rounded-2xl p-6 shadow-xl space-y-4">
+        <div className="flex items-center justify-between border-b border-white/5 pb-4">
+          <div className="flex items-center gap-3">
+            <div className="p-2.5 rounded-xl bg-white/5 text-zinc-300 border border-white/5">
+              <Cloud className="w-5 h-5" />
+            </div>
+            <div>
+              <h3 className="font-bold text-white text-sm">Cross-Device Cloud Sync</h3>
+              <p className="text-xs text-zinc-400">Sync all transactions, wallets, and invoices seamlessly between PC & Phone</p>
+            </div>
+          </div>
+          {lastSyncTime && (
+            <span className="hidden sm:inline-block text-[11px] font-mono text-zinc-400 bg-white/5 px-2.5 py-1 rounded-lg border border-white/5">
+              Last synced: {new Date(lastSyncTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+            </span>
+          )}
+        </div>
+
+        <div className="space-y-4">
+          <div>
+            <label className="block text-[11px] font-medium text-zinc-400 mb-1">
+              Your Private Sync Passkey
+            </label>
+            <div className="flex items-center gap-2">
+              <input
+                type="text"
+                placeholder="e.g. SYNC-849201"
+                value={syncKey}
+                onChange={(e) => {
+                  setSyncKey(e.target.value.toUpperCase());
+                  StorageService.setSyncPasskey(e.target.value);
+                }}
+                className="flex-1 bg-[#161821] text-white font-mono text-xs px-3.5 py-2.5 rounded-xl border border-white/10 focus:outline-none focus:border-white/30 uppercase tracking-wider"
+              />
+              <button
+                type="button"
+                onClick={handleGenerateKey}
+                className="px-3 py-2.5 rounded-xl text-xs font-medium text-zinc-300 bg-white/5 hover:bg-white/10 border border-white/10 transition-colors whitespace-nowrap cursor-pointer"
+              >
+                Generate
+              </button>
+            </div>
+            <p className="text-[11px] text-zinc-500 mt-1">
+              Enter this identical passkey on your PC and your phone to share the same vault.
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1">
+            <button
+              type="button"
+              onClick={handlePushCloud}
+              disabled={isSyncing}
+              className="p-3.5 rounded-xl bg-[#161821] hover:bg-[#1f222e] border border-white/10 flex items-center justify-center gap-2 text-xs font-semibold text-zinc-200 transition-colors cursor-pointer disabled:opacity-50"
+            >
+              <CloudUpload className="w-4 h-4 text-zinc-300" />
+              <span>Push to Cloud (Backup)</span>
+            </button>
+
+            <button
+              type="button"
+              onClick={handlePullCloud}
+              disabled={isSyncing}
+              className="p-3.5 rounded-xl bg-zinc-100 hover:bg-white border border-white/10 flex items-center justify-center gap-2 text-xs font-semibold text-zinc-950 transition-colors cursor-pointer disabled:opacity-50"
+            >
+              <CloudDownload className="w-4 h-4 text-zinc-950" />
+              <span>Pull from Cloud (Restore)</span>
+            </button>
+          </div>
+
+          {syncStatus && (
+            <div className="p-3 rounded-xl bg-white/[0.04] border border-white/10 text-xs text-zinc-300 flex items-center gap-2">
+              <div className="w-1.5 h-1.5 rounded-full bg-zinc-400" />
+              <span>{syncStatus}</span>
+            </div>
+          )}
+
+          <div className="p-3 rounded-xl bg-[#161821] border border-white/5 text-[11px] text-zinc-400 flex items-start gap-2.5">
+            <Smartphone className="w-4 h-4 text-zinc-400 shrink-0 mt-0.5" />
+            <div>
+              <span className="font-semibold text-white">How to connect your phone:</span>
+              <ol className="list-decimal list-inside space-y-0.5 mt-1 text-zinc-400">
+                <li>Generate or enter your Sync Passkey above on PC and click <strong>Push to Cloud</strong>.</li>
+                <li>Open the app on your Phone browser, go to Settings &rarr; Cloud Sync.</li>
+                <li>Enter the exact same Passkey and tap <strong>Pull from Cloud</strong>.</li>
+              </ol>
+            </div>
+          </div>
+        </div>
+      </div>
+
       {/* Data Backup & Disaster Recovery */}
       <div className="bg-[#12141a] border border-white/5 rounded-2xl p-6 shadow-xl space-y-4">
         <div className="flex items-center gap-3 border-b border-white/5 pb-4">
@@ -362,18 +513,18 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
 
         <div className="pt-4 border-t border-white/5 flex items-center justify-between">
           <div>
-            <div className="text-xs font-semibold text-rose-400">Reset to Defaults</div>
-            <div className="text-[11px] text-zinc-500">Restore factory sample transactions and reminders</div>
+            <div className="text-xs font-semibold text-rose-400">Wipe All Data (Clean Slate)</div>
+            <div className="text-[11px] text-zinc-500">Permanently delete all transactions, invoices, and savings goals</div>
           </div>
           <button
             onClick={() => {
-              if (confirm('Are you sure you want to restore default sample transactions and reminders?')) {
+              if (confirm('Are you sure you want to permanently wipe all stored data? This cannot be undone.')) {
                 onResetAllData();
               }
             }}
-            className="px-3 py-1.5 rounded-xl text-xs font-medium text-rose-400 hover:text-white bg-rose-500/10 hover:bg-rose-500/20 border border-rose-500/20 transition-colors"
+            className="px-3.5 py-2 rounded-xl text-xs font-medium text-rose-400 hover:text-white bg-rose-500/10 hover:bg-rose-500/20 border border-rose-500/20 transition-colors cursor-pointer"
           >
-            Reset All
+            Wipe All Data
           </button>
         </div>
       </div>

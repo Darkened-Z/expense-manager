@@ -2,14 +2,44 @@ import { Transaction, PaymentReminder, Category, Wallet, AppSettings, PaymentRem
 import { DEFAULT_CATEGORIES, DEFAULT_WALLETS, DEFAULT_SETTINGS, INITIAL_REMINDERS, INITIAL_TRANSACTIONS, INITIAL_SAVINGS_GOALS } from './constants';
 
 const KEYS = {
-  TRANSACTIONS: 'expense_manager_txs_v4',
-  REMINDERS: 'expense_manager_reminders_v4',
-  CATEGORIES: 'expense_manager_cats_v4',
-  WALLETS: 'expense_manager_wallets_v4',
-  SAVINGS: 'expense_manager_savings_v4',
-  SETTINGS: 'expense_manager_settings_v4',
+  TRANSACTIONS: 'expense_manager_txs_v5',
+  REMINDERS: 'expense_manager_reminders_v5',
+  CATEGORIES: 'expense_manager_cats_v5',
+  WALLETS: 'expense_manager_wallets_v5',
+  SAVINGS: 'expense_manager_savings_v5',
+  SETTINGS: 'expense_manager_settings_v5',
   IS_LOCKED: 'expense_manager_session_locked',
+  SYNC_PASSKEY: 'expense_manager_sync_passkey',
+  LAST_SYNC: 'expense_manager_last_sync_time',
 };
+
+// Automatic one-time wipe of old legacy sample data (v1..v4)
+if (typeof window !== 'undefined') {
+  try {
+    const purgeDone = localStorage.getItem('expense_manager_v5_purged');
+    if (!purgeDone) {
+      const keysToRemove: string[] = [];
+      for (let i = 0; i < localStorage.length; i++) {
+        const k = localStorage.key(i);
+        if (
+          k &&
+          (k.includes('_txs_v') ||
+            k.includes('_reminders_v') ||
+            k.includes('_savings_v') ||
+            k.includes('_wallets_v') ||
+            k.includes('_cats_v')) &&
+          !k.includes('_v5')
+        ) {
+          keysToRemove.push(k);
+        }
+      }
+      keysToRemove.forEach((k) => localStorage.removeItem(k));
+      localStorage.setItem('expense_manager_v5_purged', 'true');
+    }
+  } catch {
+    // Ignore storage errors
+  }
+}
 
 export async function hashPasscode(passcode: string): Promise<string> {
   const encoder = new TextEncoder();
@@ -140,7 +170,7 @@ export const StorageService = {
       walletId: walletId,
       date: todayStr,
       time: nowTime,
-      token: rem.token || 'USD',
+      token: rem.token || 'INR',
       notes: `Settled Invoice #${rem.invoiceNumber || 'N/A'}. ${rem.notes || ''}`,
       reminderId: rem.id,
     });
@@ -170,20 +200,10 @@ export const StorageService = {
       const parsed: Category[] = JSON.parse(raw);
       let modified = false;
       const updated = parsed.map(c => {
-        const defaultMatch = DEFAULT_CATEGORIES.find(d => d.id === c.id);
-        if (
-          defaultMatch &&
-          (c.color.startsWith('#ec') ||
-            c.color === '#f97316' ||
-            c.color === '#eab308' ||
-            c.color === '#3b82f6' ||
-            c.color === '#8b5cf6' ||
-            c.color === '#06b6d4' ||
-            c.color === '#10b981' ||
-            c.color === '#ef4444')
-        ) {
+        const targetColor = c.type === 'income' ? '#a1a1aa' : '#71717a';
+        if (c.color !== targetColor) {
           modified = true;
-          return { ...c, color: defaultMatch.color };
+          return { ...c, color: targetColor };
         }
         return c;
       });
@@ -358,12 +378,92 @@ export const StorageService = {
         `"${cat}"`,
         `"${wal}"`,
         t.amount.toFixed(2),
-        `"${t.token || 'USD'}"`,
+        `"${t.token || 'INR'}"`,
         `"${(t.notes || '').replace(/"/g, '""')}"`,
       ].join(',');
     });
 
     return [headers.join(','), ...rows].join('\n');
+  },
+
+  // --- Cross-Device Cloud Sync ---
+  getSyncPasskey(): string {
+    if (typeof window === 'undefined') return '';
+    return localStorage.getItem(KEYS.SYNC_PASSKEY) || '';
+  },
+
+  setSyncPasskey(key: string): void {
+    if (typeof window === 'undefined') return;
+    localStorage.setItem(KEYS.SYNC_PASSKEY, key.trim().toUpperCase());
+  },
+
+  getLastSyncTime(): string | null {
+    if (typeof window === 'undefined') return null;
+    return localStorage.getItem(KEYS.LAST_SYNC);
+  },
+
+  async pushToCloud(passkey?: string): Promise<{ success: boolean; message: string; lastSyncedAt?: string }> {
+    const key = passkey || this.getSyncPasskey();
+    if (!key || key.trim().length < 4) {
+      return { success: false, message: 'Please enter a valid Sync Passkey (min 4 characters).' };
+    }
+    try {
+      const payload = {
+        passkey: key.trim().toUpperCase(),
+        data: {
+          transactions: this.getTransactions(),
+          reminders: this.getReminders(),
+          categories: this.getCategories(),
+          wallets: this.getWallets(),
+          savingsGoals: this.getSavingsGoals(),
+          settings: this.getSettings(),
+        },
+      };
+      const res = await fetch('/api/sync', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
+      });
+      const data = await res.json();
+      if (res.ok && data.success) {
+        localStorage.setItem(KEYS.LAST_SYNC, data.lastSyncedAt || new Date().toISOString());
+        this.setSyncPasskey(key);
+        return { success: true, message: 'Backed up to cloud vault.', lastSyncedAt: data.lastSyncedAt };
+      }
+      return { success: false, message: data.error || 'Failed to upload to cloud.' };
+    } catch {
+      return { success: false, message: 'Network error connecting to sync server.' };
+    }
+  },
+
+  async pullFromCloud(passkey?: string): Promise<{ success: boolean; message: string; lastSyncedAt?: string }> {
+    const key = passkey || this.getSyncPasskey();
+    if (!key || key.trim().length < 4) {
+      return { success: false, message: 'Please enter a valid Sync Passkey (min 4 characters).' };
+    }
+    try {
+      const res = await fetch(`/api/sync?passkey=${encodeURIComponent(key.trim().toUpperCase())}`);
+      const data = await res.json();
+      if (res.ok && data.success && data.data) {
+        const cloud = data.data;
+        if (Array.isArray(cloud.transactions)) this.saveTransactions(cloud.transactions);
+        if (Array.isArray(cloud.reminders)) this.saveReminders(cloud.reminders);
+        if (Array.isArray(cloud.categories)) this.saveCategories(cloud.categories);
+        if (Array.isArray(cloud.wallets)) this.saveWallets(cloud.wallets);
+        if (Array.isArray(cloud.savingsGoals)) this.saveSavingsGoals(cloud.savingsGoals);
+        if (cloud.settings) this.saveSettings(cloud.settings);
+
+        localStorage.setItem(KEYS.LAST_SYNC, data.lastSyncedAt || new Date().toISOString());
+        this.setSyncPasskey(key);
+        return { success: true, message: 'Successfully synced from cloud!', lastSyncedAt: data.lastSyncedAt };
+      }
+      if (data.notFound) {
+        return { success: false, message: 'No backup found on cloud for this passkey yet.' };
+      }
+      return { success: false, message: data.error || 'Failed to pull from cloud.' };
+    } catch {
+      return { success: false, message: 'Network error connecting to sync server.' };
+    }
   },
 
   resetAllData(): void {
@@ -375,5 +475,12 @@ export const StorageService = {
     localStorage.setItem(KEYS.SAVINGS, JSON.stringify(INITIAL_SAVINGS_GOALS));
     localStorage.setItem(KEYS.SETTINGS, JSON.stringify(DEFAULT_SETTINGS));
     sessionStorage.removeItem(KEYS.IS_LOCKED);
+  },
+
+  clearAllData(): void {
+    if (typeof window === 'undefined') return;
+    this.resetAllData();
+    localStorage.removeItem(KEYS.SYNC_PASSKEY);
+    localStorage.removeItem(KEYS.LAST_SYNC);
   },
 };

@@ -132,11 +132,11 @@ export const FinancialGraphs: React.FC<FinancialGraphsProps> = ({
         <div className="pt-6">
           <div className="flex items-center justify-end gap-4 text-xs font-mono mb-4">
             <span className="flex items-center gap-1.5 text-zinc-400">
-              <span className="w-2 h-2 rounded-full bg-[#3d7a63]" />
+              <span className="w-2 h-2 rounded-full bg-zinc-200" />
               <span>Income</span>
             </span>
             <span className="flex items-center gap-1.5 text-zinc-400">
-              <span className="w-2 h-2 rounded-full bg-[#64748b]" />
+              <span className="w-2 h-2 rounded-full bg-zinc-600" />
               <span>Expenses</span>
             </span>
             <span className="flex items-center gap-1.5 text-zinc-400">
@@ -153,19 +153,19 @@ export const FinancialGraphs: React.FC<FinancialGraphsProps> = ({
               return (
                 <div key={d.month} className="flex-1 flex flex-col items-center gap-2 h-full justify-end group">
                   <div className="w-full flex items-end justify-center gap-1 sm:gap-2 h-full">
-                    {/* Income Bar - Dense Matte Sage */}
+                    {/* Income Bar - Dense Off-White */}
                     <div className="w-full max-w-[16px] bg-white/5 rounded-t-lg relative flex items-end justify-center h-full">
                       <div
-                        className="w-full rounded-t-lg bg-[#3d7a63] group-hover:bg-[#4a9277] transition-all"
+                        className="w-full rounded-t-lg bg-zinc-200 group-hover:bg-white transition-all"
                         style={{ height: `${incHeight}%` }}
                         title={`${d.month} Income: ${currencySymbol}${d.income.toFixed(2)}`}
                       />
                     </div>
 
-                    {/* Expense Bar - Dense Matte Slate */}
+                    {/* Expense Bar - Dense Zinc */}
                     <div className="w-full max-w-[16px] bg-white/5 rounded-t-lg relative flex items-end justify-center h-full">
                       <div
-                        className="w-full rounded-t-lg bg-[#64748b] group-hover:bg-[#7888a0] transition-all"
+                        className="w-full rounded-t-lg bg-zinc-600 group-hover:bg-zinc-500 transition-all"
                         style={{ height: `${expHeight}%` }}
                         title={`${d.month} Expenses: ${currencySymbol}${d.expense.toFixed(2)}`}
                       />
@@ -200,10 +200,9 @@ export const FinancialGraphs: React.FC<FinancialGraphsProps> = ({
                 </div>
                 <div className="w-full h-2 bg-white/5 rounded-full overflow-hidden">
                   <div
-                    className="h-full rounded-full transition-all duration-500"
+                    className="h-full rounded-full bg-zinc-500 transition-all duration-500"
                     style={{
                       width: `${c.pct}%`,
-                      backgroundColor: c.color,
                     }}
                   />
                 </div>
@@ -230,10 +229,9 @@ export const FinancialGraphs: React.FC<FinancialGraphsProps> = ({
                 </div>
                 <div className="w-full h-2 bg-white/5 rounded-full overflow-hidden">
                   <div
-                    className="h-full rounded-full transition-all duration-500"
+                    className="h-full rounded-full bg-zinc-300 transition-all duration-500"
                     style={{
                       width: `${c.pct}%`,
-                      backgroundColor: c.color,
                     }}
                   />
                 </div>

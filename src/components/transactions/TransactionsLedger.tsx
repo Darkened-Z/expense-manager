@@ -202,13 +202,7 @@ export const TransactionsLedger: React.FC<TransactionsLedgerProps> = ({
                   <div className="min-w-0">
                     <div className="font-semibold text-zinc-200 text-xs truncate">{tx.title}</div>
                     <div className="flex items-center gap-1.5 text-[10px] text-zinc-500 mt-0.5">
-                      <span className="flex items-center gap-1">
-                        <span
-                          className="w-1.5 h-1.5 rounded-full inline-block"
-                          style={{ backgroundColor: cat?.color || '#64748b' }}
-                        />
-                        {cat?.name || 'Uncategorized'}
-                      </span>
+                      <span className="text-zinc-400 font-medium">{cat?.name || 'Uncategorized'}</span>
                       <span>•</span>
                       <span>{formatDateTime(tx.date, tx.time)}</span>
                     </div>
@@ -222,7 +216,7 @@ export const TransactionsLedger: React.FC<TransactionsLedgerProps> = ({
                       {isExpense ? '-' : '+'}{currencySymbol}{tx.amount.toFixed(2)}
                     </div>
                     <span className="text-[9px] font-mono text-zinc-500 uppercase">
-                      {tx.token || wallet?.currency || 'USD'}
+                      {tx.token || wallet?.currency || 'INR'}
                     </span>
                   </div>
 
@@ -245,11 +239,10 @@ export const TransactionsLedger: React.FC<TransactionsLedgerProps> = ({
         <table className="w-full text-left text-xs">
           <thead>
             <tr className="border-b border-white/5 text-[11px] font-medium text-zinc-400 bg-white/[0.01]">
-              <th className="py-3 px-5">Amount (USD)</th>
-              <th className="py-3 px-4">Token / Method</th>
+              <th className="py-3 px-5">Amount ({currencySymbol})</th>
+              <th className="py-3 px-4">Token / Wallet</th>
               <th className="py-3 px-4">Type</th>
-              <th className="py-3 px-4">Transactions Name</th>
-              <th className="py-3 px-4">Transactions Type</th>
+              <th className="py-3 px-4">Description</th>
               <th className="py-3 px-4">Category</th>
               <th className="py-3 px-4">Date & Time</th>
               <th className="py-3 px-4 text-right">Actions</th>
@@ -258,7 +251,7 @@ export const TransactionsLedger: React.FC<TransactionsLedgerProps> = ({
           <tbody className="divide-y divide-white/[0.03]">
             {filteredTransactions.length === 0 ? (
               <tr>
-                <td colSpan={8} className="py-12 text-center text-zinc-500">
+                <td colSpan={7} className="py-12 text-center text-zinc-500">
                   No transactions match your search or filters.
                 </td>
               </tr>
@@ -277,7 +270,7 @@ export const TransactionsLedger: React.FC<TransactionsLedgerProps> = ({
                     <td className="py-3.5 px-4 font-mono">
                       <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-white/5 text-zinc-300 border border-white/5 font-semibold text-[11px]">
                         <span className="w-1.5 h-1.5 rounded-full bg-zinc-400" />
-                        {tx.token || wallet?.currency || 'USD'}
+                        {tx.token || wallet?.currency || 'INR'}
                       </span>
                     </td>
                     <td className="py-3.5 px-4">
@@ -300,23 +293,8 @@ export const TransactionsLedger: React.FC<TransactionsLedgerProps> = ({
                       )}
                     </td>
                     <td className="py-3.5 px-4">
-                      <span
-                        className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-semibold tracking-wide ${
-                          isExpense
-                            ? 'bg-rose-950/30 text-rose-300/80 border border-rose-900/30'
-                            : 'bg-emerald-950/30 text-emerald-300/80 border border-emerald-900/30'
-                        }`}
-                      >
-                        {isExpense ? '↓ Expenses' : '↑ Income'}
-                      </span>
-                    </td>
-                    <td className="py-3.5 px-4">
-                      <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-medium bg-white/[0.04] text-zinc-300 border border-white/[0.08]">
-                        <span
-                          className="w-1.5 h-1.5 rounded-full shrink-0"
-                          style={{ backgroundColor: cat?.color || '#64748b' }}
-                        />
-                        <IconComponent className="w-3 h-3 text-zinc-400 shrink-0" />
+                      <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-[11px] font-medium bg-white/[0.04] text-zinc-300 border border-white/[0.08]">
+                        <IconComponent className="w-3.5 h-3.5 text-zinc-400 shrink-0" />
                         <span className="truncate max-w-[140px]">{cat?.name || 'Uncategorized'}</span>
                       </span>
                     </td>

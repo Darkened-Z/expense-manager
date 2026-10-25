@@ -42,7 +42,7 @@ export const AddTransactionModal: React.FC<AddTransactionModalProps> = ({
   const [walletId, setWalletId] = useState<string>('');
   const [date, setDate] = useState<string>('');
   const [time, setTime] = useState<string>('');
-  const [token, setToken] = useState<string>('USD');
+  const [token, setToken] = useState<string>('INR');
   const [notes, setNotes] = useState<string>('');
   const [error, setError] = useState<string | null>(null);
 
@@ -64,7 +64,7 @@ export const AddTransactionModal: React.FC<AddTransactionModalProps> = ({
       const suitableCats = categories.filter((c) => c.type === initialType);
       setCategoryId(suitableCats[0]?.id || categories[0]?.id || '');
       setWalletId(wallets[0]?.id || '');
-      setToken(wallets[0]?.currency || 'USD');
+      setToken(wallets[0]?.currency || 'INR');
     }
   }, [isOpen, initialType, categories, wallets]);
 

@@ -22,8 +22,8 @@ export const WalletsView: React.FC<WalletsViewProps> = ({
   const [showAddModal, setShowAddModal] = useState(false);
   const [walletName, setWalletName] = useState('');
   const [walletType, setWalletType] = useState<Wallet['type']>('bank');
-  const [currency, setCurrency] = useState('USD');
-  const [symbol, setSymbol] = useState('$');
+  const [currency, setCurrency] = useState('INR');
+  const [symbol, setSymbol] = useState('₹');
   const [initialBalance, setInitialBalance] = useState('');
   const [accountNumber, setAccountNumber] = useState('');
 
@@ -173,11 +173,14 @@ export const WalletsView: React.FC<WalletsViewProps> = ({
                     type="text"
                     value={currency}
                     onChange={(e) => {
-                      setCurrency(e.target.value);
-                      if (e.target.value === 'EUR') setSymbol('€');
-                      else if (e.target.value === 'GBP') setSymbol('£');
-                      else if (e.target.value === 'USDT') setSymbol('₮');
-                      else setSymbol('$');
+                      const c = e.target.value.toUpperCase();
+                      setCurrency(c);
+                      if (c === 'INR') setSymbol('₹');
+                      else if (c === 'USD') setSymbol('$');
+                      else if (c === 'EUR') setSymbol('€');
+                      else if (c === 'GBP') setSymbol('£');
+                      else if (c === 'USDT') setSymbol('₮');
+                      else setSymbol('₹');
                     }}
                     className="w-full bg-[#171922] text-white text-xs font-mono uppercase px-3 py-2.5 rounded-xl border border-white/10 focus:outline-none focus:border-white/30"
                     required

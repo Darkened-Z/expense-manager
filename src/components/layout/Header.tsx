@@ -13,6 +13,7 @@ import {
   ArrowDownLeft,
   X,
   Menu,
+  Cloud,
 } from 'lucide-react';
 import { Wallet, PaymentReminder } from '@/types';
 
@@ -24,6 +25,7 @@ interface HeaderProps {
   dateRange: string;
   setDateRange: (range: any) => void;
   reminders: PaymentReminder[];
+  currencySymbol?: string;
   onOpenAddTx: (type: 'expense' | 'income') => void;
   onOpenAddReminder: () => void;
   onCollectReminder: (id: string) => void;
@@ -39,6 +41,7 @@ export const Header: React.FC<HeaderProps> = ({
   dateRange,
   setDateRange,
   reminders,
+  currencySymbol = '₹',
   onOpenAddTx,
   onOpenAddReminder,
   onCollectReminder,
@@ -262,7 +265,7 @@ export const Header: React.FC<HeaderProps> = ({
                             <div className="text-[11px] text-zinc-400 truncate max-w-[140px]">{rem.projectTitle}</div>
                           </div>
                           <div className="text-right">
-                            <div className="font-mono font-bold text-white">${rem.amount.toFixed(2)}</div>
+                            <div className="font-mono font-bold text-white">{currencySymbol}{rem.amount.toFixed(2)}</div>
                             <span
                               className={`text-[9px] uppercase px-1.5 py-0.5 rounded font-bold ${
                                 rem.status === 'overdue'
