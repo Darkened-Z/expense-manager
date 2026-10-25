@@ -18,6 +18,8 @@ import { PasscodeLockModal } from '@/components/auth/PasscodeLockModal';
 import { AddTransactionModal } from '@/components/modals/AddTransactionModal';
 import { AddReminderModal } from '@/components/modals/AddReminderModal';
 import { StorageService } from '@/lib/storage';
+import { NotificationService } from '@/lib/notifications';
+import { PwaInstallPrompt } from '@/components/pwa/PwaInstallPrompt';
 import { Transaction, PaymentReminder, Category, Wallet, AppSettings, TransactionType, SavingsGoal } from '@/types';
 
 export default function Home() {
@@ -63,14 +65,8 @@ export default function Home() {
     setIsLocked(locked);
     setMounted(true);
 
-    if (sets.enableBrowserNotifications && typeof window !== 'undefined' && 'Notification' in window) {
-      const urgentCount = rems.filter((r) => r.status === 'overdue' || r.status === 'due_today').length;
-      if (urgentCount > 0 && Notification.permission === 'granted') {
-        new Notification('Payment Reminder', {
-          body: `You have ${urgentCount} invoice${urgentCount === 1 ? '' : 's'} requiring payment follow-up today.`,
-          icon: '/favicon.ico',
-        });
-      }
+    if (sets.enableBrowserNotifications) {
+      NotificationService.checkDueInvoicesAndNotify(rems);
     }
   }, []);
 
@@ -336,6 +332,9 @@ export default function Home() {
         />
 
         <main className="p-4 sm:p-6 lg:p-8 pb-24 md:pb-8 flex-1 space-y-6 max-w-7xl w-full mx-auto overflow-x-hidden">
+          {/* PWA Install Banner (PC & Mobile) */}
+          <PwaInstallPrompt />
+
           {/* TAB: DASHBOARD */}
           {currentTab === 'dashboard' && (
             <div className="space-y-6 animate-in fade-in duration-200">

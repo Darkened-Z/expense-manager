@@ -241,28 +241,49 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
           </div>
         </div>
 
-        <div className="space-y-3 pt-1">
+        <div className="space-y-4 pt-1">
           <div className="flex items-center justify-between">
             <div>
-              <div className="text-xs font-semibold text-zinc-200">Browser Push Notifications</div>
-              <div className="text-[11px] text-zinc-500">Alert me when a payment is due today or overdue</div>
+              <div className="text-xs font-semibold text-zinc-200">System Desktop & Mobile Notifications</div>
+              <div className="text-[11px] text-zinc-500">Alert on device when an invoice is due today or overdue</div>
             </div>
-            <input
-              type="checkbox"
-              checked={settings.enableBrowserNotifications}
-              onChange={(e) => {
-                if (e.target.checked && typeof Notification !== 'undefined') {
-                  Notification.requestPermission();
-                }
-                onUpdateSettings({ enableBrowserNotifications: e.target.checked });
-              }}
-              className="w-4 h-4 accent-orange-500 cursor-pointer"
-            />
+            <div className="flex items-center gap-3">
+              <button
+                type="button"
+                onClick={async () => {
+                  if (typeof Notification !== 'undefined') {
+                    const perm = await Notification.requestPermission();
+                    if (perm === 'granted') {
+                      new Notification('Notification Test', {
+                        body: 'Desktop and mobile push notifications are working properly.',
+                        icon: '/icons/icon-192.png',
+                      });
+                    } else {
+                      alert('Notification permission is ' + perm + '. Please enable it in browser site settings.');
+                    }
+                  }
+                }}
+                className="text-[11px] bg-white/5 hover:bg-white/10 text-orange-400 font-medium px-2.5 py-1 rounded-lg border border-white/10 transition-colors"
+              >
+                Send Test Alert
+              </button>
+              <input
+                type="checkbox"
+                checked={settings.enableBrowserNotifications}
+                onChange={(e) => {
+                  if (e.target.checked && typeof Notification !== 'undefined') {
+                    Notification.requestPermission();
+                  }
+                  onUpdateSettings({ enableBrowserNotifications: e.target.checked });
+                }}
+                className="w-4 h-4 accent-orange-500 cursor-pointer"
+              />
+            </div>
           </div>
 
           <div className="flex items-center justify-between pt-3 border-t border-white/5">
             <div>
-              <div className="text-xs font-semibold text-zinc-200">Audio Celebration Chimes</div>
+              <div className="text-xs font-semibold text-zinc-200">Audio Chimes</div>
               <div className="text-[11px] text-zinc-500">Play pleasant sound upon successfully collecting a client payment</div>
             </div>
             <input
@@ -271,6 +292,34 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
               onChange={(e) => onUpdateSettings({ enableAudioChime: e.target.checked })}
               className="w-4 h-4 accent-orange-500 cursor-pointer"
             />
+          </div>
+        </div>
+      </div>
+
+      {/* PWA & Mobile Installation Section */}
+      <div className="bg-[#12141a] border border-white/5 rounded-2xl p-6 shadow-xl space-y-4">
+        <div className="flex items-center gap-3 border-b border-white/5 pb-4">
+          <div className="p-2.5 rounded-xl bg-orange-500/10 text-orange-400">
+            <Download className="w-5 h-5" />
+          </div>
+          <div>
+            <h3 className="font-bold text-white text-sm">App Installation (PC & Phone)</h3>
+            <p className="text-xs text-zinc-400">Install as a standalone native app on Windows, macOS, Android, and iOS</p>
+          </div>
+        </div>
+
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1 text-xs text-zinc-300">
+          <div className="p-3.5 rounded-xl bg-[#161821] border border-white/5 space-y-1">
+            <div className="font-semibold text-white">Desktop (PC / Mac)</div>
+            <p className="text-[11px] text-zinc-400">
+              Click the Install icon in your browser URL bar (Chrome/Edge) to pin to your Windows taskbar or Mac Dock with standalone window mode.
+            </p>
+          </div>
+          <div className="p-3.5 rounded-xl bg-[#161821] border border-white/5 space-y-1">
+            <div className="font-semibold text-white">Mobile (Phone / Tablet)</div>
+            <p className="text-[11px] text-zinc-400">
+              On iOS Safari tap <strong>Share → Add to Home Screen</strong>. On Android Chrome tap <strong>Install App</strong> for full offline capability.
+            </p>
           </div>
         </div>
       </div>
