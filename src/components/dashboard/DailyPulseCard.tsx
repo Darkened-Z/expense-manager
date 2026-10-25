@@ -15,17 +15,29 @@ export const DailyPulseCard: React.FC<DailyPulseCardProps> = ({
   currencySymbol,
   onSeeDetails,
 }) => {
-  const [hoveredPoint, setHoveredPoint] = useState<number | null>(3); // default focus
+  const [hoveredPoint, setHoveredPoint] = useState<number | null>(null);
 
   // Filter today's expenses
   const todayStr = new Date().toISOString().split('T')[0];
   const todayExpenses = transactions.filter((t) => t.type === 'expense' && t.date === todayStr);
-  const todayTotal = todayExpenses.reduce((sum, t) => sum + t.amount, 0) || 48.72;
+  const todayTotal = todayExpenses.reduce((sum, t) => sum + t.amount, 0);
 
-  // Sparkline data points
-  const points = [22, 28, 42, 48.72, 34, 40, 31, 45];
-  const maxP = Math.max(...points);
-  const minP = Math.min(...points);
+  // Real last 7 days spending
+  const days = Array.from({ length: 7 }, (_, i) => {
+    const d = new Date();
+    d.setDate(d.getDate() - (6 - i));
+    return d.toISOString().split('T')[0];
+  });
+
+  const points = days.map((dStr) =>
+    transactions
+      .filter((t) => t.type === 'expense' && t.date === dStr)
+      .reduce((sum, t) => sum + t.amount, 0)
+  );
+
+  const hasData = points.some((p) => p > 0);
+  const maxP = hasData ? Math.max(...points) : 1;
+  const minP = hasData ? Math.min(...points) : 0;
 
   // SVG Coordinates
   const width = 280;
@@ -34,8 +46,8 @@ export const DailyPulseCard: React.FC<DailyPulseCardProps> = ({
 
   const coords = points.map((p, i) => {
     const x = i * step;
-    const y = height - ((p - minP) / (maxP - minP || 1)) * (height - 20) - 10;
-    return { x, y, value: p };
+    const y = hasData ? height - ((p - minP) / (maxP - minP || 1)) * (height - 24) - 12 : height / 2;
+    return { x, y, value: p, day: days[i] };
   });
 
   const pathD = coords.reduce((acc, c, i) => {
@@ -48,9 +60,7 @@ export const DailyPulseCard: React.FC<DailyPulseCardProps> = ({
     return `${acc} C ${cx1} ${cy1}, ${cx2} ${cy2}, ${c.x} ${c.y}`;
   }, '');
 
-  const areaD = `${pathD} L ${width} ${height} L 0 ${height} Z`;
-
-  const activeCoord = hoveredPoint !== null ? coords[hoveredPoint] : coords[3];
+  const activeCoord = hoveredPoint !== null ? coords[hoveredPoint] : null;
 
   return (
     <div className="bg-[#12141a] border border-white/5 rounded-2xl p-4 sm:p-6 shadow-xl flex flex-col justify-between relative overflow-hidden">
@@ -61,8 +71,8 @@ export const DailyPulseCard: React.FC<DailyPulseCardProps> = ({
         </div>
 
         <div className="flex items-center gap-2 mt-2 text-xs text-zinc-400">
-          <span className="w-2 h-2 rounded-full bg-zinc-400 shrink-0" />
-          <span>Active daily expenditure run rate</span>
+          <span className={`w-2 h-2 rounded-full ${todayTotal > 0 ? 'bg-amber-400' : 'bg-zinc-600'} shrink-0`} />
+          <span>{todayTotal > 0 ? 'Active daily expenditure' : 'No expenses logged today'}</span>
         </div>
       </div>
 
@@ -71,10 +81,10 @@ export const DailyPulseCard: React.FC<DailyPulseCardProps> = ({
         {/* Floating Tooltip Card */}
         {activeCoord && (
           <div
-            className="absolute -top-10 bg-[#1a1d25] border border-white/10 px-2.5 py-1.5 rounded-lg shadow-xl text-[10px] pointer-events-none transition-all duration-150 transform -translate-x-1/2"
+            className="absolute -top-10 bg-[#1a1d25] border border-white/10 px-2.5 py-1.5 rounded-lg shadow-xl text-[10px] pointer-events-none transition-all duration-150 transform -translate-x-1/2 z-20"
             style={{ left: `${(activeCoord.x / width) * 100}%` }}
           >
-            <div className="text-zinc-400 font-medium">Avg. Spending</div>
+            <div className="text-zinc-400 font-medium">Daily Spend ({activeCoord.day})</div>
             <div className="font-mono font-bold text-white text-xs">
               {currencySymbol}{activeCoord.value.toFixed(2)}
             </div>
@@ -88,31 +98,39 @@ export const DailyPulseCard: React.FC<DailyPulseCardProps> = ({
           </div>
         )}
 
-        <svg viewBox={`0 0 ${width} ${height}`} className="w-full h-20 overflow-visible">
-          {/* Clean solid line stroke - basic orange, zero gradients */}
-          <path d={pathD} fill="none" stroke="#f97316" strokeWidth="2.5" strokeLinecap="round" />
+        {!hasData ? (
+          <div className="h-20 flex flex-col items-center justify-center text-center border-t border-dashed border-white/5 pt-2">
+            <span className="text-xs text-zinc-500 font-medium">No spending activity this week</span>
+            <span className="text-[10px] text-zinc-600 mt-0.5">Purchases you record will trace your daily spending pulse</span>
+          </div>
+        ) : (
+          <>
+            <svg viewBox={`0 0 ${width} ${height}`} className="w-full h-20 overflow-visible">
+              <path d={pathD} fill="none" stroke="#f97316" strokeWidth="2.5" strokeLinecap="round" />
 
-          {/* Interactive dots */}
-          {coords.map((c, i) => (
-            <circle
-              key={i}
-              cx={c.x}
-              cy={c.y}
-              r={hoveredPoint === i ? 4 : 2}
-              fill={hoveredPoint === i ? '#ffffff' : '#94a3b8'}
-              stroke="#12141a"
-              strokeWidth="1.5"
-              className="cursor-pointer transition-all"
-              onMouseEnter={() => setHoveredPoint(i)}
-            />
-          ))}
-        </svg>
+              {coords.map((c, i) => (
+                <circle
+                  key={i}
+                  cx={c.x}
+                  cy={c.y}
+                  r={hoveredPoint === i ? 4 : 2.5}
+                  fill={hoveredPoint === i ? '#ffffff' : '#f97316'}
+                  stroke="#12141a"
+                  strokeWidth="1.5"
+                  className="cursor-pointer transition-all"
+                  onMouseEnter={() => setHoveredPoint(i)}
+                  onMouseLeave={() => setHoveredPoint(null)}
+                />
+              ))}
+            </svg>
 
-        <div className="flex items-center justify-between text-[10px] text-zinc-500 font-medium px-1 mt-1">
-          <span>Day 1</span>
-          <span>Mid Month</span>
-          <span>Today</span>
-        </div>
+            <div className="flex items-center justify-between text-[10px] text-zinc-500 font-medium px-1 mt-1">
+              <span>7 days ago</span>
+              <span>Mid week</span>
+              <span>Today</span>
+            </div>
+          </>
+        )}
       </div>
     </div>
   );

@@ -17,37 +17,37 @@ export const FinancialGraphs: React.FC<FinancialGraphsProps> = ({
 }) => {
   const [activeTab, setActiveTab] = useState<'cashflow' | 'expenses' | 'sources'>('cashflow');
 
-  const months = ['May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct'];
-  const currentMonthIdx = new Date().getMonth();
-
-  // Aggregate monthly data
-  const monthlyData = months.map((m, i) => {
-    // Offset for last 6 months
-    const monthIndex = (currentMonthIdx - 5 + i + 12) % 12;
-    const txMatches = transactions.filter((t) => {
-      const d = new Date(t.date);
-      return !isNaN(d.getTime()) && d.getMonth() === monthIndex;
-    });
-
-    const incomeSum = txMatches.filter(t => t.type === 'income').reduce((s, t) => s + t.amount, 0);
-    const expenseSum = txMatches.filter(t => t.type === 'expense').reduce((s, t) => s + t.amount, 0);
-
-    // Baseline fallbacks for aesthetic graph display
-    const baselineIncome = [2400, 3100, 2800, 4200, 3600, incomeSum || 5400][i];
-    const baselineExpense = [1200, 1600, 1400, 1950, 1800, expenseSum || 2150][i];
-
-    const finalInc = incomeSum > 0 ? incomeSum : baselineIncome;
-    const finalExp = expenseSum > 0 ? expenseSum : baselineExpense;
-
+  const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+  const now = new Date();
+  const months = Array.from({ length: 6 }, (_, i) => {
+    const d = new Date(now.getFullYear(), now.getMonth() - (5 - i), 1);
     return {
-      month: m,
-      income: finalInc,
-      expense: finalExp,
-      net: finalInc - finalExp,
+      label: monthNames[d.getMonth()],
+      year: d.getFullYear(),
+      monthIndex: d.getMonth(),
     };
   });
 
-  const maxVal = Math.max(...monthlyData.map(d => Math.max(d.income, d.expense)), 100);
+  // Aggregate monthly data strictly from actual user transactions
+  const monthlyData = months.map(({ label, year, monthIndex }) => {
+    const txMatches = transactions.filter((t) => {
+      const d = new Date(t.date);
+      return !isNaN(d.getTime()) && d.getMonth() === monthIndex && d.getFullYear() === year;
+    });
+
+    const incomeSum = txMatches.filter((t) => t.type === 'income').reduce((s, t) => s + t.amount, 0);
+    const expenseSum = txMatches.filter((t) => t.type === 'expense').reduce((s, t) => s + t.amount, 0);
+
+    return {
+      month: label,
+      income: incomeSum,
+      expense: expenseSum,
+      net: incomeSum - expenseSum,
+    };
+  });
+
+  const hasAnyCashflow = monthlyData.some((d) => d.income > 0 || d.expense > 0);
+  const maxVal = Math.max(...monthlyData.map((d) => Math.max(d.income, d.expense)), 100);
 
   // Expense breakdown
   const expenseCats = categories.filter(c => c.type === 'expense');
@@ -145,41 +145,50 @@ export const FinancialGraphs: React.FC<FinancialGraphsProps> = ({
             </span>
           </div>
 
-          <div className="h-48 flex items-end justify-between gap-3 sm:gap-6 pt-2 pb-2 px-1">
-            {monthlyData.map((d) => {
-              const incHeight = Math.max((d.income / maxVal) * 100, 6);
-              const expHeight = Math.max((d.expense / maxVal) * 100, 6);
+          {!hasAnyCashflow ? (
+            <div className="h-44 flex flex-col items-center justify-center text-center py-8">
+              <span className="text-xs text-zinc-400 font-medium">No cashflow recorded yet</span>
+              <span className="text-[10px] text-zinc-500 mt-0.5">
+                Add income or expense transactions to view your comparative monthly cashflow bars.
+              </span>
+            </div>
+          ) : (
+            <div className="h-48 flex items-end justify-between gap-3 sm:gap-6 pt-2 pb-2 px-1">
+              {monthlyData.map((d) => {
+                const incHeight = d.income > 0 ? Math.max((d.income / maxVal) * 100, 6) : 0;
+                const expHeight = d.expense > 0 ? Math.max((d.expense / maxVal) * 100, 6) : 0;
 
-              return (
-                <div key={d.month} className="flex-1 flex flex-col items-center gap-2 h-full justify-end group">
-                  <div className="w-full flex items-end justify-center gap-1 sm:gap-2 h-full">
-                    {/* Income Bar - Solid Emerald */}
-                    <div className="w-full max-w-[16px] bg-white/5 rounded-t-lg relative flex items-end justify-center h-full">
-                      <div
-                        className="w-full rounded-t-lg bg-emerald-500 group-hover:bg-emerald-400 transition-all"
-                        style={{ height: `${incHeight}%` }}
-                        title={`${d.month} Income: ${currencySymbol}${d.income.toFixed(2)}`}
-                      />
+                return (
+                  <div key={d.month} className="flex-1 flex flex-col items-center gap-2 h-full justify-end group">
+                    <div className="w-full flex items-end justify-center gap-1 sm:gap-2 h-full">
+                      {/* Income Bar - Solid Emerald */}
+                      <div className="w-full max-w-[16px] bg-white/5 rounded-t-lg relative flex items-end justify-center h-full">
+                        <div
+                          className="w-full rounded-t-lg bg-emerald-500 group-hover:bg-emerald-400 transition-all"
+                          style={{ height: `${incHeight}%` }}
+                          title={`${d.month} Income: ${currencySymbol}${d.income.toFixed(2)}`}
+                        />
+                      </div>
+
+                      {/* Expense Bar - Solid Rose */}
+                      <div className="w-full max-w-[16px] bg-white/5 rounded-t-lg relative flex items-end justify-center h-full">
+                        <div
+                          className="w-full rounded-t-lg bg-rose-500 group-hover:bg-rose-400 transition-all"
+                          style={{ height: `${expHeight}%` }}
+                          title={`${d.month} Expenses: ${currencySymbol}${d.expense.toFixed(2)}`}
+                        />
+                      </div>
                     </div>
 
-                    {/* Expense Bar - Solid Rose */}
-                    <div className="w-full max-w-[16px] bg-white/5 rounded-t-lg relative flex items-end justify-center h-full">
-                      <div
-                        className="w-full rounded-t-lg bg-rose-500 group-hover:bg-rose-400 transition-all"
-                        style={{ height: `${expHeight}%` }}
-                        title={`${d.month} Expenses: ${currencySymbol}${d.expense.toFixed(2)}`}
-                      />
-                    </div>
+                    {/* Month Label */}
+                    <span className="text-[10px] font-mono text-zinc-400 group-hover:text-white transition-colors">
+                      {d.month}
+                    </span>
                   </div>
-
-                  {/* Month Label */}
-                  <span className="text-[10px] font-mono text-zinc-400 group-hover:text-white transition-colors">
-                    {d.month}
-                  </span>
-                </div>
-              );
-            })}
-          </div>
+                );
+              })}
+            </div>
+          )}
         </div>
       )}
 

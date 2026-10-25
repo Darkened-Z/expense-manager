@@ -28,6 +28,33 @@ export const InsightsView: React.FC<InsightsViewProps> = ({
   const netSavings = totalIncome - totalExpense;
   const savingsRate = totalIncome > 0 ? Math.max(0, (netSavings / totalIncome) * 100) : 0;
 
+  const expenseCount = transactions.filter((t) => t.type === 'expense').length;
+  const avgExpense = expenseCount > 0 ? totalExpense / expenseCount : 0;
+
+  // Dynamic runway calculation
+  let runwayScoreText = 'N/A (0/100)';
+  let runwayDesc = 'No financial data recorded yet';
+
+  if (totalIncome > 0 || totalExpense > 0) {
+    if (totalExpense === 0) {
+      runwayScoreText = 'Optimal (100/100)';
+      runwayDesc = 'Zero overheads recorded';
+    } else {
+      const ratio = totalIncome / totalExpense;
+      const score = Math.min(100, Math.round(ratio * 25));
+      if (ratio >= 2.0) {
+        runwayScoreText = `Optimal (${score}/100)`;
+        runwayDesc = `Income outpaces overheads ${ratio.toFixed(1)}x`;
+      } else if (ratio >= 1.0) {
+        runwayScoreText = `Healthy (${score}/100)`;
+        runwayDesc = `Income covers overheads ${ratio.toFixed(1)}x`;
+      } else {
+        runwayScoreText = `Caution (${score}/100)`;
+        runwayDesc = `Expenditure outpaces income ${(1 / (ratio || 0.1)).toFixed(1)}x`;
+      }
+    }
+  }
+
   // Breakdown by category
   const categorySpending: Record<string, number> = {};
   transactions
@@ -85,13 +112,11 @@ export const InsightsView: React.FC<InsightsViewProps> = ({
             <TrendingDown className="w-4 h-4 text-zinc-400" />
           </div>
           <div className="text-2xl font-extrabold text-white font-mono mt-2">
-            {currencySymbol}
-            {(
-              totalExpense /
-              Math.max(1, transactions.filter((t) => t.type === 'expense').length)
-            ).toFixed(2)}
+            {currencySymbol}{avgExpense.toFixed(2)}
           </div>
-          <div className="text-[11px] text-zinc-500 mt-1">Across all categorized purchases</div>
+          <div className="text-[11px] text-zinc-500 mt-1">
+            {expenseCount > 0 ? `Across ${expenseCount} purchase${expenseCount === 1 ? '' : 's'}` : 'No purchases recorded'}
+          </div>
         </div>
 
         <div className="bg-[#12141a] border border-white/5 rounded-2xl p-5 shadow-xl">
@@ -100,9 +125,9 @@ export const InsightsView: React.FC<InsightsViewProps> = ({
             <ShieldCheck className="w-4 h-4 text-zinc-400" />
           </div>
           <div className="text-2xl font-extrabold text-white font-mono mt-2">
-            Optimal (94/100)
+            {runwayScoreText}
           </div>
-          <div className="text-[11px] text-zinc-500 mt-1">Income outpaces overheads 4.8x</div>
+          <div className="text-[11px] text-zinc-500 mt-1">{runwayDesc}</div>
         </div>
       </div>
 
