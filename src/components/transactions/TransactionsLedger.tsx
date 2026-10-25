@@ -223,7 +223,7 @@ export const TransactionsLedger: React.FC<TransactionsLedgerProps> = ({
                       {isExpense ? '-' : '+'}{currencySymbol}{tx.amount.toFixed(2)}
                     </div>
                     <span className="text-[9px] font-mono text-zinc-500 uppercase">
-                      {tx.token || wallet?.currency || 'INR'}
+                      {tx.token || wallet?.currency || 'PKR'}
                     </span>
                   </div>
 
@@ -246,7 +246,7 @@ export const TransactionsLedger: React.FC<TransactionsLedgerProps> = ({
         <table className="w-full text-left text-xs">
           <thead>
             <tr className="border-b border-white/5 text-[11px] font-medium text-zinc-400 bg-white/[0.01]">
-              <th className="py-3 px-5">Amount ({currencySymbol})</th>
+              <th className="py-3 px-5">Amount ({currencySymbol.trim()})</th>
               <th className="py-3 px-4">Token / Wallet</th>
               <th className="py-3 px-4">Type</th>
               <th className="py-3 px-4">Description</th>
@@ -277,7 +277,7 @@ export const TransactionsLedger: React.FC<TransactionsLedgerProps> = ({
                     <td className="py-3.5 px-4 font-mono">
                       <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-white/5 text-zinc-300 border border-white/5 font-semibold text-[11px]">
                         <span className="w-1.5 h-1.5 rounded-full bg-zinc-400" />
-                        {tx.token || wallet?.currency || 'INR'}
+                        {tx.token || wallet?.currency || 'PKR'}
                       </span>
                     </td>
                     <td className="py-3.5 px-4">

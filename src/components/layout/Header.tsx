@@ -41,7 +41,7 @@ export const Header: React.FC<HeaderProps> = ({
   dateRange,
   setDateRange,
   reminders,
-  currencySymbol = '₹',
+  currencySymbol = 'Rs. ',
   onOpenAddTx,
   onOpenAddReminder,
   onCollectReminder,

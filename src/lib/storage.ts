@@ -170,7 +170,7 @@ export const StorageService = {
       walletId: walletId,
       date: todayStr,
       time: nowTime,
-      token: rem.token || 'INR',
+      token: rem.token || 'PKR',
       notes: `Settled Invoice #${rem.invoiceNumber || 'N/A'}. ${rem.notes || ''}`,
       reminderId: rem.id,
     });
@@ -246,7 +246,24 @@ export const StorageService = {
       return DEFAULT_WALLETS;
     }
     try {
-      return JSON.parse(raw);
+      const parsed: Wallet[] = JSON.parse(raw);
+      let modified = false;
+      const updated = parsed.map((w) => {
+        if (w.currency === 'INR' || w.symbol === '₹') {
+          modified = true;
+          return {
+            ...w,
+            currency: 'PKR',
+            symbol: 'Rs. ',
+            name: w.name.replace('UPI', 'Raast / Digital'),
+          };
+        }
+        return w;
+      });
+      if (modified) {
+        localStorage.setItem(KEYS.WALLETS, JSON.stringify(updated));
+      }
+      return updated;
     } catch {
       return DEFAULT_WALLETS;
     }
@@ -328,7 +345,13 @@ export const StorageService = {
       return DEFAULT_SETTINGS;
     }
     try {
-      return { ...DEFAULT_SETTINGS, ...JSON.parse(raw) };
+      const parsed: AppSettings = { ...DEFAULT_SETTINGS, ...JSON.parse(raw) };
+      if (parsed.currencyCode === 'INR' || parsed.currencySymbol === '₹') {
+        parsed.currencyCode = 'PKR';
+        parsed.currencySymbol = 'Rs. ';
+        localStorage.setItem(KEYS.SETTINGS, JSON.stringify(parsed));
+      }
+      return parsed;
     } catch {
       return DEFAULT_SETTINGS;
     }
@@ -384,7 +407,7 @@ export const StorageService = {
         `"${cat}"`,
         `"${wal}"`,
         t.amount.toFixed(2),
-        `"${t.token || 'INR'}"`,
+        `"${t.token || 'PKR'}"`,
         `"${(t.notes || '').replace(/"/g, '""')}"`,
       ].join(',');
     });

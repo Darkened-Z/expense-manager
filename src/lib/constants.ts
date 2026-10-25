@@ -22,9 +22,9 @@ export const DEFAULT_CATEGORIES: Category[] = [
 ];
 
 export const DEFAULT_WALLETS: Wallet[] = [
-  { id: 'wal-bank', name: 'Primary Bank Account', type: 'bank', currency: 'INR', symbol: '₹', balance: 0.00, accountNumber: '4321' },
-  { id: 'wal-cash', name: 'Cash / Physical Wallet', type: 'bank', currency: 'INR', symbol: '₹', balance: 0.00 },
-  { id: 'wal-upi', name: 'UPI / Digital Payouts', type: 'stripe', currency: 'INR', symbol: '₹', balance: 0.00 },
+  { id: 'wal-bank', name: 'Primary Bank Account', type: 'bank', currency: 'PKR', symbol: 'Rs. ', balance: 0.00, accountNumber: '4321' },
+  { id: 'wal-cash', name: 'Cash / Physical Wallet', type: 'bank', currency: 'PKR', symbol: 'Rs. ', balance: 0.00 },
+  { id: 'wal-digital', name: 'Raast / Digital Payouts', type: 'stripe', currency: 'PKR', symbol: 'Rs. ', balance: 0.00 },
 ];
 
 export const DEFAULT_SETTINGS: AppSettings = {
@@ -33,8 +33,8 @@ export const DEFAULT_SETTINGS: AppSettings = {
   autoLockMinutes: 0,
   userName: 'User',
   userEmail: 'user@work.dev',
-  currencySymbol: '₹',
-  currencyCode: 'INR',
+  currencySymbol: 'Rs. ',
+  currencyCode: 'PKR',
   enableAudioChime: true,
   enableBrowserNotifications: true,
 };

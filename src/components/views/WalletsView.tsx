@@ -22,12 +22,12 @@ export const WalletsView: React.FC<WalletsViewProps> = ({
   const [showAddModal, setShowAddModal] = useState(false);
   const [walletName, setWalletName] = useState('');
   const [walletType, setWalletType] = useState<Wallet['type']>('bank');
-  const [currency, setCurrency] = useState('INR');
-  const [symbol, setSymbol] = useState('₹');
+  const [currency, setCurrency] = useState('PKR');
+  const [symbol, setSymbol] = useState('Rs. ');
   const [initialBalance, setInitialBalance] = useState('');
   const [accountNumber, setAccountNumber] = useState('');
 
-  const totalAssetsUSD = wallets.reduce((sum, w) => sum + w.balance, 0);
+  const totalAssets = wallets.reduce((sum, w) => sum + w.balance, 0);
 
   const getWalletIcon = (type: Wallet['type']) => {
     switch (type) {
@@ -65,7 +65,7 @@ export const WalletsView: React.FC<WalletsViewProps> = ({
         <div>
           <div className="text-xs text-zinc-400 font-medium">Total Liquidity & Balance</div>
           <div className="text-3xl font-extrabold text-white font-mono mt-1">
-            {currencySymbol}{totalAssetsUSD.toLocaleString(undefined, { minimumFractionDigits: 2 })}
+            {currencySymbol}{totalAssets.toLocaleString(undefined, { minimumFractionDigits: 2 })}
           </div>
           <p className="text-xs text-zinc-500 mt-1">Combined balance across {wallets.length} active channels</p>
         </div>
@@ -142,7 +142,7 @@ export const WalletsView: React.FC<WalletsViewProps> = ({
                 <label className="block text-[11px] font-medium text-zinc-400 mb-1">Account Name</label>
                 <input
                   type="text"
-                  placeholder="e.g. Mercury Business, Wise USD, MetaMask"
+                  placeholder="e.g. Meezan Bank, HBL, SadaPay, Cash"
                   value={walletName}
                   onChange={(e) => setWalletName(e.target.value)}
                   className="w-full bg-[#171922] text-white text-xs px-3.5 py-2.5 rounded-xl border border-white/10 focus:outline-none focus:border-white/30"
@@ -159,31 +159,20 @@ export const WalletsView: React.FC<WalletsViewProps> = ({
                     className="w-full bg-[#171922] text-white text-xs px-3 py-2.5 rounded-xl border border-white/10 focus:outline-none focus:border-white/30"
                   >
                     <option value="bank">Bank Account</option>
-                    <option value="stripe">Stripe</option>
-                    <option value="paypal">PayPal</option>
-                    <option value="crypto">Crypto Wallet</option>
-                    <option value="wise">Wise</option>
-                    <option value="cash">Cash / Other</option>
+                    <option value="cash">Cash / Physical</option>
+                    <option value="stripe">Raast / Digital Payouts</option>
+                    <option value="paypal">Microfinance / Other</option>
                   </select>
                 </div>
 
                 <div>
-                  <label className="block text-[11px] font-medium text-zinc-400 mb-1">Currency Code</label>
+                  <label className="block text-[11px] font-medium text-zinc-400 mb-1">Currency</label>
                   <input
                     type="text"
-                    value={currency}
-                    onChange={(e) => {
-                      const c = e.target.value.toUpperCase();
-                      setCurrency(c);
-                      if (c === 'INR') setSymbol('₹');
-                      else if (c === 'USD') setSymbol('$');
-                      else if (c === 'EUR') setSymbol('€');
-                      else if (c === 'GBP') setSymbol('£');
-                      else if (c === 'USDT') setSymbol('₮');
-                      else setSymbol('₹');
-                    }}
-                    className="w-full bg-[#171922] text-white text-xs font-mono uppercase px-3 py-2.5 rounded-xl border border-white/10 focus:outline-none focus:border-white/30"
-                    required
+                    value="PKR (Rs.)"
+                    disabled
+                    readOnly
+                    className="w-full bg-[#171922] text-zinc-400 text-xs font-mono uppercase px-3 py-2.5 rounded-xl border border-white/10 cursor-not-allowed"
                   />
                 </div>
               </div>

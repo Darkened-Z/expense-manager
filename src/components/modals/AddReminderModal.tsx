@@ -35,7 +35,7 @@ export const AddReminderModal: React.FC<AddReminderModalProps> = ({
   const [projectTitle, setProjectTitle] = useState('');
   const [invoiceNumber, setInvoiceNumber] = useState('');
   const [amount, setAmount] = useState('');
-  const [currency, setCurrency] = useState('INR');
+  const [currency, setCurrency] = useState('PKR');
   const [invoiceDate, setInvoiceDate] = useState('');
   const [dueDate, setDueDate] = useState('');
   const [reminderDate, setReminderDate] = useState('');
@@ -63,7 +63,7 @@ export const AddReminderModal: React.FC<AddReminderModalProps> = ({
       setProjectTitle('');
       setInvoiceNumber(`INV-${new Date().getFullYear()}-${Math.floor(10 + Math.random() * 90)}`);
       setAmount('');
-      setCurrency('INR');
+      setCurrency('PKR');
       setInvoiceDate(todayStr);
       setDueDate(dueStr);
       setReminderDate(remStr);
@@ -184,7 +184,7 @@ export const AddReminderModal: React.FC<AddReminderModalProps> = ({
             <div className="col-span-2">
               <label className="block text-[11px] font-medium text-zinc-400 mb-1">Receivable Amount</label>
               <div className="relative">
-                <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-zinc-500 font-mono text-sm">
+                <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-zinc-400 font-mono text-xs font-semibold select-none">
                   {currencySymbol}
                 </span>
                 <input
@@ -193,26 +193,20 @@ export const AddReminderModal: React.FC<AddReminderModalProps> = ({
                   placeholder="2500.00"
                   value={amount}
                   onChange={(e) => setAmount(e.target.value)}
-                  className="w-full bg-[#171922] text-white text-base font-mono font-bold pl-8 pr-3 py-2.5 rounded-xl border border-white/10 focus:outline-none focus:border-white/30"
+                  className="w-full bg-[#171922] text-white text-base font-mono font-bold pl-12 pr-3 py-2.5 rounded-xl border border-white/10 focus:outline-none focus:border-white/30"
                   required
                 />
               </div>
             </div>
 
             <div>
-              <label className="block text-[11px] font-medium text-zinc-400 mb-1">Currency / Asset</label>
+              <label className="block text-[11px] font-medium text-zinc-400 mb-1">Currency</label>
               <select
-                value={currency}
-                onChange={(e) => setCurrency(e.target.value)}
-                className="w-full bg-[#171922] text-white text-xs font-mono px-3 py-3 rounded-xl border border-white/10 focus:outline-none focus:border-white/30"
+                value="PKR"
+                disabled
+                className="w-full bg-[#171922] text-zinc-300 text-xs font-mono px-3 py-3 rounded-xl border border-white/10 cursor-not-allowed"
               >
-                <option value="INR">INR (₹)</option>
-                <option value="USD">USD ($)</option>
-                <option value="EUR">EUR (€)</option>
-                <option value="GBP">GBP (£)</option>
-                <option value="USDT">USDT (₮)</option>
-                <option value="USDC">USDC</option>
-                <option value="ETH">ETH (Ξ)</option>
+                <option value="PKR">PKR (Rs.)</option>
               </select>
             </div>
           </div>

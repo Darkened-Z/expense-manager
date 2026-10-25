@@ -322,7 +322,7 @@ export const FreelanceRemindersView: React.FC<FreelanceRemindersViewProps> = ({
                           {currencySymbol}{rem.amount.toFixed(2)}
                         </div>
                         <div className="text-[10px] text-zinc-500 font-mono uppercase">
-                          {rem.token || rem.currency || 'INR'}
+                          {rem.token || rem.currency || 'PKR'}
                         </div>
                       </div>
 

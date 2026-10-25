@@ -42,7 +42,7 @@ export const AddTransactionModal: React.FC<AddTransactionModalProps> = ({
   const [walletId, setWalletId] = useState<string>('');
   const [date, setDate] = useState<string>('');
   const [time, setTime] = useState<string>('');
-  const [token, setToken] = useState<string>('INR');
+  const [token, setToken] = useState<string>('PKR');
   const [notes, setNotes] = useState<string>('');
   const [error, setError] = useState<string | null>(null);
 
@@ -64,7 +64,7 @@ export const AddTransactionModal: React.FC<AddTransactionModalProps> = ({
       const suitableCats = categories.filter((c) => c.type === initialType);
       setCategoryId(suitableCats[0]?.id || categories[0]?.id || '');
       setWalletId(wallets[0]?.id || '');
-      setToken(wallets[0]?.currency || 'INR');
+      setToken(wallets[0]?.currency || 'PKR');
     }
   }, [isOpen, initialType, categories, wallets]);
 
@@ -164,7 +164,7 @@ export const AddTransactionModal: React.FC<AddTransactionModalProps> = ({
             <div className="col-span-2">
               <label className="block text-[11px] font-medium text-zinc-400 mb-1">Amount</label>
               <div className="relative">
-                <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-zinc-500 font-mono text-sm">
+                <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-zinc-400 font-mono text-xs font-semibold select-none">
                   {currencySymbol}
                 </span>
                 <input
@@ -173,20 +173,20 @@ export const AddTransactionModal: React.FC<AddTransactionModalProps> = ({
                   placeholder="0.00"
                   value={amount}
                   onChange={(e) => setAmount(e.target.value)}
-                  className="w-full bg-[#171922] text-white text-base font-mono font-bold pl-8 pr-3 py-2.5 rounded-xl border border-white/10 focus:outline-none focus:border-white/30 transition-colors"
+                  className="w-full bg-[#171922] text-white text-base font-mono font-bold pl-12 pr-3 py-2.5 rounded-xl border border-white/10 focus:outline-none focus:border-white/30 transition-colors"
                   required
                 />
               </div>
             </div>
 
             <div>
-              <label className="block text-[11px] font-medium text-zinc-400 mb-1">Currency / Asset</label>
+              <label className="block text-[11px] font-medium text-zinc-400 mb-1">Currency</label>
               <input
                 type="text"
-                placeholder="USD"
-                value={token}
-                onChange={(e) => setToken(e.target.value.toUpperCase())}
-                className="w-full bg-[#171922] text-white text-xs font-mono uppercase px-3 py-3 rounded-xl border border-white/10 focus:outline-none focus:border-white/30"
+                value="PKR"
+                disabled
+                readOnly
+                className="w-full bg-[#171922] text-zinc-400 text-xs font-mono uppercase px-3 py-3 rounded-xl border border-white/10 cursor-not-allowed"
               />
             </div>
           </div>

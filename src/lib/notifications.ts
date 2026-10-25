@@ -71,13 +71,13 @@ export const NotificationService = {
       const first = overdueList[0];
       const count = overdueList.length;
       const title = count === 1 ? `Overdue Invoice: ${first.clientName}` : `${count} Overdue Invoices Requiring Follow-Up`;
-      const body = count === 1 ? `${first.projectTitle} - ₹${first.amount.toFixed(2)} due on ${first.dueDate}` : `Review your client receivables to send reminder messages.`;
+      const body = count === 1 ? `${first.projectTitle} - Rs. ${first.amount.toFixed(2)} due on ${first.dueDate}` : `Review your client receivables to send reminder messages.`;
       this.send(title, body);
     } else if (dueTodayList.length > 0) {
       const first = dueTodayList[0];
       const count = dueTodayList.length;
       const title = count === 1 ? `Payment Due Today: ${first.clientName}` : `${count} Invoices Due Today`;
-      const body = count === 1 ? `${first.projectTitle} - ₹${first.amount.toFixed(2)} expected today.` : `Check your accounts for incoming settlements.`;
+      const body = count === 1 ? `${first.projectTitle} - Rs. ${first.amount.toFixed(2)} expected today.` : `Check your accounts for incoming settlements.`;
       this.send(title, body);
     }
   },
