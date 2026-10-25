@@ -51,9 +51,15 @@ export const FreelanceRemindersView: React.FC<FreelanceRemindersViewProps> = ({
     .filter((r) => r.status !== 'collected' && r.type !== 'payable')
     .reduce((sum, r) => sum + r.amount, 0);
 
+  const totalCollected = reminders
+    .filter((r) => r.status === 'collected' && r.type !== 'payable')
+    .reduce((sum, r) => sum + r.amount, 0);
+
   const totalPayablePending = reminders
     .filter((r) => r.status !== 'collected' && r.type === 'payable')
     .reduce((sum, r) => sum + r.amount, 0);
+
+  const collectedCount = reminders.filter((r) => r.status === 'collected' && r.type !== 'payable').length;
 
   const totalSettled = reminders
     .filter((r) => r.status === 'collected')
@@ -161,8 +167,24 @@ export const FreelanceRemindersView: React.FC<FreelanceRemindersViewProps> = ({
 
   return (
     <div className="space-y-6">
-      {/* Top Banner Metric Cards */}
+      {/* Top Section Header */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+        <div>
+          <h2 className="text-base font-bold text-white tracking-wide">Invoices & Due Dates</h2>
+          <p className="text-xs text-zinc-400">Track client receivables, monthly salaries, and recurring obligations</p>
+        </div>
+        <button
+          onClick={onOpenAddModal}
+          className="bg-zinc-100 hover:bg-white text-zinc-950 font-semibold py-2 px-3.5 rounded-xl text-xs flex items-center justify-center gap-1.5 transition-colors shadow-sm cursor-pointer self-start sm:self-auto"
+        >
+          <Plus className="w-4 h-4 stroke-[2.5]" />
+          <span>Add Due Date</span>
+        </button>
+      </div>
+
+      {/* Top Banner Metric Cards (4 Cards) */}
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4">
+        {/* Card 1: To Collect */}
         <div className="bg-[#12141a] border border-white/5 rounded-2xl p-4 sm:p-5 shadow-xl relative overflow-hidden">
           <div className="text-xs text-zinc-400 font-medium">To Collect (Receivables)</div>
           <div className="text-xl sm:text-2xl font-bold text-white font-mono mt-1">
@@ -173,6 +195,18 @@ export const FreelanceRemindersView: React.FC<FreelanceRemindersViewProps> = ({
           </div>
         </div>
 
+        {/* Card 2: Collected (Second in the row) */}
+        <div className="bg-[#12141a] border border-white/5 rounded-2xl p-4 sm:p-5 shadow-xl relative overflow-hidden">
+          <div className="text-xs text-zinc-400 font-medium">Collected Revenue</div>
+          <div className="text-xl sm:text-2xl font-bold text-white font-mono mt-1">
+            {currencySymbol}{totalCollected.toFixed(2)}
+          </div>
+          <div className="text-[11px] text-zinc-500 mt-1">
+            Across {collectedCount} settled invoice{collectedCount === 1 ? '' : 's'}
+          </div>
+        </div>
+
+        {/* Card 3: To Pay */}
         <div className="bg-[#12141a] border border-white/5 rounded-2xl p-4 sm:p-5 shadow-xl relative overflow-hidden">
           <div className="text-xs text-zinc-400 font-medium">To Pay (Salaries & Bills)</div>
           <div className="text-xl sm:text-2xl font-bold text-white font-mono mt-1">
@@ -183,6 +217,7 @@ export const FreelanceRemindersView: React.FC<FreelanceRemindersViewProps> = ({
           </div>
         </div>
 
+        {/* Card 4: Action Required */}
         <div className="bg-[#12141a] border border-white/5 rounded-2xl p-4 sm:p-5 shadow-xl relative overflow-hidden">
           <div className="text-xs text-zinc-400 font-medium">Action Required</div>
           <div className="text-xl sm:text-2xl font-bold text-white font-mono mt-1 flex items-center gap-2">
@@ -196,20 +231,6 @@ export const FreelanceRemindersView: React.FC<FreelanceRemindersViewProps> = ({
           <div className="text-[11px] text-zinc-500 mt-1">
             {dueTodayList.length} item{dueTodayList.length === 1 ? '' : 's'} due today
           </div>
-        </div>
-
-        <div className="bg-[#12141a] border border-white/10 rounded-2xl p-4 sm:p-5 shadow-xl flex flex-col justify-between sm:col-span-2 md:col-span-1">
-          <div>
-            <div className="text-xs text-white font-semibold tracking-wide">Schedule Reminder</div>
-            <div className="text-xs text-zinc-400 mt-0.5">Track monthly salaries, bills, or client invoices</div>
-          </div>
-          <button
-            onClick={onOpenAddModal}
-            className="mt-3 w-full bg-zinc-100 hover:bg-white text-zinc-950 font-semibold py-2 px-3 rounded-xl text-xs flex items-center justify-center gap-1.5 transition-colors shadow-sm cursor-pointer"
-          >
-            <Plus className="w-4 h-4 stroke-[2.5]" />
-            <span>Add Due Date</span>
-          </button>
         </div>
       </div>
 
@@ -265,8 +286,17 @@ export const FreelanceRemindersView: React.FC<FreelanceRemindersViewProps> = ({
             </button>
           </div>
 
-          <div className="text-xs text-zinc-400">
-            Due dates calculate alerts automatically
+          <div className="flex items-center gap-2.5">
+            <button
+              onClick={onOpenAddModal}
+              className="sm:hidden bg-zinc-100 hover:bg-white text-zinc-950 font-semibold py-1.5 px-3 rounded-lg text-xs flex items-center justify-center gap-1 transition-colors shadow-sm cursor-pointer whitespace-nowrap"
+            >
+              <Plus className="w-3.5 h-3.5 stroke-[2.5]" />
+              <span>Add Due Date</span>
+            </button>
+            <span className="text-xs text-zinc-400 hidden lg:inline">
+              Due dates calculate alerts automatically
+            </span>
           </div>
         </div>
 
