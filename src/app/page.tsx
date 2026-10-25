@@ -100,47 +100,80 @@ export default function Home() {
       NotificationService.checkDueInvoicesAndNotify(StorageService.getReminders());
     }
 
-    if (!isSupabaseConfigured()) {
-      setCloudSyncStatus('unconfigured');
-      return;
-    }
+    let unsubscribeSync: (() => void) | null = null;
 
-    setCloudSyncStatus('syncing');
+    const initCloudSync = () => {
+      if (!isSupabaseConfigured()) {
+        setCloudSyncStatus('unconfigured');
+        return () => {};
+      }
 
-    // Initial background pull from Supabase
-    pullFromSupabase().then((res) => {
-      if (res.success && res.data) {
-        StorageService.importFullSnapshot(res.data);
+      setCloudSyncStatus('syncing');
+
+      // Initial background pull from Supabase
+      pullFromSupabase().then((res) => {
+        if (res.success && res.data) {
+          StorageService.importFullSnapshot(res.data);
+          reloadAllFromStorage();
+          setCloudSyncStatus('synced');
+        } else if (res.message?.includes('No sync data found')) {
+          // Cloud is empty: auto-seed with current local snapshot so all devices have data immediately
+          pushToSupabase(StorageService.getFullSnapshot()).then(() => {
+            setCloudSyncStatus('synced');
+          });
+        } else {
+          setCloudSyncStatus('error');
+        }
+      });
+
+      // Realtime Postgres Changes Subscription for multi-device sync
+      return subscribeToSupabaseUpdates((cloudPayload) => {
+        StorageService.importFullSnapshot(cloudPayload);
         reloadAllFromStorage();
         setCloudSyncStatus('synced');
-      } else {
-        setCloudSyncStatus(res.message?.includes('No sync data found') ? 'synced' : 'error');
-      }
-    });
+      });
+    };
 
-    // Realtime Postgres Changes Subscription for multi-device sync
-    const unsubscribe = subscribeToSupabaseUpdates((cloudPayload) => {
-      StorageService.importFullSnapshot(cloudPayload);
-      reloadAllFromStorage();
-      setCloudSyncStatus('synced');
-    });
+    if (isSupabaseConfigured()) {
+      unsubscribeSync = initCloudSync();
+    } else {
+      // Auto-fetch server config so mobile & all client devices connect instantly with 0 manual steps!
+      fetch('/api/sync/config')
+        .then((res) => res.json())
+        .then((cfg) => {
+          if (cfg.url && cfg.anonKey) {
+            saveSupabaseConfig(cfg);
+            unsubscribeSync = initCloudSync();
+          } else {
+            setCloudSyncStatus('unconfigured');
+          }
+        })
+        .catch(() => {
+          setCloudSyncStatus('unconfigured');
+        });
+    }
 
-    // Window focus refresh: pull latest when user switches back to this tab
-    const handleFocus = () => {
+    // Window focus & mobile visibility refresh: pull latest when user switches back to this tab/app
+    const handleRefresh = () => {
+      if (typeof document !== 'undefined' && document.visibilityState === 'hidden') return;
       if (isSupabaseConfigured()) {
         pullFromSupabase().then((res) => {
           if (res.success && res.data) {
             StorageService.importFullSnapshot(res.data);
             reloadAllFromStorage();
+            setCloudSyncStatus('synced');
           }
         });
       }
     };
-    window.addEventListener('focus', handleFocus);
+
+    window.addEventListener('focus', handleRefresh);
+    document.addEventListener('visibilitychange', handleRefresh);
 
     return () => {
-      unsubscribe();
-      window.removeEventListener('focus', handleFocus);
+      if (unsubscribeSync) unsubscribeSync();
+      window.removeEventListener('focus', handleRefresh);
+      document.removeEventListener('visibilitychange', handleRefresh);
     };
   }, []);
 
