@@ -3,11 +3,13 @@
 import React, { useState, useEffect } from 'react';
 import { Sidebar } from '@/components/layout/Sidebar';
 import { Header } from '@/components/layout/Header';
-import { StorySummaryCard } from '@/components/dashboard/StorySummaryCard';
+import { MetricsBar } from '@/components/dashboard/MetricsBar';
+import { FinancialGraphs } from '@/components/dashboard/FinancialGraphs';
 import { TransactionOverviewChart } from '@/components/dashboard/TransactionOverviewChart';
 import { DailyPulseCard } from '@/components/dashboard/DailyPulseCard';
 import { TransactionsLedger } from '@/components/transactions/TransactionsLedger';
 import { FreelanceRemindersView } from '@/components/freelance/FreelanceRemindersView';
+import { SavingsView } from '@/components/views/SavingsView';
 import { WalletsView } from '@/components/views/WalletsView';
 import { CategoriesView } from '@/components/views/CategoriesView';
 import { InsightsView } from '@/components/views/InsightsView';
@@ -16,7 +18,7 @@ import { PasscodeLockModal } from '@/components/auth/PasscodeLockModal';
 import { AddTransactionModal } from '@/components/modals/AddTransactionModal';
 import { AddReminderModal } from '@/components/modals/AddReminderModal';
 import { StorageService } from '@/lib/storage';
-import { Transaction, PaymentReminder, Category, Wallet, AppSettings, TransactionType } from '@/types';
+import { Transaction, PaymentReminder, Category, Wallet, AppSettings, TransactionType, SavingsGoal } from '@/types';
 
 export default function Home() {
   const [mounted, setMounted] = useState(false);
@@ -24,6 +26,7 @@ export default function Home() {
   const [reminders, setReminders] = useState<PaymentReminder[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
   const [wallets, setWallets] = useState<Wallet[]>([]);
+  const [savingsGoals, setSavingsGoals] = useState<SavingsGoal[]>([]);
   const [settings, setSettings] = useState<AppSettings | null>(null);
 
   // App UI state
@@ -47,6 +50,7 @@ export default function Home() {
     const rems = StorageService.getReminders();
     const cats = StorageService.getCategories();
     const wals = StorageService.getWallets();
+    const saves = StorageService.getSavingsGoals();
     const sets = StorageService.getSettings();
     const locked = StorageService.isSessionLocked();
 
@@ -54,6 +58,7 @@ export default function Home() {
     setReminders(rems);
     setCategories(cats);
     setWallets(wals);
+    setSavingsGoals(saves);
     setSettings(sets);
     setIsLocked(locked);
     setMounted(true);
@@ -61,7 +66,7 @@ export default function Home() {
     if (sets.enableBrowserNotifications && typeof window !== 'undefined' && 'Notification' in window) {
       const urgentCount = rems.filter((r) => r.status === 'overdue' || r.status === 'due_today').length;
       if (urgentCount > 0 && Notification.permission === 'granted') {
-        new Notification('Freelance Payment Reminder', {
+        new Notification('Payment Reminder', {
           body: `You have ${urgentCount} invoice${urgentCount === 1 ? '' : 's'} requiring payment follow-up today.`,
           icon: '/favicon.ico',
         });
@@ -183,6 +188,27 @@ export default function Home() {
     setWallets(updated);
   };
 
+  const handleAddSavingsGoal = (goalData: any) => {
+    StorageService.addSavingsGoal(goalData);
+    setSavingsGoals(StorageService.getSavingsGoals());
+  };
+
+  const handleUpdateSavingsGoal = (id: string, updates: Partial<SavingsGoal>) => {
+    StorageService.updateSavingsGoal(id, updates);
+    setSavingsGoals(StorageService.getSavingsGoals());
+  };
+
+  const handleDeleteSavingsGoal = (id: string) => {
+    StorageService.deleteSavingsGoal(id);
+    setSavingsGoals(StorageService.getSavingsGoals());
+  };
+
+  const handleDepositToGoal = (goalId: string, amount: number, walletId: string) => {
+    StorageService.depositToGoal(goalId, amount, walletId);
+    setSavingsGoals(StorageService.getSavingsGoals());
+    setWallets(StorageService.getWallets());
+  };
+
   const handleUpdateSettings = (updates: Partial<AppSettings>) => {
     const updated = { ...settings, ...updates };
     setSettings(updated);
@@ -207,12 +233,14 @@ export default function Home() {
       if (data.reminders) StorageService.saveReminders(data.reminders);
       if (data.categories) StorageService.saveCategories(data.categories);
       if (data.wallets) StorageService.saveWallets(data.wallets);
+      if (data.savingsGoals) StorageService.saveSavingsGoals(data.savingsGoals);
       if (data.settings) StorageService.saveSettings(data.settings);
 
       setTransactions(StorageService.getTransactions());
       setReminders(StorageService.getReminders());
       setCategories(StorageService.getCategories());
       setWallets(StorageService.getWallets());
+      setSavingsGoals(StorageService.getSavingsGoals());
       setSettings(StorageService.getSettings());
       alert('Backup restored successfully!');
     } catch {
@@ -237,6 +265,7 @@ export default function Home() {
     setReminders(StorageService.getReminders());
     setCategories(StorageService.getCategories());
     setWallets(StorageService.getWallets());
+    setSavingsGoals(StorageService.getSavingsGoals());
     setSettings(StorageService.getSettings());
   };
 
@@ -270,7 +299,7 @@ export default function Home() {
         />
       )}
 
-      {/* Responsive Sidebar (Desktop Fixed + Mobile Drawer + Bottom Bar) */}
+      {/* Responsive Sidebar */}
       <Sidebar
         currentTab={currentTab}
         setCurrentTab={setCurrentTab}
@@ -310,13 +339,22 @@ export default function Home() {
           {/* TAB: DASHBOARD */}
           {currentTab === 'dashboard' && (
             <div className="space-y-6 animate-in fade-in duration-200">
-              <StorySummaryCard
+              {/* Executive Metrics Bar (No fluff, no stories) */}
+              <MetricsBar
                 transactions={filteredTxs}
                 reminders={reminders}
+                wallets={wallets}
+                currencySymbol={settings.currencySymbol}
+              />
+
+              {/* Financial Cashflow Graphs */}
+              <FinancialGraphs
+                transactions={filteredTxs}
                 categories={categories}
                 currencySymbol={settings.currencySymbol}
               />
 
+              {/* Mid Section: Overview Bar Chart & Daily Pulse */}
               <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
                 <div className="lg:col-span-2">
                   <TransactionOverviewChart
@@ -333,6 +371,7 @@ export default function Home() {
                 </div>
               </div>
 
+              {/* Recent Transactions Ledger */}
               <TransactionsLedger
                 transactions={filteredTxs}
                 categories={categories}
@@ -376,6 +415,21 @@ export default function Home() {
             </div>
           )}
 
+          {/* TAB: SAVINGS & GOALS */}
+          {currentTab === 'savings' && (
+            <div className="animate-in fade-in duration-200">
+              <SavingsView
+                savingsGoals={savingsGoals}
+                wallets={wallets}
+                currencySymbol={settings.currencySymbol}
+                onAddSavingsGoal={handleAddSavingsGoal}
+                onUpdateSavingsGoal={handleUpdateSavingsGoal}
+                onDeleteSavingsGoal={handleDeleteSavingsGoal}
+                onDepositToGoal={handleDepositToGoal}
+              />
+            </div>
+          )}
+
           {/* TAB: WALLETS */}
           {currentTab === 'wallets' && (
             <div className="animate-in fade-in duration-200">
@@ -389,7 +443,7 @@ export default function Home() {
             </div>
           )}
 
-          {/* TAB: CATEGORIES */}
+          {/* TAB: CATEGORIES & SOURCES */}
           {currentTab === 'categories' && (
             <div className="animate-in fade-in duration-200">
               <CategoriesView
@@ -401,7 +455,7 @@ export default function Home() {
             </div>
           )}
 
-          {/* TAB: INSIGHTS */}
+          {/* TAB: INSIGHTS / ANALYTICS */}
           {currentTab === 'insights' && (
             <div className="animate-in fade-in duration-200">
               <InsightsView

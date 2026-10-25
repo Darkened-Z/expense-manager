@@ -60,11 +60,9 @@ export const DailyPulseCard: React.FC<DailyPulseCardProps> = ({
           {currencySymbol}{todayTotal.toFixed(2)}
         </div>
 
-        <div className="flex items-start gap-2.5 mt-3 text-xs text-zinc-400 leading-snug">
-          <span className="w-2.5 h-2.5 rounded-full bg-gradient-to-r from-amber-400 to-orange-500 shrink-0 mt-0.5 shadow-sm shadow-orange-500/50" />
-          <span>
-            Today you&apos;ve spent <strong className="text-zinc-200">{currencySymbol}{todayTotal.toFixed(2)}</strong> across active categories — about <strong className="text-amber-400">12% more</strong> than last month.
-          </span>
+        <div className="flex items-center gap-2 mt-2 text-xs text-zinc-400">
+          <span className="w-2 h-2 rounded-full bg-orange-500 shrink-0" />
+          <span>Active daily expenditure run rate</span>
         </div>
       </div>
 

@@ -1,16 +1,16 @@
-import { Transaction, PaymentReminder, Category, Wallet, AppSettings, PaymentReminderStatus } from '@/types';
-import { DEFAULT_CATEGORIES, DEFAULT_WALLETS, DEFAULT_SETTINGS, INITIAL_REMINDERS, INITIAL_TRANSACTIONS } from './constants';
+import { Transaction, PaymentReminder, Category, Wallet, AppSettings, PaymentReminderStatus, SavingsGoal } from '@/types';
+import { DEFAULT_CATEGORIES, DEFAULT_WALLETS, DEFAULT_SETTINGS, INITIAL_REMINDERS, INITIAL_TRANSACTIONS, INITIAL_SAVINGS_GOALS } from './constants';
 
 const KEYS = {
-  TRANSACTIONS: 'expense_manager_txs_v1',
-  REMINDERS: 'expense_manager_reminders_v1',
-  CATEGORIES: 'expense_manager_cats_v1',
-  WALLETS: 'expense_manager_wallets_v1',
-  SETTINGS: 'expense_manager_settings_v1',
+  TRANSACTIONS: 'expense_manager_txs_v2',
+  REMINDERS: 'expense_manager_reminders_v2',
+  CATEGORIES: 'expense_manager_cats_v2',
+  WALLETS: 'expense_manager_wallets_v2',
+  SAVINGS: 'expense_manager_savings_v2',
+  SETTINGS: 'expense_manager_settings_v2',
   IS_LOCKED: 'expense_manager_session_locked',
 };
 
-// Simple web crypto SHA-256 hasher for passcode
 export async function hashPasscode(passcode: string): Promise<string> {
   const encoder = new TextEncoder();
   const data = encoder.encode(passcode + '_expense_salt_2026');
@@ -19,7 +19,6 @@ export async function hashPasscode(passcode: string): Promise<string> {
   return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
 }
 
-// Compute dynamic reminder status based on dates
 export function computeReminderStatus(dueDateStr: string, currentStatus: PaymentReminderStatus): PaymentReminderStatus {
   if (currentStatus === 'collected') return 'collected';
 
@@ -65,10 +64,7 @@ export const StorageService = {
     };
     const updated = [newTx, ...txs];
     this.saveTransactions(updated);
-
-    // Update wallet balance automatically
     this.updateWalletBalance(tx.walletId, tx.type === 'income' ? tx.amount : -tx.amount);
-
     return newTx;
   },
 
@@ -76,14 +72,13 @@ export const StorageService = {
     const txs = this.getTransactions();
     const target = txs.find(t => t.id === id);
     if (target) {
-      // reverse wallet balance adjustment
       this.updateWalletBalance(target.walletId, target.type === 'income' ? -target.amount : target.amount);
     }
     const filtered = txs.filter(t => t.id !== id);
     this.saveTransactions(filtered);
   },
 
-  // --- Payment Reminders (Freelance Receivables) ---
+  // --- Payment Reminders ---
   getReminders(): PaymentReminder[] {
     if (typeof window === 'undefined') return INITIAL_REMINDERS;
     const raw = localStorage.getItem(KEYS.REMINDERS);
@@ -98,13 +93,10 @@ export const StorageService = {
       }
     }
 
-    // Refresh dynamic status based on current date
-    const updated = list.map(rem => ({
+    return list.map(rem => ({
       ...rem,
       status: computeReminderStatus(rem.dueDate, rem.status),
     }));
-
-    return updated;
   },
 
   saveReminders(reminders: PaymentReminder[]): void {
@@ -131,7 +123,6 @@ export const StorageService = {
     this.saveReminders(updated);
   },
 
-  // Mark payment as collected and create income transaction
   collectPayment(reminderId: string, walletId: string): void {
     const reminders = this.getReminders();
     const rem = reminders.find(r => r.id === reminderId);
@@ -140,22 +131,20 @@ export const StorageService = {
     const todayStr = new Date().toISOString().split('T')[0];
     const nowTime = new Date().toTimeString().slice(0, 5);
 
-    // Create income transaction automatically
     const tx = this.addTransaction({
       amount: rem.amount,
       type: 'income',
       title: `Client Payment: ${rem.clientName} - ${rem.projectTitle}`,
       clientOrPayer: rem.clientName,
-      categoryId: 'cat-freelance',
+      categoryId: 'inc-freelance',
       walletId: walletId,
       date: todayStr,
       time: nowTime,
       token: rem.token || 'USD',
-      notes: `Settled from Invoice #${rem.invoiceNumber || 'N/A'}. ${rem.notes || ''}`,
+      notes: `Settled Invoice #${rem.invoiceNumber || 'N/A'}. ${rem.notes || ''}`,
       reminderId: rem.id,
     });
 
-    // Mark reminder as collected
     this.updateReminder(reminderId, {
       status: 'collected',
       collectedAt: todayStr,
@@ -169,7 +158,7 @@ export const StorageService = {
     this.saveReminders(reminders.filter(r => r.id !== id));
   },
 
-  // --- Categories ---
+  // --- Categories & Income Sources ---
   getCategories(): Category[] {
     if (typeof window === 'undefined') return DEFAULT_CATEGORIES;
     const raw = localStorage.getItem(KEYS.CATEGORIES);
@@ -193,7 +182,7 @@ export const StorageService = {
     const cats = this.getCategories();
     const newCat: Category = {
       ...cat,
-      id: 'cat-' + Date.now(),
+      id: (cat.type === 'income' ? 'inc-' : 'cat-') + Date.now(),
     };
     this.saveCategories([...cats, newCat]);
     return newCat;
@@ -223,6 +212,62 @@ export const StorageService = {
     const wallets = this.getWallets();
     const updated = wallets.map(w => (w.id === walletId ? { ...w, balance: Number((w.balance + delta).toFixed(2)) } : w));
     this.saveWallets(updated);
+  },
+
+  // --- Savings Goals ---
+  getSavingsGoals(): SavingsGoal[] {
+    if (typeof window === 'undefined') return INITIAL_SAVINGS_GOALS;
+    const raw = localStorage.getItem(KEYS.SAVINGS);
+    if (!raw) {
+      localStorage.setItem(KEYS.SAVINGS, JSON.stringify(INITIAL_SAVINGS_GOALS));
+      return INITIAL_SAVINGS_GOALS;
+    }
+    try {
+      return JSON.parse(raw);
+    } catch {
+      return INITIAL_SAVINGS_GOALS;
+    }
+  },
+
+  saveSavingsGoals(goals: SavingsGoal[]): void {
+    if (typeof window === 'undefined') return;
+    localStorage.setItem(KEYS.SAVINGS, JSON.stringify(goals));
+  },
+
+  addSavingsGoal(goal: Omit<SavingsGoal, 'id'>): SavingsGoal {
+    const goals = this.getSavingsGoals();
+    const newGoal: SavingsGoal = {
+      ...goal,
+      id: 'save-' + Date.now(),
+    };
+    this.saveSavingsGoals([...goals, newGoal]);
+    return newGoal;
+  },
+
+  updateSavingsGoal(id: string, updates: Partial<SavingsGoal>): void {
+    const goals = this.getSavingsGoals();
+    const updated = goals.map(g => (g.id === id ? { ...g, ...updates } : g));
+    this.saveSavingsGoals(updated);
+  },
+
+  deleteSavingsGoal(id: string): void {
+    const goals = this.getSavingsGoals();
+    this.saveSavingsGoals(goals.filter(g => g.id !== id));
+  },
+
+  depositToGoal(goalId: string, amount: number, walletId: string): void {
+    const goals = this.getSavingsGoals();
+    const target = goals.find(g => g.id === goalId);
+    if (!target) return;
+
+    this.updateSavingsGoal(goalId, {
+      currentAmount: target.currentAmount + amount,
+    });
+
+    // Optionally deduct from wallet if specified
+    if (walletId) {
+      this.updateWalletBalance(walletId, -amount);
+    }
   },
 
   // --- Settings & Passcode ---
@@ -257,27 +302,26 @@ export const StorageService = {
     sessionStorage.setItem(KEYS.IS_LOCKED, locked ? 'true' : 'false');
   },
 
-  // Export full JSON backup
   exportBackup(): string {
     const data = {
-      version: '1.0',
+      version: '2.0',
       exportedAt: new Date().toISOString(),
       transactions: this.getTransactions(),
       reminders: this.getReminders(),
       categories: this.getCategories(),
       wallets: this.getWallets(),
+      savingsGoals: this.getSavingsGoals(),
       settings: this.getSettings(),
     };
     return JSON.stringify(data, null, 2);
   },
 
-  // Export CSV of transactions
   exportTransactionsCSV(): string {
     const txs = this.getTransactions();
     const cats = this.getCategories();
     const wallets = this.getWallets();
 
-    const headers = ['ID', 'Date', 'Time', 'Type', 'Title', 'Client/Payer', 'Category', 'Wallet', 'Amount', 'Currency/Token', 'Notes'];
+    const headers = ['ID', 'Date', 'Time', 'Type', 'Title', 'Client/Payer', 'Category/Source', 'Wallet', 'Amount', 'Currency', 'Notes'];
     const rows = txs.map(t => {
       const cat = cats.find(c => c.id === t.categoryId)?.name || 'Unknown';
       const wal = wallets.find(w => w.id === t.walletId)?.name || 'Unknown';
@@ -299,13 +343,13 @@ export const StorageService = {
     return [headers.join(','), ...rows].join('\n');
   },
 
-  // Reset to default sample data
   resetAllData(): void {
     if (typeof window === 'undefined') return;
     localStorage.setItem(KEYS.TRANSACTIONS, JSON.stringify(INITIAL_TRANSACTIONS));
     localStorage.setItem(KEYS.REMINDERS, JSON.stringify(INITIAL_REMINDERS));
     localStorage.setItem(KEYS.CATEGORIES, JSON.stringify(DEFAULT_CATEGORIES));
     localStorage.setItem(KEYS.WALLETS, JSON.stringify(DEFAULT_WALLETS));
+    localStorage.setItem(KEYS.SAVINGS, JSON.stringify(INITIAL_SAVINGS_GOALS));
     localStorage.setItem(KEYS.SETTINGS, JSON.stringify(DEFAULT_SETTINGS));
     sessionStorage.removeItem(KEYS.IS_LOCKED);
   },

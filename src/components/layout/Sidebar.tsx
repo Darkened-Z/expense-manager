@@ -12,6 +12,7 @@ import {
   Lock,
   Search,
   X,
+  PiggyBank,
 } from 'lucide-react';
 
 interface SidebarProps {
@@ -53,9 +54,10 @@ export const Sidebar: React.FC<SidebarProps> = ({
       badge: overdueRemindersCount > 0 ? `${overdueRemindersCount} overdue` : pendingRemindersCount > 0 ? `${pendingRemindersCount} due` : null,
       badgeType: overdueRemindersCount > 0 ? 'danger' : 'warning',
     },
+    { id: 'savings', label: 'Savings & Goals', icon: PiggyBank },
     { id: 'wallets', label: 'Wallets & Accounts', icon: Wallet },
-    { id: 'categories', label: 'Categories & Budgets', icon: Tag },
-    { id: 'insights', label: 'Insights', icon: Sparkles },
+    { id: 'categories', label: 'Categories & Sources', icon: Tag },
+    { id: 'insights', label: 'Analytics', icon: Sparkles },
   ];
 
   const handleSelectTab = (tabId: string) => {
@@ -246,13 +248,13 @@ export const Sidebar: React.FC<SidebarProps> = ({
         </button>
 
         <button
-          onClick={() => setCurrentTab('wallets')}
+          onClick={() => setCurrentTab('savings')}
           className={`flex flex-col items-center gap-1 p-1 rounded-xl transition-colors ${
-            currentTab === 'wallets' ? 'text-orange-400 font-semibold' : 'text-zinc-400 hover:text-zinc-200'
+            currentTab === 'savings' ? 'text-orange-400 font-semibold' : 'text-zinc-400 hover:text-zinc-200'
           }`}
         >
-          <Wallet className="w-5 h-5" />
-          <span className="text-[10px]">Wallets</span>
+          <PiggyBank className="w-5 h-5" />
+          <span className="text-[10px]">Savings</span>
         </button>
 
         <button

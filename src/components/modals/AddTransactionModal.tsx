@@ -61,7 +61,7 @@ export const AddTransactionModal: React.FC<AddTransactionModalProps> = ({
       setTime(now.toTimeString().slice(0, 5));
 
       // Filter available categories for type
-      const suitableCats = categories.filter((c) => c.type === 'both' || c.type === initialType);
+      const suitableCats = categories.filter((c) => c.type === initialType);
       setCategoryId(suitableCats[0]?.id || categories[0]?.id || '');
       setWalletId(wallets[0]?.id || '');
       setToken(wallets[0]?.currency || 'USD');
@@ -106,7 +106,7 @@ export const AddTransactionModal: React.FC<AddTransactionModalProps> = ({
     onClose();
   };
 
-  const filteredCategories = categories.filter((c) => c.type === 'both' || c.type === type);
+  const filteredCategories = categories.filter((c) => c.type === type);
 
   return (
     <div className="fixed inset-0 bg-black/80 backdrop-blur-md z-50 flex items-center justify-center p-3 sm:p-4">
@@ -128,7 +128,7 @@ export const AddTransactionModal: React.FC<AddTransactionModalProps> = ({
               type="button"
               onClick={() => {
                 setType('expense');
-                const cats = categories.filter((c) => c.type === 'both' || c.type === 'expense');
+                const cats = categories.filter((c) => c.type === 'expense');
                 if (cats.length > 0) setCategoryId(cats[0].id);
               }}
               className={`py-2 rounded-xl text-xs font-semibold flex items-center justify-center gap-1.5 transition-all ${
@@ -145,7 +145,7 @@ export const AddTransactionModal: React.FC<AddTransactionModalProps> = ({
               type="button"
               onClick={() => {
                 setType('income');
-                const cats = categories.filter((c) => c.type === 'both' || c.type === 'income');
+                const cats = categories.filter((c) => c.type === 'income');
                 if (cats.length > 0) setCategoryId(cats[0].id);
               }}
               className={`py-2 rounded-xl text-xs font-semibold flex items-center justify-center gap-1.5 transition-all ${
@@ -223,7 +223,9 @@ export const AddTransactionModal: React.FC<AddTransactionModalProps> = ({
           {/* Category & Wallet Dropdowns */}
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <label className="block text-[11px] font-medium text-zinc-400 mb-1">Category</label>
+              <label className="block text-[11px] font-medium text-zinc-400 mb-1">
+                {type === 'expense' ? 'Expense Category' : 'Income Source'}
+              </label>
               <select
                 value={categoryId}
                 onChange={(e) => setCategoryId(e.target.value)}

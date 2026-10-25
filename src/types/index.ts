@@ -5,7 +5,7 @@ export interface Category {
   name: string;
   icon: string;
   color: string;
-  type: 'expense' | 'income' | 'both';
+  type: 'expense' | 'income';
   budgetLimit?: number;
 }
 
@@ -24,14 +24,14 @@ export interface Transaction {
   amount: number;
   type: TransactionType;
   title: string;
-  categoryId: string;
+  categoryId: string; // References Category (if expense) or Income Source (if income)
   walletId: string;
   clientOrPayer?: string;
-  date: string; // ISO date YYYY-MM-DD
+  date: string; // YYYY-MM-DD
   time: string; // HH:mm
   notes?: string;
-  token?: string; // e.g. "ETH", "USDT", "USD"
-  reminderId?: string; // Linked receivable
+  token?: string;
+  reminderId?: string;
   createdAt: string;
 }
 
@@ -46,10 +46,10 @@ export interface PaymentReminder {
   invoiceNumber?: string;
   amount: number;
   currency: string;
-  token?: string; // e.g. "USDT", "USD", "ETH"
+  token?: string;
   invoiceDate: string; // YYYY-MM-DD
   dueDate: string; // YYYY-MM-DD
-  reminderDate: string; // Date when reminder badge / alert triggers (YYYY-MM-DD)
+  reminderDate: string; // YYYY-MM-DD
   status: PaymentReminderStatus;
   notes?: string;
   collectedAt?: string;
@@ -57,22 +57,25 @@ export interface PaymentReminder {
   collectedTransactionId?: string;
 }
 
+export interface SavingsGoal {
+  id: string;
+  title: string;
+  targetAmount: number;
+  currentAmount: number;
+  targetDate?: string;
+  category: string;
+  color: string;
+  walletId?: string;
+}
+
 export interface AppSettings {
   passcodeHash: string | null;
   isLockEnabled: boolean;
-  autoLockMinutes: number; // 0 = never, 1 = 1m, 5 = 5m, etc.
+  autoLockMinutes: number;
   userName: string;
   userEmail: string;
   currencySymbol: string;
   currencyCode: string;
   enableAudioChime: boolean;
   enableBrowserNotifications: boolean;
-}
-
-export interface FilterState {
-  searchQuery: string;
-  dateRange: 'all' | '30d' | 'this_month' | '90d' | 'year';
-  type: 'all' | 'expense' | 'income';
-  categoryId: string;
-  walletId: string;
 }

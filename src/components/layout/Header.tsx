@@ -67,10 +67,12 @@ export const Header: React.FC<HeaderProps> = ({
         return { title: 'Transactions', sub: "Ledger overview" };
       case 'reminders':
         return { title: 'Client Receivables', sub: 'Invoice due dates & reminders' };
+      case 'savings':
+        return { title: 'Savings & Goals', sub: 'Dedicated reserve targets & fund allocation' };
       case 'wallets':
         return { title: 'Wallets & Accounts', sub: 'Multi-currency balances' };
       case 'categories':
-        return { title: 'Categories & Budgets', sub: 'Expense limits' };
+        return { title: 'Categories & Sources', sub: 'Expense categories and income sources' };
       case 'insights':
         return { title: 'Financial Insights', sub: 'Cashflow analytics' };
       case 'settings':

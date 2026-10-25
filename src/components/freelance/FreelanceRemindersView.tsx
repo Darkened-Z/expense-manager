@@ -103,7 +103,7 @@ export const FreelanceRemindersView: React.FC<FreelanceRemindersViewProps> = ({
       `DTSTAMP:${new Date().toISOString().replace(/[-:]/g, '').split('.')[0]}Z`,
       `DTSTART;VALUE=DATE:${rem.dueDate.replace(/-/g, '')}`,
       `DTEND;VALUE=DATE:${rem.dueDate.replace(/-/g, '')}`,
-      `SUMMARY:💰 Collect Payment: ${rem.clientName} ($${rem.amount.toFixed(2)})`,
+      `SUMMARY:Collect Payment: ${rem.clientName} ($${rem.amount.toFixed(2)})`,
       `DESCRIPTION:Freelance Invoice #${rem.invoiceNumber || 'N/A'}\\nProject: ${rem.projectTitle}\\nClient: ${rem.clientName}\\nAmount: $${rem.amount.toFixed(2)}`,
       'STATUS:CONFIRMED',
       'BEGIN:VALARM',
