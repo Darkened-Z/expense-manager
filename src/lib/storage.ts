@@ -230,11 +230,8 @@ export const StorageService = {
     const todayStr = new Date().toISOString().split('T')[0];
     const nowTime = new Date().toTimeString().slice(0, 5);
 
-    // If payment is scheduled for next month / future due date,
-    // attribute it to that scheduled due date so it is shown as paid in that month!
-    // "even if ive collected the payment of next month in this month it should be shown as paid the next month"
-    const effectivePaymentDate = (rem.dueDate && rem.dueDate > todayStr) ? rem.dueDate : todayStr;
-
+    // Cash transactions always record on the actual day collected/paid
+    // so income, expenses, and cash surplus match your live wallet balance
     const isPayable = rem.type === 'payable';
     const tx = this.addTransaction({
       amount: rem.amount,
@@ -245,7 +242,7 @@ export const StorageService = {
       clientOrPayer: rem.clientName,
       categoryId: isPayable ? (rem.categoryId || 'cat-misc') : 'inc-freelance',
       walletId: walletId,
-      date: effectivePaymentDate,
+      date: todayStr,
       time: nowTime,
       token: rem.token || 'PKR',
       notes: isPayable
@@ -257,7 +254,7 @@ export const StorageService = {
 
     this.updateReminder(reminderId, {
       status: 'collected',
-      collectedAt: effectivePaymentDate,
+      collectedAt: todayStr,
       collectedWalletId: walletId,
       collectedTransactionId: tx.id,
     });
@@ -274,6 +271,7 @@ export const StorageService = {
     try {
       const reminders = this.getReminders();
       const txs = this.getTransactions();
+      const todayStr = new Date().toISOString().split('T')[0];
       let modifiedReminders = false;
       let modifiedTxs = false;
 
@@ -286,27 +284,30 @@ export const StorageService = {
         modifiedReminders = true;
       }
 
+      // If any collected reminder had its collectedAt pushed into the future, bring it to today
       updatedReminders = updatedReminders.map(r => {
-        if (r.status === 'collected' && r.dueDate && r.collectedAt && r.dueDate > r.collectedAt) {
+        if (r.status === 'collected' && r.collectedAt && r.collectedAt > todayStr) {
           modifiedReminders = true;
-          // Also update linked transaction
-          if (r.collectedTransactionId) {
-            const tx = txs.find(t => t.id === r.collectedTransactionId);
-            if (tx && tx.date !== r.dueDate) {
-              tx.date = r.dueDate;
-              modifiedTxs = true;
-            }
-          }
-          return { ...r, collectedAt: r.dueDate };
+          return { ...r, collectedAt: todayStr };
         }
         return r;
+      });
+
+      // Migrate linked transactions that were pushed to future dates back to today
+      // so early collected income / paid expenses appear in current month calculations
+      const updatedTxs = txs.map(t => {
+        if (t.reminderId && t.date > todayStr) {
+          modifiedTxs = true;
+          return { ...t, date: todayStr };
+        }
+        return t;
       });
 
       if (modifiedReminders) {
         this.saveReminders(updatedReminders);
       }
       if (modifiedTxs) {
-        this.saveTransactions(txs);
+        this.saveTransactions(updatedTxs);
       }
     } catch {
       // ignore
