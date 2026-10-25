@@ -56,7 +56,7 @@ export const MetricsBar: React.FC<MetricsBarProps> = ({
       <div className="bg-[#111215] border border-white/[0.06] hover:border-white/10 rounded-2xl p-4 shadow-sm transition-all">
         <div className="flex items-center justify-between">
           <span className="text-[11px] font-medium text-zinc-400 uppercase tracking-wider">Income</span>
-          <span className="inline-flex items-center gap-0.5 text-[10px] font-mono text-zinc-300 bg-white/5 border border-white/10 px-1.5 py-0.5 rounded">
+          <span className="inline-flex items-center gap-0.5 text-[10px] font-mono font-medium text-emerald-400 bg-emerald-950/40 border border-emerald-800/40 px-1.5 py-0.5 rounded">
             <ArrowUpRight className="w-3 h-3 text-emerald-400" />
             <span>+In</span>
           </span>
@@ -73,7 +73,7 @@ export const MetricsBar: React.FC<MetricsBarProps> = ({
       <div className="bg-[#111215] border border-white/[0.06] hover:border-white/10 rounded-2xl p-4 shadow-sm transition-all">
         <div className="flex items-center justify-between">
           <span className="text-[11px] font-medium text-zinc-400 uppercase tracking-wider">Expenses</span>
-          <span className="inline-flex items-center gap-0.5 text-[10px] font-mono text-zinc-300 bg-white/5 border border-white/10 px-1.5 py-0.5 rounded">
+          <span className="inline-flex items-center gap-0.5 text-[10px] font-mono font-medium text-rose-400 bg-rose-950/40 border border-rose-800/40 px-1.5 py-0.5 rounded">
             <ArrowDownLeft className="w-3 h-3 text-rose-400" />
             <span>-Out</span>
           </span>
@@ -90,8 +90,8 @@ export const MetricsBar: React.FC<MetricsBarProps> = ({
       <div className="bg-[#111215] border border-white/[0.06] hover:border-white/10 rounded-2xl p-4 shadow-sm transition-all">
         <div className="flex items-center justify-between">
           <span className="text-[11px] font-medium text-zinc-400 uppercase tracking-wider">Net Savings</span>
-          <span className="inline-flex items-center gap-0.5 text-[10px] font-mono text-zinc-300 bg-white/5 border border-white/10 px-1.5 py-0.5 rounded">
-            <PiggyBank className="w-3 h-3 text-zinc-400" />
+          <span className="inline-flex items-center gap-0.5 text-[10px] font-mono font-medium text-amber-400 bg-amber-950/40 border border-amber-800/40 px-1.5 py-0.5 rounded">
+            <PiggyBank className="w-3 h-3 text-amber-400" />
             <span>{savingsRate.toFixed(0)}%</span>
           </span>
         </div>

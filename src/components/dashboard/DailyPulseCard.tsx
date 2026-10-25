@@ -89,8 +89,8 @@ export const DailyPulseCard: React.FC<DailyPulseCardProps> = ({
         )}
 
         <svg viewBox={`0 0 ${width} ${height}`} className="w-full h-20 overflow-visible">
-          {/* Clean minimal line stroke - zero gradients */}
-          <path d={pathD} fill="none" stroke="#71717a" strokeWidth="2" strokeLinecap="round" />
+          {/* Clean solid line stroke - basic orange, zero gradients */}
+          <path d={pathD} fill="none" stroke="#f97316" strokeWidth="2.5" strokeLinecap="round" />
 
           {/* Interactive dots */}
           {coords.map((c, i) => (

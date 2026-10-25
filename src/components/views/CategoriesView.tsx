@@ -128,7 +128,14 @@ export const CategoriesView: React.FC<CategoriesViewProps> = ({
             >
               <div className="flex items-start justify-between">
                 <div className="flex items-center gap-3">
-                  <div className="p-3 rounded-2xl bg-white/5 border border-white/10 text-zinc-300">
+                  <div
+                    className="p-3 rounded-2xl border transition-colors"
+                    style={{
+                      backgroundColor: `${cat.color}15`,
+                      borderColor: `${cat.color}35`,
+                      color: cat.color,
+                    }}
+                  >
                     <Icon className="w-5 h-5" />
                   </div>
                   <div>
@@ -202,9 +209,9 @@ export const CategoriesView: React.FC<CategoriesViewProps> = ({
               </div>
 
               <div>
-                <label className="block text-[11px] font-medium text-zinc-400 mb-1">Tone</label>
+                <label className="block text-[11px] font-medium text-zinc-400 mb-1">Color Accent</label>
                 <div className="flex items-center gap-2 mt-1">
-                  {['#71717a', '#a1a1aa', '#52525b', '#3f3f46'].map((c) => (
+                  {['#f97316', '#3b82f6', '#10b981', '#f59e0b', '#8b5cf6', '#ec4899', '#06b6d4', '#64748b'].map((c) => (
                     <button
                       key={c}
                       type="button"

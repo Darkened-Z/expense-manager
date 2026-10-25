@@ -128,11 +128,11 @@ export const TransactionOverviewChart: React.FC<TransactionOverviewChartProps> =
                   className={`w-full rounded-t-lg transition-all duration-300 ${
                     chartType === 'expense'
                       ? isSelected
-                        ? 'bg-zinc-400'
-                        : 'bg-zinc-700 group-hover:bg-zinc-500'
+                        ? 'bg-rose-400'
+                        : 'bg-rose-500/80 group-hover:bg-rose-400'
                       : isSelected
-                      ? 'bg-zinc-200'
-                      : 'bg-zinc-600 group-hover:bg-zinc-400'
+                      ? 'bg-emerald-400'
+                      : 'bg-emerald-500/80 group-hover:bg-emerald-400'
                   }`}
                   style={{ height: `${heightPercent}%` }}
                 />

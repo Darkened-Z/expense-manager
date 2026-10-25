@@ -194,7 +194,14 @@ export const TransactionsLedger: React.FC<TransactionsLedgerProps> = ({
               <div key={tx.id} className="p-3.5 hover:bg-white/[0.02] transition-colors flex items-center justify-between gap-3">
                 <div className="flex items-center gap-3 min-w-0">
                   {/* Category / Icon Badge */}
-                  <div className="w-9 h-9 rounded-xl flex items-center justify-center shrink-0 bg-white/5 border border-white/10 text-zinc-300">
+                  <div
+                    className="w-9 h-9 rounded-xl flex items-center justify-center shrink-0 border"
+                    style={{
+                      backgroundColor: `${cat?.color || '#71717a'}18`,
+                      borderColor: `${cat?.color || '#71717a'}35`,
+                      color: cat?.color || '#a1a1aa',
+                    }}
+                  >
                     <IconComponent className="w-4 h-4" />
                   </div>
 
@@ -212,7 +219,7 @@ export const TransactionsLedger: React.FC<TransactionsLedgerProps> = ({
                 {/* Amount and delete action */}
                 <div className="flex items-center gap-2 shrink-0">
                   <div className="text-right">
-                    <div className="font-mono font-bold text-xs text-white">
+                    <div className={`font-mono font-bold text-xs ${isExpense ? 'text-zinc-200' : 'text-emerald-400'}`}>
                       {isExpense ? '-' : '+'}{currencySymbol}{tx.amount.toFixed(2)}
                     </div>
                     <span className="text-[9px] font-mono text-zinc-500 uppercase">
@@ -275,13 +282,13 @@ export const TransactionsLedger: React.FC<TransactionsLedgerProps> = ({
                     </td>
                     <td className="py-3.5 px-4">
                       {isExpense ? (
-                        <span className="inline-flex items-center gap-1.5 text-zinc-400 font-medium">
-                          <ArrowDownLeft className="w-3.5 h-3.5 text-zinc-500" />
+                        <span className="inline-flex items-center gap-1.5 text-rose-400 font-medium">
+                          <ArrowDownLeft className="w-3.5 h-3.5 text-rose-400" />
                           <span>Spent</span>
                         </span>
                       ) : (
-                        <span className="inline-flex items-center gap-1.5 text-zinc-300 font-medium">
-                          <ArrowUpRight className="w-3.5 h-3.5 text-zinc-400" />
+                        <span className="inline-flex items-center gap-1.5 text-emerald-400 font-medium">
+                          <ArrowUpRight className="w-3.5 h-3.5 text-emerald-400" />
                           <span>Received</span>
                         </span>
                       )}
@@ -294,6 +301,7 @@ export const TransactionsLedger: React.FC<TransactionsLedgerProps> = ({
                     </td>
                     <td className="py-3.5 px-4">
                       <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-[11px] font-medium bg-white/[0.04] text-zinc-300 border border-white/[0.08]">
+                        <span className="w-1.5 h-1.5 rounded-full shrink-0" style={{ backgroundColor: cat?.color || '#71717a' }} />
                         <IconComponent className="w-3.5 h-3.5 text-zinc-400 shrink-0" />
                         <span className="truncate max-w-[140px]">{cat?.name || 'Uncategorized'}</span>
                       </span>

@@ -199,11 +199,12 @@ export const StorageService = {
     try {
       const parsed: Category[] = JSON.parse(raw);
       let modified = false;
+      const defaultMap = new Map(DEFAULT_CATEGORIES.map(d => [d.id, d.color]));
       const updated = parsed.map(c => {
-        const targetColor = c.type === 'income' ? '#a1a1aa' : '#71717a';
-        if (c.color !== targetColor) {
+        // If it was forced to monochrome gray in the previous step, restore its basic clean color
+        if ((c.color === '#71717a' || c.color === '#a1a1aa') && defaultMap.has(c.id)) {
           modified = true;
-          return { ...c, color: targetColor };
+          return { ...c, color: defaultMap.get(c.id)! };
         }
         return c;
       });

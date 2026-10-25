@@ -226,7 +226,7 @@ export const Header: React.FC<HeaderProps> = ({
             >
               <Bell className="w-4 h-4" />
               {totalAlerts > 0 && (
-                <span className="absolute -top-1 -right-1 min-w-[16px] h-4 px-1 bg-zinc-200 text-[10px] font-bold text-zinc-950 rounded-full flex items-center justify-center">
+                <span className="absolute -top-1 -right-1 min-w-[16px] h-4 px-1 bg-amber-500 text-[10px] font-bold text-black rounded-full flex items-center justify-center shadow-sm">
                   {totalAlerts}
                 </span>
               )}

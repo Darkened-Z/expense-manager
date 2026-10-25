@@ -34,7 +34,7 @@ export const SavingsView: React.FC<SavingsViewProps> = ({
   const [currentAmount, setCurrentAmount] = useState('');
   const [targetDate, setTargetDate] = useState('');
   const [category, setCategory] = useState('Safety Net');
-  const [color, setColor] = useState('#71717a');
+  const [color, setColor] = useState('#f97316');
 
   // Compute metrics
   const totalSaved = savingsGoals.reduce((s, g) => s + g.currentAmount, 0);
@@ -353,6 +353,23 @@ export const SavingsView: React.FC<SavingsViewProps> = ({
                     <option value="Investment">Investment</option>
                     <option value="Personal">Personal</option>
                   </select>
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-[11px] font-medium text-zinc-400 mb-1">Color Theme</label>
+                <div className="flex items-center gap-2 mt-1">
+                  {['#f97316', '#3b82f6', '#10b981', '#f59e0b', '#8b5cf6', '#ec4899', '#64748b'].map((c) => (
+                    <button
+                      key={c}
+                      type="button"
+                      onClick={() => setColor(c)}
+                      className={`w-6 h-6 rounded-full border transition-all ${
+                        color === c ? 'scale-125 border-white' : 'border-transparent opacity-70 hover:opacity-100'
+                      }`}
+                      style={{ backgroundColor: c }}
+                    />
+                  ))}
                 </div>
               </div>
 
