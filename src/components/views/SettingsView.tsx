@@ -126,8 +126,17 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
 
   const handlePushSupabase = async () => {
     setIsSyncing(true);
-    setSyncStatus('Pushing snapshot to Supabase...');
-    const res = await pushToSupabase(StorageService.getFullSnapshot());
+    setSyncStatus('Pushing snapshot to Cloud & Local Server...');
+    const snap = StorageService.getFullSnapshot();
+    try {
+      await fetch('/api/sync', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ data: snap }),
+      });
+    } catch {}
+
+    const res = await pushToSupabase(snap);
     setIsSyncing(false);
     setSyncStatus(res.message);
     if (res.lastSyncedAt) setLastSyncTime(res.lastSyncedAt);
@@ -135,14 +144,34 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
 
   const handlePullSupabase = async () => {
     setIsSyncing(true);
-    setSyncStatus('Pulling latest snapshot from Supabase...');
-    const res = await pullFromSupabase();
+    setSyncStatus('Pulling latest snapshot...');
+    let payload = null;
+    let syncedAt = null;
+
+    try {
+      const sRes = await fetch('/api/sync').then((r) => r.json());
+      if (sRes?.success && sRes.data) {
+        payload = sRes.data;
+        syncedAt = sRes.lastSyncedAt;
+      }
+    } catch {}
+
+    if (!payload && isSupabaseConfigured()) {
+      const res = await pullFromSupabase();
+      if (res.success && res.data) {
+        payload = res.data;
+        syncedAt = res.lastSyncedAt;
+      }
+    }
+
     setIsSyncing(false);
-    setSyncStatus(res.message);
-    if (res.success && res.data) {
-      StorageService.importFullSnapshot(res.data);
-      if (res.lastSyncedAt) setLastSyncTime(res.lastSyncedAt);
+    if (payload) {
+      StorageService.importFullSnapshot(payload);
+      if (syncedAt) setLastSyncTime(syncedAt);
       if (onSyncComplete) onSyncComplete();
+      setSyncStatus('Successfully synchronized latest snapshot!');
+    } else {
+      setSyncStatus('No sync data found on cloud or local server yet.');
     }
   };
 

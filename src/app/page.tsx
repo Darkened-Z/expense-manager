@@ -100,99 +100,160 @@ export default function Home() {
       NotificationService.checkDueInvoicesAndNotify(StorageService.getReminders());
     }
 
-    let unsubscribeSync: (() => void) | null = null;
-
-    const initCloudSync = () => {
-      if (!isSupabaseConfigured()) {
-        setCloudSyncStatus('unconfigured');
-        return () => {};
+    // Helper function to push local data to both server /api/sync and Supabase
+    const pushAllSync = async (snapshot: any) => {
+      try {
+        await fetch('/api/sync', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ data: snapshot }),
+        });
+      } catch {}
+      if (isSupabaseConfigured()) {
+        try {
+          await pushToSupabase(snapshot);
+        } catch {}
       }
-
-      setCloudSyncStatus('syncing');
-
-      // Initial background pull from Supabase
-      pullFromSupabase().then((res) => {
-        if (res.success && res.data) {
-          StorageService.importFullSnapshot(res.data);
-          reloadAllFromStorage();
-          setCloudSyncStatus('synced');
-        } else if (res.message?.includes('No sync data found')) {
-          // Cloud is empty: auto-seed with current local snapshot so all devices have data immediately
-          pushToSupabase(StorageService.getFullSnapshot()).then(() => {
-            setCloudSyncStatus('synced');
-          });
-        } else {
-          setCloudSyncStatus('error');
-        }
-      });
-
-      // Realtime Postgres Changes Subscription for multi-device sync
-      return subscribeToSupabaseUpdates((cloudPayload) => {
-        StorageService.importFullSnapshot(cloudPayload);
-        reloadAllFromStorage();
-        setCloudSyncStatus('synced');
-      });
     };
 
-    if (isSupabaseConfigured()) {
-      unsubscribeSync = initCloudSync();
-    } else {
-      // Auto-fetch server config so mobile & all client devices connect instantly with 0 manual steps!
+    // Auto-fetch server config so mobile & all client devices connect instantly with 0 manual steps
+    if (!isSupabaseConfigured()) {
       fetch('/api/sync/config')
         .then((res) => res.json())
         .then((cfg) => {
           if (cfg.url && cfg.anonKey) {
             saveSupabaseConfig(cfg);
-            unsubscribeSync = initCloudSync();
-          } else {
-            setCloudSyncStatus('unconfigured');
           }
         })
-        .catch(() => {
-          setCloudSyncStatus('unconfigured');
-        });
+        .catch(() => {});
     }
 
-    // Window focus & mobile visibility refresh: pull latest when user switches back to this tab/app
+    // Two-way synchronization engine
+    const syncWithCloudAndServer = async () => {
+      const localSnapshot = StorageService.getFullSnapshot();
+      const hasLocalData =
+        (localSnapshot.transactions?.length || 0) > 0 ||
+        (localSnapshot.reminders?.length || 0) > 0 ||
+        (localSnapshot.simpleSavings?.length || 0) > 0 ||
+        (localSnapshot.wallets || []).some((w: any) => (w.balance || 0) !== 0);
+
+      setCloudSyncStatus('syncing');
+
+      // 1. Check local server API first (instant on LAN / mobile)
+      let remotePayload: any = null;
+      let remoteLastSyncedAt: string | null = null;
+
+      try {
+        const sRes = await fetch('/api/sync').then((r) => r.json());
+        if (sRes?.success && sRes.data) {
+          remotePayload = sRes.data;
+          remoteLastSyncedAt = sRes.lastSyncedAt;
+        }
+      } catch {}
+
+      // 2. Fall back to Supabase if server API had no data
+      if (!remotePayload && isSupabaseConfigured()) {
+        try {
+          const supRes = await pullFromSupabase();
+          if (supRes?.success && supRes.data) {
+            remotePayload = supRes.data;
+            remoteLastSyncedAt = supRes.lastSyncedAt || null;
+          }
+        } catch {}
+      }
+
+      const remoteHasData = remotePayload && (
+        (remotePayload.transactions?.length || 0) > 0 ||
+        (remotePayload.reminders?.length || 0) > 0 ||
+        (remotePayload.simpleSavings?.length || 0) > 0 ||
+        (remotePayload.wallets || []).some((w: any) => (w.balance || 0) !== 0)
+      );
+
+      if (!hasLocalData && remoteHasData) {
+        // Fresh device (e.g. Phone!): import remote snapshot immediately!
+        StorageService.importFullSnapshot(remotePayload);
+        reloadAllFromStorage();
+        setCloudSyncStatus('synced');
+      } else if (hasLocalData && !remoteHasData) {
+        // Source device (e.g. PC!): seed remote cloud & server with full snapshot!
+        await pushAllSync(localSnapshot);
+        setCloudSyncStatus('synced');
+      } else if (hasLocalData && remoteHasData) {
+        // Both have data: adopt the newer snapshot or sync
+        const remoteTime = new Date(remoteLastSyncedAt || 0).getTime();
+        const localTime = new Date(localSnapshot.updatedAt || 0).getTime();
+        if (remoteTime > localTime) {
+          StorageService.importFullSnapshot(remotePayload);
+          reloadAllFromStorage();
+        } else {
+          await pushAllSync(localSnapshot);
+        }
+        setCloudSyncStatus('synced');
+      } else {
+        setCloudSyncStatus('synced');
+      }
+    };
+
+    // Run sync on mount
+    syncWithCloudAndServer();
+
+    // Supabase Realtime subscription
+    let unsubscribeSync: (() => void) | null = null;
+    if (isSupabaseConfigured()) {
+      unsubscribeSync = subscribeToSupabaseUpdates((cloudPayload) => {
+        StorageService.importFullSnapshot(cloudPayload);
+        reloadAllFromStorage();
+        setCloudSyncStatus('synced');
+      });
+    }
+
+    // Refresh on tab focus or mobile app visibility change
     const handleRefresh = () => {
       if (typeof document !== 'undefined' && document.visibilityState === 'hidden') return;
-      if (isSupabaseConfigured()) {
-        pullFromSupabase().then((res) => {
-          if (res.success && res.data) {
-            StorageService.importFullSnapshot(res.data);
-            reloadAllFromStorage();
-            setCloudSyncStatus('synced');
-          }
-        });
-      }
+      syncWithCloudAndServer();
     };
 
     window.addEventListener('focus', handleRefresh);
     document.addEventListener('visibilitychange', handleRefresh);
 
+    // Periodic pull every 15 seconds so mobile devices on LAN stay 100% updated automatically
+    const intervalTimer = setInterval(() => {
+      if (typeof document !== 'undefined' && document.visibilityState === 'hidden') return;
+      syncWithCloudAndServer();
+    }, 15000);
+
     return () => {
       if (unsubscribeSync) unsubscribeSync();
+      clearInterval(intervalTimer);
       window.removeEventListener('focus', handleRefresh);
       document.removeEventListener('visibilitychange', handleRefresh);
     };
   }, []);
 
-  // Automated background push to Supabase on any modification (debounced 1000ms)
+  // Automated background push on any modification (debounced 1000ms)
   useEffect(() => {
     if (isInitialMount.current) {
       isInitialMount.current = false;
       return;
     }
 
-    if (!isSupabaseConfigured()) {
-      setCloudSyncStatus('unconfigured');
-      return;
-    }
-
     setCloudSyncStatus('syncing');
     const timer = setTimeout(async () => {
-      const res = await pushToSupabase(StorageService.getFullSnapshot());
-      setCloudSyncStatus(res.success ? 'synced' : 'error');
+      const snap = StorageService.getFullSnapshot();
+      try {
+        await fetch('/api/sync', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ data: snap }),
+        });
+      } catch {}
+
+      if (isSupabaseConfigured()) {
+        const res = await pushToSupabase(snap);
+        setCloudSyncStatus(res.success ? 'synced' : 'error');
+      } else {
+        setCloudSyncStatus('synced');
+      }
     }, 1000);
 
     return () => clearTimeout(timer);
