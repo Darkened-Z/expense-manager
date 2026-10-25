@@ -75,6 +75,15 @@ export interface SavingsGoal {
   walletId?: string;
 }
 
+export interface SimpleSaving {
+  id: string;
+  amount: number;
+  note: string;
+  date: string;
+  walletId?: string;
+  createdAt: string;
+}
+
 export interface AppSettings {
   passcodeHash: string | null;
   isLockEnabled: boolean;

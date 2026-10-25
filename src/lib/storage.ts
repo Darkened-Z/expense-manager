@@ -1,4 +1,4 @@
-import { Transaction, PaymentReminder, Category, Wallet, AppSettings, PaymentReminderStatus, SavingsGoal } from '@/types';
+import { Transaction, PaymentReminder, Category, Wallet, AppSettings, PaymentReminderStatus, SavingsGoal, SimpleSaving } from '@/types';
 import { DEFAULT_CATEGORIES, DEFAULT_WALLETS, DEFAULT_SETTINGS, INITIAL_REMINDERS, INITIAL_TRANSACTIONS, INITIAL_SAVINGS_GOALS } from './constants';
 import { formatDateDDMMYYYY } from './formatters';
 
@@ -8,6 +8,7 @@ const KEYS = {
   CATEGORIES: 'expense_manager_cats_v5',
   WALLETS: 'expense_manager_wallets_v5',
   SAVINGS: 'expense_manager_savings_v5',
+  SIMPLE_SAVINGS: 'expense_manager_simple_savings_v5',
   SETTINGS: 'expense_manager_settings_v5',
   IS_LOCKED: 'expense_manager_session_locked',
   SYNC_PASSKEY: 'expense_manager_sync_passkey',
@@ -377,6 +378,44 @@ export const StorageService = {
     }
   },
 
+  // --- Simple Savings (Unrelated to Goals) ---
+  getSimpleSavings(): SimpleSaving[] {
+    if (typeof window === 'undefined') return [];
+    const raw = localStorage.getItem(KEYS.SIMPLE_SAVINGS);
+    if (!raw) return [];
+    try {
+      return JSON.parse(raw);
+    } catch {
+      return [];
+    }
+  },
+
+  saveSimpleSavings(savings: SimpleSaving[]): void {
+    if (typeof window === 'undefined') return;
+    localStorage.setItem(KEYS.SIMPLE_SAVINGS, JSON.stringify(savings));
+  },
+
+  addSimpleSaving(saving: Omit<SimpleSaving, 'id' | 'createdAt'>): SimpleSaving {
+    const savings = this.getSimpleSavings();
+    const newSaving: SimpleSaving = {
+      ...saving,
+      id: 'simple-save-' + Date.now(),
+      createdAt: new Date().toISOString(),
+    };
+    this.saveSimpleSavings([newSaving, ...savings]);
+
+    if (saving.walletId) {
+      this.updateWalletBalance(saving.walletId, -saving.amount);
+    }
+
+    return newSaving;
+  },
+
+  deleteSimpleSaving(id: string): void {
+    const savings = this.getSimpleSavings();
+    this.saveSimpleSavings(savings.filter(s => s.id !== id));
+  },
+
   // --- Settings & Passcode ---
   getSettings(): AppSettings {
     if (typeof window === 'undefined') return DEFAULT_SETTINGS;
@@ -424,6 +463,7 @@ export const StorageService = {
       categories: this.getCategories(),
       wallets: this.getWallets(),
       savingsGoals: this.getSavingsGoals(),
+      simpleSavings: this.getSimpleSavings(),
       settings: this.getSettings(),
     };
     return JSON.stringify(data, null, 2);
@@ -543,6 +583,7 @@ export const StorageService = {
     localStorage.setItem(KEYS.CATEGORIES, JSON.stringify(DEFAULT_CATEGORIES));
     localStorage.setItem(KEYS.WALLETS, JSON.stringify(DEFAULT_WALLETS));
     localStorage.setItem(KEYS.SAVINGS, JSON.stringify(INITIAL_SAVINGS_GOALS));
+    localStorage.removeItem(KEYS.SIMPLE_SAVINGS);
     localStorage.setItem(KEYS.SETTINGS, JSON.stringify(DEFAULT_SETTINGS));
     sessionStorage.removeItem(KEYS.IS_LOCKED);
   },

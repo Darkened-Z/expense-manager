@@ -20,7 +20,7 @@ import { AddReminderModal } from '@/components/modals/AddReminderModal';
 import { StorageService } from '@/lib/storage';
 import { NotificationService } from '@/lib/notifications';
 import { PwaInstallPrompt } from '@/components/pwa/PwaInstallPrompt';
-import { Transaction, PaymentReminder, Category, Wallet, AppSettings, TransactionType, SavingsGoal, ReminderType } from '@/types';
+import { Transaction, PaymentReminder, Category, Wallet, AppSettings, TransactionType, SavingsGoal, ReminderType, SimpleSaving } from '@/types';
 
 export default function Home() {
   const [mounted, setMounted] = useState(false);
@@ -29,6 +29,7 @@ export default function Home() {
   const [categories, setCategories] = useState<Category[]>([]);
   const [wallets, setWallets] = useState<Wallet[]>([]);
   const [savingsGoals, setSavingsGoals] = useState<SavingsGoal[]>([]);
+  const [simpleSavings, setSimpleSavings] = useState<SimpleSaving[]>([]);
   const [settings, setSettings] = useState<AppSettings | null>(null);
 
   // App UI state
@@ -54,6 +55,7 @@ export default function Home() {
     const cats = StorageService.getCategories();
     const wals = StorageService.getWallets();
     const saves = StorageService.getSavingsGoals();
+    const simples = StorageService.getSimpleSavings();
     const sets = StorageService.getSettings();
     const locked = StorageService.isSessionLocked();
 
@@ -62,6 +64,7 @@ export default function Home() {
     setCategories(cats);
     setWallets(wals);
     setSavingsGoals(saves);
+    setSimpleSavings(simples);
     setSettings(sets);
     setIsLocked(locked);
     setMounted(true);
@@ -242,6 +245,17 @@ export default function Home() {
     setWallets(StorageService.getWallets());
   };
 
+  const handleAddSimpleSaving = (savingData: any) => {
+    StorageService.addSimpleSaving(savingData);
+    setSimpleSavings(StorageService.getSimpleSavings());
+    setWallets(StorageService.getWallets());
+  };
+
+  const handleDeleteSimpleSaving = (id: string) => {
+    StorageService.deleteSimpleSaving(id);
+    setSimpleSavings(StorageService.getSimpleSavings());
+  };
+
   const handleUpdateSettings = (updates: Partial<AppSettings>) => {
     const updated = { ...settings, ...updates };
     setSettings(updated);
@@ -267,6 +281,7 @@ export default function Home() {
       if (data.categories) StorageService.saveCategories(data.categories);
       if (data.wallets) StorageService.saveWallets(data.wallets);
       if (data.savingsGoals) StorageService.saveSavingsGoals(data.savingsGoals);
+      if (data.simpleSavings) StorageService.saveSimpleSavings(data.simpleSavings);
       if (data.settings) StorageService.saveSettings(data.settings);
 
       setTransactions(StorageService.getTransactions());
@@ -274,6 +289,7 @@ export default function Home() {
       setCategories(StorageService.getCategories());
       setWallets(StorageService.getWallets());
       setSavingsGoals(StorageService.getSavingsGoals());
+      setSimpleSavings(StorageService.getSimpleSavings());
       setSettings(StorageService.getSettings());
       alert('Backup restored successfully!');
     } catch {
@@ -299,6 +315,7 @@ export default function Home() {
     setCategories(StorageService.getCategories());
     setWallets(StorageService.getWallets());
     setSavingsGoals(StorageService.getSavingsGoals());
+    setSimpleSavings(StorageService.getSimpleSavings());
     setSettings(StorageService.getSettings());
   };
 
@@ -492,12 +509,15 @@ export default function Home() {
             <div className="animate-in fade-in duration-200">
               <SavingsView
                 savingsGoals={savingsGoals}
+                simpleSavings={simpleSavings}
                 wallets={wallets}
                 currencySymbol={settings.currencySymbol}
                 onAddSavingsGoal={handleAddSavingsGoal}
                 onUpdateSavingsGoal={handleUpdateSavingsGoal}
                 onDeleteSavingsGoal={handleDeleteSavingsGoal}
                 onDepositToGoal={handleDepositToGoal}
+                onAddSimpleSaving={handleAddSimpleSaving}
+                onDeleteSimpleSaving={handleDeleteSimpleSaving}
               />
             </div>
           )}
