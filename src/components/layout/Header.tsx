@@ -91,7 +91,7 @@ export const Header: React.FC<HeaderProps> = ({
     <header className="px-4 sm:px-6 lg:px-8 py-3.5 sm:py-5 border-b border-white/5 bg-[#090a0d]/90 backdrop-blur-md sticky top-0 z-30 flex flex-col gap-3">
       <div className="flex items-center justify-between gap-2">
         {/* Left: Mobile Menu Trigger + Title */}
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-2.5 sm:gap-3">
           <button
             onClick={onToggleMobileMenu}
             className="md:hidden p-2 -ml-1 text-zinc-400 hover:text-white rounded-xl bg-white/5 border border-white/5"
@@ -99,6 +99,9 @@ export const Header: React.FC<HeaderProps> = ({
           >
             <Menu className="w-5 h-5" />
           </button>
+          <div className="md:hidden w-8 h-8 rounded-xl overflow-hidden border border-white/10 shrink-0 bg-white/5 shadow-sm">
+            <img src="/logo.png" alt="Logo" className="w-full h-full object-cover" />
+          </div>
           <div>
             <h1 className="text-base sm:text-xl font-bold tracking-tight text-white">{title}</h1>
             <p className="text-[11px] sm:text-xs text-zinc-400 hidden xs:block">{sub}</p>

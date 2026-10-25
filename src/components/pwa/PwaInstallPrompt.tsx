@@ -62,8 +62,8 @@ export const PwaInstallPrompt: React.FC = () => {
   return (
     <div className="bg-[#12141a] border border-white/10 rounded-2xl p-3.5 sm:p-4 shadow-xl flex items-center justify-between gap-3 animate-in fade-in duration-300">
       <div className="flex items-center gap-3">
-        <div className="p-2.5 rounded-xl bg-white/5 text-zinc-300 border border-white/10 shrink-0">
-          <Download className="w-5 h-5" />
+        <div className="w-10 h-10 rounded-xl overflow-hidden border border-white/10 shrink-0 bg-white/5 shadow-md">
+          <img src="/logo.png" alt="App Logo" className="w-full h-full object-cover" />
         </div>
         <div>
           <h4 className="text-xs sm:text-sm font-bold text-white flex items-center gap-2">

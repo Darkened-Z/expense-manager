@@ -95,9 +95,14 @@ export const PasscodeLockModal: React.FC<PasscodeLockModalProps> = ({
           shake ? 'animate-shake' : ''
         }`}
       >
-        {/* Shield Icon */}
-        <div className="w-16 h-16 mx-auto rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center text-zinc-200 mb-4 shadow-sm">
-          {step === 'enter' ? <Lock className="w-8 h-8" /> : <KeyRound className="w-8 h-8" />}
+        {/* Logo Badge with Lock Indicator */}
+        <div className="relative w-16 h-16 mx-auto mb-4">
+          <div className="w-16 h-16 rounded-2xl overflow-hidden border border-white/15 shadow-xl bg-white/5">
+            <img src="/logo.png" alt="Expense Manager" className="w-full h-full object-cover" />
+          </div>
+          <div className="absolute -bottom-1 -right-1 w-6 h-6 rounded-lg bg-zinc-900 border border-white/20 flex items-center justify-center text-zinc-200 shadow-md">
+            {step === 'enter' ? <Lock className="w-3.5 h-3.5" /> : <KeyRound className="w-3.5 h-3.5" />}
+          </div>
         </div>
 
         {/* Title & subtitle */}

@@ -71,8 +71,12 @@ export const Sidebar: React.FC<SidebarProps> = ({
         {/* Brand Header */}
         <div className="flex items-center justify-between px-2 pt-1">
           <div className="flex items-center gap-2.5">
-            <div className="w-8 h-8 rounded-xl bg-white/10 border border-white/10 flex items-center justify-center shadow-sm">
-              <div className="w-3 h-3 rounded-sm bg-zinc-200" />
+            <div className="w-9 h-9 rounded-xl overflow-hidden border border-white/15 shadow-md shrink-0 bg-white/5">
+              <img
+                src="/logo.png"
+                alt="Expense Manager Logo"
+                className="w-full h-full object-cover"
+              />
             </div>
             <div>
               <span className="font-semibold tracking-wide text-sm text-white">Expense Manager</span>
