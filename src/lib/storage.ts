@@ -11,8 +11,10 @@ const KEYS = {
   SIMPLE_SAVINGS: 'expense_manager_simple_savings_v5',
   SETTINGS: 'expense_manager_settings_v5',
   IS_LOCKED: 'expense_manager_session_locked',
+  UNLOCKED_HASH: 'expense_manager_unlocked_hash',
   SYNC_PASSKEY: 'expense_manager_sync_passkey',
   LAST_SYNC: 'expense_manager_last_sync_time',
+  LAST_UPDATE: 'expense_manager_last_update_time',
 };
 
 // Automatic one-time wipe of old legacy sample data (v1..v4)
@@ -67,6 +69,23 @@ export function computeReminderStatus(dueDateStr: string, currentStatus: Payment
 }
 
 export const StorageService = {
+  markLocalUpdate(): string {
+    if (typeof window === 'undefined') return new Date().toISOString();
+    const now = new Date().toISOString();
+    localStorage.setItem(KEYS.LAST_UPDATE, now);
+    return now;
+  },
+
+  getLastUpdateTime(): string {
+    if (typeof window === 'undefined') return '1970-01-01T00:00:00.000Z';
+    return localStorage.getItem(KEYS.LAST_UPDATE) || '1970-01-01T00:00:00.000Z';
+  },
+
+  setLastUpdateTime(timeStr: string): void {
+    if (typeof window === 'undefined') return;
+    localStorage.setItem(KEYS.LAST_UPDATE, timeStr);
+  },
+
   // --- Transactions ---
   getTransactions(): Transaction[] {
     if (typeof window === 'undefined') return INITIAL_TRANSACTIONS;
@@ -85,6 +104,7 @@ export const StorageService = {
   saveTransactions(txs: Transaction[]): void {
     if (typeof window === 'undefined') return;
     localStorage.setItem(KEYS.TRANSACTIONS, JSON.stringify(txs));
+    this.markLocalUpdate();
   },
 
   addTransaction(tx: Omit<Transaction, 'id' | 'createdAt'>): Transaction {
@@ -164,6 +184,7 @@ export const StorageService = {
   saveReminders(reminders: PaymentReminder[]): void {
     if (typeof window === 'undefined') return;
     localStorage.setItem(KEYS.REMINDERS, JSON.stringify(reminders));
+    this.markLocalUpdate();
   },
 
   addReminder(rem: Omit<PaymentReminder, 'id' | 'status'>): PaymentReminder {
@@ -346,6 +367,7 @@ export const StorageService = {
   saveCategories(cats: Category[]): void {
     if (typeof window === 'undefined') return;
     localStorage.setItem(KEYS.CATEGORIES, JSON.stringify(cats));
+    this.markLocalUpdate();
   },
 
   addCategory(cat: Omit<Category, 'id'>): Category {
@@ -398,6 +420,7 @@ export const StorageService = {
   saveWallets(wallets: Wallet[]): void {
     if (typeof window === 'undefined') return;
     localStorage.setItem(KEYS.WALLETS, JSON.stringify(wallets));
+    this.markLocalUpdate();
   },
 
   updateWalletBalance(walletId: string, delta: number): void {
@@ -424,6 +447,7 @@ export const StorageService = {
   saveSavingsGoals(goals: SavingsGoal[]): void {
     if (typeof window === 'undefined') return;
     localStorage.setItem(KEYS.SAVINGS, JSON.stringify(goals));
+    this.markLocalUpdate();
   },
 
   addSavingsGoal(goal: Omit<SavingsGoal, 'id'>): SavingsGoal {
@@ -477,6 +501,7 @@ export const StorageService = {
   saveSimpleSavings(savings: SimpleSaving[]): void {
     if (typeof window === 'undefined') return;
     localStorage.setItem(KEYS.SIMPLE_SAVINGS, JSON.stringify(savings));
+    this.markLocalUpdate();
   },
 
   addSimpleSaving(saving: Omit<SimpleSaving, 'id' | 'createdAt'>): SimpleSaving {
@@ -524,18 +549,30 @@ export const StorageService = {
   saveSettings(settings: AppSettings): void {
     if (typeof window === 'undefined') return;
     localStorage.setItem(KEYS.SETTINGS, JSON.stringify(settings));
+    this.markLocalUpdate();
   },
 
   isSessionLocked(): boolean {
     if (typeof window === 'undefined') return false;
     const settings = this.getSettings();
     if (!settings.isLockEnabled || !settings.passcodeHash) return false;
-    return sessionStorage.getItem(KEYS.IS_LOCKED) !== 'false';
+    const unlockedHash = sessionStorage.getItem(KEYS.UNLOCKED_HASH);
+    const isExplicitlyUnlocked = sessionStorage.getItem(KEYS.IS_LOCKED) === 'false';
+    if (isExplicitlyUnlocked && unlockedHash === settings.passcodeHash) {
+      return false;
+    }
+    return true;
   },
 
-  setSessionLocked(locked: boolean): void {
+  setSessionLocked(locked: boolean, hash?: string): void {
     if (typeof window === 'undefined') return;
     sessionStorage.setItem(KEYS.IS_LOCKED, locked ? 'true' : 'false');
+    if (locked) {
+      sessionStorage.removeItem(KEYS.UNLOCKED_HASH);
+    } else {
+      const activeHash = hash || this.getSettings().passcodeHash || '';
+      sessionStorage.setItem(KEYS.UNLOCKED_HASH, activeHash);
+    }
   },
 
   exportBackup(): string {
@@ -605,19 +642,22 @@ export const StorageService = {
       savingsGoals: this.getSavingsGoals(),
       simpleSavings: this.getSimpleSavings(),
       settings: this.getSettings(),
-      updatedAt: new Date().toISOString(),
+      updatedAt: this.getLastUpdateTime(),
     };
   },
 
   importFullSnapshot(cloud: any): void {
     if (!cloud || typeof cloud !== 'object') return;
-    if (Array.isArray(cloud.transactions)) this.saveTransactions(cloud.transactions);
-    if (Array.isArray(cloud.reminders)) this.saveReminders(cloud.reminders);
-    if (Array.isArray(cloud.categories)) this.saveCategories(cloud.categories);
-    if (Array.isArray(cloud.wallets)) this.saveWallets(cloud.wallets);
-    if (Array.isArray(cloud.savingsGoals)) this.saveSavingsGoals(cloud.savingsGoals);
-    if (Array.isArray(cloud.simpleSavings)) this.saveSimpleSavings(cloud.simpleSavings);
-    if (cloud.settings) this.saveSettings(cloud.settings);
+    if (Array.isArray(cloud.transactions)) localStorage.setItem(KEYS.TRANSACTIONS, JSON.stringify(cloud.transactions));
+    if (Array.isArray(cloud.reminders)) localStorage.setItem(KEYS.REMINDERS, JSON.stringify(cloud.reminders));
+    if (Array.isArray(cloud.categories)) localStorage.setItem(KEYS.CATEGORIES, JSON.stringify(cloud.categories));
+    if (Array.isArray(cloud.wallets)) localStorage.setItem(KEYS.WALLETS, JSON.stringify(cloud.wallets));
+    if (Array.isArray(cloud.savingsGoals)) localStorage.setItem(KEYS.SAVINGS, JSON.stringify(cloud.savingsGoals));
+    if (Array.isArray(cloud.simpleSavings)) localStorage.setItem(KEYS.SIMPLE_SAVINGS, JSON.stringify(cloud.simpleSavings));
+    if (cloud.settings) localStorage.setItem(KEYS.SETTINGS, JSON.stringify(cloud.settings));
+    if (cloud.updatedAt) {
+      this.setLastUpdateTime(cloud.updatedAt);
+    }
   },
 
   async pushToCloud(passkey?: string): Promise<{ success: boolean; message: string; lastSyncedAt?: string }> {
@@ -680,6 +720,8 @@ export const StorageService = {
     localStorage.removeItem(KEYS.SIMPLE_SAVINGS);
     localStorage.setItem(KEYS.SETTINGS, JSON.stringify(DEFAULT_SETTINGS));
     sessionStorage.removeItem(KEYS.IS_LOCKED);
+    sessionStorage.removeItem(KEYS.UNLOCKED_HASH);
+    this.markLocalUpdate();
   },
 
   clearAllData(): void {

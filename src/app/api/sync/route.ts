@@ -108,7 +108,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const updatedAt = new Date().toISOString();
+    const updatedAt = data.updatedAt || new Date().toISOString();
     const payloadWithTime = { ...data, updatedAt };
 
     // 1. Save immediately to local disk cache

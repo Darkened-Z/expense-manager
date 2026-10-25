@@ -144,7 +144,7 @@ export async function pushToSupabase(payload: SyncPayload): Promise<{ success: b
   }
 
   try {
-    const updatedAt = new Date().toISOString();
+    const updatedAt = payload.updatedAt || new Date().toISOString();
     const cleanPayload = { ...payload, updatedAt };
 
     const { error } = await client

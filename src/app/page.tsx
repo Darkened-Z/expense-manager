@@ -49,6 +49,7 @@ export default function Home() {
   // Cloud Sync state
   const [cloudSyncStatus, setCloudSyncStatus] = useState<'synced' | 'syncing' | 'offline' | 'unconfigured' | 'error'>('unconfigured');
   const isInitialMount = useRef(true);
+  const isImportingRef = useRef(false);
 
   // Lock & Security
   const [isLocked, setIsLocked] = useState<boolean>(false);
@@ -61,6 +62,22 @@ export default function Home() {
   const [addReminderType, setAddReminderType] = useState<ReminderType>('receivable');
   const [editingReminder, setEditingReminder] = useState<PaymentReminder | null>(null);
 
+  // Helper function to push local data to both server /api/sync and Supabase
+  const pushAllSync = async (snapshot: any) => {
+    try {
+      await fetch('/api/sync', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ data: snapshot }),
+      });
+    } catch {}
+    if (isSupabaseConfigured()) {
+      try {
+        await pushToSupabase(snapshot);
+      } catch {}
+    }
+  };
+
   const reloadAllFromStorage = () => {
     setTransactions(StorageService.getTransactions());
     setReminders(StorageService.getReminders());
@@ -68,7 +85,17 @@ export default function Home() {
     setWallets(StorageService.getWallets());
     setSavingsGoals(StorageService.getSavingsGoals());
     setSimpleSavings(StorageService.getSimpleSavings());
-    setSettings(StorageService.getSettings());
+    const freshSettings = StorageService.getSettings();
+    setSettings(freshSettings);
+    if (freshSettings.isLockEnabled && freshSettings.passcodeHash) {
+      if (StorageService.isSessionLocked()) {
+        setIsLocked(true);
+      } else {
+        setIsLocked(false);
+      }
+    } else {
+      setIsLocked(false);
+    }
   };
 
   // Load state on mount & initialize Supabase Auto-Sync
@@ -100,22 +127,6 @@ export default function Home() {
       NotificationService.checkDueInvoicesAndNotify(StorageService.getReminders());
     }
 
-    // Helper function to push local data to both server /api/sync and Supabase
-    const pushAllSync = async (snapshot: any) => {
-      try {
-        await fetch('/api/sync', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ data: snapshot }),
-        });
-      } catch {}
-      if (isSupabaseConfigured()) {
-        try {
-          await pushToSupabase(snapshot);
-        } catch {}
-      }
-    };
-
     // Auto-fetch server config so mobile & all client devices connect instantly with 0 manual steps
     if (!isSupabaseConfigured()) {
       fetch('/api/sync/config')
@@ -135,7 +146,8 @@ export default function Home() {
         (localSnapshot.transactions?.length || 0) > 0 ||
         (localSnapshot.reminders?.length || 0) > 0 ||
         (localSnapshot.simpleSavings?.length || 0) > 0 ||
-        (localSnapshot.wallets || []).some((w: any) => (w.balance || 0) !== 0);
+        (localSnapshot.wallets || []).some((w: any) => (w.balance || 0) !== 0) ||
+        Boolean(localSnapshot.settings?.passcodeHash);
 
       setCloudSyncStatus('syncing');
 
@@ -166,11 +178,13 @@ export default function Home() {
         (remotePayload.transactions?.length || 0) > 0 ||
         (remotePayload.reminders?.length || 0) > 0 ||
         (remotePayload.simpleSavings?.length || 0) > 0 ||
-        (remotePayload.wallets || []).some((w: any) => (w.balance || 0) !== 0)
+        (remotePayload.wallets || []).some((w: any) => (w.balance || 0) !== 0) ||
+        Boolean(remotePayload.settings?.passcodeHash)
       );
 
       if (!hasLocalData && remoteHasData) {
         // Fresh device (e.g. Phone!): import remote snapshot immediately!
+        isImportingRef.current = true;
         StorageService.importFullSnapshot(remotePayload);
         reloadAllFromStorage();
         setCloudSyncStatus('synced');
@@ -180,12 +194,13 @@ export default function Home() {
         setCloudSyncStatus('synced');
       } else if (hasLocalData && remoteHasData) {
         // Both have data: adopt the newer snapshot or sync
-        const remoteTime = new Date(remoteLastSyncedAt || 0).getTime();
+        const remoteTime = new Date(remoteLastSyncedAt || remotePayload.updatedAt || 0).getTime();
         const localTime = new Date(localSnapshot.updatedAt || 0).getTime();
         if (remoteTime > localTime) {
+          isImportingRef.current = true;
           StorageService.importFullSnapshot(remotePayload);
           reloadAllFromStorage();
-        } else {
+        } else if (localTime > remoteTime) {
           await pushAllSync(localSnapshot);
         }
         setCloudSyncStatus('synced');
@@ -201,6 +216,7 @@ export default function Home() {
     let unsubscribeSync: (() => void) | null = null;
     if (isSupabaseConfigured()) {
       unsubscribeSync = subscribeToSupabaseUpdates((cloudPayload) => {
+        isImportingRef.current = true;
         StorageService.importFullSnapshot(cloudPayload);
         reloadAllFromStorage();
         setCloudSyncStatus('synced');
@@ -234,6 +250,10 @@ export default function Home() {
   useEffect(() => {
     if (isInitialMount.current) {
       isInitialMount.current = false;
+      return;
+    }
+    if (isImportingRef.current) {
+      isImportingRef.current = false;
       return;
     }
 
@@ -311,18 +331,22 @@ export default function Home() {
 
   const handleUnlockSuccess = () => {
     setIsLocked(false);
-    StorageService.setSessionLocked(false);
+    StorageService.setSessionLocked(false, settings?.passcodeHash || undefined);
   };
 
-  const handleSetPasscodeSuccess = (newHash?: string) => {
+  const handleSetPasscodeSuccess = async (newHash?: string) => {
     if (newHash) {
       const updated = {
         ...settings,
         passcodeHash: newHash,
         isLockEnabled: true,
       };
-      setSettings(updated);
       StorageService.saveSettings(updated);
+      setSettings(updated);
+      StorageService.setSessionLocked(false, newHash);
+      setIsLocked(false);
+      const snap = StorageService.getFullSnapshot();
+      await pushAllSync(snap);
     }
     setShowPasscodeSetup(false);
   };
@@ -454,10 +478,18 @@ export default function Home() {
     setSimpleSavings(StorageService.getSimpleSavings());
   };
 
-  const handleUpdateSettings = (updates: Partial<AppSettings>) => {
+  const handleUpdateSettings = async (updates: Partial<AppSettings>) => {
     const updated = { ...settings, ...updates };
-    setSettings(updated);
     StorageService.saveSettings(updated);
+    setSettings(updated);
+    if (updates.isLockEnabled === false) {
+      setIsLocked(false);
+      StorageService.setSessionLocked(false);
+    } else if (updates.isLockEnabled === true) {
+      StorageService.setSessionLocked(false, updated.passcodeHash || undefined);
+    }
+    const snap = StorageService.getFullSnapshot();
+    await pushAllSync(snap);
   };
 
   const handleExportBackup = () => {
