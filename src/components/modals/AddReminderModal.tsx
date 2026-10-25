@@ -44,7 +44,6 @@ export const AddReminderModal: React.FC<AddReminderModalProps> = ({
   const [clientPhone, setClientPhone] = useState('');
   const [projectTitle, setProjectTitle] = useState('');
   const [invoiceNumber, setInvoiceNumber] = useState('');
-  const [categoryId, setCategoryId] = useState('');
   const [amount, setAmount] = useState('');
   const [currency, setCurrency] = useState('PKR');
   const [frequency, setFrequency] = useState<'once' | 'monthly'>('once');
@@ -74,12 +73,10 @@ export const AddReminderModal: React.FC<AddReminderModalProps> = ({
       setClientEmail('');
       setClientPhone('');
       setProjectTitle('');
-      setInvoiceNumber(`INV-${new Date().getFullYear()}-${Math.floor(10 + Math.random() * 90)}`);
+      setInvoiceNumber(initialType === 'payable' ? `PAY-${new Date().getFullYear()}-${Math.floor(10 + Math.random() * 90)}` : `INV-${new Date().getFullYear()}-${Math.floor(10 + Math.random() * 90)}`);
       setAmount('');
       setCurrency('PKR');
       setFrequency(initialType === 'payable' ? 'monthly' : 'once');
-      const expCat = categories.find((c) => c.type === 'expense');
-      setCategoryId(expCat?.id || '');
       setInvoiceDate(todayStr);
       setDueDate(dueStr);
       setReminderDate(remStr);
@@ -132,7 +129,6 @@ export const AddReminderModal: React.FC<AddReminderModalProps> = ({
       amount: parsedAmount,
       currency,
       token: currency,
-      categoryId: type === 'payable' ? categoryId : undefined,
       frequency,
       invoiceDate: invoiceDate || new Date().toISOString().split('T')[0],
       dueDate,
@@ -152,7 +148,7 @@ export const AddReminderModal: React.FC<AddReminderModalProps> = ({
               <Clock className="w-4 h-4" />
             </div>
             <h2 className="text-base font-bold text-white tracking-wide">
-              {type === 'payable' ? 'New Constant Expense / Salary Reminder' : 'New Client Invoice & Payment Reminder'}
+              {type === 'payable' ? 'New Payable Due Date' : 'New Client Invoice Due Date'}
             </h2>
           </div>
           <button onClick={onClose} className="p-1 rounded-lg text-zinc-500 hover:text-white transition-colors">
@@ -245,23 +241,6 @@ export const AddReminderModal: React.FC<AddReminderModalProps> = ({
             />
           </div>
 
-          {/* Expense Category (if payable) */}
-          {type === 'payable' && categories.length > 0 && (
-            <div>
-              <label className="block text-[11px] font-medium text-zinc-400 mb-1">Expense Category</label>
-              <select
-                value={categoryId}
-                onChange={(e) => setCategoryId(e.target.value)}
-                className="w-full bg-[#171922] text-white text-xs px-3.5 py-2.5 rounded-xl border border-white/10 focus:outline-none focus:border-white/30"
-              >
-                {categories.filter((c) => c.type === 'expense').map((cat) => (
-                  <option key={cat.id} value={cat.id}>
-                    {cat.name}
-                  </option>
-                ))}
-              </select>
-            </div>
-          )}
 
           {/* Amount & Currency */}
           <div className="grid grid-cols-3 gap-3">
@@ -357,7 +336,7 @@ export const AddReminderModal: React.FC<AddReminderModalProps> = ({
                 required
               />
               <span className="text-[10px] text-zinc-500 mt-0.5 block">
-                {type === 'payable' ? 'When payment must be disbursed' : 'When payment is expected'}
+                {type === 'payable' ? 'When payment is scheduled to be paid' : 'When payment is expected'}
               </span>
             </div>
 

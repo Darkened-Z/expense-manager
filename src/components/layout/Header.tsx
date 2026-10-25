@@ -73,7 +73,7 @@ export const Header: React.FC<HeaderProps> = ({
       case 'reminders':
         return { title: 'Cash Receivable', sub: 'Client invoices, milestones & incoming retainers' };
       case 'payables':
-        return { title: 'Cash Payable', sub: 'Salaries, rent & must-pay recurring obligations' };
+        return { title: 'Cash Payable', sub: 'Salaries, rent, utilities & vendor bills' };
       case 'savings':
         return { title: 'Savings & Goals', sub: 'Dedicated reserve targets & fund allocation' };
       case 'wallets':

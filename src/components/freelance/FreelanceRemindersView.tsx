@@ -176,7 +176,7 @@ export const FreelanceRemindersView: React.FC<FreelanceRemindersViewProps> = ({
           </h2>
           <p className="text-xs text-zinc-400">
             {isPayablesMode
-              ? 'Track salaries, rent, vendor bills, and must-pay recurring obligations'
+              ? 'Track salaries, rent, vendor bills, and outgoing payables'
               : 'Track client invoices, milestones, and incoming retainers'}
           </p>
         </div>
@@ -200,7 +200,7 @@ export const FreelanceRemindersView: React.FC<FreelanceRemindersViewProps> = ({
             {currencySymbol}{formatCash(totalPending)}
           </div>
           <div className="text-[11px] text-zinc-500 mt-1">
-            Across {activeCount} active {isPayablesMode ? 'obligations' : 'receivables'}
+            Across {activeCount} active {isPayablesMode ? 'payables' : 'receivables'}
           </div>
         </div>
 
@@ -213,7 +213,7 @@ export const FreelanceRemindersView: React.FC<FreelanceRemindersViewProps> = ({
             {currencySymbol}{formatCash(totalSettled)}
           </div>
           <div className="text-[11px] text-zinc-500 mt-1">
-            Across {settledCount} {isPayablesMode ? 'disbursed payments' : 'settled payments'}
+            Across {settledCount} {isPayablesMode ? 'paid records' : 'collected records'}
           </div>
         </div>
 
@@ -242,7 +242,7 @@ export const FreelanceRemindersView: React.FC<FreelanceRemindersViewProps> = ({
             {baseReminders.length}
           </div>
           <div className="text-[11px] text-zinc-500 mt-1">
-            {isPayablesMode ? 'Salaries, bills & recurring expenses' : 'Client milestones & retainers'}
+            {isPayablesMode ? 'Salaries, bills & vendor obligations' : 'Client milestones & retainers'}
           </div>
         </div>
       </div>
@@ -311,8 +311,8 @@ export const FreelanceRemindersView: React.FC<FreelanceRemindersViewProps> = ({
             <div className="py-16 text-center text-zinc-500 text-xs">
               <CheckCircle2 className="w-8 h-8 mx-auto text-emerald-500/80 mb-2" />
               {isPayablesMode
-                ? "No payable obligations in this view. You're completely up to date!"
-                : "No invoices in this category. You're completely up to date!"}
+                ? "No payable records in this view. You're completely up to date!"
+                : "No receivable records in this view. You're completely up to date!"}
             </div>
           ) : (
             filteredList.map((rem) => {
