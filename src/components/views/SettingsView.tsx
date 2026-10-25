@@ -22,9 +22,22 @@ import {
   Smartphone,
   Laptop,
   HardDrive,
+  Database,
+  ExternalLink,
+  Code,
+  Sparkles,
+  CheckCircle2,
 } from 'lucide-react';
 import { AppSettings } from '@/types';
 import { StorageService } from '@/lib/storage';
+import {
+  getSupabaseConfig,
+  saveSupabaseConfig,
+  isSupabaseConfigured,
+  testSupabaseConnection,
+  pushToSupabase,
+  pullFromSupabase,
+} from '@/lib/supabase';
 
 interface SettingsViewProps {
   settings: AppSettings;
@@ -53,8 +66,16 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
   const [currencyCode, setCurrencyCode] = useState(settings.currencyCode);
   const [savedSuccess, setSavedSuccess] = useState(false);
 
-  // Cloud Sync state
-  const [syncKey, setSyncKey] = useState('');
+  // Supabase Cloud Sync state
+  const [supabaseUrl, setSupabaseUrl] = useState('');
+  const [supabaseAnonKey, setSupabaseAnonKey] = useState('');
+  const [supabaseVaultId, setSupabaseVaultId] = useState('main');
+  const [isConfigured, setIsConfigured] = useState(false);
+  const [isTesting, setIsTesting] = useState(false);
+  const [testResult, setTestResult] = useState<{ success: boolean; message: string } | null>(null);
+  const [showSqlGuide, setShowSqlGuide] = useState(false);
+  const [copiedSql, setCopiedSql] = useState(false);
+  const [copiedMobileLink, setCopiedMobileLink] = useState(false);
   const [syncStatus, setSyncStatus] = useState<string | null>(null);
   const [isSyncing, setIsSyncing] = useState(false);
   const [lastSyncTime, setLastSyncTime] = useState<string | null>(null);
@@ -70,48 +91,86 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
 
   React.useEffect(() => {
     if (typeof window !== 'undefined') {
-      setSyncKey(StorageService.getSyncPasskey());
+      const config = getSupabaseConfig();
+      setSupabaseUrl(config.url);
+      setSupabaseAnonKey(config.anonKey);
+      setSupabaseVaultId(config.vaultId);
+      setIsConfigured(isSupabaseConfigured());
       setLastSyncTime(StorageService.getLastSyncTime());
       setStorageStats(StorageService.getStorageStats());
     }
   }, []);
 
-  const handleGenerateKey = () => {
-    const randomKey = 'SYNC-' + Math.random().toString(36).substring(2, 8).toUpperCase();
-    setSyncKey(randomKey);
-    StorageService.setSyncPasskey(randomKey);
-    setSyncStatus('Generated new passkey. Tap "Push to Cloud" to initialize vault.');
+  const handleSaveSupabase = async () => {
+    saveSupabaseConfig({
+      url: supabaseUrl.trim(),
+      anonKey: supabaseAnonKey.trim(),
+      vaultId: supabaseVaultId.trim() || 'main',
+    });
+    setIsConfigured(isSupabaseConfigured());
+    await handleTestConnection();
+    if (onSyncComplete) onSyncComplete();
   };
 
-  const handlePushCloud = async () => {
-    if (!syncKey.trim()) {
-      setSyncStatus('Please enter or generate a Sync Passkey first.');
-      return;
-    }
-    setIsSyncing(true);
-    setSyncStatus('Backing up data to cloud vault...');
-    const res = await StorageService.pushToCloud(syncKey);
-    setIsSyncing(false);
-    setSyncStatus(res.message);
-    if (res.success && res.lastSyncedAt) {
-      setLastSyncTime(res.lastSyncedAt);
-    }
+  const handleTestConnection = async () => {
+    setIsTesting(true);
+    setTestResult(null);
+    const res = await testSupabaseConnection({
+      url: supabaseUrl.trim(),
+      anonKey: supabaseAnonKey.trim(),
+      vaultId: supabaseVaultId.trim() || 'main',
+    });
+    setIsTesting(false);
+    setTestResult(res);
   };
 
-  const handlePullCloud = async () => {
-    if (!syncKey.trim()) {
-      setSyncStatus('Please enter your Sync Passkey to pull.');
-      return;
-    }
+  const handlePushSupabase = async () => {
     setIsSyncing(true);
-    setSyncStatus('Fetching data from cloud vault...');
-    const res = await StorageService.pullFromCloud(syncKey);
+    setSyncStatus('Pushing snapshot to Supabase...');
+    const res = await pushToSupabase(StorageService.getFullSnapshot());
     setIsSyncing(false);
     setSyncStatus(res.message);
-    if (res.success) {
+    if (res.lastSyncedAt) setLastSyncTime(res.lastSyncedAt);
+  };
+
+  const handlePullSupabase = async () => {
+    setIsSyncing(true);
+    setSyncStatus('Pulling latest snapshot from Supabase...');
+    const res = await pullFromSupabase();
+    setIsSyncing(false);
+    setSyncStatus(res.message);
+    if (res.success && res.data) {
+      StorageService.importFullSnapshot(res.data);
       if (res.lastSyncedAt) setLastSyncTime(res.lastSyncedAt);
       if (onSyncComplete) onSyncComplete();
     }
+  };
+
+  const handleCopySql = () => {
+    const sql = `-- Run this in Supabase SQL Editor:
+create table if not exists expense_sync (
+  id text primary key,
+  data jsonb not null,
+  updated_at timestamptz default now()
+);
+
+alter table expense_sync enable row level security;
+
+create policy "Allow anon access" on expense_sync
+  for all
+  using (true)
+  with check (true);`;
+    navigator.clipboard.writeText(sql);
+    setCopiedSql(true);
+    setTimeout(() => setCopiedSql(false), 2500);
+  };
+
+  const handleCopyMobileLink = () => {
+    if (typeof window === 'undefined') return;
+    const url = `${window.location.origin}/?supabase_url=${encodeURIComponent(supabaseUrl)}&supabase_key=${encodeURIComponent(supabaseAnonKey)}&vault=${encodeURIComponent(supabaseVaultId)}`;
+    navigator.clipboard.writeText(url);
+    setCopiedMobileLink(true);
+    setTimeout(() => setCopiedMobileLink(false), 3000);
   };
 
   const handleSaveProfile = (e: React.FormEvent) => {
@@ -395,75 +454,163 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
         </div>
       </div>
 
-      {/* Cross-Device Cloud Sync Section */}
-      <div className="bg-[#12141a] border border-white/5 rounded-2xl p-6 shadow-xl space-y-4">
-        <div className="flex items-center justify-between border-b border-white/5 pb-4">
+      {/* Cross-Device Cloud Sync Section (Supabase) */}
+      <div className="bg-[#12141a] border border-white/5 rounded-2xl p-6 shadow-xl space-y-5">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between border-b border-white/5 pb-4 gap-3">
           <div className="flex items-center gap-3">
             <div className="p-2.5 rounded-xl bg-white/5 text-zinc-300 border border-white/5">
-              <Cloud className="w-5 h-5" />
+              <Database className="w-5 h-5 text-emerald-400" />
             </div>
             <div>
-              <h3 className="font-bold text-white text-sm">Cross-Device Cloud Sync</h3>
-              <p className="text-xs text-zinc-400">Sync all transactions, wallets, and invoices seamlessly between PC & Phone</p>
+              <div className="flex items-center gap-2">
+                <h3 className="font-bold text-white text-sm">Cross-Device Cloud Sync (Supabase)</h3>
+                <span className="text-[10px] bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 px-2 py-0.5 rounded-full font-medium">
+                  Real-time
+                </span>
+              </div>
+              <p className="text-xs text-zinc-400 mt-0.5">
+                Automatic, real-time background sync. Any changes on PC or phone sync seamlessly without manual pushes.
+              </p>
             </div>
           </div>
-          {lastSyncTime && (
-            <span className="hidden sm:inline-block text-[11px] font-mono text-zinc-400 bg-white/5 px-2.5 py-1 rounded-lg border border-white/5">
-              Last synced: {new Date(lastSyncTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-            </span>
-          )}
+          <div className="flex items-center gap-2 self-start sm:self-auto">
+            {isConfigured ? (
+              <span className="inline-flex items-center gap-1.5 text-xs font-medium text-emerald-400 bg-emerald-500/10 border border-emerald-500/20 px-3 py-1 rounded-full">
+                <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
+                <span>Auto-Sync Active</span>
+              </span>
+            ) : (
+              <span className="inline-flex items-center gap-1.5 text-xs font-medium text-zinc-400 bg-white/5 border border-white/5 px-3 py-1 rounded-full">
+                <span>Local Mode (Offline)</span>
+              </span>
+            )}
+            {lastSyncTime && (
+              <span className="text-[11px] font-mono text-zinc-400 bg-white/5 px-2.5 py-1 rounded-lg border border-white/5">
+                {new Date(lastSyncTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+              </span>
+            )}
+          </div>
         </div>
 
         <div className="space-y-4">
-          <div>
-            <label className="block text-[11px] font-medium text-zinc-400 mb-1">
-              Your Private Sync Passkey
-            </label>
-            <div className="flex items-center gap-2">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <div>
+              <label className="block text-[11px] font-medium text-zinc-400 mb-1">
+                Supabase Project URL
+              </label>
               <input
                 type="text"
-                placeholder="e.g. SYNC-849201"
-                value={syncKey}
-                onChange={(e) => {
-                  setSyncKey(e.target.value.toUpperCase());
-                  StorageService.setSyncPasskey(e.target.value);
-                }}
-                className="flex-1 bg-[#161821] text-white font-mono text-xs px-3.5 py-2.5 rounded-xl border border-white/10 focus:outline-none focus:border-white/30 uppercase tracking-wider"
+                placeholder="https://your-project.supabase.co"
+                value={supabaseUrl}
+                onChange={(e) => setSupabaseUrl(e.target.value)}
+                className="w-full bg-[#161821] text-white font-mono text-xs px-3.5 py-2.5 rounded-xl border border-white/10 focus:outline-none focus:border-white/30"
               />
-              <button
-                type="button"
-                onClick={handleGenerateKey}
-                className="px-3 py-2.5 rounded-xl text-xs font-medium text-zinc-300 bg-white/5 hover:bg-white/10 border border-white/10 transition-colors whitespace-nowrap cursor-pointer"
-              >
-                Generate
-              </button>
             </div>
-            <p className="text-[11px] text-zinc-500 mt-1">
-              Enter this identical passkey on your PC and your phone to share the same vault.
+
+            <div>
+              <label className="block text-[11px] font-medium text-zinc-400 mb-1">
+                Supabase Anon / Public Key
+              </label>
+              <input
+                type="password"
+                placeholder="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+                value={supabaseAnonKey}
+                onChange={(e) => setSupabaseAnonKey(e.target.value)}
+                className="w-full bg-[#161821] text-white font-mono text-xs px-3.5 py-2.5 rounded-xl border border-white/10 focus:outline-none focus:border-white/30"
+              />
+            </div>
+          </div>
+
+          <div>
+            <label className="block text-[11px] font-medium text-zinc-400 mb-1">
+              Vault ID (Multi-Profile / Workspace)
+            </label>
+            <input
+              type="text"
+              placeholder="main"
+              value={supabaseVaultId}
+              onChange={(e) => setSupabaseVaultId(e.target.value)}
+              className="w-full sm:w-1/2 bg-[#161821] text-white font-mono text-xs px-3.5 py-2.5 rounded-xl border border-white/10 focus:outline-none focus:border-white/30"
+            />
+            <p className="text-[10px] text-zinc-500 mt-1">
+              Default is &quot;main&quot;. Use the exact same Vault ID on your phone to access the same financial workspace.
             </p>
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1">
+          {/* Test & Save buttons */}
+          <div className="flex flex-wrap items-center gap-2 pt-1">
             <button
               type="button"
-              onClick={handlePushCloud}
-              disabled={isSyncing}
-              className="p-3.5 rounded-xl bg-[#161821] hover:bg-[#1f222e] border border-white/10 flex items-center justify-center gap-2 text-xs font-semibold text-zinc-200 transition-colors cursor-pointer disabled:opacity-50"
+              onClick={handleSaveSupabase}
+              className="px-4 py-2.5 rounded-xl text-xs font-semibold text-zinc-950 bg-zinc-100 hover:bg-white transition-colors cursor-pointer shadow-sm flex items-center gap-1.5"
             >
-              <CloudUpload className="w-4 h-4 text-zinc-300" />
-              <span>Push to Cloud (Backup)</span>
+              <Check className="w-3.5 h-3.5" />
+              <span>Save & Connect</span>
             </button>
 
             <button
               type="button"
-              onClick={handlePullCloud}
-              disabled={isSyncing}
-              className="p-3.5 rounded-xl bg-zinc-100 hover:bg-white border border-white/10 flex items-center justify-center gap-2 text-xs font-semibold text-zinc-950 transition-colors cursor-pointer disabled:opacity-50"
+              onClick={handleTestConnection}
+              disabled={isTesting}
+              className="px-4 py-2.5 rounded-xl text-xs font-semibold text-zinc-200 bg-[#181b23] hover:bg-[#20242f] border border-white/10 transition-colors cursor-pointer flex items-center gap-1.5 disabled:opacity-50"
             >
-              <CloudDownload className="w-4 h-4 text-zinc-950" />
-              <span>Pull from Cloud (Restore)</span>
+              {isTesting ? <RefreshCw className="w-3.5 h-3.5 animate-spin" /> : <Sparkles className="w-3.5 h-3.5 text-amber-400" />}
+              <span>{isTesting ? 'Testing...' : 'Test Connection'}</span>
             </button>
+
+            {isConfigured && (
+              <>
+                <button
+                  type="button"
+                  onClick={handlePullSupabase}
+                  disabled={isSyncing}
+                  className="px-3.5 py-2.5 rounded-xl text-xs font-medium text-zinc-300 bg-white/5 hover:bg-white/10 border border-white/10 transition-colors cursor-pointer flex items-center gap-1.5 disabled:opacity-50"
+                  title="Force pull latest data from Supabase immediately"
+                >
+                  <CloudDownload className="w-3.5 h-3.5" />
+                  <span>Pull Now</span>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={handlePushSupabase}
+                  disabled={isSyncing}
+                  className="px-3.5 py-2.5 rounded-xl text-xs font-medium text-zinc-300 bg-white/5 hover:bg-white/10 border border-white/10 transition-colors cursor-pointer flex items-center gap-1.5 disabled:opacity-50"
+                  title="Force push current data to Supabase immediately"
+                >
+                  <CloudUpload className="w-3.5 h-3.5" />
+                  <span>Push Now</span>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={handleCopyMobileLink}
+                  className="px-3.5 py-2.5 rounded-xl text-xs font-medium text-emerald-400 bg-emerald-500/10 hover:bg-emerald-500/15 border border-emerald-500/20 transition-colors cursor-pointer flex items-center gap-1.5"
+                >
+                  {copiedMobileLink ? <Check className="w-3.5 h-3.5" /> : <Smartphone className="w-3.5 h-3.5" />}
+                  <span>{copiedMobileLink ? 'Copied Mobile Setup Link!' : 'Copy Mobile Setup Link'}</span>
+                </button>
+              </>
+            )}
           </div>
+
+          {/* Test connection feedback */}
+          {testResult && (
+            <div
+              className={`p-3 rounded-xl border text-xs flex items-center gap-2 ${
+                testResult.success
+                  ? 'bg-emerald-500/10 border-emerald-500/20 text-emerald-300'
+                  : 'bg-rose-500/10 border-rose-500/20 text-rose-300'
+              }`}
+            >
+              {testResult.success ? (
+                <CheckCircle2 className="w-4 h-4 shrink-0 text-emerald-400" />
+              ) : (
+                <AlertTriangle className="w-4 h-4 shrink-0 text-rose-400" />
+              )}
+              <span>{testResult.message}</span>
+            </div>
+          )}
 
           {syncStatus && (
             <div className="p-3 rounded-xl bg-white/[0.04] border border-white/10 text-xs text-zinc-300 flex items-center gap-2">
@@ -472,16 +619,54 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
             </div>
           )}
 
-          <div className="p-3 rounded-xl bg-[#161821] border border-white/5 text-[11px] text-zinc-400 flex items-start gap-2.5">
-            <Smartphone className="w-4 h-4 text-zinc-400 shrink-0 mt-0.5" />
-            <div>
-              <span className="font-semibold text-white">How to connect your phone:</span>
-              <ol className="list-decimal list-inside space-y-0.5 mt-1 text-zinc-400">
-                <li>Generate or enter your Sync Passkey above on PC and click <strong>Push to Cloud</strong>.</li>
-                <li>Open the app on your Phone browser, go to Settings &rarr; Cloud Sync.</li>
-                <li>Enter the exact same Passkey and tap <strong>Pull from Cloud</strong>.</li>
-              </ol>
+          {/* Collapsible Supabase SQL Setup Helper */}
+          <div className="p-3.5 rounded-xl bg-[#161821] border border-white/5 space-y-2">
+            <div className="flex items-center justify-between">
+              <button
+                type="button"
+                onClick={() => setShowSqlGuide(!showSqlGuide)}
+                className="text-xs font-semibold text-white flex items-center gap-1.5 hover:text-emerald-400 transition-colors cursor-pointer"
+              >
+                <Code className="w-3.5 h-3.5 text-emerald-400" />
+                <span>1-Minute Supabase Database Setup Guide {showSqlGuide ? '▲' : '▼'}</span>
+              </button>
+              <button
+                type="button"
+                onClick={handleCopySql}
+                className="text-[11px] font-medium text-zinc-300 hover:text-white bg-white/5 hover:bg-white/10 px-2.5 py-1 rounded-lg border border-white/10 flex items-center gap-1 transition-colors cursor-pointer"
+              >
+                {copiedSql ? <Check className="w-3 h-3 text-emerald-400" /> : <Copy className="w-3 h-3" />}
+                <span>{copiedSql ? 'Copied SQL!' : 'Copy SQL Script'}</span>
+              </button>
             </div>
+
+            {showSqlGuide && (
+              <div className="pt-2 text-xs text-zinc-400 space-y-2">
+                <ol className="list-decimal list-inside space-y-1">
+                  <li>Create a free account or project at <a href="https://supabase.com" target="_blank" rel="noopener noreferrer" className="text-emerald-400 hover:underline">supabase.com</a>.</li>
+                  <li>In your Supabase dashboard, click <strong>SQL Editor</strong> on the left.</li>
+                  <li>Click <strong>New Query</strong>, paste the script below, and click <strong>Run</strong>:</li>
+                </ol>
+                <pre className="p-3 rounded-xl bg-[#0b0c0f] border border-white/5 text-[11px] text-zinc-300 font-mono overflow-x-auto select-all">
+{`-- Run once in Supabase SQL Editor:
+create table if not exists expense_sync (
+  id text primary key,
+  data jsonb not null,
+  updated_at timestamptz default now()
+);
+
+alter table expense_sync enable row level security;
+
+create policy "Allow anon access" on expense_sync
+  for all
+  using (true)
+  with check (true);`}
+                </pre>
+                <p className="text-[11px] text-zinc-500">
+                  4. Go to <strong>Project Settings &rarr; API</strong>, copy your <strong>Project URL</strong> and <strong>anon public key</strong>, and paste them into the fields above.
+                </p>
+              </div>
+            )}
           </div>
         </div>
       </div>

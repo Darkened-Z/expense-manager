@@ -14,6 +14,8 @@ import {
   X,
   Menu,
   Cloud,
+  CloudOff,
+  RefreshCw,
 } from 'lucide-react';
 import { Wallet, PaymentReminder } from '@/types';
 import { formatDateDDMMYYYY, formatCash } from '@/lib/formatters';
@@ -27,6 +29,8 @@ interface HeaderProps {
   setDateRange: (range: any) => void;
   reminders: PaymentReminder[];
   currencySymbol?: string;
+  cloudSyncStatus?: 'synced' | 'syncing' | 'offline' | 'unconfigured' | 'error';
+  onOpenSyncSettings?: () => void;
   onOpenAddTx: (type: 'expense' | 'income') => void;
   onOpenAddReminder: () => void;
   onCollectReminder: (id: string) => void;
@@ -43,6 +47,8 @@ export const Header: React.FC<HeaderProps> = ({
   setDateRange,
   reminders,
   currencySymbol = 'Rs. ',
+  cloudSyncStatus = 'unconfigured',
+  onOpenSyncSettings,
   onOpenAddTx,
   onOpenAddReminder,
   onCollectReminder,
@@ -216,6 +222,37 @@ export const Header: React.FC<HeaderProps> = ({
               </div>
             )}
           </div>
+
+          {/* Cloud Auto-Sync Indicator */}
+          {onOpenSyncSettings && (
+            <button
+              onClick={onOpenSyncSettings}
+              className="flex items-center gap-1.5 bg-[#14161d] hover:bg-[#1a1d26] border border-white/10 px-2.5 py-1.5 rounded-xl text-xs font-medium transition-colors cursor-pointer"
+              title={
+                cloudSyncStatus === 'synced'
+                  ? 'Cloud Auto-Sync Active (Live with Supabase)'
+                  : cloudSyncStatus === 'syncing'
+                  ? 'Syncing changes to Supabase in background...'
+                  : cloudSyncStatus === 'error'
+                  ? 'Cloud sync issue. Click to check Supabase settings.'
+                  : 'Cloud sync not configured. Click to connect Supabase.'
+              }
+            >
+              {cloudSyncStatus === 'synced' && <Cloud className="w-3.5 h-3.5 text-emerald-400" />}
+              {cloudSyncStatus === 'syncing' && <RefreshCw className="w-3.5 h-3.5 text-amber-400 animate-spin" />}
+              {cloudSyncStatus === 'error' && <CloudOff className="w-3.5 h-3.5 text-rose-400" />}
+              {(!cloudSyncStatus || cloudSyncStatus === 'unconfigured') && <CloudOff className="w-3.5 h-3.5 text-zinc-500" />}
+              <span className="hidden md:inline text-[11px] font-medium text-zinc-300">
+                {cloudSyncStatus === 'synced'
+                  ? 'Live Sync'
+                  : cloudSyncStatus === 'syncing'
+                  ? 'Syncing'
+                  : cloudSyncStatus === 'error'
+                  ? 'Sync Issue'
+                  : 'Sync Off'}
+              </span>
+            </button>
+          )}
 
           {/* Notification Bell Dropdown */}
           <div className="relative">

@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Sidebar } from '@/components/layout/Sidebar';
 import { Header } from '@/components/layout/Header';
 import { MetricsBar } from '@/components/dashboard/MetricsBar';
@@ -21,6 +21,13 @@ import { StorageService } from '@/lib/storage';
 import { NotificationService } from '@/lib/notifications';
 import { PwaInstallPrompt } from '@/components/pwa/PwaInstallPrompt';
 import { Transaction, PaymentReminder, Category, Wallet, AppSettings, TransactionType, SavingsGoal, ReminderType, SimpleSaving } from '@/types';
+import {
+  isSupabaseConfigured,
+  pushToSupabase,
+  pullFromSupabase,
+  subscribeToSupabaseUpdates,
+  saveSupabaseConfig,
+} from '@/lib/supabase';
 
 export default function Home() {
   const [mounted, setMounted] = useState(false);
@@ -39,6 +46,10 @@ export default function Home() {
   const [searchQuery, setSearchQuery] = useState<string>('');
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState<boolean>(false);
 
+  // Cloud Sync state
+  const [cloudSyncStatus, setCloudSyncStatus] = useState<'synced' | 'syncing' | 'offline' | 'unconfigured' | 'error'>('unconfigured');
+  const isInitialMount = useRef(true);
+
   // Lock & Security
   const [isLocked, setIsLocked] = useState<boolean>(false);
   const [showPasscodeSetup, setShowPasscodeSetup] = useState<boolean>(false);
@@ -48,32 +59,109 @@ export default function Home() {
   const [showAddReminderModal, setShowAddReminderModal] = useState<boolean>(false);
   const [addReminderType, setAddReminderType] = useState<ReminderType>('receivable');
 
-  // Load state on mount
-  useEffect(() => {
-    StorageService.syncFutureCollectedDates();
-    const txs = StorageService.getTransactions();
-    const rems = StorageService.getReminders();
-    const cats = StorageService.getCategories();
-    const wals = StorageService.getWallets();
-    const saves = StorageService.getSavingsGoals();
-    const simples = StorageService.getSimpleSavings();
-    const sets = StorageService.getSettings();
-    const locked = StorageService.isSessionLocked();
+  const reloadAllFromStorage = () => {
+    setTransactions(StorageService.getTransactions());
+    setReminders(StorageService.getReminders());
+    setCategories(StorageService.getCategories());
+    setWallets(StorageService.getWallets());
+    setSavingsGoals(StorageService.getSavingsGoals());
+    setSimpleSavings(StorageService.getSimpleSavings());
+    setSettings(StorageService.getSettings());
+  };
 
-    setTransactions(txs);
-    setReminders(rems);
-    setCategories(cats);
-    setWallets(wals);
-    setSavingsGoals(saves);
-    setSimpleSavings(simples);
-    setSettings(sets);
+  // Load state on mount & initialize Supabase Auto-Sync
+  useEffect(() => {
+    // Check if mobile setup URL parameters exist (?supabase_url=...&supabase_key=...&vault=...)
+    if (typeof window !== 'undefined') {
+      const urlParams = new URLSearchParams(window.location.search);
+      const urlParam = urlParams.get('supabase_url');
+      const keyParam = urlParams.get('supabase_key');
+      const vaultParam = urlParams.get('vault');
+      if (urlParam && keyParam) {
+        saveSupabaseConfig({
+          url: decodeURIComponent(urlParam),
+          anonKey: decodeURIComponent(keyParam),
+          vaultId: vaultParam ? decodeURIComponent(vaultParam) : 'main',
+        });
+        window.history.replaceState({}, document.title, window.location.pathname);
+      }
+    }
+
+    StorageService.syncFutureCollectedDates();
+    reloadAllFromStorage();
+    const locked = StorageService.isSessionLocked();
     setIsLocked(locked);
     setMounted(true);
 
-    if (sets.enableBrowserNotifications) {
-      NotificationService.checkDueInvoicesAndNotify(rems);
+    const currentSets = StorageService.getSettings();
+    if (currentSets.enableBrowserNotifications) {
+      NotificationService.checkDueInvoicesAndNotify(StorageService.getReminders());
     }
+
+    if (!isSupabaseConfigured()) {
+      setCloudSyncStatus('unconfigured');
+      return;
+    }
+
+    setCloudSyncStatus('syncing');
+
+    // Initial background pull from Supabase
+    pullFromSupabase().then((res) => {
+      if (res.success && res.data) {
+        StorageService.importFullSnapshot(res.data);
+        reloadAllFromStorage();
+        setCloudSyncStatus('synced');
+      } else {
+        setCloudSyncStatus(res.message?.includes('No sync data found') ? 'synced' : 'error');
+      }
+    });
+
+    // Realtime Postgres Changes Subscription for multi-device sync
+    const unsubscribe = subscribeToSupabaseUpdates((cloudPayload) => {
+      StorageService.importFullSnapshot(cloudPayload);
+      reloadAllFromStorage();
+      setCloudSyncStatus('synced');
+    });
+
+    // Window focus refresh: pull latest when user switches back to this tab
+    const handleFocus = () => {
+      if (isSupabaseConfigured()) {
+        pullFromSupabase().then((res) => {
+          if (res.success && res.data) {
+            StorageService.importFullSnapshot(res.data);
+            reloadAllFromStorage();
+          }
+        });
+      }
+    };
+    window.addEventListener('focus', handleFocus);
+
+    return () => {
+      unsubscribe();
+      window.removeEventListener('focus', handleFocus);
+    };
   }, []);
+
+  // Automated background push to Supabase on any modification (debounced 1000ms)
+  useEffect(() => {
+    if (isInitialMount.current) {
+      isInitialMount.current = false;
+      return;
+    }
+
+    if (!isSupabaseConfigured()) {
+      setCloudSyncStatus('unconfigured');
+      return;
+    }
+
+    setCloudSyncStatus('syncing');
+    const timer = setTimeout(async () => {
+      const res = await pushToSupabase(StorageService.getFullSnapshot());
+      setCloudSyncStatus(res.success ? 'synced' : 'error');
+    }, 1000);
+
+    return () => clearTimeout(timer);
+  }, [transactions, reminders, categories, wallets, savingsGoals, simpleSavings, settings]);
 
   const playChime = () => {
     if (!settings?.enableAudioChime || typeof window === 'undefined') return;
@@ -423,6 +511,8 @@ export default function Home() {
           setDateRange={setDateRange}
           reminders={reminders}
           currencySymbol={settings.currencySymbol}
+          cloudSyncStatus={cloudSyncStatus}
+          onOpenSyncSettings={() => setCurrentTab('settings')}
           onOpenAddTx={(type) => setAddTxModalType(type)}
           onOpenAddReminder={() => {
             setAddReminderType(currentTab === 'payables' ? 'payable' : 'receivable');
@@ -605,7 +695,7 @@ export default function Home() {
                 onImportBackup={handleImportBackup}
                 onExportCSV={handleExportCSV}
                 onResetAllData={handleResetAllData}
-                onSyncComplete={handleResetAllData}
+                onSyncComplete={reloadAllFromStorage}
               />
             </div>
           )}

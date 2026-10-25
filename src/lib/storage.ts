@@ -553,6 +553,30 @@ export const StorageService = {
     return localStorage.getItem(KEYS.LAST_SYNC);
   },
 
+  getFullSnapshot() {
+    return {
+      transactions: this.getTransactions(),
+      reminders: this.getReminders(),
+      categories: this.getCategories(),
+      wallets: this.getWallets(),
+      savingsGoals: this.getSavingsGoals(),
+      simpleSavings: this.getSimpleSavings(),
+      settings: this.getSettings(),
+      updatedAt: new Date().toISOString(),
+    };
+  },
+
+  importFullSnapshot(cloud: any): void {
+    if (!cloud || typeof cloud !== 'object') return;
+    if (Array.isArray(cloud.transactions)) this.saveTransactions(cloud.transactions);
+    if (Array.isArray(cloud.reminders)) this.saveReminders(cloud.reminders);
+    if (Array.isArray(cloud.categories)) this.saveCategories(cloud.categories);
+    if (Array.isArray(cloud.wallets)) this.saveWallets(cloud.wallets);
+    if (Array.isArray(cloud.savingsGoals)) this.saveSavingsGoals(cloud.savingsGoals);
+    if (Array.isArray(cloud.simpleSavings)) this.saveSimpleSavings(cloud.simpleSavings);
+    if (cloud.settings) this.saveSettings(cloud.settings);
+  },
+
   async pushToCloud(passkey?: string): Promise<{ success: boolean; message: string; lastSyncedAt?: string }> {
     const key = passkey || this.getSyncPasskey();
     if (!key || key.trim().length < 4) {
@@ -561,14 +585,7 @@ export const StorageService = {
     try {
       const payload = {
         passkey: key.trim().toUpperCase(),
-        data: {
-          transactions: this.getTransactions(),
-          reminders: this.getReminders(),
-          categories: this.getCategories(),
-          wallets: this.getWallets(),
-          savingsGoals: this.getSavingsGoals(),
-          settings: this.getSettings(),
-        },
+        data: this.getFullSnapshot(),
       };
       const res = await fetch('/api/sync', {
         method: 'POST',
@@ -596,14 +613,7 @@ export const StorageService = {
       const res = await fetch(`/api/sync?passkey=${encodeURIComponent(key.trim().toUpperCase())}`);
       const data = await res.json();
       if (res.ok && data.success && data.data) {
-        const cloud = data.data;
-        if (Array.isArray(cloud.transactions)) this.saveTransactions(cloud.transactions);
-        if (Array.isArray(cloud.reminders)) this.saveReminders(cloud.reminders);
-        if (Array.isArray(cloud.categories)) this.saveCategories(cloud.categories);
-        if (Array.isArray(cloud.wallets)) this.saveWallets(cloud.wallets);
-        if (Array.isArray(cloud.savingsGoals)) this.saveSavingsGoals(cloud.savingsGoals);
-        if (cloud.settings) this.saveSettings(cloud.settings);
-
+        this.importFullSnapshot(data.data);
         localStorage.setItem(KEYS.LAST_SYNC, data.lastSyncedAt || new Date().toISOString());
         this.setSyncPasskey(key);
         return { success: true, message: 'Successfully synced from cloud!', lastSyncedAt: data.lastSyncedAt };
