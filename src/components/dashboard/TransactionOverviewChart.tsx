@@ -47,9 +47,9 @@ export const TransactionOverviewChart: React.FC<TransactionOverviewChartProps> =
   const maxValue = Math.max(...monthlyData.map((d) => d.value), 100);
 
   return (
-    <div className="bg-[#12141a] border border-white/5 rounded-2xl p-6 shadow-xl flex flex-col justify-between">
+    <div className="bg-[#12141a] border border-white/5 rounded-2xl p-4 sm:p-6 shadow-xl flex flex-col justify-between">
       {/* Header Controls */}
-      <div className="flex items-center justify-between mb-6">
+      <div className="flex items-center justify-between mb-4 sm:mb-6">
         <div>
           <h3 className="text-sm font-semibold text-white tracking-wide">Transaction overview</h3>
           <p className="text-xs text-zinc-500">Monthly breakdown & trend</p>
@@ -95,7 +95,7 @@ export const TransactionOverviewChart: React.FC<TransactionOverviewChartProps> =
       </div>
 
       {/* Bar Chart Canvas */}
-      <div className="h-44 flex items-end justify-between gap-2 pt-6 pb-2 px-1 relative">
+      <div className="h-44 flex items-end justify-between gap-1 sm:gap-2 pt-6 pb-2 px-0.5 sm:px-1 relative">
         {/* Tooltip */}
         {hoveredIndex !== null && (
           <div

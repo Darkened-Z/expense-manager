@@ -109,8 +109,8 @@ export const AddTransactionModal: React.FC<AddTransactionModalProps> = ({
   const filteredCategories = categories.filter((c) => c.type === 'both' || c.type === type);
 
   return (
-    <div className="fixed inset-0 bg-black/80 backdrop-blur-md z-50 flex items-center justify-center p-4">
-      <div className="bg-[#12141a] border border-white/10 rounded-3xl w-full max-w-lg p-6 shadow-2xl animate-in fade-in zoom-in-95">
+    <div className="fixed inset-0 bg-black/80 backdrop-blur-md z-50 flex items-center justify-center p-3 sm:p-4">
+      <div className="bg-[#12141a] border border-white/10 rounded-2xl sm:rounded-3xl w-full max-w-lg p-4 sm:p-6 max-h-[92vh] overflow-y-auto shadow-2xl animate-in fade-in zoom-in-95">
         {/* Header */}
         <div className="flex items-center justify-between pb-4 border-b border-white/5">
           <h2 className="text-base font-bold text-white tracking-wide">

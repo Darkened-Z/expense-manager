@@ -31,6 +31,7 @@ export default function Home() {
   const [selectedWalletId, setSelectedWalletId] = useState<string>('all');
   const [dateRange, setDateRange] = useState<string>('30d');
   const [searchQuery, setSearchQuery] = useState<string>('');
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState<boolean>(false);
 
   // Lock & Security
   const [isLocked, setIsLocked] = useState<boolean>(false);
@@ -57,7 +58,6 @@ export default function Home() {
     setIsLocked(locked);
     setMounted(true);
 
-    // Check for urgent reminders and send browser notification if allowed
     if (sets.enableBrowserNotifications && typeof window !== 'undefined' && 'Notification' in window) {
       const urgentCount = rems.filter((r) => r.status === 'overdue' || r.status === 'due_today').length;
       if (urgentCount > 0 && Notification.permission === 'granted') {
@@ -69,7 +69,6 @@ export default function Home() {
     }
   }, []);
 
-  // Web Audio synth chime
   const playChime = () => {
     if (!settings?.enableAudioChime || typeof window === 'undefined') return;
     try {
@@ -81,8 +80,8 @@ export default function Home() {
       const gain = ctx.createGain();
 
       osc.type = 'sine';
-      osc.frequency.setValueAtTime(587.33, ctx.currentTime); // D5
-      osc.frequency.exponentialRampToValueAtTime(880, ctx.currentTime + 0.15); // A5
+      osc.frequency.setValueAtTime(587.33, ctx.currentTime);
+      osc.frequency.exponentialRampToValueAtTime(880, ctx.currentTime + 0.15);
 
       gain.gain.setValueAtTime(0.1, ctx.currentTime);
       gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.5);
@@ -93,11 +92,10 @@ export default function Home() {
       osc.start();
       osc.stop(ctx.currentTime + 0.5);
     } catch {
-      // AudioContext might be blocked before first user gesture
+      // AudioContext fallback
     }
   };
 
-  // Keyboard shortcut listener (/ to focus search)
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === '/' && document.activeElement?.tagName !== 'INPUT') {
@@ -121,13 +119,11 @@ export default function Home() {
     );
   }
 
-  // Handle Passcode Unlock
   const handleUnlockSuccess = () => {
     setIsLocked(false);
     StorageService.setSessionLocked(false);
   };
 
-  // Handle setting new passcode
   const handleSetPasscodeSuccess = (newHash?: string) => {
     if (newHash) {
       const updated = {
@@ -141,9 +137,8 @@ export default function Home() {
     setShowPasscodeSetup(false);
   };
 
-  // Handlers for data updates
   const handleAddTransaction = (txData: any) => {
-    const newTx = StorageService.addTransaction(txData);
+    StorageService.addTransaction(txData);
     setTransactions(StorageService.getTransactions());
     setWallets(StorageService.getWallets());
   };
@@ -245,7 +240,6 @@ export default function Home() {
     setSettings(StorageService.getSettings());
   };
 
-  // Filter transactions by selected wallet if not 'all'
   const filteredTxs = transactions.filter((t) => {
     if (selectedWalletId !== 'all' && t.walletId !== selectedWalletId) return false;
     return true;
@@ -276,7 +270,7 @@ export default function Home() {
         />
       )}
 
-      {/* Sidebar Navigation */}
+      {/* Responsive Sidebar (Desktop Fixed + Mobile Drawer + Bottom Bar) */}
       <Sidebar
         currentTab={currentTab}
         setCurrentTab={setCurrentTab}
@@ -291,6 +285,8 @@ export default function Home() {
         userEmail={settings.userEmail}
         searchQuery={searchQuery}
         setSearchQuery={setSearchQuery}
+        isMobileOpen={isMobileMenuOpen}
+        setIsMobileOpen={setIsMobileMenuOpen}
       />
 
       {/* Main Content Area */}
@@ -307,13 +303,13 @@ export default function Home() {
           onOpenAddReminder={() => setShowAddReminderModal(true)}
           onCollectReminder={(id) => handleCollectReminder(id)}
           onNavigateToReminders={() => setCurrentTab('reminders')}
+          onToggleMobileMenu={() => setIsMobileMenuOpen(true)}
         />
 
-        <main className="p-8 flex-1 space-y-6 max-w-7xl w-full mx-auto">
+        <main className="p-4 sm:p-6 lg:p-8 pb-24 md:pb-8 flex-1 space-y-6 max-w-7xl w-full mx-auto overflow-x-hidden">
           {/* TAB: DASHBOARD */}
           {currentTab === 'dashboard' && (
             <div className="space-y-6 animate-in fade-in duration-200">
-              {/* Top Story Summary */}
               <StorySummaryCard
                 transactions={filteredTxs}
                 reminders={reminders}
@@ -321,7 +317,6 @@ export default function Home() {
                 currencySymbol={settings.currencySymbol}
               />
 
-              {/* Mid Section: Overview Bar Chart & Daily Pulse */}
               <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
                 <div className="lg:col-span-2">
                   <TransactionOverviewChart
@@ -338,7 +333,6 @@ export default function Home() {
                 </div>
               </div>
 
-              {/* Recent Transactions Ledger */}
               <TransactionsLedger
                 transactions={filteredTxs}
                 categories={categories}

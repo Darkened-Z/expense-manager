@@ -145,10 +145,10 @@ export const FreelanceRemindersView: React.FC<FreelanceRemindersViewProps> = ({
   return (
     <div className="space-y-6">
       {/* Top Banner Metric Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-        <div className="bg-[#12141a] border border-white/5 rounded-2xl p-5 shadow-xl relative overflow-hidden">
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4">
+        <div className="bg-[#12141a] border border-white/5 rounded-2xl p-4 sm:p-5 shadow-xl relative overflow-hidden">
           <div className="text-xs text-zinc-400 font-medium">Pending to Collect</div>
-          <div className="text-2xl font-extrabold text-amber-400 font-mono mt-1">
+          <div className="text-xl sm:text-2xl font-extrabold text-amber-400 font-mono mt-1">
             {currencySymbol}{totalPending.toFixed(2)}
           </div>
           <div className="text-[11px] text-zinc-500 mt-1">
@@ -156,9 +156,9 @@ export const FreelanceRemindersView: React.FC<FreelanceRemindersViewProps> = ({
           </div>
         </div>
 
-        <div className="bg-[#12141a] border border-white/5 rounded-2xl p-5 shadow-xl relative overflow-hidden">
+        <div className="bg-[#12141a] border border-white/5 rounded-2xl p-4 sm:p-5 shadow-xl relative overflow-hidden">
           <div className="text-xs text-zinc-400 font-medium">Action Required</div>
-          <div className="text-2xl font-extrabold text-rose-400 font-mono mt-1 flex items-center gap-2">
+          <div className="text-xl sm:text-2xl font-extrabold text-rose-400 font-mono mt-1 flex items-center gap-2">
             <span>{urgentCount}</span>
             {urgentCount > 0 && (
               <span className="text-xs font-semibold px-2 py-0.5 rounded-full bg-rose-500/20 text-rose-300 border border-rose-500/30">
@@ -171,15 +171,15 @@ export const FreelanceRemindersView: React.FC<FreelanceRemindersViewProps> = ({
           </div>
         </div>
 
-        <div className="bg-[#12141a] border border-white/5 rounded-2xl p-5 shadow-xl relative overflow-hidden">
+        <div className="bg-[#12141a] border border-white/5 rounded-2xl p-4 sm:p-5 shadow-xl relative overflow-hidden">
           <div className="text-xs text-zinc-400 font-medium">Collected Revenue</div>
-          <div className="text-2xl font-extrabold text-emerald-400 font-mono mt-1">
+          <div className="text-xl sm:text-2xl font-extrabold text-emerald-400 font-mono mt-1">
             {currencySymbol}{totalCollected.toFixed(2)}
           </div>
           <div className="text-[11px] text-zinc-500 mt-1">Settled & credited to wallets</div>
         </div>
 
-        <div className="bg-gradient-to-br from-[#1c1a1f] to-[#16131c] border border-orange-500/20 rounded-2xl p-5 shadow-xl flex flex-col justify-between">
+        <div className="bg-gradient-to-br from-[#1c1a1f] to-[#16131c] border border-orange-500/20 rounded-2xl p-4 sm:p-5 shadow-xl flex flex-col justify-between sm:col-span-2 md:col-span-1">
           <div>
             <div className="text-xs text-orange-400 font-semibold tracking-wide">New Invoice Due?</div>
             <div className="text-xs text-zinc-400 mt-0.5">Schedule dates to get automated reminder alerts</div>
@@ -195,13 +195,13 @@ export const FreelanceRemindersView: React.FC<FreelanceRemindersViewProps> = ({
       </div>
 
       {/* Main List Card */}
-      <div className="bg-[#12141a] border border-white/5 rounded-2xl shadow-xl p-5">
+      <div className="bg-[#12141a] border border-white/5 rounded-2xl shadow-xl p-3.5 sm:p-5">
         {/* Navigation Filters */}
         <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-4 border-b border-white/5 gap-3">
-          <div className="flex items-center gap-1.5 bg-[#181b23] p-1 rounded-xl border border-white/10 text-xs">
+          <div className="flex items-center gap-1.5 bg-[#181b23] p-1 rounded-xl border border-white/10 text-xs overflow-x-auto max-w-full pb-1 sm:pb-1">
             <button
               onClick={() => setFilterTab('all')}
-              className={`px-3 py-1.5 rounded-lg transition-colors ${
+              className={`px-3 py-1.5 rounded-lg transition-colors whitespace-nowrap ${
                 filterTab === 'all' ? 'bg-[#232733] text-white font-medium' : 'text-zinc-400 hover:text-zinc-200'
               }`}
             >
@@ -209,7 +209,7 @@ export const FreelanceRemindersView: React.FC<FreelanceRemindersViewProps> = ({
             </button>
             <button
               onClick={() => setFilterTab('urgent')}
-              className={`px-3 py-1.5 rounded-lg transition-colors flex items-center gap-1.5 ${
+              className={`px-3 py-1.5 rounded-lg transition-colors flex items-center gap-1.5 whitespace-nowrap ${
                 filterTab === 'urgent' ? 'bg-rose-500/20 text-rose-300 font-medium' : 'text-zinc-400 hover:text-zinc-200'
               }`}
             >
@@ -222,7 +222,7 @@ export const FreelanceRemindersView: React.FC<FreelanceRemindersViewProps> = ({
             </button>
             <button
               onClick={() => setFilterTab('pending')}
-              className={`px-3 py-1.5 rounded-lg transition-colors ${
+              className={`px-3 py-1.5 rounded-lg transition-colors whitespace-nowrap ${
                 filterTab === 'pending' ? 'bg-amber-500/20 text-amber-300 font-medium' : 'text-zinc-400 hover:text-zinc-200'
               }`}
             >
@@ -230,7 +230,7 @@ export const FreelanceRemindersView: React.FC<FreelanceRemindersViewProps> = ({
             </button>
             <button
               onClick={() => setFilterTab('collected')}
-              className={`px-3 py-1.5 rounded-lg transition-colors ${
+              className={`px-3 py-1.5 rounded-lg transition-colors whitespace-nowrap ${
                 filterTab === 'collected' ? 'bg-emerald-500/20 text-emerald-300 font-medium' : 'text-zinc-400 hover:text-zinc-200'
               }`}
             >

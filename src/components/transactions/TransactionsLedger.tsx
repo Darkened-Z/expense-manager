@@ -19,7 +19,6 @@ import {
   FileText,
   ShoppingBag,
   Repeat,
-  Sparkles,
   ChevronDown,
 } from 'lucide-react';
 import { Transaction, Category, Wallet } from '@/types';
@@ -47,9 +46,7 @@ export const TransactionsLedger: React.FC<TransactionsLedgerProps> = ({
 }) => {
   const [selectedType, setSelectedType] = useState<'all' | 'expense' | 'income'>('all');
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
-  const [showFilterModal, setShowFilterModal] = useState<boolean>(false);
 
-  // Icon mapping helper
   const getCategoryIcon = (iconName: string) => {
     switch (iconName) {
       case 'Coffee': return Coffee;
@@ -66,7 +63,6 @@ export const TransactionsLedger: React.FC<TransactionsLedgerProps> = ({
     }
   };
 
-  // Format relative or formatted time
   const formatDateTime = (dateStr: string, timeStr: string) => {
     try {
       const today = new Date().toISOString().split('T')[0];
@@ -79,7 +75,6 @@ export const TransactionsLedger: React.FC<TransactionsLedgerProps> = ({
     }
   };
 
-  // Filtering
   const filteredTransactions = transactions.filter((t) => {
     if (selectedType !== 'all' && t.type !== selectedType) return false;
     if (selectedCategory !== 'all' && t.categoryId !== selectedCategory) return false;
@@ -99,86 +94,155 @@ export const TransactionsLedger: React.FC<TransactionsLedgerProps> = ({
   return (
     <div className="bg-[#12141a] border border-white/5 rounded-2xl shadow-xl overflow-hidden">
       {/* Table Header Controls */}
-      <div className="p-5 border-b border-white/5 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-        <div className="flex items-center gap-2">
-          <h3 className="text-sm font-semibold text-white tracking-wide">Transaction</h3>
-          <span className="text-[11px] bg-white/5 text-zinc-400 px-2 py-0.5 rounded-full font-mono">
-            {filteredTransactions.length} entries
-          </span>
-        </div>
-
-        <div className="flex items-center gap-2">
-          {/* Search Input */}
-          <div className="relative">
-            <Search className="w-3.5 h-3.5 text-zinc-500 absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" />
-            <input
-              type="text"
-              placeholder="Quick search..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="bg-[#181b23] text-xs text-zinc-200 placeholder-zinc-500 pl-8 pr-3 py-1.5 rounded-xl border border-white/10 focus:outline-none focus:border-orange-500/50 w-44 sm:w-56"
-            />
+      <div className="p-4 sm:p-5 border-b border-white/5 flex flex-col gap-3">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <h3 className="text-sm font-semibold text-white tracking-wide">Transaction Ledger</h3>
+            <span className="text-[10px] bg-white/5 text-zinc-400 px-2 py-0.5 rounded-full font-mono">
+              {filteredTransactions.length}
+            </span>
           </div>
 
-          {/* Type Filter Buttons */}
-          <div className="flex items-center bg-[#181b23] p-0.5 rounded-xl border border-white/10 text-xs">
-            <button
-              onClick={() => setSelectedType('all')}
-              className={`px-2.5 py-1 rounded-lg transition-colors ${
-                selectedType === 'all' ? 'bg-[#232733] text-white font-medium' : 'text-zinc-400 hover:text-zinc-200'
-              }`}
-            >
-              All
-            </button>
-            <button
-              onClick={() => setSelectedType('expense')}
-              className={`px-2.5 py-1 rounded-lg transition-colors ${
-                selectedType === 'expense' ? 'bg-rose-500/20 text-rose-300 font-medium' : 'text-zinc-400 hover:text-zinc-200'
-              }`}
-            >
-              Spent
-            </button>
-            <button
-              onClick={() => setSelectedType('income')}
-              className={`px-2.5 py-1 rounded-lg transition-colors ${
-                selectedType === 'income' ? 'bg-emerald-500/20 text-emerald-300 font-medium' : 'text-zinc-400 hover:text-zinc-200'
-              }`}
-            >
-              Received
-            </button>
-          </div>
-
-          {/* Category Dropdown */}
-          <div className="relative">
-            <select
-              value={selectedCategory}
-              onChange={(e) => setSelectedCategory(e.target.value)}
-              className="bg-[#181b23] text-xs text-zinc-300 border border-white/10 px-3 py-1.5 rounded-xl focus:outline-none focus:border-orange-500/50 cursor-pointer appearance-none pr-7"
-            >
-              <option value="all">All Categories</option>
-              {categories.map((c) => (
-                <option key={c.id} value={c.id}>
-                  {c.name}
-                </option>
-              ))}
-            </select>
-            <ChevronDown className="w-3.5 h-3.5 text-zinc-500 absolute right-2.5 top-1/2 -translate-y-1/2 pointer-events-none" />
-          </div>
-
-          {/* Export CSV */}
+          {/* Export CSV button */}
           <button
             onClick={onExportCSV}
-            className="flex items-center gap-1.5 bg-[#181b23] hover:bg-[#20242f] text-zinc-300 border border-white/10 px-3 py-1.5 rounded-xl text-xs font-medium transition-colors"
+            className="flex items-center gap-1.5 bg-[#181b23] hover:bg-[#20242f] text-zinc-300 border border-white/10 px-2.5 py-1.5 rounded-xl text-xs font-medium transition-colors"
             title="Download CSV report"
           >
             <Download className="w-3.5 h-3.5 text-zinc-400" />
-            <span className="hidden sm:inline">Export CSV</span>
+            <span className="text-[11px]">CSV</span>
           </button>
+        </div>
+
+        {/* Filter & Search Bar */}
+        <div className="flex flex-col sm:flex-row sm:items-center gap-2.5">
+          {/* Search Input */}
+          <div className="relative flex-1">
+            <Search className="w-3.5 h-3.5 text-zinc-500 absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" />
+            <input
+              type="text"
+              placeholder="Search by title, client, notes..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="w-full bg-[#181b23] text-xs text-zinc-200 placeholder-zinc-500 pl-8 pr-3 py-2 rounded-xl border border-white/10 focus:outline-none focus:border-orange-500/50"
+            />
+          </div>
+
+          <div className="flex items-center gap-2">
+            {/* Type Filter Buttons */}
+            <div className="flex-1 sm:flex-initial flex items-center bg-[#181b23] p-0.5 rounded-xl border border-white/10 text-xs">
+              <button
+                onClick={() => setSelectedType('all')}
+                className={`flex-1 sm:flex-initial px-2.5 py-1.5 rounded-lg transition-colors text-center ${
+                  selectedType === 'all' ? 'bg-[#232733] text-white font-medium' : 'text-zinc-400 hover:text-zinc-200'
+                }`}
+              >
+                All
+              </button>
+              <button
+                onClick={() => setSelectedType('expense')}
+                className={`flex-1 sm:flex-initial px-2.5 py-1.5 rounded-lg transition-colors text-center ${
+                  selectedType === 'expense' ? 'bg-rose-500/20 text-rose-300 font-medium' : 'text-zinc-400 hover:text-zinc-200'
+                }`}
+              >
+                Spent
+              </button>
+              <button
+                onClick={() => setSelectedType('income')}
+                className={`flex-1 sm:flex-initial px-2.5 py-1.5 rounded-lg transition-colors text-center ${
+                  selectedType === 'income' ? 'bg-emerald-500/20 text-emerald-300 font-medium' : 'text-zinc-400 hover:text-zinc-200'
+                }`}
+              >
+                Received
+              </button>
+            </div>
+
+            {/* Category Dropdown */}
+            <div className="relative">
+              <select
+                value={selectedCategory}
+                onChange={(e) => setSelectedCategory(e.target.value)}
+                className="bg-[#181b23] text-xs text-zinc-300 border border-white/10 px-3 py-2 rounded-xl focus:outline-none focus:border-orange-500/50 cursor-pointer appearance-none pr-7 max-w-[130px] sm:max-w-none truncate"
+              >
+                <option value="all">Categories</option>
+                {categories.map((c) => (
+                  <option key={c.id} value={c.id}>
+                    {c.name}
+                  </option>
+                ))}
+              </select>
+              <ChevronDown className="w-3.5 h-3.5 text-zinc-500 absolute right-2.5 top-1/2 -translate-y-1/2 pointer-events-none" />
+            </div>
+          </div>
         </div>
       </div>
 
-      {/* Table Content */}
-      <div className="overflow-x-auto">
+      {/* MOBILE VIEW (< md): Card List */}
+      <div className="block md:hidden divide-y divide-white/[0.04]">
+        {filteredTransactions.length === 0 ? (
+          <div className="py-12 text-center text-zinc-500 text-xs">
+            No transactions found.
+          </div>
+        ) : (
+          filteredTransactions.map((tx) => {
+            const cat = categories.find((c) => c.id === tx.categoryId);
+            const wallet = wallets.find((w) => w.id === tx.walletId);
+            const IconComponent = cat ? getCategoryIcon(cat.icon) : Tag;
+            const isExpense = tx.type === 'expense';
+
+            return (
+              <div key={tx.id} className="p-3.5 hover:bg-white/[0.02] transition-colors flex items-center justify-between gap-3">
+                <div className="flex items-center gap-3 min-w-0">
+                  {/* Category / Icon Badge */}
+                  <div
+                    className="w-10 h-10 rounded-xl flex items-center justify-center shrink-0 border"
+                    style={{
+                      backgroundColor: `${cat?.color || '#3b82f6'}15`,
+                      borderColor: `${cat?.color || '#3b82f6'}30`,
+                      color: cat?.color || '#93c5fd',
+                    }}
+                  >
+                    <IconComponent className="w-4 h-4" />
+                  </div>
+
+                  {/* Title & Metadata */}
+                  <div className="min-w-0">
+                    <div className="font-semibold text-zinc-200 text-xs truncate">{tx.title}</div>
+                    <div className="flex items-center gap-1.5 text-[10px] text-zinc-500 mt-0.5">
+                      <span>{cat?.name || 'Uncategorized'}</span>
+                      <span>•</span>
+                      <span>{formatDateTime(tx.date, tx.time)}</span>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Amount and delete action */}
+                <div className="flex items-center gap-2 shrink-0">
+                  <div className="text-right">
+                    <div className={`font-mono font-bold text-xs ${isExpense ? 'text-rose-400' : 'text-emerald-400'}`}>
+                      {isExpense ? '-' : '+'}{currencySymbol}{tx.amount.toFixed(2)}
+                    </div>
+                    <span className="text-[9px] font-mono text-zinc-500 uppercase">
+                      {tx.token || wallet?.currency || 'USD'}
+                    </span>
+                  </div>
+
+                  <button
+                    onClick={() => onDeleteTransaction(tx.id)}
+                    className="p-1.5 text-zinc-600 hover:text-rose-400 rounded-lg transition-colors"
+                    title="Delete"
+                  >
+                    <Trash2 className="w-3.5 h-3.5" />
+                  </button>
+                </div>
+              </div>
+            );
+          })
+        )}
+      </div>
+
+      {/* DESKTOP VIEW (>= md): Full Table */}
+      <div className="hidden md:block overflow-x-auto">
         <table className="w-full text-left text-xs">
           <thead>
             <tr className="border-b border-white/5 text-[11px] font-medium text-zinc-400 bg-white/[0.01]">
@@ -208,20 +272,15 @@ export const TransactionsLedger: React.FC<TransactionsLedgerProps> = ({
 
                 return (
                   <tr key={tx.id} className="hover:bg-white/[0.02] transition-colors group">
-                    {/* Amount */}
                     <td className="py-3.5 px-5 font-mono font-bold text-white text-sm">
                       {currencySymbol}{tx.amount.toFixed(2)}
                     </td>
-
-                    {/* Token */}
                     <td className="py-3.5 px-4 font-mono">
                       <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-white/5 text-zinc-300 border border-white/5 font-semibold text-[11px]">
                         <span className="w-1.5 h-1.5 rounded-full bg-cyan-400" />
                         {tx.token || wallet?.currency || 'USD'}
                       </span>
                     </td>
-
-                    {/* Type indicator */}
                     <td className="py-3.5 px-4">
                       {isExpense ? (
                         <span className="inline-flex items-center gap-1 text-rose-400 font-medium">
@@ -235,16 +294,12 @@ export const TransactionsLedger: React.FC<TransactionsLedgerProps> = ({
                         </span>
                       )}
                     </td>
-
-                    {/* Transaction Name / Client */}
                     <td className="py-3.5 px-4">
                       <div className="font-semibold text-zinc-200">{tx.title}</div>
                       {tx.clientOrPayer && (
                         <div className="text-[10px] text-zinc-500">Client: {tx.clientOrPayer}</div>
                       )}
                     </td>
-
-                    {/* Transactions Type */}
                     <td className="py-3.5 px-4">
                       <span
                         className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-semibold ${
@@ -254,8 +309,6 @@ export const TransactionsLedger: React.FC<TransactionsLedgerProps> = ({
                         {isExpense ? '↓ Expenses' : '↑ Income'}
                       </span>
                     </td>
-
-                    {/* Category */}
                     <td className="py-3.5 px-4">
                       <span
                         className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-medium border"
@@ -269,13 +322,9 @@ export const TransactionsLedger: React.FC<TransactionsLedgerProps> = ({
                         <span>{cat?.name || 'Uncategorized'}</span>
                       </span>
                     </td>
-
-                    {/* Date & Time */}
                     <td className="py-3.5 px-4 text-zinc-400 font-mono text-[11px]">
                       {formatDateTime(tx.date, tx.time)}
                     </td>
-
-                    {/* Action buttons */}
                     <td className="py-3.5 px-4 text-right">
                       <button
                         onClick={() => onDeleteTransaction(tx.id)}

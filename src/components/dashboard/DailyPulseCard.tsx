@@ -53,7 +53,7 @@ export const DailyPulseCard: React.FC<DailyPulseCardProps> = ({
   const activeCoord = hoveredPoint !== null ? coords[hoveredPoint] : coords[3];
 
   return (
-    <div className="bg-[#12141a] border border-white/5 rounded-2xl p-6 shadow-xl flex flex-col justify-between relative overflow-hidden">
+    <div className="bg-[#12141a] border border-white/5 rounded-2xl p-4 sm:p-6 shadow-xl flex flex-col justify-between relative overflow-hidden">
       <div>
         <div className="text-xs font-medium text-zinc-400">On this day</div>
         <div className="text-3xl font-extrabold text-white font-mono mt-2 tracking-tight">

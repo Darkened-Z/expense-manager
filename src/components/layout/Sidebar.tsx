@@ -11,8 +11,7 @@ import {
   Settings,
   Lock,
   Search,
-  CheckCircle2,
-  AlertTriangle,
+  X,
 } from 'lucide-react';
 
 interface SidebarProps {
@@ -26,6 +25,8 @@ interface SidebarProps {
   userEmail: string;
   searchQuery: string;
   setSearchQuery: (q: string) => void;
+  isMobileOpen: boolean;
+  setIsMobileOpen: (open: boolean) => void;
 }
 
 export const Sidebar: React.FC<SidebarProps> = ({
@@ -39,6 +40,8 @@ export const Sidebar: React.FC<SidebarProps> = ({
   userEmail,
   searchQuery,
   setSearchQuery,
+  isMobileOpen,
+  setIsMobileOpen,
 }) => {
   const navItems = [
     { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard },
@@ -55,8 +58,13 @@ export const Sidebar: React.FC<SidebarProps> = ({
     { id: 'insights', label: 'Insights', icon: Sparkles },
   ];
 
-  return (
-    <aside className="w-64 min-h-screen bg-[#0d0e12] border-r border-white/5 flex flex-col justify-between p-4 select-none shrink-0">
+  const handleSelectTab = (tabId: string) => {
+    setCurrentTab(tabId);
+    setIsMobileOpen(false);
+  };
+
+  const sidebarContent = (
+    <div className="h-full flex flex-col justify-between p-4 select-none">
       <div className="space-y-6">
         {/* Brand Header */}
         <div className="flex items-center justify-between px-2 pt-1">
@@ -71,7 +79,12 @@ export const Sidebar: React.FC<SidebarProps> = ({
               <span className="block text-[10px] text-zinc-500 font-mono tracking-tight">FREELANCE SUITE</span>
             </div>
           </div>
-          <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" title="System Online & Synced" />
+          <button
+            onClick={() => setIsMobileOpen(false)}
+            className="md:hidden p-1.5 text-zinc-400 hover:text-white rounded-lg"
+          >
+            <X className="w-5 h-5" />
+          </button>
         </div>
 
         {/* Quick Search */}
@@ -85,7 +98,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
               onChange={(e) => setSearchQuery(e.target.value)}
               className="w-full bg-[#14161d] text-xs text-zinc-200 placeholder-zinc-500 pl-9 pr-8 py-2 rounded-lg border border-white/5 focus:outline-none focus:border-orange-500/50 transition-colors"
             />
-            <kbd className="absolute right-2.5 text-[10px] bg-zinc-800/80 text-zinc-400 px-1.5 py-0.5 rounded border border-white/5 pointer-events-none">
+            <kbd className="hidden sm:inline-block absolute right-2.5 text-[10px] bg-zinc-800/80 text-zinc-400 px-1.5 py-0.5 rounded border border-white/5 pointer-events-none">
               /
             </kbd>
           </div>
@@ -100,7 +113,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
             return (
               <button
                 key={item.id}
-                onClick={() => setCurrentTab(item.id)}
+                onClick={() => handleSelectTab(item.id)}
                 className={`w-full flex items-center justify-between px-3 py-2.5 rounded-xl text-xs font-medium transition-all ${
                   isActive
                     ? 'bg-[#1c1f28] text-white shadow-sm border border-white/10'
@@ -131,7 +144,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
       {/* Bottom Profile and Settings Section */}
       <div className="pt-4 border-t border-white/5 space-y-2">
         <button
-          onClick={() => setCurrentTab('settings')}
+          onClick={() => handleSelectTab('settings')}
           className={`w-full flex items-center gap-3 px-3 py-2 rounded-xl text-xs font-medium transition-colors ${
             currentTab === 'settings'
               ? 'bg-[#1c1f28] text-white border border-white/10'
@@ -144,7 +157,10 @@ export const Sidebar: React.FC<SidebarProps> = ({
 
         {isLockEnabled && (
           <button
-            onClick={onLockApp}
+            onClick={() => {
+              onLockApp();
+              setIsMobileOpen(false);
+            }}
             className="w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs font-medium text-zinc-400 hover:text-amber-400 hover:bg-[#13151b] transition-colors"
             title="Lock application session"
           >
@@ -167,6 +183,90 @@ export const Sidebar: React.FC<SidebarProps> = ({
           </div>
         </div>
       </div>
-    </aside>
+    </div>
+  );
+
+  return (
+    <>
+      {/* Desktop Persistent Sidebar */}
+      <aside className="hidden md:flex w-64 min-h-screen bg-[#0d0e12] border-r border-white/5 flex-col shrink-0 sticky top-0 h-screen">
+        {sidebarContent}
+      </aside>
+
+      {/* Mobile Drawer Overlay */}
+      {isMobileOpen && (
+        <div className="fixed inset-0 z-50 md:hidden flex">
+          <div
+            className="fixed inset-0 bg-black/80 backdrop-blur-sm transition-opacity"
+            onClick={() => setIsMobileOpen(false)}
+          />
+          <div className="relative w-72 max-w-[80vw] bg-[#0d0e12] border-r border-white/10 h-full shadow-2xl z-50 animate-in slide-in-from-left duration-200">
+            {sidebarContent}
+          </div>
+        </div>
+      )}
+
+      {/* Mobile Bottom Navigation Bar */}
+      <nav className="md:hidden fixed bottom-0 left-0 right-0 z-40 bg-[#0d0e12]/95 backdrop-blur-xl border-t border-white/10 px-2 py-2 flex items-center justify-around safe-area-bottom">
+        <button
+          onClick={() => setCurrentTab('dashboard')}
+          className={`flex flex-col items-center gap-1 p-1 rounded-xl transition-colors ${
+            currentTab === 'dashboard' ? 'text-orange-400 font-semibold' : 'text-zinc-400 hover:text-zinc-200'
+          }`}
+        >
+          <LayoutDashboard className="w-5 h-5" />
+          <span className="text-[10px]">Dashboard</span>
+        </button>
+
+        <button
+          onClick={() => setCurrentTab('transactions')}
+          className={`flex flex-col items-center gap-1 p-1 rounded-xl transition-colors ${
+            currentTab === 'transactions' ? 'text-orange-400 font-semibold' : 'text-zinc-400 hover:text-zinc-200'
+          }`}
+        >
+          <ArrowLeftRight className="w-5 h-5" />
+          <span className="text-[10px]">Ledger</span>
+        </button>
+
+        <button
+          onClick={() => setCurrentTab('reminders')}
+          className={`relative flex flex-col items-center gap-1 p-1 rounded-xl transition-colors ${
+            currentTab === 'reminders' ? 'text-orange-400 font-semibold' : 'text-zinc-400 hover:text-zinc-200'
+          }`}
+        >
+          <Clock className="w-5 h-5" />
+          {(overdueRemindersCount > 0 || pendingRemindersCount > 0) && (
+            <span
+              className={`absolute top-0 right-1 w-2.5 h-2.5 rounded-full ${
+                overdueRemindersCount > 0 ? 'bg-rose-500' : 'bg-amber-500'
+              }`}
+            />
+          )}
+          <span className="text-[10px]">Due Dates</span>
+        </button>
+
+        <button
+          onClick={() => setCurrentTab('wallets')}
+          className={`flex flex-col items-center gap-1 p-1 rounded-xl transition-colors ${
+            currentTab === 'wallets' ? 'text-orange-400 font-semibold' : 'text-zinc-400 hover:text-zinc-200'
+          }`}
+        >
+          <Wallet className="w-5 h-5" />
+          <span className="text-[10px]">Wallets</span>
+        </button>
+
+        <button
+          onClick={() => setIsMobileOpen(true)}
+          className="flex flex-col items-center gap-1 p-1 rounded-xl text-zinc-400 hover:text-zinc-200 transition-colors"
+        >
+          <div className="w-5 h-5 flex flex-col justify-center gap-1">
+            <span className="w-4 h-0.5 bg-zinc-400 rounded-full" />
+            <span className="w-4 h-0.5 bg-zinc-400 rounded-full" />
+            <span className="w-4 h-0.5 bg-zinc-400 rounded-full" />
+          </div>
+          <span className="text-[10px]">More</span>
+        </button>
+      </nav>
+    </>
   );
 };
