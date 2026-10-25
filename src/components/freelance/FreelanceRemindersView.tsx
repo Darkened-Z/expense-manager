@@ -47,20 +47,33 @@ export const FreelanceRemindersView: React.FC<FreelanceRemindersViewProps> = ({
   onDeleteReminder,
 }) => {
   const isPayablesMode = mode === 'payables';
-  const [filterTab, setFilterTab] = useState<'pending' | 'urgent' | 'collected' | 'all'>('pending');
+  const [filterTab, setFilterTab] = useState<'this_month' | 'urgent' | 'upcoming' | 'collected' | 'all'>('this_month');
   const [copiedId, setCopiedId] = useState<string | null>(null);
   const [collectingReminder, setCollectingReminder] = useState<PaymentReminder | null>(null);
   const [targetWalletId, setTargetWalletId] = useState<string>(wallets[0]?.id || 'wal-bank');
+
+  // Month date boundaries
+  const today = new Date();
+  const todayStr = today.toISOString().split('T')[0];
+  const endOfCurrentMonth = new Date(today.getFullYear(), today.getMonth() + 1, 0);
+  const endOfCurrentMonthStr = endOfCurrentMonth.toISOString().split('T')[0];
 
   // Filter base reminders for this tab mode
   const baseReminders = reminders.filter((r) =>
     isPayablesMode ? r.type === 'payable' : r.type !== 'payable'
   );
 
+  // Active reminders partitioned by current cycle (this month + overdue) vs future months
+  const thisMonthActive = baseReminders.filter(
+    (r) => r.status !== 'collected' && r.dueDate <= endOfCurrentMonthStr
+  );
+  const futureActive = baseReminders.filter(
+    (r) => r.status !== 'collected' && r.dueDate > endOfCurrentMonthStr
+  );
+
   // Compute metrics for this specific tab mode
-  const totalPending = baseReminders
-    .filter((r) => r.status !== 'collected')
-    .reduce((sum, r) => sum + r.amount, 0);
+  const totalPendingThisMonth = thisMonthActive.reduce((sum, r) => sum + r.amount, 0);
+  const totalPendingFuture = futureActive.reduce((sum, r) => sum + r.amount, 0);
 
   const totalSettled = baseReminders
     .filter((r) => r.status === 'collected')
@@ -70,13 +83,13 @@ export const FreelanceRemindersView: React.FC<FreelanceRemindersViewProps> = ({
   const dueTodayList = baseReminders.filter((r) => r.status === 'due_today');
   const urgentCount = overdueList.length + dueTodayList.length;
 
-  const activeCount = baseReminders.filter((r) => r.status !== 'collected').length;
   const settledCount = baseReminders.filter((r) => r.status === 'collected').length;
 
   // Filter list by selected tab
   const filteredList = baseReminders.filter((r) => {
+    if (filterTab === 'this_month') return r.status !== 'collected' && r.dueDate <= endOfCurrentMonthStr;
     if (filterTab === 'urgent') return r.status === 'overdue' || r.status === 'due_today';
-    if (filterTab === 'pending') return r.status !== 'collected'; // All active items needing settlement
+    if (filterTab === 'upcoming') return r.status !== 'collected' && r.dueDate > endOfCurrentMonthStr;
     if (filterTab === 'collected') return r.status === 'collected';
     return true;
   });
@@ -196,13 +209,13 @@ export const FreelanceRemindersView: React.FC<FreelanceRemindersViewProps> = ({
         {/* Card 1: Total Remaining */}
         <div className="bg-[#12141a] border border-white/5 rounded-2xl p-4 sm:p-5 shadow-xl relative overflow-hidden">
           <div className="text-xs text-zinc-400 font-medium">
-            {isPayablesMode ? 'Total Remaining (To Pay)' : 'Total Remaining (To Collect)'}
+            {isPayablesMode ? 'Total Remaining (This Month)' : 'Total Remaining (This Month)'}
           </div>
           <div className="text-xl sm:text-2xl font-bold text-white font-mono mt-1">
-            {currencySymbol}{formatCash(totalPending)}
+            {currencySymbol}{formatCash(totalPendingThisMonth)}
           </div>
           <div className="text-[11px] text-zinc-500 mt-1">
-            Across {activeCount} active {isPayablesMode ? 'payables' : 'receivables'}
+            Across {thisMonthActive.length} active this month {totalPendingFuture > 0 ? `(+ ${currencySymbol}${formatCash(totalPendingFuture)} upcoming)` : ''}
           </div>
         </div>
 
@@ -238,13 +251,13 @@ export const FreelanceRemindersView: React.FC<FreelanceRemindersViewProps> = ({
         {/* Card 4: Total Records */}
         <div className="bg-[#12141a] border border-white/5 rounded-2xl p-4 sm:p-5 shadow-xl relative overflow-hidden">
           <div className="text-xs text-zinc-400 font-medium">
-            {isPayablesMode ? 'Total Payables' : 'Total Receivables'}
+            {isPayablesMode ? 'This Month Due' : 'This Month Due'}
           </div>
           <div className="text-xl sm:text-2xl font-bold text-white font-mono mt-1">
-            {baseReminders.length}
+            {thisMonthActive.length}
           </div>
           <div className="text-[11px] text-zinc-500 mt-1">
-            {isPayablesMode ? 'Salaries, bills & vendor obligations' : 'Client milestones & retainers'}
+            {futureActive.length > 0 ? `${futureActive.length} scheduled in future months` : 'All current cycle records'}
           </div>
         </div>
       </div>
@@ -255,12 +268,12 @@ export const FreelanceRemindersView: React.FC<FreelanceRemindersViewProps> = ({
         <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-4 border-b border-white/5 gap-3">
           <div className="flex items-center gap-1.5 bg-[#181b23] p-1 rounded-xl border border-white/10 text-xs overflow-x-auto max-w-full pb-1 sm:pb-1">
             <button
-              onClick={() => setFilterTab('pending')}
+              onClick={() => setFilterTab('this_month')}
               className={`px-3 py-1.5 rounded-lg transition-colors whitespace-nowrap cursor-pointer ${
-                filterTab === 'pending' ? 'bg-white/10 text-white font-medium' : 'text-zinc-400 hover:text-zinc-200'
+                filterTab === 'this_month' ? 'bg-white/10 text-white font-medium' : 'text-zinc-400 hover:text-zinc-200'
               }`}
             >
-              {isPayablesMode ? `To Pay (${activeCount})` : `To Collect (${activeCount})`}
+              {isPayablesMode ? `To Pay (This Month) (${thisMonthActive.length})` : `To Collect (This Month) (${thisMonthActive.length})`}
             </button>
             <button
               onClick={() => setFilterTab('urgent')}
@@ -272,6 +285,19 @@ export const FreelanceRemindersView: React.FC<FreelanceRemindersViewProps> = ({
               {urgentCount > 0 && (
                 <span className="w-4 h-4 rounded-full bg-rose-500/30 text-rose-300 font-bold text-[10px] flex items-center justify-center border border-rose-500/40">
                   {urgentCount}
+                </span>
+              )}
+            </button>
+            <button
+              onClick={() => setFilterTab('upcoming')}
+              className={`px-3 py-1.5 rounded-lg transition-colors flex items-center gap-1.5 whitespace-nowrap cursor-pointer ${
+                filterTab === 'upcoming' ? 'bg-white/10 text-white font-medium' : 'text-zinc-400 hover:text-zinc-200'
+              }`}
+            >
+              <span>Upcoming Months</span>
+              {futureActive.length > 0 && (
+                <span className="px-1.5 py-0.2 rounded-full bg-blue-500/20 text-blue-300 font-semibold text-[10px] border border-blue-500/30">
+                  {futureActive.length}
                 </span>
               )}
             </button>

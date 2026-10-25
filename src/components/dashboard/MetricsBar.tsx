@@ -31,11 +31,14 @@ export const MetricsBar: React.FC<MetricsBarProps> = ({
   const netSavings = totalReceived - totalSpent;
   const savingsRate = totalReceived > 0 ? Math.max(0, (netSavings / totalReceived) * 100) : 0;
 
-  const pendingReceivables = reminders
-    .filter((r) => r.status !== 'collected')
-    .reduce((sum, r) => sum + r.amount, 0);
+  const now = new Date();
+  const endOfCurrentMonthStr = new Date(now.getFullYear(), now.getMonth() + 1, 0).toISOString().split('T')[0];
 
-  const pendingCount = reminders.filter((r) => r.status !== 'collected').length;
+  const currentReceivables = reminders.filter(
+    (r) => r.type !== 'payable' && r.status !== 'collected' && r.dueDate <= endOfCurrentMonthStr
+  );
+  const pendingReceivables = currentReceivables.reduce((sum, r) => sum + r.amount, 0);
+  const pendingCount = currentReceivables.length;
 
   return (
     <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3">
@@ -114,7 +117,7 @@ export const MetricsBar: React.FC<MetricsBarProps> = ({
           {currencySymbol}{formatCash(pendingReceivables)}
         </div>
         <div className="text-[10px] text-zinc-400 mt-1 font-mono">
-          {pendingCount} pending invoice{pendingCount === 1 ? '' : 's'}
+          {pendingCount} pending this month
         </div>
       </div>
     </div>
