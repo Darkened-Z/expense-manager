@@ -22,6 +22,7 @@ import {
 } from 'lucide-react';
 import confetti from 'canvas-confetti';
 import { PaymentReminder, Wallet } from '@/types';
+import { formatDateDDMMYYYY } from '@/lib/formatters';
 
 interface FreelanceRemindersViewProps {
   reminders: PaymentReminder[];
@@ -74,8 +75,9 @@ export const FreelanceRemindersView: React.FC<FreelanceRemindersViewProps> = ({
   // Calculate day difference for label
   const getDueLabel = (rem: PaymentReminder) => {
     if (rem.status === 'collected') {
+      const settledDate = formatDateDDMMYYYY(rem.collectedAt);
       return {
-        text: rem.type === 'payable' ? `Paid ${rem.collectedAt || ''}` : `Collected ${rem.collectedAt || ''}`,
+        text: rem.type === 'payable' ? `Paid ${settledDate}` : `Collected ${settledDate}`,
         color: 'emerald',
       };
     }
@@ -96,9 +98,10 @@ export const FreelanceRemindersView: React.FC<FreelanceRemindersViewProps> = ({
   // Copy reminder text
   const handleCopyReminderText = (rem: PaymentReminder) => {
     const isPayable = rem.type === 'payable';
+    const formattedDue = formatDateDDMMYYYY(rem.dueDate);
     const text = isPayable
-      ? `Payment Reminder: ${rem.projectTitle}\nPayee: ${rem.clientName}\nAmount: ${currencySymbol}${rem.amount.toFixed(2)}\nDue Date: ${rem.dueDate}${rem.notes ? `\nNotes: ${rem.notes}` : ''}`
-      : `Hi ${rem.clientName},\n\nI hope you're having a great week! Friendly reminder that Invoice #${rem.invoiceNumber || 'INV'} for "${rem.projectTitle}" in the amount of ${currencySymbol}${rem.amount.toFixed(2)} was due on ${rem.dueDate}.\n\nPlease let me know once the payment has been initiated or if you need any additional invoice documentation.\n\nThank you!`;
+      ? `Payment Reminder: ${rem.projectTitle}\nPayee: ${rem.clientName}\nAmount: ${currencySymbol}${rem.amount.toFixed(2)}\nDue Date: ${formattedDue}${rem.notes ? `\nNotes: ${rem.notes}` : ''}`
+      : `Hi ${rem.clientName},\n\nI hope you're having a great week! Friendly reminder that Invoice #${rem.invoiceNumber || 'INV'} for "${rem.projectTitle}" in the amount of ${currencySymbol}${rem.amount.toFixed(2)} was due on ${formattedDue}.\n\nPlease let me know once the payment has been initiated or if you need any additional invoice documentation.\n\nThank you!`;
 
     navigator.clipboard.writeText(text);
     setCopiedId(rem.id);
@@ -348,11 +351,11 @@ export const FreelanceRemindersView: React.FC<FreelanceRemindersViewProps> = ({
                       <div className="flex items-center gap-4 text-[11px] text-zinc-400 pt-1 font-mono">
                         <span className="flex items-center gap-1">
                           <Calendar className="w-3 h-3 text-zinc-500" />
-                          <span>Due: <strong className="text-zinc-200">{rem.dueDate}</strong></span>
+                          <span>Due: <strong className="text-zinc-200">{formatDateDDMMYYYY(rem.dueDate)}</strong></span>
                         </span>
                         <span className="flex items-center gap-1">
                           <Clock className="w-3 h-3 text-zinc-500" />
-                          <span>Reminder: <strong className="text-zinc-200">{rem.reminderDate}</strong></span>
+                          <span>Reminder: <strong className="text-zinc-200">{formatDateDDMMYYYY(rem.reminderDate)}</strong></span>
                         </span>
                         {rem.clientEmail && (
                           <span className="text-zinc-500">Contact: {rem.clientEmail}</span>

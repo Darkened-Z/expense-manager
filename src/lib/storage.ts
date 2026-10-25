@@ -1,5 +1,6 @@
 import { Transaction, PaymentReminder, Category, Wallet, AppSettings, PaymentReminderStatus, SavingsGoal } from '@/types';
 import { DEFAULT_CATEGORIES, DEFAULT_WALLETS, DEFAULT_SETTINGS, INITIAL_REMINDERS, INITIAL_TRANSACTIONS, INITIAL_SAVINGS_GOALS } from './constants';
+import { formatDateDDMMYYYY } from './formatters';
 
 const KEYS = {
   TRANSACTIONS: 'expense_manager_txs_v5',
@@ -433,13 +434,13 @@ export const StorageService = {
     const cats = this.getCategories();
     const wallets = this.getWallets();
 
-    const headers = ['ID', 'Date', 'Time', 'Type', 'Title', 'Client/Payer', 'Category/Source', 'Wallet', 'Amount', 'Currency', 'Notes'];
+    const headers = ['ID', 'Date (DD/MM/YYYY)', 'Time', 'Type', 'Title', 'Client/Payer', 'Category/Source', 'Wallet', 'Amount', 'Currency', 'Notes'];
     const rows = txs.map(t => {
       const cat = cats.find(c => c.id === t.categoryId)?.name || 'Unknown';
       const wal = wallets.find(w => w.id === t.walletId)?.name || 'Unknown';
       return [
         `"${t.id}"`,
-        `"${t.date}"`,
+        `"${formatDateDDMMYYYY(t.date)}"`,
         `"${t.time}"`,
         `"${t.type}"`,
         `"${t.title.replace(/"/g, '""')}"`,

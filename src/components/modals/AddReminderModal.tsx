@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import { X, Clock, Calendar, DollarSign, User, FileText, Bell, ArrowUpRight, ArrowDownLeft, AlertTriangle } from 'lucide-react';
 import { Category, ReminderType } from '@/types';
+import { formatDateDDMMYYYY } from '@/lib/formatters';
 
 interface AddReminderModalProps {
   isOpen: boolean;
@@ -334,10 +335,17 @@ export const AddReminderModal: React.FC<AddReminderModalProps> = ({
           {/* Due Date & Reminder Trigger Date */}
           <div className="grid grid-cols-2 gap-3 bg-[#171922] p-3 rounded-2xl border border-white/5">
             <div>
-              <label className="block text-[11px] font-medium text-zinc-300 mb-1 flex items-center gap-1">
-                <Calendar className="w-3 h-3 text-zinc-400" />
-                <span>Payment Due Date</span>
-              </label>
+              <div className="flex items-center justify-between mb-1">
+                <label className="text-[11px] font-medium text-zinc-300 flex items-center gap-1">
+                  <Calendar className="w-3 h-3 text-zinc-400" />
+                  <span>Due Date</span>
+                </label>
+                {dueDate && (
+                  <span className="text-[10px] font-mono text-zinc-400 font-medium">
+                    ({formatDateDDMMYYYY(dueDate)})
+                  </span>
+                )}
+              </div>
               <input
                 type="date"
                 value={dueDate}
@@ -351,10 +359,17 @@ export const AddReminderModal: React.FC<AddReminderModalProps> = ({
             </div>
 
             <div>
-              <label className="block text-[11px] font-medium text-zinc-300 mb-1 flex items-center gap-1">
-                <Bell className="w-3 h-3 text-zinc-400" />
-                <span>Reminder Alert Date</span>
-              </label>
+              <div className="flex items-center justify-between mb-1">
+                <label className="text-[11px] font-medium text-zinc-300 flex items-center gap-1">
+                  <Bell className="w-3 h-3 text-zinc-400" />
+                  <span>Alert Date</span>
+                </label>
+                {reminderDate && (
+                  <span className="text-[10px] font-mono text-zinc-400 font-medium">
+                    ({formatDateDDMMYYYY(reminderDate)})
+                  </span>
+                )}
+              </div>
               <input
                 type="date"
                 value={reminderDate}

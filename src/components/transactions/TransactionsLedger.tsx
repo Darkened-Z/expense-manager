@@ -22,6 +22,7 @@ import {
   ChevronDown,
 } from 'lucide-react';
 import { Transaction, Category, Wallet } from '@/types';
+import { formatDateTimeDDMMYYYY } from '@/lib/formatters';
 
 interface TransactionsLedgerProps {
   transactions: Transaction[];
@@ -64,15 +65,7 @@ export const TransactionsLedger: React.FC<TransactionsLedgerProps> = ({
   };
 
   const formatDateTime = (dateStr: string, timeStr: string) => {
-    try {
-      const today = new Date().toISOString().split('T')[0];
-      if (dateStr === today) {
-        return `Today, ${timeStr}`;
-      }
-      return `${dateStr} • ${timeStr}`;
-    } catch {
-      return `${dateStr} ${timeStr}`;
-    }
+    return formatDateTimeDDMMYYYY(dateStr, timeStr);
   };
 
   const filteredTransactions = transactions.filter((t) => {

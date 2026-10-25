@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import { X, ArrowDownLeft, ArrowUpRight, DollarSign, Calendar, Clock, Tag, Wallet as WalletIcon } from 'lucide-react';
 import { Category, Wallet, TransactionType } from '@/types';
+import { formatDateDDMMYYYY } from '@/lib/formatters';
 
 interface AddTransactionModalProps {
   isOpen: boolean;
@@ -323,7 +324,14 @@ export const AddTransactionModal: React.FC<AddTransactionModalProps> = ({
           {/* Date & Time */}
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <label className="block text-[11px] font-medium text-zinc-400 mb-1">Date</label>
+              <div className="flex items-center justify-between mb-1">
+                <label className="block text-[11px] font-medium text-zinc-400">Date</label>
+                {date && (
+                  <span className="text-[10px] font-mono text-zinc-400 font-medium">
+                    ({formatDateDDMMYYYY(date)})
+                  </span>
+                )}
+              </div>
               <input
                 type="date"
                 value={date}

@@ -3,6 +3,7 @@
 import React, { useState } from 'react';
 import { ChevronRight } from 'lucide-react';
 import { Transaction } from '@/types';
+import { formatDateDDMMYYYY } from '@/lib/formatters';
 
 interface DailyPulseCardProps {
   transactions: Transaction[];
@@ -84,7 +85,7 @@ export const DailyPulseCard: React.FC<DailyPulseCardProps> = ({
             className="absolute -top-10 bg-[#1a1d25] border border-white/10 px-2.5 py-1.5 rounded-lg shadow-xl text-[10px] pointer-events-none transition-all duration-150 transform -translate-x-1/2 z-20"
             style={{ left: `${(activeCoord.x / width) * 100}%` }}
           >
-            <div className="text-zinc-400 font-medium">Daily Spend ({activeCoord.day})</div>
+            <div className="text-zinc-400 font-medium">Daily Spend ({formatDateDDMMYYYY(activeCoord.day)})</div>
             <div className="font-mono font-bold text-white text-xs">
               {currencySymbol}{activeCoord.value.toFixed(2)}
             </div>

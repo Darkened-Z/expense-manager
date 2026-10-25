@@ -16,6 +16,7 @@ import {
   Cloud,
 } from 'lucide-react';
 import { Wallet, PaymentReminder } from '@/types';
+import { formatDateDDMMYYYY } from '@/lib/formatters';
 
 interface HeaderProps {
   currentTab: string;
@@ -278,12 +279,12 @@ export const Header: React.FC<HeaderProps> = ({
                                   : 'bg-zinc-800 text-zinc-400'
                               }`}
                             >
-                              {rem.status === 'overdue' ? 'Overdue' : rem.status === 'due_today' ? 'Due Today' : `Due ${rem.dueDate}`}
+                              {rem.status === 'overdue' ? 'Overdue' : rem.status === 'due_today' ? 'Due Today' : `Due ${formatDateDDMMYYYY(rem.dueDate)}`}
                             </span>
                           </div>
                         </div>
                         <div className="mt-2 flex items-center justify-between pt-1 border-t border-white/5">
-                          <span className="text-[10px] text-zinc-500">Due: {rem.dueDate}</span>
+                          <span className="text-[10px] text-zinc-500">Due: {formatDateDDMMYYYY(rem.dueDate)}</span>
                           <button
                             onClick={() => {
                               onCollectReminder(rem.id);
