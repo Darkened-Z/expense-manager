@@ -32,10 +32,10 @@ export const MetricsBar: React.FC<MetricsBarProps> = ({
   const savingsRate = totalReceived > 0 ? Math.max(0, (netSavings / totalReceived) * 100) : 0;
 
   const now = new Date();
-  const endOfCurrentMonthStr = new Date(now.getFullYear(), now.getMonth() + 1, 0).toISOString().split('T')[0];
+  const todayStr = now.toISOString().split('T')[0];
 
   const currentReceivables = reminders.filter(
-    (r) => r.type !== 'payable' && r.status !== 'collected' && r.dueDate <= endOfCurrentMonthStr
+    (r) => r.type !== 'payable' && r.status !== 'collected' && r.dueDate <= todayStr
   );
   const pendingReceivables = currentReceivables.reduce((sum, r) => sum + r.amount, 0);
   const pendingCount = currentReceivables.length;
@@ -52,7 +52,7 @@ export const MetricsBar: React.FC<MetricsBarProps> = ({
           {currencySymbol}{formatCash(totalBalance)}
         </div>
         <div className="text-[10px] text-zinc-500 mt-1 font-mono">
-          Across {wallets.length} accounts
+          Across {wallets.length} accounts as of today
         </div>
       </div>
 
@@ -69,7 +69,7 @@ export const MetricsBar: React.FC<MetricsBarProps> = ({
           {currencySymbol}{formatCash(totalReceived)}
         </div>
         <div className="text-[10px] text-zinc-500 mt-1 font-mono">
-          {transactions.filter((t) => t.type === 'income').length} deposits
+          {transactions.filter((t) => t.type === 'income').length} deposits as of today
         </div>
       </div>
 
@@ -86,7 +86,7 @@ export const MetricsBar: React.FC<MetricsBarProps> = ({
           {currencySymbol}{formatCash(totalSpent)}
         </div>
         <div className="text-[10px] text-zinc-500 mt-1 font-mono">
-          {transactions.filter((t) => t.type === 'expense').length} purchases
+          {transactions.filter((t) => t.type === 'expense').length} purchases as of today
         </div>
       </div>
 
@@ -103,7 +103,7 @@ export const MetricsBar: React.FC<MetricsBarProps> = ({
           {formatCurrency(netSavings, currencySymbol)}
         </div>
         <div className="text-[10px] text-zinc-500 mt-1 font-mono">
-          Income − Expenses (unspent)
+          Unspent cash position as of today
         </div>
       </div>
 
@@ -117,7 +117,7 @@ export const MetricsBar: React.FC<MetricsBarProps> = ({
           {currencySymbol}{formatCash(pendingReceivables)}
         </div>
         <div className="text-[10px] text-zinc-400 mt-1 font-mono">
-          {pendingCount} pending this month
+          {pendingCount === 0 ? '0 due as of today' : `${pendingCount} actionable as of today`}
         </div>
       </div>
     </div>

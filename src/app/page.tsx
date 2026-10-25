@@ -42,7 +42,7 @@ export default function Home() {
   // App UI state
   const [currentTab, setCurrentTab] = useState<string>('dashboard');
   const [selectedWalletId, setSelectedWalletId] = useState<string>('all');
-  const [dateRange, setDateRange] = useState<string>('30d');
+  const [dateRange, setDateRange] = useState<string>('as_of_today');
   const [searchQuery, setSearchQuery] = useState<string>('');
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState<boolean>(false);
 
@@ -522,6 +522,18 @@ export default function Home() {
 
     if (dateRange === 'all') return true;
 
+    const todayStr = new Date().toISOString().split('T')[0];
+
+    // As of Today: all transactions that have occurred up to and including today
+    if (dateRange === 'as_of_today') {
+      return t.date <= todayStr;
+    }
+
+    // Today Only: transactions that occurred strictly today
+    if (dateRange === 'today') {
+      return t.date === todayStr;
+    }
+
     const txDate = new Date(t.date + 'T00:00:00');
     if (isNaN(txDate.getTime())) return true;
 
@@ -530,7 +542,8 @@ export default function Home() {
     if (dateRange === 'this_month') {
       return (
         txDate.getFullYear() === now.getFullYear() &&
-        txDate.getMonth() === now.getMonth()
+        txDate.getMonth() === now.getMonth() &&
+        t.date <= todayStr
       );
     }
 
@@ -538,18 +551,14 @@ export default function Home() {
       const past30 = new Date(now);
       past30.setDate(past30.getDate() - 30);
       past30.setHours(0, 0, 0, 0);
-      const endOfToday = new Date(now);
-      endOfToday.setHours(23, 59, 59, 999);
-      return txDate >= past30 && txDate <= endOfToday;
+      return txDate >= past30 && t.date <= todayStr;
     }
 
     if (dateRange === '90d') {
       const past90 = new Date(now);
       past90.setDate(past90.getDate() - 90);
       past90.setHours(0, 0, 0, 0);
-      const endOfToday = new Date(now);
-      endOfToday.setHours(23, 59, 59, 999);
-      return txDate >= past90 && txDate <= endOfToday;
+      return txDate >= past90 && t.date <= todayStr;
     }
 
     return true;

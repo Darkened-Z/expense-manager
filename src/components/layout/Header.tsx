@@ -187,10 +187,14 @@ export const Header: React.FC<HeaderProps> = ({
             >
               <Calendar className="w-3.5 h-3.5 text-zinc-400" />
               <span>
-                {dateRange === '30d'
-                  ? 'Last 30d'
+                {dateRange === 'as_of_today'
+                  ? 'As of Today'
+                  : dateRange === 'today'
+                  ? 'Today'
                   : dateRange === 'this_month'
                   ? 'This Month'
+                  : dateRange === '30d'
+                  ? 'Last 30d'
                   : dateRange === '90d'
                   ? 'Last 90d'
                   : 'All Time'}
@@ -199,10 +203,12 @@ export const Header: React.FC<HeaderProps> = ({
             </button>
 
             {showDateDropdown && (
-              <div className="absolute right-0 mt-2 w-36 bg-[#14161d] border border-white/10 rounded-xl shadow-2xl py-1 z-50">
+              <div className="absolute right-0 mt-2 w-40 bg-[#14161d] border border-white/10 rounded-xl shadow-2xl py-1 z-50">
                 {[
-                  { id: '30d', label: 'Last 30 days' },
+                  { id: 'as_of_today', label: 'As of Today' },
+                  { id: 'today', label: 'Today Only' },
                   { id: 'this_month', label: 'This Month' },
+                  { id: '30d', label: 'Last 30 days' },
                   { id: '90d', label: 'Last 90 days' },
                   { id: 'all', label: 'All Time' },
                 ].map((opt) => (
