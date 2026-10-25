@@ -44,7 +44,7 @@ export const FreelanceRemindersView: React.FC<FreelanceRemindersViewProps> = ({
   onDeleteReminder,
 }) => {
   const isPayablesMode = mode === 'payables';
-  const [filterTab, setFilterTab] = useState<'all' | 'urgent' | 'pending' | 'collected'>('all');
+  const [filterTab, setFilterTab] = useState<'pending' | 'urgent' | 'collected' | 'all'>('pending');
   const [copiedId, setCopiedId] = useState<string | null>(null);
   const [collectingReminder, setCollectingReminder] = useState<PaymentReminder | null>(null);
   const [targetWalletId, setTargetWalletId] = useState<string>(wallets[0]?.id || 'wal-bank');
@@ -69,12 +69,11 @@ export const FreelanceRemindersView: React.FC<FreelanceRemindersViewProps> = ({
 
   const activeCount = baseReminders.filter((r) => r.status !== 'collected').length;
   const settledCount = baseReminders.filter((r) => r.status === 'collected').length;
-  const upcomingCount = baseReminders.filter((r) => r.status === 'pending').length;
 
   // Filter list by selected tab
   const filteredList = baseReminders.filter((r) => {
     if (filterTab === 'urgent') return r.status === 'overdue' || r.status === 'due_today';
-    if (filterTab === 'pending') return r.status === 'pending';
+    if (filterTab === 'pending') return r.status !== 'collected'; // All active items needing settlement
     if (filterTab === 'collected') return r.status === 'collected';
     return true;
   });
@@ -82,7 +81,7 @@ export const FreelanceRemindersView: React.FC<FreelanceRemindersViewProps> = ({
   // Calculate day difference for label
   const getDueLabel = (rem: PaymentReminder) => {
     if (rem.status === 'collected') {
-      const settledDate = formatDateDDMMYYYY(rem.collectedAt);
+      const settledDate = formatDateDDMMYYYY(rem.collectedAt || rem.dueDate);
       return {
         text: rem.type === 'payable' ? `Paid ${settledDate}` : `Collected ${settledDate}`,
         color: 'emerald',
@@ -253,12 +252,12 @@ export const FreelanceRemindersView: React.FC<FreelanceRemindersViewProps> = ({
         <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-4 border-b border-white/5 gap-3">
           <div className="flex items-center gap-1.5 bg-[#181b23] p-1 rounded-xl border border-white/10 text-xs overflow-x-auto max-w-full pb-1 sm:pb-1">
             <button
-              onClick={() => setFilterTab('all')}
+              onClick={() => setFilterTab('pending')}
               className={`px-3 py-1.5 rounded-lg transition-colors whitespace-nowrap cursor-pointer ${
-                filterTab === 'all' ? 'bg-white/10 text-white font-medium' : 'text-zinc-400 hover:text-zinc-200'
+                filterTab === 'pending' ? 'bg-white/10 text-white font-medium' : 'text-zinc-400 hover:text-zinc-200'
               }`}
             >
-              All ({baseReminders.length})
+              {isPayablesMode ? `To Pay (${activeCount})` : `To Collect (${activeCount})`}
             </button>
             <button
               onClick={() => setFilterTab('urgent')}
@@ -274,20 +273,20 @@ export const FreelanceRemindersView: React.FC<FreelanceRemindersViewProps> = ({
               )}
             </button>
             <button
-              onClick={() => setFilterTab('pending')}
-              className={`px-3 py-1.5 rounded-lg transition-colors whitespace-nowrap cursor-pointer ${
-                filterTab === 'pending' ? 'bg-white/10 text-white font-medium' : 'text-zinc-400 hover:text-zinc-200'
-              }`}
-            >
-              Upcoming ({upcomingCount})
-            </button>
-            <button
               onClick={() => setFilterTab('collected')}
               className={`px-3 py-1.5 rounded-lg transition-colors whitespace-nowrap cursor-pointer ${
                 filterTab === 'collected' ? 'bg-white/10 text-white font-medium' : 'text-zinc-400 hover:text-zinc-200'
               }`}
             >
               {isPayablesMode ? `Paid (${settledCount})` : `Collected (${settledCount})`}
+            </button>
+            <button
+              onClick={() => setFilterTab('all')}
+              className={`px-3 py-1.5 rounded-lg transition-colors whitespace-nowrap cursor-pointer ${
+                filterTab === 'all' ? 'bg-white/10 text-white font-medium' : 'text-zinc-400 hover:text-zinc-200'
+              }`}
+            >
+              All ({baseReminders.length})
             </button>
           </div>
 

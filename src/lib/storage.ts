@@ -163,6 +163,11 @@ export const StorageService = {
     const todayStr = new Date().toISOString().split('T')[0];
     const nowTime = new Date().toTimeString().slice(0, 5);
 
+    // If payment is scheduled for next month / future due date,
+    // attribute it to that scheduled due date so it is shown as paid in that month!
+    // "even if ive collected the payment of next month in this month it should be shown as paid the next month"
+    const effectivePaymentDate = (rem.dueDate && rem.dueDate > todayStr) ? rem.dueDate : todayStr;
+
     const isPayable = rem.type === 'payable';
     const tx = this.addTransaction({
       amount: rem.amount,
@@ -173,7 +178,7 @@ export const StorageService = {
       clientOrPayer: rem.clientName,
       categoryId: isPayable ? (rem.categoryId || 'cat-misc') : 'inc-freelance',
       walletId: walletId,
-      date: todayStr,
+      date: effectivePaymentDate,
       time: nowTime,
       token: rem.token || 'PKR',
       notes: isPayable
@@ -185,7 +190,7 @@ export const StorageService = {
 
     this.updateReminder(reminderId, {
       status: 'collected',
-      collectedAt: todayStr,
+      collectedAt: effectivePaymentDate,
       collectedWalletId: walletId,
       collectedTransactionId: tx.id,
     });
@@ -228,6 +233,42 @@ export const StorageService = {
   deleteReminder(id: string): void {
     const reminders = this.getReminders();
     this.saveReminders(reminders.filter(r => r.id !== id));
+  },
+
+  // Migrate existing collected reminders whose due date is in the future
+  syncFutureCollectedDates(): void {
+    if (typeof window === 'undefined') return;
+    try {
+      const reminders = this.getReminders();
+      const txs = this.getTransactions();
+      let modifiedReminders = false;
+      let modifiedTxs = false;
+
+      const updatedReminders = reminders.map(r => {
+        if (r.status === 'collected' && r.dueDate && r.collectedAt && r.dueDate > r.collectedAt) {
+          modifiedReminders = true;
+          // Also update linked transaction
+          if (r.collectedTransactionId) {
+            const tx = txs.find(t => t.id === r.collectedTransactionId);
+            if (tx && tx.date !== r.dueDate) {
+              tx.date = r.dueDate;
+              modifiedTxs = true;
+            }
+          }
+          return { ...r, collectedAt: r.dueDate };
+        }
+        return r;
+      });
+
+      if (modifiedReminders) {
+        this.saveReminders(updatedReminders);
+      }
+      if (modifiedTxs) {
+        this.saveTransactions(txs);
+      }
+    } catch {
+      // ignore
+    }
   },
 
   // --- Categories & Income Sources ---

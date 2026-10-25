@@ -50,6 +50,7 @@ export default function Home() {
 
   // Load state on mount
   useEffect(() => {
+    StorageService.syncFutureCollectedDates();
     const txs = StorageService.getTransactions();
     const rems = StorageService.getReminders();
     const cats = StorageService.getCategories();
@@ -321,17 +322,50 @@ export default function Home() {
 
   const filteredTxs = transactions.filter((t) => {
     if (selectedWalletId !== 'all' && t.walletId !== selectedWalletId) return false;
+
+    if (dateRange === 'all') return true;
+
+    const txDate = new Date(t.date + 'T00:00:00');
+    if (isNaN(txDate.getTime())) return true;
+
+    const now = new Date();
+
+    if (dateRange === 'this_month') {
+      return (
+        txDate.getFullYear() === now.getFullYear() &&
+        txDate.getMonth() === now.getMonth()
+      );
+    }
+
+    if (dateRange === '30d') {
+      const past30 = new Date(now);
+      past30.setDate(past30.getDate() - 30);
+      past30.setHours(0, 0, 0, 0);
+      const endOfToday = new Date(now);
+      endOfToday.setHours(23, 59, 59, 999);
+      return txDate >= past30 && txDate <= endOfToday;
+    }
+
+    if (dateRange === '90d') {
+      const past90 = new Date(now);
+      past90.setDate(past90.getDate() - 90);
+      past90.setHours(0, 0, 0, 0);
+      const endOfToday = new Date(now);
+      endOfToday.setHours(23, 59, 59, 999);
+      return txDate >= past90 && txDate <= endOfToday;
+    }
+
     return true;
   });
 
   const overdueCount = reminders.filter((r) => r.status === 'overdue').length;
-  const pendingCount = reminders.filter((r) => r.status === 'pending' || r.status === 'due_today').length;
+  const pendingCount = reminders.filter((r) => r.status === 'due_today').length;
 
   const overdueReceivablesCount = reminders.filter((r) => r.type !== 'payable' && r.status === 'overdue').length;
-  const pendingReceivablesCount = reminders.filter((r) => r.type !== 'payable' && (r.status === 'pending' || r.status === 'due_today')).length;
+  const pendingReceivablesCount = reminders.filter((r) => r.type !== 'payable' && r.status === 'due_today').length;
 
   const overduePayablesCount = reminders.filter((r) => r.type === 'payable' && r.status === 'overdue').length;
-  const pendingPayablesCount = reminders.filter((r) => r.type === 'payable' && (r.status === 'pending' || r.status === 'due_today')).length;
+  const pendingPayablesCount = reminders.filter((r) => r.type === 'payable' && r.status === 'due_today').length;
 
   return (
     <div className="flex min-h-screen bg-[#090a0d] text-zinc-100 font-sans">
