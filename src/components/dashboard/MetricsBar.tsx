@@ -1,7 +1,7 @@
 'use client';
 
 import React from 'react';
-import { ArrowUpRight, ArrowDownLeft, Wallet, PiggyBank, Clock } from 'lucide-react';
+import { ArrowUpRight, ArrowDownLeft, Wallet, TrendingUp, Clock } from 'lucide-react';
 import { Transaction, PaymentReminder, Wallet as WalletType } from '@/types';
 import { formatCash, formatCurrency } from '@/lib/formatters';
 
@@ -87,12 +87,12 @@ export const MetricsBar: React.FC<MetricsBarProps> = ({
         </div>
       </div>
 
-      {/* Net Savings */}
+      {/* Cash Surplus (Income - Expenses) */}
       <div className="bg-[#111215] border border-white/[0.06] hover:border-white/10 rounded-2xl p-4 shadow-sm transition-all">
         <div className="flex items-center justify-between">
-          <span className="text-[11px] font-medium text-zinc-400 uppercase tracking-wider">Net Savings</span>
+          <span className="text-[11px] font-medium text-zinc-400 uppercase tracking-wider">Cash Surplus</span>
           <span className="inline-flex items-center gap-1 text-[11px] font-mono font-medium text-amber-400">
-            <PiggyBank className="w-3.5 h-3.5 text-amber-400" />
+            <TrendingUp className="w-3.5 h-3.5 text-amber-400" />
             <span>{savingsRate.toFixed(0)}%</span>
           </span>
         </div>
@@ -100,7 +100,7 @@ export const MetricsBar: React.FC<MetricsBarProps> = ({
           {formatCurrency(netSavings, currencySymbol)}
         </div>
         <div className="text-[10px] text-zinc-500 mt-1 font-mono">
-          Retention surplus
+          Income − Expenses (unspent)
         </div>
       </div>
 
