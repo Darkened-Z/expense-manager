@@ -106,7 +106,19 @@ export const Header: React.FC<HeaderProps> = ({
   const { title, sub } = getPageTitle();
 
   return (
-    <header className="px-3.5 sm:px-6 lg:px-8 py-3.5 sm:py-5 border-b border-white/5 bg-[#090a0d]/90 backdrop-blur-md sticky top-0 z-30 flex flex-col gap-3 max-w-full overflow-hidden">
+    <header className="px-3.5 sm:px-6 lg:px-8 py-3.5 sm:py-5 border-b border-white/5 bg-[#090a0d]/90 backdrop-blur-md sticky top-0 z-30 flex flex-col gap-3 max-w-full">
+      {/* Click-outside backdrop for open dropdowns */}
+      {(showWalletDropdown || showDateDropdown || showNotifications) && (
+        <div
+          className="fixed inset-0 z-40 bg-transparent"
+          onClick={() => {
+            setShowWalletDropdown(false);
+            setShowDateDropdown(false);
+            setShowNotifications(false);
+          }}
+        />
+      )}
+
       <div className="flex items-center justify-between gap-2 max-w-full">
         {/* Left: Mobile Menu Trigger + Title */}
         <div className="flex items-center gap-2.5 sm:gap-3">
@@ -146,7 +158,7 @@ export const Header: React.FC<HeaderProps> = ({
             </button>
 
             {showWalletDropdown && (
-              <div className="absolute right-0 mt-2 w-60 bg-[#14161d] border border-white/10 rounded-xl shadow-2xl py-1 z-50 animate-in fade-in zoom-in-95 duration-100">
+              <div className="absolute right-0 mt-2 w-60 bg-[#14161d] border border-white/10 rounded-xl shadow-2xl py-1 z-50 animate-in fade-in zoom-in-95 duration-100 max-h-80 overflow-y-auto">
                 <button
                   onClick={() => {
                     setSelectedWalletId('all');
@@ -211,7 +223,7 @@ export const Header: React.FC<HeaderProps> = ({
             </button>
 
             {showDateDropdown && (
-              <div className="absolute right-0 mt-2 w-40 bg-[#14161d] border border-white/10 rounded-xl shadow-2xl py-1 z-50">
+              <div className="absolute right-0 mt-2 w-44 bg-[#14161d] border border-white/10 rounded-xl shadow-2xl py-1 z-50 animate-in fade-in zoom-in-95 duration-100">
                 {[
                   { id: 'as_of_today', label: 'As of Today' },
                   { id: 'today', label: 'Today Only' },
