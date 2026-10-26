@@ -732,9 +732,10 @@ create policy "Allow anon access" on expense_sync
                 <button
                   type="button"
                   onClick={handleCopyMobileLink}
-                  className="px-3.5 py-2.5 rounded-xl text-xs font-medium text-emerald-400 bg-emerald-500/10 hover:bg-emerald-500/15 border border-emerald-500/20 transition-colors cursor-pointer flex items-center gap-1.5"
+                  className="px-3.5 py-2.5 rounded-xl text-xs font-medium text-zinc-300 bg-white/5 hover:bg-white/10 border border-white/10 transition-colors cursor-pointer flex items-center gap-1.5"
+                  title="Copy direct sync link for mobile device setup"
                 >
-                  {copiedMobileLink ? <Check className="w-3.5 h-3.5" /> : <Smartphone className="w-3.5 h-3.5" />}
+                  {copiedMobileLink ? <Check className="w-3.5 h-3.5 text-emerald-400" /> : <Smartphone className="w-3.5 h-3.5 text-zinc-400" />}
                   <span>{copiedMobileLink ? 'Copied Mobile Setup Link!' : 'Copy Mobile Setup Link'}</span>
                 </button>
               </>

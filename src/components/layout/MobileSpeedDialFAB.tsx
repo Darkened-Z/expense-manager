@@ -32,8 +32,8 @@ export const MobileSpeedDialFAB: React.FC<MobileSpeedDialFABProps> = ({
     {
       label: 'Add Expense',
       icon: ArrowDownLeft,
-      color: 'bg-rose-500/20 text-rose-400 border-rose-500/30 hover:bg-rose-500/30',
-      badgeColor: 'bg-rose-950 text-rose-200 border-rose-500/30',
+      color: 'bg-[#181b23] hover:bg-[#20242f] text-rose-400 border border-white/10',
+      badgeColor: 'bg-[#181b23] text-zinc-200 border border-white/10',
       onClick: () => {
         setIsOpen(false);
         onAddExpense();
@@ -42,8 +42,8 @@ export const MobileSpeedDialFAB: React.FC<MobileSpeedDialFABProps> = ({
     {
       label: 'Add Income',
       icon: ArrowUpRight,
-      color: 'bg-emerald-500/20 text-emerald-400 border-emerald-500/30 hover:bg-emerald-500/30',
-      badgeColor: 'bg-emerald-950 text-emerald-200 border-emerald-500/30',
+      color: 'bg-[#181b23] hover:bg-[#20242f] text-emerald-400 border border-white/10',
+      badgeColor: 'bg-[#181b23] text-zinc-200 border border-white/10',
       onClick: () => {
         setIsOpen(false);
         onAddIncome();
@@ -52,8 +52,8 @@ export const MobileSpeedDialFAB: React.FC<MobileSpeedDialFABProps> = ({
     ...(onAddDeposit ? [{
       label: 'Add Money (Personal / Family)',
       icon: PlusCircle,
-      color: 'bg-purple-500/20 text-purple-400 border-purple-500/30 hover:bg-purple-500/30',
-      badgeColor: 'bg-purple-950 text-purple-200 border-purple-500/30',
+      color: 'bg-[#181b23] hover:bg-[#20242f] text-purple-400 border border-white/10',
+      badgeColor: 'bg-[#181b23] text-zinc-200 border border-white/10',
       onClick: () => {
         setIsOpen(false);
         onAddDeposit();
@@ -62,8 +62,8 @@ export const MobileSpeedDialFAB: React.FC<MobileSpeedDialFABProps> = ({
     {
       label: 'Transfer Funds',
       icon: ArrowLeftRight,
-      color: 'bg-sky-500/20 text-sky-400 border-sky-500/30 hover:bg-sky-500/30',
-      badgeColor: 'bg-sky-950 text-sky-200 border-sky-500/30',
+      color: 'bg-[#181b23] hover:bg-[#20242f] text-sky-400 border border-white/10',
+      badgeColor: 'bg-[#181b23] text-zinc-200 border border-white/10',
       onClick: () => {
         setIsOpen(false);
         onTransfer();
@@ -72,8 +72,8 @@ export const MobileSpeedDialFAB: React.FC<MobileSpeedDialFABProps> = ({
     {
       label: 'Add Due Date / Invoice',
       icon: CalendarPlus,
-      color: 'bg-amber-500/20 text-amber-400 border-amber-500/30 hover:bg-amber-500/30',
-      badgeColor: 'bg-amber-950 text-amber-200 border-amber-500/30',
+      color: 'bg-[#181b23] hover:bg-[#20242f] text-amber-400 border border-white/10',
+      badgeColor: 'bg-[#181b23] text-zinc-200 border border-white/10',
       onClick: () => {
         setIsOpen(false);
         onAddReminder();
@@ -83,10 +83,10 @@ export const MobileSpeedDialFAB: React.FC<MobileSpeedDialFABProps> = ({
 
   return (
     <>
-      {/* Dimmed backdrop when speed dial is open */}
+      {/* Dimmed solid dark backdrop when speed dial is open (no blur bleed-through) */}
       {isOpen && (
         <div
-          className="fixed inset-0 bg-black/60 backdrop-blur-sm z-40 md:hidden animate-in fade-in duration-200"
+          className="fixed inset-0 bg-black/85 z-40 md:hidden animate-in fade-in duration-150"
           onClick={() => setIsOpen(false)}
         />
       )}
@@ -106,12 +106,12 @@ export const MobileSpeedDialFAB: React.FC<MobileSpeedDialFABProps> = ({
                   className="flex items-center gap-2.5 active:scale-95 transition-transform cursor-pointer"
                 >
                   <span
-                    className={`text-[11px] font-semibold px-2.5 py-1 rounded-xl shadow-lg border ${act.badgeColor}`}
+                    className={`text-[11px] font-medium px-3 py-1.5 rounded-xl shadow-md ${act.badgeColor}`}
                   >
                     {act.label}
                   </span>
                   <div
-                    className={`w-11 h-11 rounded-2xl flex items-center justify-center border shadow-xl backdrop-blur-md ${act.color}`}
+                    className={`w-11 h-11 rounded-2xl flex items-center justify-center shadow-md ${act.color}`}
                   >
                     <Icon className="w-5 h-5 stroke-[2.2]" />
                   </div>
@@ -125,10 +125,10 @@ export const MobileSpeedDialFAB: React.FC<MobileSpeedDialFABProps> = ({
         <button
           type="button"
           onClick={() => setIsOpen(!isOpen)}
-          className={`w-14 h-14 rounded-2xl shadow-2xl flex items-center justify-center transition-all duration-300 active:scale-90 cursor-pointer border ${
+          className={`w-14 h-14 rounded-2xl shadow-xl flex items-center justify-center transition-all duration-300 active:scale-90 cursor-pointer border ${
             isOpen
-              ? 'bg-zinc-800 text-white border-white/20 rotate-45 scale-95 shadow-white/5'
-              : 'bg-white text-zinc-950 border-white shadow-xl shadow-white/10 hover:bg-zinc-100'
+              ? 'bg-[#181b23] text-white border-white/15 rotate-45 scale-95'
+              : 'bg-white text-zinc-950 border-white hover:bg-zinc-100'
           }`}
           title={isOpen ? 'Close menu' : 'Quick Actions'}
           aria-label="Quick Actions"

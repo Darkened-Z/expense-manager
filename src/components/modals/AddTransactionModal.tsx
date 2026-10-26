@@ -301,13 +301,6 @@ export const AddTransactionModal: React.FC<AddTransactionModalProps> = ({
             </button>
           </div>
 
-          {/* Deposit Hint Box */}
-          {type === 'deposit' && (
-            <div className="p-3 rounded-xl bg-purple-500/10 border border-purple-500/20 text-purple-200 text-xs flex items-center gap-2 animate-in fade-in duration-150">
-              <span>💡 <strong>Money Added:</strong> Increases your wallet balance directly without counting as business/freelance income (e.g. from mother, family gift, personal deposit).</span>
-            </div>
-          )}
-
           {/* Amount and Multi-Currency Converter */}
           <div className="space-y-3">
             <div className="grid grid-cols-3 gap-3">
