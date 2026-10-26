@@ -1,7 +1,27 @@
 'use client';
 
 import React, { useState } from 'react';
-import { Tag, Plus, Coffee, Car, Laptop, Briefcase, Box, Zap, Globe, FileText, ShoppingBag, Repeat, TrendingUp, DollarSign, Trash2 } from 'lucide-react';
+import {
+  Tag,
+  Plus,
+  Coffee,
+  Car,
+  Laptop,
+  Briefcase,
+  Box,
+  Zap,
+  Globe,
+  FileText,
+  ShoppingBag,
+  Repeat,
+  TrendingUp,
+  DollarSign,
+  Trash2,
+  Pencil,
+  AlertTriangle,
+  X,
+  ArrowLeftRight,
+} from 'lucide-react';
 import { Category, Transaction } from '@/types';
 import { formatCash } from '@/lib/formatters';
 
@@ -11,6 +31,7 @@ interface CategoriesViewProps {
   currencySymbol: string;
   onAddCategory: (cat: Omit<Category, 'id'>) => void;
   onDeleteCategory: (id: string) => void;
+  onUpdateCategory?: (id: string, updates: Partial<Category>) => void;
 }
 
 export const CategoriesView: React.FC<CategoriesViewProps> = ({
@@ -19,12 +40,17 @@ export const CategoriesView: React.FC<CategoriesViewProps> = ({
   currencySymbol,
   onAddCategory,
   onDeleteCategory,
+  onUpdateCategory,
 }) => {
   const [activeTab, setActiveTab] = useState<'expense' | 'income'>('expense');
   const [showAddModal, setShowAddModal] = useState(false);
   const [name, setName] = useState('');
   const [color, setColor] = useState('#64748b');
   const [budgetLimit, setBudgetLimit] = useState('');
+
+  // Editing Budget Modal state
+  const [editingBudgetCat, setEditingBudgetCat] = useState<Category | null>(null);
+  const [editBudgetAmount, setEditBudgetAmount] = useState<string>('');
 
   const getCategoryIcon = (iconName: string) => {
     switch (iconName) {
@@ -40,14 +66,33 @@ export const CategoriesView: React.FC<CategoriesViewProps> = ({
       case 'Repeat': return Repeat;
       case 'TrendingUp': return TrendingUp;
       case 'DollarSign': return DollarSign;
+      case 'ArrowLeftRight': return ArrowLeftRight;
       default: return Tag;
     }
   };
 
-  // Spending / Revenue per category
-  const categoryTotals: Record<string, number> = {};
+  // Compute monthly spending strictly in the current calendar month
+  const now = new Date();
+  const currentMonth = now.getMonth();
+  const currentYear = now.getFullYear();
+
+  const currentMonthExpenses = transactions.filter((t) => {
+    if (t.type !== 'expense') return false;
+    const txDate = new Date(t.date + 'T00:00:00');
+    return !isNaN(txDate.getTime()) && txDate.getFullYear() === currentYear && txDate.getMonth() === currentMonth;
+  });
+
+  const categoryMonthlySpent: Record<string, number> = {};
+  currentMonthExpenses.forEach((t) => {
+    categoryMonthlySpent[t.categoryId] = (categoryMonthlySpent[t.categoryId] || 0) + t.amount;
+  });
+
+  // All-time totals for reference
+  const categoryAllTimeTotals: Record<string, number> = {};
   transactions.forEach((t) => {
-    categoryTotals[t.categoryId] = (categoryTotals[t.categoryId] || 0) + t.amount;
+    if (t.type !== 'transfer') {
+      categoryAllTimeTotals[t.categoryId] = (categoryAllTimeTotals[t.categoryId] || 0) + t.amount;
+    }
   });
 
   const displayedList = categories.filter((c) => c.type === activeTab);
@@ -69,17 +114,30 @@ export const CategoriesView: React.FC<CategoriesViewProps> = ({
     setBudgetLimit('');
   };
 
+  const handleSaveBudget = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!editingBudgetCat || !onUpdateCategory) return;
+
+    const parsed = Math.round(parseFloat(editBudgetAmount));
+    onUpdateCategory(editingBudgetCat.id, {
+      budgetLimit: !isNaN(parsed) && parsed > 0 ? parsed : 0,
+    });
+
+    setEditingBudgetCat(null);
+    setEditBudgetAmount('');
+  };
+
   return (
     <div className="space-y-6">
       {/* Top Banner & Tab Switcher */}
       <div className="bg-[#12141a] border border-white/5 rounded-2xl p-4 sm:p-6 shadow-xl flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <h2 className="text-base font-bold text-white tracking-wide">
-            {activeTab === 'expense' ? 'Expense Categories' : 'Income Sources'}
+            {activeTab === 'expense' ? 'Expense Categories & Budgets' : 'Income Sources'}
           </h2>
           <p className="text-xs text-zinc-400 mt-1">
             {activeTab === 'expense'
-              ? 'Organize outgoing expenditures and configure monthly budget caps'
+              ? 'Organize outgoing expenditures and configure monthly spending caps'
               : 'Classify incoming freelance contracts, retainers, salary, and dividends'}
           </p>
         </div>
@@ -139,10 +197,12 @@ export const CategoriesView: React.FC<CategoriesViewProps> = ({
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {displayedList.map((cat) => {
             const Icon = getCategoryIcon(cat.icon);
-            const total = categoryTotals[cat.id] || 0;
-            const limit = cat.budgetLimit;
-            const percent = limit ? Math.min((total / limit) * 100, 100) : 0;
-            const isOverBudget = limit && total > limit;
+            const allTimeTotal = categoryAllTimeTotals[cat.id] || 0;
+            const monthlySpent = categoryMonthlySpent[cat.id] || 0;
+            const limit = cat.budgetLimit || 0;
+            const percent = limit > 0 ? Math.min((monthlySpent / limit) * 100, 100) : 0;
+            const isOverBudget = limit > 0 && monthlySpent > limit;
+            const isNearBudget = limit > 0 && monthlySpent >= limit * 0.8 && monthlySpent <= limit;
 
             return (
               <div
@@ -173,10 +233,10 @@ export const CategoriesView: React.FC<CategoriesViewProps> = ({
                     <div className="flex items-start gap-2 shrink-0">
                       <div className="text-right">
                         <div className="font-mono font-bold text-sm text-white">
-                          {currencySymbol}{formatCash(total)}
+                          {currencySymbol}{formatCash(cat.type === 'expense' ? monthlySpent : allTimeTotal)}
                         </div>
                         <div className="text-[10px] text-zinc-500">
-                          {cat.type === 'income' ? 'Revenue' : 'Spent'}
+                          {cat.type === 'income' ? 'Total Revenue' : 'Spent This Month'}
                         </div>
                       </div>
 
@@ -195,35 +255,138 @@ export const CategoriesView: React.FC<CategoriesViewProps> = ({
                   </div>
                 </div>
 
-              {/* Budget Limit Progress Bar for Expenses */}
-              {cat.type === 'expense' && limit && (
-                <div className="mt-5 pt-3 border-t border-white/5">
-                  <div className="flex items-center justify-between text-[11px] mb-1.5 font-mono">
-                    <span className={isOverBudget ? 'text-rose-400 font-medium' : 'text-zinc-400'}>
-                      {percent.toFixed(0)}% of limit
-                    </span>
-                    <span className="text-zinc-500">
-                      Cap: {currencySymbol}{formatCash(limit)}
-                    </span>
-                  </div>
+                {/* Monthly Budget Cap Section for Expenses */}
+                {cat.type === 'expense' && (
+                  <div className="mt-5 pt-3 border-t border-white/5">
+                    {limit > 0 ? (
+                      <div>
+                        <div className="flex items-center justify-between text-[11px] mb-1.5 font-mono">
+                          <div className="flex items-center gap-1.5">
+                            {isOverBudget ? (
+                              <span className="text-rose-400 font-bold flex items-center gap-1">
+                                <AlertTriangle className="w-3 h-3 text-rose-400" />
+                                <span>{((monthlySpent / limit) * 100).toFixed(0)}% Overbudget!</span>
+                              </span>
+                            ) : isNearBudget ? (
+                              <span className="text-amber-400 font-semibold">
+                                {percent.toFixed(0)}% near limit
+                              </span>
+                            ) : (
+                              <span className="text-emerald-400 font-medium">
+                                {percent.toFixed(0)}% used
+                              </span>
+                            )}
+                          </div>
 
-                  <div className="w-full h-2 bg-white/5 rounded-full overflow-hidden">
-                    <div
-                      className={`h-full rounded-full transition-all duration-500 ${
-                        isOverBudget
-                          ? 'bg-rose-400/90'
-                          : 'bg-zinc-300'
-                      }`}
-                      style={{ width: `${percent}%` }}
-                    />
+                          <div className="flex items-center gap-1.5">
+                            <span className="text-zinc-400 font-mono">
+                              Limit: {currencySymbol}{formatCash(limit)}
+                            </span>
+                            {onUpdateCategory && (
+                              <button
+                                onClick={() => {
+                                  setEditingBudgetCat(cat);
+                                  setEditBudgetAmount(limit.toString());
+                                }}
+                                className="p-1 text-zinc-500 hover:text-white rounded transition-colors"
+                                title="Edit monthly budget cap"
+                              >
+                                <Pencil className="w-3 h-3" />
+                              </button>
+                            )}
+                          </div>
+                        </div>
+
+                        {/* Progress Bar */}
+                        <div className="w-full h-2 bg-white/5 rounded-full overflow-hidden">
+                          <div
+                            className={`h-full rounded-full transition-all duration-500 ${
+                              isOverBudget
+                                ? 'bg-rose-500'
+                                : isNearBudget
+                                ? 'bg-amber-400'
+                                : 'bg-emerald-400'
+                            }`}
+                            style={{ width: `${percent}%` }}
+                          />
+                        </div>
+                      </div>
+                    ) : (
+                      <div className="flex items-center justify-between">
+                        <span className="text-[11px] text-zinc-500 font-mono">No budget cap set</span>
+                        {onUpdateCategory && (
+                          <button
+                            onClick={() => {
+                              setEditingBudgetCat(cat);
+                              setEditBudgetAmount('');
+                            }}
+                            className="text-[10px] text-sky-400 hover:text-sky-300 font-semibold px-2 py-0.5 rounded-lg bg-sky-500/10 hover:bg-sky-500/20 border border-sky-500/20 transition-colors"
+                          >
+                            + Set Monthly Cap
+                          </button>
+                        )}
+                      </div>
+                    )}
                   </div>
-                </div>
-              )}
+                )}
+              </div>
+            );
+          })}
+        </div>
+      )}
+
+      {/* Edit Budget Cap Modal */}
+      {editingBudgetCat && (
+        <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+          <div className="bg-[#12141a] border border-white/10 rounded-2xl w-full max-w-sm p-6 shadow-2xl animate-in fade-in zoom-in-95">
+            <div className="flex items-center justify-between pb-3 border-b border-white/5">
+              <h3 className="font-bold text-white text-sm">
+                Monthly Budget Cap: {editingBudgetCat.name}
+              </h3>
+              <button onClick={() => setEditingBudgetCat(null)} className="text-zinc-500 hover:text-white">
+                <X className="w-4 h-4" />
+              </button>
             </div>
-          );
-        })}
-      </div>
-    )}
+
+            <form onSubmit={handleSaveBudget} className="space-y-4 pt-4">
+              <div>
+                <label className="block text-[11px] font-medium text-zinc-400 mb-1">
+                  Monthly Limit ({currencySymbol.trim()})
+                </label>
+                <input
+                  type="number"
+                  step="1"
+                  min="0"
+                  placeholder="e.g. 20000 (0 to remove limit)"
+                  value={editBudgetAmount}
+                  onChange={(e) => setEditBudgetAmount(e.target.value)}
+                  className="w-full bg-[#171922] text-white text-sm font-mono font-bold px-3.5 py-2.5 rounded-xl border border-white/10 focus:outline-none focus:border-white/30"
+                  autoFocus
+                />
+                <span className="text-[10px] text-zinc-500 mt-1 block">
+                  Set to 0 to remove budget alerts for this category.
+                </span>
+              </div>
+
+              <div className="flex items-center justify-end gap-2 pt-2">
+                <button
+                  type="button"
+                  onClick={() => setEditingBudgetCat(null)}
+                  className="px-3 py-1.5 rounded-xl text-xs text-zinc-400 hover:text-white"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  className="px-4 py-2 rounded-xl text-xs font-semibold text-zinc-950 bg-white hover:bg-zinc-200 transition-colors shadow-sm"
+                >
+                  Save Budget Cap
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
 
       {/* Add Modal */}
       {showAddModal && (
@@ -240,7 +403,7 @@ export const CategoriesView: React.FC<CategoriesViewProps> = ({
                 </label>
                 <input
                   type="text"
-                  placeholder={activeTab === 'expense' ? 'e.g. Server Hosting, Equipment' : 'e.g. Retainer, Royalty, Salary'}
+                  placeholder={activeTab === 'expense' ? 'e.g. Groceries & Dining, Fuel, Utilities' : 'e.g. Retainer, Royalty, Salary'}
                   value={name}
                   onChange={(e) => setName(e.target.value)}
                   className="w-full bg-[#171922] text-white text-xs px-3.5 py-2.5 rounded-xl border border-white/10 focus:outline-none focus:border-white/30"
@@ -271,7 +434,7 @@ export const CategoriesView: React.FC<CategoriesViewProps> = ({
                   <input
                     type="number"
                     step="1"
-                    placeholder="e.g. 50000"
+                    placeholder="e.g. 25000"
                     value={budgetLimit}
                     onChange={(e) => setBudgetLimit(e.target.value)}
                     className="w-full bg-[#171922] text-white text-xs font-mono px-3.5 py-2.5 rounded-xl border border-white/10 focus:outline-none focus:border-white/30"

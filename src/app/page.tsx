@@ -7,6 +7,7 @@ import { MetricsBar } from '@/components/dashboard/MetricsBar';
 import { FinancialGraphs } from '@/components/dashboard/FinancialGraphs';
 import { TransactionOverviewChart } from '@/components/dashboard/TransactionOverviewChart';
 import { DailyPulseCard } from '@/components/dashboard/DailyPulseCard';
+import { BudgetAlertsBanner } from '@/components/dashboard/BudgetAlertsBanner';
 import { TransactionsLedger } from '@/components/transactions/TransactionsLedger';
 import { FreelanceRemindersView } from '@/components/freelance/FreelanceRemindersView';
 import { SavingsView } from '@/components/views/SavingsView';
@@ -447,6 +448,11 @@ export default function Home() {
     setCategories(StorageService.getCategories());
   };
 
+  const handleUpdateCategory = (id: string, updates: Partial<Category>) => {
+    StorageService.updateCategory(id, updates);
+    setCategories(StorageService.getCategories());
+  };
+
   const handleDeleteCategory = (id: string) => {
     StorageService.deleteCategory(id);
     setCategories(StorageService.getCategories());
@@ -698,6 +704,14 @@ export default function Home() {
           {/* TAB: DASHBOARD */}
           {currentTab === 'dashboard' && (
             <div className="space-y-6 animate-in fade-in duration-200">
+              {/* Monthly Budget Overspend Alerts Banner */}
+              <BudgetAlertsBanner
+                categories={categories}
+                transactions={transactions}
+                currencySymbol={settings.currencySymbol}
+                onNavigateToCategories={() => setCurrentTab('categories')}
+              />
+
               {/* Executive Metrics Bar (No fluff, no stories) */}
               <MetricsBar
                 transactions={filteredTxs}
@@ -859,6 +873,7 @@ export default function Home() {
                 currencySymbol={settings.currencySymbol}
                 onAddCategory={handleAddCategory}
                 onDeleteCategory={handleDeleteCategory}
+                onUpdateCategory={handleUpdateCategory}
               />
             </div>
           )}

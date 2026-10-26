@@ -427,6 +427,12 @@ export const StorageService = {
     this.saveCategories(cats.filter((c) => c.id !== id));
   },
 
+  updateCategory(id: string, updates: Partial<Category>): void {
+    const cats = this.getCategories();
+    const updated = cats.map((c) => (c.id === id ? { ...c, ...updates } : c));
+    this.saveCategories(updated);
+  },
+
   // --- Wallets ---
   getWallets(): Wallet[] {
     if (typeof window === 'undefined') return DEFAULT_WALLETS;
