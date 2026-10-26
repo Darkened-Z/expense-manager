@@ -2,13 +2,15 @@
 
 import React from 'react';
 import { Sparkles, TrendingUp, TrendingDown, Target, ShieldCheck, DollarSign, PieChart, Users } from 'lucide-react';
-import { Transaction, PaymentReminder, Category } from '@/types';
+import { Transaction, PaymentReminder, Category, Wallet } from '@/types';
 import { formatCash, formatCurrency } from '@/lib/formatters';
+import { CashflowRunwaySection } from '@/components/dashboard/CashflowRunwaySection';
 
 interface InsightsViewProps {
   transactions: Transaction[];
   reminders: PaymentReminder[];
   categories: Category[];
+  wallets?: Wallet[];
   currencySymbol: string;
 }
 
@@ -16,6 +18,7 @@ export const InsightsView: React.FC<InsightsViewProps> = ({
   transactions,
   reminders,
   categories,
+  wallets = [],
   currencySymbol,
 }) => {
   const totalIncome = transactions
@@ -131,6 +134,14 @@ export const InsightsView: React.FC<InsightsViewProps> = ({
           <div className="text-[11px] text-zinc-500 mt-1">{runwayDesc}</div>
         </div>
       </div>
+
+      {/* 30/60/90 Day Cashflow Runway & Burn Forecast */}
+      <CashflowRunwaySection
+        wallets={wallets}
+        transactions={transactions}
+        reminders={reminders}
+        currencySymbol={currencySymbol}
+      />
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Category Breakdown */}

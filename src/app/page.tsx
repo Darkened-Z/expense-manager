@@ -887,6 +887,7 @@ export default function Home() {
                 transactions={transactions}
                 reminders={reminders}
                 categories={categories}
+                wallets={wallets}
                 currencySymbol={settings.currencySymbol}
               />
             </div>
