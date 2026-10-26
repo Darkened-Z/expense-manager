@@ -19,6 +19,7 @@ import { PasscodeLockModal } from '@/components/auth/PasscodeLockModal';
 import { AddTransactionModal } from '@/components/modals/AddTransactionModal';
 import { AddReminderModal } from '@/components/modals/AddReminderModal';
 import { TransferModal } from '@/components/modals/TransferModal';
+import { MobileSpeedDialFAB } from '@/components/layout/MobileSpeedDialFAB';
 import { StorageService } from '@/lib/storage';
 import { NotificationService } from '@/lib/notifications';
 import { PwaInstallPrompt } from '@/components/pwa/PwaInstallPrompt';
@@ -956,6 +957,24 @@ export default function Home() {
           onSubmit={handleTransfer}
         />
       )}
+
+      {/* Mobile Floating Action Button (FAB) Speed Dial */}
+      <MobileSpeedDialFAB
+        onAddExpense={() => {
+          setEditingTransaction(null);
+          setAddTxModalType('expense');
+        }}
+        onAddIncome={() => {
+          setEditingTransaction(null);
+          setAddTxModalType('income');
+        }}
+        onTransfer={() => setShowTransferModal(true)}
+        onAddReminder={() => {
+          setEditingReminder(null);
+          setAddReminderType(currentTab === 'payables' ? 'payable' : 'receivable');
+          setShowAddReminderModal(true);
+        }}
+      />
     </div>
   );
 }
