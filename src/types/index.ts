@@ -36,6 +36,9 @@ export interface Transaction {
   token?: string;
   reminderId?: string;
   frequency?: PaymentFrequency;
+  originalAmount?: number;
+  originalCurrency?: string;
+  exchangeRate?: number;
   createdAt: string;
 }
 
@@ -59,6 +62,9 @@ export interface PaymentReminder {
   reminderDate: string; // YYYY-MM-DD
   status: PaymentReminderStatus;
   frequency?: PaymentFrequency;
+  originalAmount?: number;
+  originalCurrency?: string;
+  exchangeRate?: number;
   notes?: string;
   collectedAt?: string;
   collectedWalletId?: string;

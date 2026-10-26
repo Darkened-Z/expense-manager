@@ -27,6 +27,7 @@ import { PaymentReminder, Wallet, AppSettings } from '@/types';
 import { formatDateDDMMYYYY, formatCash } from '@/lib/formatters';
 import { getWhatsAppReminderUrl } from '@/lib/whatsapp';
 import { DEFAULT_SETTINGS } from '@/lib/constants';
+import { formatForeignAmount } from '@/lib/currencies';
 
 interface FreelanceRemindersViewProps {
   mode?: 'receivables' | 'payables';
@@ -439,9 +440,15 @@ export const FreelanceRemindersView: React.FC<FreelanceRemindersViewProps> = ({
                         <div className="text-lg font-bold text-white font-mono">
                           {currencySymbol}{formatCash(rem.amount)}
                         </div>
-                        <div className="text-[10px] text-zinc-500 font-mono uppercase">
-                          {rem.token || rem.currency || 'PKR'}
-                        </div>
+                        {rem.originalCurrency && rem.originalCurrency !== 'PKR' && rem.originalAmount ? (
+                          <div className="text-[11px] text-zinc-400 font-mono font-medium">
+                            {formatForeignAmount(rem.originalAmount, rem.originalCurrency)} (@ {rem.exchangeRate})
+                          </div>
+                        ) : (
+                          <div className="text-[10px] text-zinc-500 font-mono uppercase">
+                            {rem.token || rem.currency || 'PKR'}
+                          </div>
+                        )}
                       </div>
 
                       {/* Action buttons */}

@@ -4,6 +4,7 @@ import React, { useState, useEffect } from 'react';
 import { X, ArrowDownLeft, ArrowUpRight, DollarSign, Calendar, Clock, Tag, Wallet as WalletIcon, Pencil } from 'lucide-react';
 import { Category, Wallet, TransactionType, Transaction } from '@/types';
 import { formatDateDDMMYYYY, formatCash } from '@/lib/formatters';
+import { SUPPORTED_CURRENCIES, getDefaultRate, getCurrencySymbol } from '@/lib/currencies';
 
 interface AddTransactionModalProps {
   isOpen: boolean;
@@ -26,6 +27,9 @@ interface AddTransactionModalProps {
     token?: string;
     frequency?: 'once' | 'monthly';
     createReminder?: boolean;
+    originalAmount?: number;
+    originalCurrency?: string;
+    exchangeRate?: number;
   }) => void;
   onUpdate?: (id: string, updates: Partial<Transaction>) => void;
 }
@@ -43,6 +47,8 @@ export const AddTransactionModal: React.FC<AddTransactionModalProps> = ({
 }) => {
   const [type, setType] = useState<TransactionType>(initialType);
   const [amount, setAmount] = useState<string>('');
+  const [currency, setCurrency] = useState<string>('PKR');
+  const [exchangeRate, setExchangeRate] = useState<string>('1');
   const [title, setTitle] = useState<string>('');
   const [clientOrPayer, setClientOrPayer] = useState<string>('');
   const [categoryId, setCategoryId] = useState<string>('');
@@ -55,11 +61,26 @@ export const AddTransactionModal: React.FC<AddTransactionModalProps> = ({
   const [notes, setNotes] = useState<string>('');
   const [error, setError] = useState<string | null>(null);
 
+  const handleCurrencyChange = (newCurr: string) => {
+    setCurrency(newCurr);
+    const def = getDefaultRate(newCurr);
+    setExchangeRate(def.toString());
+  };
+
   useEffect(() => {
     if (isOpen) {
       if (transactionToEdit) {
         setType(transactionToEdit.type);
-        setAmount(transactionToEdit.amount ? transactionToEdit.amount.toString() : '');
+        const origCurr = transactionToEdit.originalCurrency || 'PKR';
+        setCurrency(origCurr);
+        setExchangeRate(transactionToEdit.exchangeRate ? transactionToEdit.exchangeRate.toString() : getDefaultRate(origCurr).toString());
+        setAmount(
+          transactionToEdit.originalAmount
+            ? transactionToEdit.originalAmount.toString()
+            : transactionToEdit.amount
+            ? transactionToEdit.amount.toString()
+            : ''
+        );
         setTitle(transactionToEdit.title || '');
         setClientOrPayer(transactionToEdit.clientOrPayer || '');
         setCategoryId(transactionToEdit.categoryId || '');
@@ -73,6 +94,8 @@ export const AddTransactionModal: React.FC<AddTransactionModalProps> = ({
         setError(null);
       } else {
         setType(initialType);
+        setCurrency('PKR');
+        setExchangeRate('1');
         setAmount('');
         setTitle('');
         setClientOrPayer('');
@@ -97,11 +120,18 @@ export const AddTransactionModal: React.FC<AddTransactionModalProps> = ({
 
   if (!isOpen) return null;
 
+  const parsedInputAmount = parseFloat(amount) || 0;
+  const parsedRate = parseFloat(exchangeRate) || 1;
+  const computedPKR = currency === 'PKR' ? Math.round(parsedInputAmount) : Math.round(parsedInputAmount * parsedRate);
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    const parsedAmount = Math.round(parseFloat(amount));
-    if (isNaN(parsedAmount) || parsedAmount <= 0) {
+    if (isNaN(parsedInputAmount) || parsedInputAmount <= 0) {
       setError('Please enter a valid amount greater than 0');
+      return;
+    }
+    if (currency !== 'PKR' && (isNaN(parsedRate) || parsedRate <= 0)) {
+      setError('Please enter a valid exchange rate');
       return;
     }
     if (!title.trim()) {
@@ -119,7 +149,7 @@ export const AddTransactionModal: React.FC<AddTransactionModalProps> = ({
 
     if (transactionToEdit && onUpdate) {
       onUpdate(transactionToEdit.id, {
-        amount: parsedAmount,
+        amount: computedPKR,
         type,
         title: title.trim(),
         clientOrPayer: clientOrPayer.trim() || undefined,
@@ -130,10 +160,13 @@ export const AddTransactionModal: React.FC<AddTransactionModalProps> = ({
         token,
         frequency,
         notes: notes.trim() || undefined,
+        originalAmount: currency !== 'PKR' ? parsedInputAmount : undefined,
+        originalCurrency: currency !== 'PKR' ? currency : undefined,
+        exchangeRate: currency !== 'PKR' ? parsedRate : undefined,
       });
     } else {
       onSubmit({
-        amount: parsedAmount,
+        amount: computedPKR,
         type,
         title: title.trim(),
         clientOrPayer: clientOrPayer.trim() || undefined,
@@ -145,6 +178,9 @@ export const AddTransactionModal: React.FC<AddTransactionModalProps> = ({
         frequency,
         createReminder: frequency === 'monthly' ? createReminder : false,
         notes: notes.trim() || undefined,
+        originalAmount: currency !== 'PKR' ? parsedInputAmount : undefined,
+        originalCurrency: currency !== 'PKR' ? currency : undefined,
+        exchangeRate: currency !== 'PKR' ? parsedRate : undefined,
       });
     }
 
@@ -215,36 +251,75 @@ export const AddTransactionModal: React.FC<AddTransactionModalProps> = ({
             </button>
           </div>
 
-          {/* Amount and Token */}
-          <div className="grid grid-cols-3 gap-3">
-            <div className="col-span-2">
-              <label className="block text-[11px] font-medium text-zinc-400 mb-1">Amount</label>
-              <div className="relative">
-                <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-zinc-400 font-mono text-xs font-semibold select-none">
-                  {currencySymbol}
-                </span>
-                <input
-                  type="number"
-                  step="1"
-                  placeholder="0"
-                  value={amount}
-                  onChange={(e) => setAmount(e.target.value)}
-                  className="w-full bg-[#171922] text-white text-base font-mono font-bold pl-12 pr-3 py-2.5 rounded-xl border border-white/10 focus:outline-none focus:border-white/30 transition-colors"
-                  required
-                />
+          {/* Amount and Multi-Currency Converter */}
+          <div className="space-y-3">
+            <div className="grid grid-cols-3 gap-3">
+              <div className="col-span-2">
+                <label className="block text-[11px] font-medium text-zinc-400 mb-1">
+                  Amount ({currency})
+                </label>
+                <div className="relative">
+                  <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-zinc-400 font-mono text-xs font-semibold select-none">
+                    {getCurrencySymbol(currency)}
+                  </span>
+                  <input
+                    type="number"
+                    step="any"
+                    placeholder="0"
+                    value={amount}
+                    onChange={(e) => setAmount(e.target.value)}
+                    className="w-full bg-[#171922] text-white text-base font-mono font-bold pl-12 pr-3 py-2.5 rounded-xl border border-white/10 focus:outline-none focus:border-white/30 transition-colors"
+                    required
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-[11px] font-medium text-zinc-400 mb-1">Currency</label>
+                <select
+                  value={currency}
+                  onChange={(e) => handleCurrencyChange(e.target.value)}
+                  className="w-full bg-[#171922] text-white text-xs font-mono font-semibold px-2.5 py-3 rounded-xl border border-white/10 focus:outline-none focus:border-white/30 cursor-pointer"
+                >
+                  {SUPPORTED_CURRENCIES.map((c) => (
+                    <option key={c.code} value={c.code}>
+                      {c.code} ({c.symbol.trim()})
+                    </option>
+                  ))}
+                </select>
               </div>
             </div>
 
-            <div>
-              <label className="block text-[11px] font-medium text-zinc-400 mb-1">Currency</label>
-              <input
-                type="text"
-                value="PKR"
-                disabled
-                readOnly
-                className="w-full bg-[#171922] text-zinc-400 text-xs font-mono uppercase px-3 py-3 rounded-xl border border-white/10 cursor-not-allowed"
-              />
-            </div>
+            {/* Foreign Exchange Rate & Live Conversion Banner */}
+            {currency !== 'PKR' && (
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 p-3.5 rounded-xl bg-[#161821] border border-white/10 animate-in fade-in duration-150">
+                <div>
+                  <label className="block text-[11px] font-medium text-zinc-400 mb-1">
+                    Exchange Rate (1 {currency} &rarr; PKR)
+                  </label>
+                  <input
+                    type="number"
+                    step="0.01"
+                    value={exchangeRate}
+                    onChange={(e) => setExchangeRate(e.target.value)}
+                    className="w-full bg-[#1b1e29] text-white text-xs font-mono font-bold px-3 py-2 rounded-lg border border-white/10 focus:outline-none focus:border-white/30"
+                    required
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-[11px] font-medium text-zinc-400 mb-1">
+                    Converted Live Total
+                  </label>
+                  <div className="text-sm font-mono font-bold text-emerald-400 py-1.5 flex items-center gap-1.5">
+                    <span>{currencySymbol}{computedPKR.toLocaleString()}</span>
+                    <span className="text-[10px] text-zinc-400 font-normal">
+                      ({parsedInputAmount} {currency})
+                    </span>
+                  </div>
+                </div>
+              </div>
+            )}
           </div>
 
           {/* Payment Schedule: Once vs Monthly */}

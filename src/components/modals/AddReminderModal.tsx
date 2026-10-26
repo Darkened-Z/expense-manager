@@ -4,6 +4,7 @@ import React, { useState, useEffect } from 'react';
 import { X, Clock, Calendar, DollarSign, User, FileText, Bell, ArrowUpRight, ArrowDownLeft, AlertTriangle, Pencil } from 'lucide-react';
 import { Category, ReminderType, PaymentReminder } from '@/types';
 import { formatDateDDMMYYYY } from '@/lib/formatters';
+import { SUPPORTED_CURRENCIES, getDefaultRate, getCurrencySymbol } from '@/lib/currencies';
 
 interface AddReminderModalProps {
   isOpen: boolean;
@@ -28,6 +29,9 @@ interface AddReminderModalProps {
     dueDate: string;
     reminderDate: string;
     notes?: string;
+    originalAmount?: number;
+    originalCurrency?: string;
+    exchangeRate?: number;
   }) => void;
   onUpdate?: (id: string, updates: Partial<PaymentReminder>) => void;
 }
@@ -50,12 +54,19 @@ export const AddReminderModal: React.FC<AddReminderModalProps> = ({
   const [invoiceNumber, setInvoiceNumber] = useState('');
   const [amount, setAmount] = useState('');
   const [currency, setCurrency] = useState('PKR');
+  const [exchangeRate, setExchangeRate] = useState('1');
   const [frequency, setFrequency] = useState<'once' | 'monthly'>('once');
   const [invoiceDate, setInvoiceDate] = useState('');
   const [dueDate, setDueDate] = useState('');
   const [reminderDate, setReminderDate] = useState('');
   const [notes, setNotes] = useState('');
   const [error, setError] = useState<string | null>(null);
+
+  const handleCurrencyChange = (newCurr: string) => {
+    setCurrency(newCurr);
+    const def = getDefaultRate(newCurr);
+    setExchangeRate(def.toString());
+  };
 
   useEffect(() => {
     if (isOpen) {
@@ -66,8 +77,16 @@ export const AddReminderModal: React.FC<AddReminderModalProps> = ({
         setClientPhone(reminderToEdit.clientPhone || '');
         setProjectTitle(reminderToEdit.projectTitle || '');
         setInvoiceNumber(reminderToEdit.invoiceNumber || '');
-        setAmount(reminderToEdit.amount ? reminderToEdit.amount.toString() : '');
-        setCurrency(reminderToEdit.currency || 'PKR');
+        const origCurr = reminderToEdit.originalCurrency || reminderToEdit.currency || 'PKR';
+        setCurrency(origCurr);
+        setExchangeRate(reminderToEdit.exchangeRate ? reminderToEdit.exchangeRate.toString() : getDefaultRate(origCurr).toString());
+        setAmount(
+          reminderToEdit.originalAmount
+            ? reminderToEdit.originalAmount.toString()
+            : reminderToEdit.amount
+            ? reminderToEdit.amount.toString()
+            : ''
+        );
         setFrequency(reminderToEdit.frequency || 'once');
         setInvoiceDate(reminderToEdit.invoiceDate || new Date().toISOString().split('T')[0]);
         setDueDate(reminderToEdit.dueDate || '');
@@ -96,6 +115,7 @@ export const AddReminderModal: React.FC<AddReminderModalProps> = ({
         setInvoiceNumber(initialType === 'payable' ? `PAY-${new Date().getFullYear()}-${Math.floor(10 + Math.random() * 90)}` : `INV-${new Date().getFullYear()}-${Math.floor(10 + Math.random() * 90)}`);
         setAmount('');
         setCurrency('PKR');
+        setExchangeRate('1');
         setFrequency(initialType === 'payable' ? 'monthly' : 'once');
         setInvoiceDate(todayStr);
         setDueDate(dueStr);
@@ -120,9 +140,12 @@ export const AddReminderModal: React.FC<AddReminderModalProps> = ({
 
   if (!isOpen) return null;
 
+  const parsedInputAmount = parseFloat(amount) || 0;
+  const parsedRate = parseFloat(exchangeRate) || 1;
+  const computedPKR = currency === 'PKR' ? Math.round(parsedInputAmount) : Math.round(parsedInputAmount * parsedRate);
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    const parsedAmount = Math.round(parseFloat(amount));
     if (!clientName.trim()) {
       setError(type === 'payable' ? 'Please enter the payee or person name' : 'Please enter the client or company name');
       return;
@@ -131,8 +154,12 @@ export const AddReminderModal: React.FC<AddReminderModalProps> = ({
       setError(type === 'payable' ? 'Please enter the salary or expense purpose' : 'Please enter the project or milestone title');
       return;
     }
-    if (isNaN(parsedAmount) || parsedAmount <= 0) {
+    if (isNaN(parsedInputAmount) || parsedInputAmount <= 0) {
       setError('Please enter a valid amount');
+      return;
+    }
+    if (currency !== 'PKR' && (isNaN(parsedRate) || parsedRate <= 0)) {
+      setError('Please enter a valid exchange rate');
       return;
     }
     if (!dueDate) {
@@ -148,14 +175,17 @@ export const AddReminderModal: React.FC<AddReminderModalProps> = ({
         clientPhone: clientPhone.trim() || undefined,
         projectTitle: projectTitle.trim(),
         invoiceNumber: invoiceNumber.trim() || undefined,
-        amount: parsedAmount,
-        currency,
+        amount: computedPKR,
+        currency: 'PKR',
         token: currency,
         frequency,
         invoiceDate: invoiceDate || new Date().toISOString().split('T')[0],
         dueDate,
         reminderDate: reminderDate || dueDate,
         notes: notes.trim() || undefined,
+        originalAmount: currency !== 'PKR' ? parsedInputAmount : undefined,
+        originalCurrency: currency !== 'PKR' ? currency : undefined,
+        exchangeRate: currency !== 'PKR' ? parsedRate : undefined,
       });
     } else {
       onSubmit({
@@ -165,14 +195,17 @@ export const AddReminderModal: React.FC<AddReminderModalProps> = ({
         clientPhone: clientPhone.trim() || undefined,
         projectTitle: projectTitle.trim(),
         invoiceNumber: invoiceNumber.trim() || undefined,
-        amount: parsedAmount,
-        currency,
+        amount: computedPKR,
+        currency: 'PKR',
         token: currency,
         frequency,
         invoiceDate: invoiceDate || new Date().toISOString().split('T')[0],
         dueDate,
         reminderDate: reminderDate || dueDate,
         notes: notes.trim() || undefined,
+        originalAmount: currency !== 'PKR' ? parsedInputAmount : undefined,
+        originalCurrency: currency !== 'PKR' ? currency : undefined,
+        exchangeRate: currency !== 'PKR' ? parsedRate : undefined,
       });
     }
 
@@ -288,38 +321,75 @@ export const AddReminderModal: React.FC<AddReminderModalProps> = ({
           </div>
 
 
-          {/* Amount & Currency */}
-          <div className="grid grid-cols-3 gap-3">
-            <div className="col-span-2">
-              <label className="block text-[11px] font-medium text-zinc-400 mb-1">
-                {type === 'payable' ? 'Payment Amount' : 'Receivable Amount'}
-              </label>
-              <div className="relative">
-                <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-zinc-400 font-mono text-xs font-semibold select-none">
-                  {currencySymbol}
-                </span>
-                <input
-                  type="number"
-                  step="1"
-                  placeholder="0"
-                  value={amount}
-                  onChange={(e) => setAmount(e.target.value)}
-                  className="w-full bg-[#171922] text-white text-base font-mono font-bold pl-12 pr-3 py-2.5 rounded-xl border border-white/10 focus:outline-none focus:border-white/30"
-                  required
-                />
+          {/* Amount & Multi-Currency Converter */}
+          <div className="space-y-3">
+            <div className="grid grid-cols-3 gap-3">
+              <div className="col-span-2">
+                <label className="block text-[11px] font-medium text-zinc-400 mb-1">
+                  {type === 'payable' ? 'Payment Amount' : 'Receivable Amount'} ({currency})
+                </label>
+                <div className="relative">
+                  <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-zinc-400 font-mono text-xs font-semibold select-none">
+                    {getCurrencySymbol(currency)}
+                  </span>
+                  <input
+                    type="number"
+                    step="any"
+                    placeholder="0"
+                    value={amount}
+                    onChange={(e) => setAmount(e.target.value)}
+                    className="w-full bg-[#171922] text-white text-base font-mono font-bold pl-12 pr-3 py-2.5 rounded-xl border border-white/10 focus:outline-none focus:border-white/30"
+                    required
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-[11px] font-medium text-zinc-400 mb-1">Currency</label>
+                <select
+                  value={currency}
+                  onChange={(e) => handleCurrencyChange(e.target.value)}
+                  className="w-full bg-[#171922] text-white text-xs font-mono font-semibold px-2.5 py-3 rounded-xl border border-white/10 focus:outline-none focus:border-white/30 cursor-pointer"
+                >
+                  {SUPPORTED_CURRENCIES.map((c) => (
+                    <option key={c.code} value={c.code}>
+                      {c.code} ({c.symbol.trim()})
+                    </option>
+                  ))}
+                </select>
               </div>
             </div>
 
-            <div>
-              <label className="block text-[11px] font-medium text-zinc-400 mb-1">Currency</label>
-              <select
-                value="PKR"
-                disabled
-                className="w-full bg-[#171922] text-zinc-300 text-xs font-mono px-3 py-3 rounded-xl border border-white/10 cursor-not-allowed"
-              >
-                <option value="PKR">PKR (Rs.)</option>
-              </select>
-            </div>
+            {/* Foreign Exchange Rate & Live Conversion Banner */}
+            {currency !== 'PKR' && (
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 p-3.5 rounded-xl bg-[#161821] border border-white/10 animate-in fade-in duration-150">
+                <div>
+                  <label className="block text-[11px] font-medium text-zinc-400 mb-1">
+                    Exchange Rate (1 {currency} &rarr; PKR)
+                  </label>
+                  <input
+                    type="number"
+                    step="0.01"
+                    value={exchangeRate}
+                    onChange={(e) => setExchangeRate(e.target.value)}
+                    className="w-full bg-[#1b1e29] text-white text-xs font-mono font-bold px-3 py-2 rounded-lg border border-white/10 focus:outline-none focus:border-white/30"
+                    required
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-[11px] font-medium text-zinc-400 mb-1">
+                    Converted PKR Total
+                  </label>
+                  <div className="text-sm font-mono font-bold text-emerald-400 py-1.5 flex items-center gap-1.5">
+                    <span>{currencySymbol}{computedPKR.toLocaleString()}</span>
+                    <span className="text-[10px] text-zinc-400 font-normal">
+                      ({parsedInputAmount} {currency})
+                    </span>
+                  </div>
+                </div>
+              </div>
+            )}
           </div>
 
           {/* Payment Schedule: Once vs Monthly */}

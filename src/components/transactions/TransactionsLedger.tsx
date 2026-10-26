@@ -25,6 +25,7 @@ import {
 } from 'lucide-react';
 import { Transaction, Category, Wallet } from '@/types';
 import { formatDateTimeDDMMYYYY, formatCash } from '@/lib/formatters';
+import { formatForeignAmount } from '@/lib/currencies';
 
 interface TransactionsLedgerProps {
   transactions: Transaction[];
@@ -243,9 +244,15 @@ export const TransactionsLedger: React.FC<TransactionsLedgerProps> = ({
                     }`}>
                       {isTransfer ? '⇄ ' : isExpense ? '-' : '+'}{currencySymbol}{formatCash(tx.amount)}
                     </div>
-                    <span className="text-[9px] font-mono text-zinc-500 uppercase">
-                      {tx.token || wallet?.currency || 'PKR'}
-                    </span>
+                    {tx.originalCurrency && tx.originalCurrency !== 'PKR' && tx.originalAmount ? (
+                      <div className="text-[10px] font-mono text-zinc-400">
+                        {formatForeignAmount(tx.originalAmount, tx.originalCurrency)}
+                      </div>
+                    ) : (
+                      <span className="text-[9px] font-mono text-zinc-500 uppercase">
+                        {tx.token || wallet?.currency || 'PKR'}
+                      </span>
+                    )}
                   </div>
 
                   {onEditTransaction && (
@@ -305,9 +312,16 @@ export const TransactionsLedger: React.FC<TransactionsLedgerProps> = ({
                 return (
                   <tr key={tx.id} className="hover:bg-white/[0.02] transition-colors group">
                     <td className="py-3.5 px-5 font-mono font-bold text-sm">
-                      <span className={isTransfer ? 'text-sky-300' : isExpense ? 'text-zinc-200' : 'text-emerald-400'}>
-                        {isTransfer ? '⇄ ' : isExpense ? '-' : '+'}{currencySymbol}{formatCash(tx.amount)}
-                      </span>
+                      <div className="flex flex-col">
+                        <span className={isTransfer ? 'text-sky-300' : isExpense ? 'text-zinc-200' : 'text-emerald-400'}>
+                          {isTransfer ? '⇄ ' : isExpense ? '-' : '+'}{currencySymbol}{formatCash(tx.amount)}
+                        </span>
+                        {tx.originalCurrency && tx.originalCurrency !== 'PKR' && tx.originalAmount && (
+                          <span className="text-[10px] text-zinc-400 font-normal">
+                            {formatForeignAmount(tx.originalAmount, tx.originalCurrency)} (@ {tx.exchangeRate})
+                          </span>
+                        )}
+                      </div>
                     </td>
                     <td className="py-3.5 px-4 font-mono">
                       {isTransfer && destWallet ? (

@@ -1,5 +1,6 @@
 import { PaymentReminder, AppSettings } from '@/types';
 import { formatDateDDMMYYYY, formatCash } from './formatters';
+import { formatForeignAmount } from './currencies';
 
 export function normalizeWhatsAppPhone(rawPhone?: string): string {
   if (!rawPhone) return '';
@@ -21,7 +22,11 @@ export function buildWhatsAppReminderMessage(
   const clientName = reminder.clientName || 'Client';
   const projectTitle = reminder.projectTitle || 'Project Services';
   const invoiceNum = reminder.invoiceNumber ? `#${reminder.invoiceNumber}` : 'Pending Settlement';
-  const formattedAmount = `${settings.currencySymbol || 'Rs. '}${formatCash(reminder.amount)}`;
+
+  let formattedAmount = `${settings.currencySymbol || 'Rs. '}${formatCash(reminder.amount)}`;
+  if (reminder.originalCurrency && reminder.originalCurrency !== 'PKR' && reminder.originalAmount) {
+    formattedAmount = `${formatForeignAmount(reminder.originalAmount, reminder.originalCurrency)} (${formattedAmount})`;
+  }
   const formattedDueDate = formatDateDDMMYYYY(reminder.dueDate);
   const senderName = settings.userName && settings.userName !== 'User' ? settings.userName : 'Expense Manager';
   const payoutInfo = (settings.bankPayoutDetails || '').trim();

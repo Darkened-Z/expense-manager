@@ -306,6 +306,9 @@ export const StorageService = {
         : `Settled Invoice #${rem.invoiceNumber || 'N/A'}. ${rem.notes || ''}`,
       reminderId: rem.id,
       frequency: rem.frequency,
+      originalAmount: rem.originalAmount,
+      originalCurrency: rem.originalCurrency,
+      exchangeRate: rem.exchangeRate,
     });
 
     this.updateReminder(reminderId, {
