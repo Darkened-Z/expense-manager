@@ -41,13 +41,29 @@ export const FinancialGraphs: React.FC<FinancialGraphsProps> = ({
     const totalInflow = incomeSum + addedSum;
     const expenseSum = txMatches.filter((t) => t.type === 'expense').reduce((s, t) => s + t.amount, 0);
 
+    const now = new Date();
+    const isCurrent = monthIndex === now.getMonth() && year === now.getFullYear();
+    let monthReservedCaps = 0;
+    if (isCurrent) {
+      categories
+        .filter((c) => c.type === 'expense' && (c.budgetLimit || 0) > 0)
+        .forEach((c) => {
+          const cap = c.budgetLimit || 0;
+          const spent = txMatches
+            .filter((t) => t.type === 'expense' && t.categoryId === c.id)
+            .reduce((sum, t) => sum + t.amount, 0);
+          monthReservedCaps += Math.max(0, cap - spent);
+        });
+    }
+
     return {
       month: label,
       income: totalInflow,
       earnedIncome: incomeSum,
       added: addedSum,
       expense: expenseSum,
-      net: totalInflow - expenseSum,
+      reservedCaps: monthReservedCaps,
+      net: totalInflow - expenseSum - monthReservedCaps,
     };
   });
 

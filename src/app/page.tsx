@@ -741,6 +741,7 @@ export default function Home() {
                 transactions={filteredTxs}
                 reminders={reminders}
                 wallets={wallets}
+                categories={categories}
                 currencySymbol={settings.currencySymbol}
                 onNavigateTab={setCurrentTab}
               />

@@ -2,13 +2,14 @@
 
 import React from 'react';
 import { ArrowUpRight, ArrowDownLeft, Wallet, TrendingUp, Clock } from 'lucide-react';
-import { Transaction, PaymentReminder, Wallet as WalletType } from '@/types';
+import { Transaction, PaymentReminder, Wallet as WalletType, Category } from '@/types';
 import { formatCash, formatCurrency } from '@/lib/formatters';
 
 interface MetricsBarProps {
   transactions: Transaction[];
   reminders: PaymentReminder[];
   wallets: WalletType[];
+  categories?: Category[];
   currencySymbol: string;
   onNavigateTab?: (tab: string) => void;
 }
@@ -17,6 +18,7 @@ export const MetricsBar: React.FC<MetricsBarProps> = ({
   transactions,
   reminders,
   wallets,
+  categories = [],
   currencySymbol,
   onNavigateTab,
 }) => {
@@ -34,12 +36,40 @@ export const MetricsBar: React.FC<MetricsBarProps> = ({
     .filter((t) => t.type === 'deposit')
     .reduce((sum, t) => sum + t.amount, 0);
 
+  const now = new Date();
+  const currentMonthIdx = now.getMonth();
+  const currentYear = now.getFullYear();
+
+  // Calculate monthly spent for each category in current month
+  const categoryMonthlySpent: Record<string, number> = {};
+  transactions
+    .filter((t) => {
+      if (t.type !== 'expense') return false;
+      const d = new Date(t.date);
+      return !isNaN(d.getTime()) && d.getMonth() === currentMonthIdx && d.getFullYear() === currentYear;
+    })
+    .forEach((t) => {
+      categoryMonthlySpent[t.categoryId] = (categoryMonthlySpent[t.categoryId] || 0) + t.amount;
+    });
+
+  // Calculate remaining unspent budget caps for categories that have a budgetLimit > 0
+  // Even if you haven't used the capped amount yet, it is reserved/subtracted from surplus
+  let totalReservedCaps = 0;
+  categories
+    .filter((c) => c.type === 'expense' && (c.budgetLimit || 0) > 0)
+    .forEach((c) => {
+      const cap = c.budgetLimit || 0;
+      const spent = categoryMonthlySpent[c.id] || 0;
+      const unspentCap = Math.max(0, cap - spent);
+      totalReservedCaps += unspentCap;
+    });
+
   // Total cash inflow includes earned income plus money added from elsewhere (mother, personal gift, etc.)
   const totalInflow = totalReceived + totalAdded;
-  const netSavings = totalInflow - totalSpent;
+  // Free Cash Surplus subtracts all actual spending AND unspent budget caps
+  const netSavings = totalInflow - totalSpent - totalReservedCaps;
   const savingsRate = totalInflow > 0 ? Math.max(0, (netSavings / totalInflow) * 100) : 0;
 
-  const now = new Date();
   const todayStr = now.toISOString().split('T')[0];
 
   const currentReceivables = reminders.filter(
@@ -142,9 +172,16 @@ export const MetricsBar: React.FC<MetricsBarProps> = ({
             {formatCurrency(netSavings, currencySymbol)}
           </div>
           <div className="text-[10px] text-zinc-500 mt-1 font-mono truncate">
-            {totalAdded > 0
-              ? `Includes +${currencySymbol}${formatCash(totalAdded)} added`
-              : 'Net cash position'}
+            {totalReservedCaps > 0 ? (
+              <span>
+                Excl. {currencySymbol}{formatCash(totalReservedCaps)} caps
+                {totalAdded > 0 && ` • +${currencySymbol}${formatCash(totalAdded)} added`}
+              </span>
+            ) : totalAdded > 0 ? (
+              `Includes +${currencySymbol}${formatCash(totalAdded)} added`
+            ) : (
+              'Net free cash'
+            )}
           </div>
         </div>
         <div className="mt-2 pt-1.5 border-t border-white/[0.03] flex items-center justify-between text-[10px] text-zinc-500 group-hover:text-zinc-300 transition-colors">
