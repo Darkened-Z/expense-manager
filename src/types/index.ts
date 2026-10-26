@@ -97,4 +97,6 @@ export interface AppSettings {
   enableBrowserNotifications: boolean;
   bankPayoutDetails?: string;
   whatsappReminderTemplate?: string;
+  enableBiometrics?: boolean;
+  biometricCredentialId?: string;
 }

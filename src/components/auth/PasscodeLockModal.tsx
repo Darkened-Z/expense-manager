@@ -1,13 +1,16 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { Lock, Unlock, ShieldAlert, KeyRound, Check, RefreshCw } from 'lucide-react';
+import { Lock, KeyRound, ShieldAlert, Fingerprint, RefreshCw } from 'lucide-react';
 import { hashPasscode } from '@/lib/storage';
+import { BiometricService } from '@/lib/biometrics';
 
 interface PasscodeLockModalProps {
   isOpen: boolean;
   isSetupMode?: boolean;
   savedHash: string | null;
+  enableBiometrics?: boolean;
+  biometricCredentialId?: string | null;
   onSuccess: (newHash?: string) => void;
   onCancel?: () => void;
 }
@@ -16,6 +19,8 @@ export const PasscodeLockModal: React.FC<PasscodeLockModalProps> = ({
   isOpen,
   isSetupMode = false,
   savedHash,
+  enableBiometrics = false,
+  biometricCredentialId = null,
   onSuccess,
   onCancel,
 }) => {
@@ -24,6 +29,23 @@ export const PasscodeLockModal: React.FC<PasscodeLockModalProps> = ({
   const [step, setStep] = useState<'enter' | 'create' | 'confirm'>(isSetupMode ? 'create' : 'enter');
   const [error, setError] = useState<string | null>(null);
   const [shake, setShake] = useState(false);
+  const [isBiometricChecking, setIsBiometricChecking] = useState(false);
+  const [biometricsAvailable, setBiometricsAvailable] = useState(false);
+
+  const triggerBiometricAuth = async () => {
+    setIsBiometricChecking(true);
+    try {
+      const verified = await BiometricService.verify(biometricCredentialId);
+      if (verified) {
+        onSuccess();
+        return;
+      }
+    } catch (err) {
+      console.warn('Biometric verification error:', err);
+    } finally {
+      setIsBiometricChecking(false);
+    }
+  };
 
   useEffect(() => {
     if (isOpen) {
@@ -31,8 +53,17 @@ export const PasscodeLockModal: React.FC<PasscodeLockModalProps> = ({
       setConfirmPin('');
       setError(null);
       setStep(isSetupMode ? 'create' : 'enter');
+
+      if (!isSetupMode && enableBiometrics) {
+        BiometricService.isAvailable().then((avail) => {
+          setBiometricsAvailable(avail);
+          if (avail) {
+            triggerBiometricAuth();
+          }
+        });
+      }
     }
-  }, [isOpen, isSetupMode]);
+  }, [isOpen, isSetupMode, enableBiometrics]);
 
   if (!isOpen) return null;
 
@@ -151,35 +182,77 @@ export const PasscodeLockModal: React.FC<PasscodeLockModalProps> = ({
           {['1', '2', '3', '4', '5', '6', '7', '8', '9'].map((digit) => (
             <button
               key={digit}
+              type="button"
               onClick={() => handleKeyPress(digit)}
               className="w-16 h-16 rounded-2xl bg-[#181a22] hover:bg-[#222530] active:scale-95 text-lg font-semibold text-zinc-100 font-mono border border-white/5 transition-all flex items-center justify-center cursor-pointer shadow-sm"
             >
               {digit}
             </button>
           ))}
+
+          {/* Bottom row: Biometric / Clear | 0 | Del */}
+          {step === 'enter' && enableBiometrics && biometricsAvailable ? (
+            <button
+              type="button"
+              onClick={triggerBiometricAuth}
+              title="Unlock with Biometrics (Touch ID / Face ID)"
+              disabled={isBiometricChecking}
+              className="w-16 h-16 rounded-2xl bg-emerald-500/15 hover:bg-emerald-500/25 active:scale-95 text-emerald-400 border border-emerald-500/30 flex items-center justify-center cursor-pointer shadow-sm transition-all"
+            >
+              {isBiometricChecking ? (
+                <RefreshCw className="w-5 h-5 animate-spin" />
+              ) : (
+                <Fingerprint className="w-6 h-6" />
+              )}
+            </button>
+          ) : (
+            <button
+              type="button"
+              onClick={handleClear}
+              className="w-16 h-16 rounded-2xl bg-[#14161d] hover:bg-[#1a1d25] text-xs font-medium text-zinc-400 border border-white/5 flex items-center justify-center cursor-pointer"
+            >
+              Clear
+            </button>
+          )}
+
           <button
-            onClick={handleClear}
-            className="w-16 h-16 rounded-2xl bg-[#14161d] hover:bg-[#1a1d25] text-xs font-medium text-zinc-400 border border-white/5 flex items-center justify-center"
-          >
-            Clear
-          </button>
-          <button
+            type="button"
             onClick={() => handleKeyPress('0')}
             className="w-16 h-16 rounded-2xl bg-[#181a22] hover:bg-[#222530] active:scale-95 text-lg font-semibold text-zinc-100 font-mono border border-white/5 flex items-center justify-center cursor-pointer shadow-sm"
           >
             0
           </button>
+
           <button
+            type="button"
             onClick={handleDelete}
-            className="w-16 h-16 rounded-2xl bg-[#14161d] hover:bg-[#1a1d25] text-xs font-medium text-zinc-400 border border-white/5 flex items-center justify-center"
+            className="w-16 h-16 rounded-2xl bg-[#14161d] hover:bg-[#1a1d25] text-xs font-medium text-zinc-400 border border-white/5 flex items-center justify-center cursor-pointer"
           >
             Del
           </button>
         </div>
 
+        {/* 1-Tap Biometric button below keypad if enabled */}
+        {step === 'enter' && enableBiometrics && biometricsAvailable && (
+          <button
+            type="button"
+            onClick={triggerBiometricAuth}
+            disabled={isBiometricChecking}
+            className="mt-5 w-full flex items-center justify-center gap-2 py-3 px-4 rounded-2xl bg-emerald-500/10 hover:bg-emerald-500/20 border border-emerald-500/25 text-emerald-400 text-xs font-semibold transition-all active:scale-98 cursor-pointer shadow-sm"
+          >
+            {isBiometricChecking ? (
+              <RefreshCw className="w-4 h-4 animate-spin" />
+            ) : (
+              <Fingerprint className="w-4 h-4" />
+            )}
+            <span>{isBiometricChecking ? 'Scanning Biometrics...' : 'Touch ID / Face ID / Windows Hello'}</span>
+          </button>
+        )}
+
         {/* Cancel button if in setup mode */}
         {onCancel && (
           <button
+            type="button"
             onClick={onCancel}
             className="mt-6 text-xs text-zinc-500 hover:text-zinc-300 transition-colors"
           >

@@ -634,6 +634,8 @@ export default function Home() {
         <PasscodeLockModal
           isOpen={true}
           savedHash={settings.passcodeHash}
+          enableBiometrics={settings.enableBiometrics}
+          biometricCredentialId={settings.biometricCredentialId}
           onSuccess={handleUnlockSuccess}
         />
       )}

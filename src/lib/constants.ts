@@ -40,6 +40,8 @@ export const DEFAULT_SETTINGS: AppSettings = {
   enableBrowserNotifications: true,
   bankPayoutDetails: '',
   whatsappReminderTemplate: '',
+  enableBiometrics: false,
+  biometricCredentialId: '',
 };
 
 // Clean slate: completely empty initial goals, reminders, and transactions

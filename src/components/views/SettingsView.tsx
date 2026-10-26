@@ -27,9 +27,12 @@ import {
   Code,
   Sparkles,
   CheckCircle2,
+  Fingerprint,
+  ScanFace,
 } from 'lucide-react';
 import { AppSettings } from '@/types';
 import { StorageService } from '@/lib/storage';
+import { BiometricService } from '@/lib/biometrics';
 import {
   getSupabaseConfig,
   saveSupabaseConfig,
@@ -90,6 +93,11 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
     approximateCapacity: '~30,000 to 50,000 transactions',
   });
 
+  // Biometrics (WebAuthn / Touch ID / Face ID / Windows Hello) state
+  const [biometricsAvailable, setBiometricsAvailable] = useState(false);
+  const [isRegisteringBiometric, setIsRegisteringBiometric] = useState(false);
+  const [biometricMsg, setBiometricMsg] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
+
   React.useEffect(() => {
     if (typeof window !== 'undefined') {
       const config = getSupabaseConfig();
@@ -99,8 +107,49 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
       setIsConfigured(isSupabaseConfigured());
       setLastSyncTime(StorageService.getLastSyncTime());
       setStorageStats(StorageService.getStorageStats());
+      BiometricService.isAvailable().then(setBiometricsAvailable);
     }
   }, []);
+
+  const handleToggleBiometrics = async (enable: boolean) => {
+    setBiometricMsg(null);
+    if (!enable) {
+      onUpdateSettings({ enableBiometrics: false, biometricCredentialId: '' });
+      return;
+    }
+
+    if (!settings.passcodeHash) {
+      setBiometricMsg({
+        type: 'error',
+        text: 'Please set a 4-digit master passcode first so you have a fallback if biometrics are unavailable.',
+      });
+      onOpenSetPasscode();
+      return;
+    }
+
+    setIsRegisteringBiometric(true);
+    try {
+      const cred = await BiometricService.register();
+      if (cred) {
+        onUpdateSettings({
+          enableBiometrics: true,
+          biometricCredentialId: cred.credentialId,
+          isLockEnabled: true,
+        });
+        setBiometricMsg({
+          type: 'success',
+          text: 'Biometric unlock registered and enabled successfully!',
+        });
+      }
+    } catch (err: any) {
+      setBiometricMsg({
+        type: 'error',
+        text: err.message || 'Failed to register biometrics.',
+      });
+    } finally {
+      setIsRegisteringBiometric(false);
+    }
+  };
 
   const handleSaveSupabase = async () => {
     saveSupabaseConfig({
@@ -314,6 +363,57 @@ create policy "Allow anon access" on expense_sync
             </select>
           </div>
         )}
+
+        {/* Biometrics (Fingerprint / Face ID / Windows Hello) Section */}
+        <div className="pt-4 border-t border-white/5 space-y-3">
+          <div className="flex items-center justify-between gap-4">
+            <div className="flex items-center gap-2.5">
+              <div className="p-2 rounded-xl bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
+                <Fingerprint className="w-5 h-5" />
+              </div>
+              <div>
+                <div className="text-xs font-semibold text-white flex items-center gap-2">
+                  <span>Biometric Unlock (Touch ID / Face ID / Windows Hello)</span>
+                  {biometricsAvailable ? (
+                    <span className="text-[10px] bg-emerald-500/15 text-emerald-400 border border-emerald-500/25 px-2 py-0.5 rounded-full font-medium">
+                      Sensor Ready
+                    </span>
+                  ) : (
+                    <span className="text-[10px] bg-zinc-800 text-zinc-400 px-2 py-0.5 rounded-full font-medium">
+                      Browser Not Supported
+                    </span>
+                  )}
+                </div>
+                <div className="text-[11px] text-zinc-400 mt-0.5">
+                  1-tap biometric unlock for iOS Face ID, Android Fingerprint, and Windows Hello
+                </div>
+              </div>
+            </div>
+
+            <label className="relative inline-flex items-center cursor-pointer">
+              <input
+                type="checkbox"
+                disabled={!biometricsAvailable || isRegisteringBiometric}
+                checked={!!settings.enableBiometrics}
+                onChange={(e) => handleToggleBiometrics(e.target.checked)}
+                className="sr-only peer"
+              />
+              <div className="w-11 h-6 bg-zinc-800 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-zinc-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-emerald-500 disabled:opacity-40"></div>
+            </label>
+          </div>
+
+          {biometricMsg && (
+            <div
+              className={`text-xs px-3.5 py-2.5 rounded-xl border flex items-center gap-2 ${
+                biometricMsg.type === 'success'
+                  ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20'
+                  : 'bg-rose-500/10 text-rose-400 border-rose-500/20'
+              }`}
+            >
+              <span>{biometricMsg.text}</span>
+            </div>
+          )}
+        </div>
       </div>
 
       {/* User & Currency Profile */}
