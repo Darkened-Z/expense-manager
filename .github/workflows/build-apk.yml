@@ -1,0 +1,70 @@
+name: Build Android APK
+
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch:
+
+jobs:
+  build-apk:
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Setup Java 17
+        uses: actions/setup-java@v4
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+
+      - name: Setup Android SDK
+        uses: android-actions/setup-android@v3
+
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v3
+
+      - name: Build Android APK
+        run: |
+          cd android
+          gradle wrapper
+          chmod +x gradlew
+          ./gradlew assembleDebug --stacktrace
+
+      - name: Rename APK Output
+        run: |
+          cp android/app/build/outputs/apk/debug/app-debug.apk ExpenseManager-v1.0.apk
+
+      - name: Upload APK Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: ExpenseManager-Android-APK
+          path: ExpenseManager-v1.0.apk
+          retention-days: 90
+
+      - name: Publish to GitHub Releases
+        uses: softprops/action-gh-release@v2
+        if: github.ref == 'refs/heads/main'
+        with:
+          tag_name: v1.0.0-apk
+          name: "Expense Manager Android APK v1.0.0"
+          body: |
+            ### 📱 Expense Manager — Standalone Android APK (v1.0.0)
+            
+            This is the standalone Android `.apk` file for offline use.
+            
+            - **100% Offline & Independent**: Runs on your phone's local storage database without connecting to any external cloud, server, or accounts.
+            - **Features**: Multi-wallet balances, daily expenses & income, monthly category caps, client invoices/reminders with WhatsApp alerts, and 4-digit PIN security lock.
+            
+            #### 📥 How to Install on Android:
+            1. Download `ExpenseManager-v1.0.apk` below directly to your phone.
+            2. Tap the downloaded file in your browser downloads or file manager.
+            3. Tap **Install** (allow "Install unknown apps" from browser if prompted).
+            4. Open and enjoy!
+          files: ExpenseManager-v1.0.apk
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

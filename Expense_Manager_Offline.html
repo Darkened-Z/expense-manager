@@ -1,0 +1,1559 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <meta name="theme-color" content="#090a0d">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Expense Manager">
+  <title>Expense Manager — Standalone Offline Edition</title>
+  <style>
+    :root {
+      --bg: #090a0d;
+      --card-bg: #12141a;
+      --card-hover: #181b24;
+      --border: rgba(255, 255, 255, 0.08);
+      --border-focus: rgba(255, 255, 255, 0.25);
+      --text: #f4f4f5;
+      --text-muted: #a1a1aa;
+      --text-dim: #71717a;
+      --primary: #ffffff;
+      --emerald: #10b981;
+      --rose: #f43f5e;
+      --amber: #f59e0b;
+      --indigo: #6366f1;
+      --sky: #0ea5e9;
+      --purple: #a855f7;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      -webkit-tap-highlight-color: transparent;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    }
+
+    body {
+      background-color: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      overflow-x: hidden;
+      line-height: 1.5;
+    }
+
+    /* Layout */
+    .app-container {
+      display: flex;
+      height: 100vh;
+      width: 100vw;
+      overflow: hidden;
+    }
+
+    .sidebar {
+      width: 250px;
+      background-color: #0d0e12;
+      border-right: 1px solid var(--border);
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      padding: 16px;
+      flex-shrink: 0;
+    }
+
+    .main-pane {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      height: 100%;
+      overflow-y: auto;
+      min-width: 0;
+    }
+
+    header {
+      padding: 16px 24px;
+      background: rgba(9, 10, 13, 0.85);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--border);
+      position: sticky;
+      top: 0;
+      z-index: 30;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+    }
+
+    .content-area {
+      padding: 20px 24px 60px 24px;
+      max-width: 1280px;
+      width: 100%;
+      margin: 0 auto;
+    }
+
+    /* Typography & Badges */
+    .title {
+      font-size: 1.25rem;
+      font-weight: 700;
+      color: #fff;
+      letter-spacing: -0.02em;
+    }
+    .subtitle {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+    }
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      font-size: 10px;
+      font-weight: 600;
+      padding: 2px 8px;
+      border-radius: 999px;
+      border: 1px solid var(--border);
+      text-transform: uppercase;
+    }
+    .badge-emerald { background: rgba(16, 185, 129, 0.1); color: var(--emerald); border-color: rgba(16, 185, 129, 0.2); }
+    .badge-rose { background: rgba(244, 63, 94, 0.1); color: var(--rose); border-color: rgba(244, 63, 94, 0.2); }
+    .badge-amber { background: rgba(245, 158, 11, 0.1); color: var(--amber); border-color: rgba(245, 158, 11, 0.2); }
+
+    /* Navigation */
+    .nav-btn {
+      width: 100%;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 10px 14px;
+      border-radius: 12px;
+      background: transparent;
+      border: 1px solid transparent;
+      color: var(--text-muted);
+      font-size: 0.82rem;
+      font-weight: 500;
+      cursor: pointer;
+      text-align: left;
+      transition: all 0.15s ease;
+    }
+    .nav-btn:hover {
+      background: rgba(255, 255, 255, 0.04);
+      color: #fff;
+    }
+    .nav-btn.active {
+      background: rgba(255, 255, 255, 0.08);
+      color: #fff;
+      border-color: var(--border);
+      font-weight: 600;
+    }
+
+    /* Cards */
+    .card {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 18px;
+    }
+    .grid-metrics {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 14px;
+      margin-bottom: 22px;
+    }
+    .metric-value {
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: #fff;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      margin-top: 4px;
+    }
+
+    /* Buttons */
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      padding: 8px 16px;
+      border-radius: 12px;
+      font-size: 0.78rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.15s;
+      border: 1px solid var(--border);
+      background: #14161e;
+      color: #fff;
+    }
+    .btn:hover { background: #1c1f2b; }
+    .btn-primary {
+      background: #fff;
+      color: #090a0d;
+      border-color: #fff;
+    }
+    .btn-primary:hover {
+      background: #e4e4e7;
+    }
+    .btn-danger {
+      background: rgba(244, 63, 94, 0.12);
+      color: var(--rose);
+      border-color: rgba(244, 63, 94, 0.25);
+    }
+    .btn-danger:hover {
+      background: rgba(244, 63, 94, 0.2);
+    }
+
+    /* Forms & Inputs */
+    .input-group {
+      margin-bottom: 14px;
+    }
+    .input-label {
+      display: block;
+      font-size: 0.72rem;
+      font-weight: 600;
+      color: var(--text-muted);
+      margin-bottom: 6px;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+    .input-field, select.input-field {
+      width: 100%;
+      background: #14161e;
+      border: 1px solid var(--border);
+      color: #fff;
+      padding: 10px 14px;
+      border-radius: 12px;
+      font-size: 0.85rem;
+      outline: none;
+      transition: border-color 0.15s;
+    }
+    .input-field:focus {
+      border-color: var(--border-focus);
+    }
+
+    /* Table & Ledger */
+    .table-container {
+      width: 100%;
+      overflow-x: auto;
+      border-radius: 14px;
+      border: 1px solid var(--border);
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      text-align: left;
+      font-size: 0.8rem;
+    }
+    th {
+      background: #101217;
+      color: var(--text-muted);
+      padding: 12px 16px;
+      font-weight: 600;
+      border-bottom: 1px solid var(--border);
+      font-size: 0.72rem;
+      text-transform: uppercase;
+    }
+    td {
+      padding: 12px 16px;
+      border-bottom: 1px solid var(--border);
+      color: #e4e4e7;
+    }
+    tr:last-child td { border-bottom: none; }
+    tr:hover td { background: rgba(255, 255, 255, 0.02); }
+
+    /* Modal Backdrop */
+    .modal-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.85);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 100;
+      padding: 16px;
+    }
+    .modal-card {
+      background: #12141a;
+      border: 1px solid var(--border);
+      border-radius: 24px;
+      width: 100%;
+      max-w: 420px;
+      padding: 24px;
+      box-shadow: 0 20px 40px rgba(0,0,0,0.8);
+    }
+
+    /* PIN Keypad */
+    .pin-display {
+      display: flex;
+      justify-content: center;
+      gap: 12px;
+      margin: 20px 0;
+    }
+    .pin-dot {
+      width: 16px;
+      height: 16px;
+      border-radius: 50%;
+      background: #27272a;
+      border: 1px solid var(--border);
+      transition: all 0.15s;
+    }
+    .pin-dot.filled {
+      background: #fff;
+      transform: scale(1.15);
+    }
+    .pin-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+      max-width: 240px;
+      margin: 0 auto;
+    }
+    .pin-key {
+      height: 60px;
+      background: #161822;
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      color: #fff;
+      font-size: 1.3rem;
+      font-weight: 600;
+      font-family: monospace;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+    }
+    .pin-key:active { background: #222634; transform: scale(0.96); }
+
+    /* Mobile Drawer & Bottom Bar */
+    .mobile-nav {
+      display: none;
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      background: rgba(9, 10, 13, 0.95);
+      backdrop-filter: blur(16px);
+      border-top: 1px solid var(--border);
+      padding: 8px 12px;
+      justify-content: space-around;
+      z-index: 40;
+    }
+    .mobile-tab {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 4px;
+      font-size: 10px;
+      color: var(--text-dim);
+      background: none;
+      border: none;
+      cursor: pointer;
+    }
+    .mobile-tab.active { color: #fff; font-weight: 600; }
+
+    @media (max-width: 768px) {
+      .sidebar { display: none; }
+      .mobile-nav { display: flex; }
+      .content-area { padding: 14px 14px 80px 14px; }
+      header { padding: 12px 14px; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Full App Container -->
+  <div class="app-container" id="app">
+    <!-- Desktop Sidebar -->
+    <aside class="sidebar">
+      <div>
+        <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 24px; padding: 4px;">
+          <div style="width: 32px; height: 32px; background: rgba(255,255,255,0.08); border-radius: 10px; display: flex; align-items: center; justify-content: center; border: 1px solid var(--border); font-size: 14px;">⚡</div>
+          <div>
+            <div style="font-weight: 700; font-size: 0.9rem; color: #fff;">Expense Manager</div>
+            <div style="font-size: 9px; color: var(--text-dim); font-family: monospace;">LOCAL STANDALONE</div>
+          </div>
+        </div>
+
+        <nav style="display: flex; flex-direction: column; gap: 4px;">
+          <button class="nav-btn active" onclick="switchTab('dashboard')">📊 Dashboard</button>
+          <button class="nav-btn" onclick="switchTab('transactions')">💳 Transactions</button>
+          <button class="nav-btn" onclick="switchTab('reminders')">📅 Invoices & Due Dates</button>
+          <button class="nav-btn" onclick="switchTab('wallets')">🏦 Wallets & Cash</button>
+          <button class="nav-btn" onclick="switchTab('categories')">🏷️ Categories & Caps</button>
+          <button class="nav-btn" onclick="switchTab('savings')">🎯 Savings Goals</button>
+          <button class="nav-btn" onclick="switchTab('settings')">⚙️ Settings & Backup</button>
+        </nav>
+      </div>
+
+      <!-- User & Lock Button -->
+      <div>
+        <button id="lockBtn" class="btn" style="width: 100%; margin-bottom: 8px;" onclick="lockAppNow()">🔒 Lock Session</button>
+        <div style="padding: 10px; background: #13151b; border: 1px solid var(--border); border-radius: 12px; display: flex; align-items: center; gap: 10px;">
+          <div style="width: 28px; height: 28px; border-radius: 50%; background: #27272a; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: bold;">P</div>
+          <div style="flex: 1; min-width: 0;">
+            <div id="sidebarUserName" style="font-size: 11px; font-weight: 600; color: #fff; truncate;">Private Local User</div>
+            <div style="font-size: 9px; color: var(--emerald);">● Phone DB Active</div>
+          </div>
+        </div>
+      </div>
+    </aside>
+
+    <!-- Main Content Area -->
+    <div class="main-pane">
+      <header>
+        <div>
+          <h1 id="pageTitle" class="title">Dashboard</h1>
+          <p id="pageSubtitle" class="subtitle">Personal Cashflow & Expense Ledger</p>
+        </div>
+        <div style="display: flex; gap: 8px;">
+          <button class="btn btn-primary" onclick="openTxModal('expense')">+ Expense</button>
+          <button class="btn" onclick="openTxModal('income')">+ Income</button>
+          <button class="btn" onclick="openTxModal('deposit')">+ Add Money</button>
+          <button class="btn" onclick="openTransferModal()">⇄ Transfer</button>
+        </div>
+      </header>
+
+      <div class="content-area">
+        <!-- TAB: DASHBOARD -->
+        <div id="tab-dashboard">
+          <div class="grid-metrics">
+            <div class="card">
+              <div class="subtitle">TOTAL LIQUID WEALTH</div>
+              <div id="metricTotalBalance" class="metric-value">Rs. 0</div>
+              <div class="subtitle" style="margin-top: 6px;">Across all banks, cash & digital accounts</div>
+            </div>
+            <div class="card">
+              <div class="subtitle">CASH SURPLUS (AFTER CAPS)</div>
+              <div id="metricSurplus" class="metric-value" style="color: var(--emerald);">Rs. 0</div>
+              <div class="subtitle" style="margin-top: 6px;">Available to spend (Caps reserved)</div>
+            </div>
+            <div class="card">
+              <div class="subtitle">THIS MONTH SPENT</div>
+              <div id="metricMonthExpense" class="metric-value" style="color: var(--rose);">Rs. 0</div>
+              <div class="subtitle" style="margin-top: 6px;">Total daily & routine spending</div>
+            </div>
+            <div class="card">
+              <div class="subtitle">PENDING RECEIVABLES</div>
+              <div id="metricPendingReceivables" class="metric-value" style="color: var(--amber);">Rs. 0</div>
+              <div class="subtitle" style="margin-top: 6px;">Uncollected client invoice milestones</div>
+            </div>
+          </div>
+
+          <!-- Quick Wallets Bar -->
+          <div class="card" style="margin-bottom: 22px;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+              <div style="font-weight: 700; font-size: 0.9rem; color: #fff;">Your Accounts & Wallets</div>
+              <button class="btn" style="padding: 4px 10px; font-size: 0.72rem;" onclick="switchTab('wallets')">Manage Accounts</button>
+            </div>
+            <div id="dashWalletList" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 12px;"></div>
+          </div>
+
+          <!-- Recent Transactions -->
+          <div class="card">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px;">
+              <div style="font-weight: 700; font-size: 0.9rem; color: #fff;">Recent Activity</div>
+              <button class="btn" style="padding: 4px 10px; font-size: 0.72rem;" onclick="switchTab('transactions')">View Full Ledger</button>
+            </div>
+            <div class="table-container">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Date</th>
+                    <th>Title</th>
+                    <th>Category</th>
+                    <th>Account</th>
+                    <th style="text-align: right;">Amount</th>
+                  </tr>
+                </thead>
+                <tbody id="dashRecentTxBody"></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <!-- TAB: TRANSACTIONS -->
+        <div id="tab-transactions" style="display: none;">
+          <div class="card" style="margin-bottom: 16px; display: flex; flex-wrap: wrap; gap: 10px; justify-content: space-between;">
+            <input type="text" id="txSearchInput" class="input-field" placeholder="Search transactions..." style="max-width: 280px;" oninput="renderTransactions()">
+            <div style="display: flex; gap: 8px;">
+              <select id="txFilterType" class="input-field" style="width: auto;" onchange="renderTransactions()">
+                <option value="all">All Types</option>
+                <option value="expense">Expense Only</option>
+                <option value="income">Income Only</option>
+                <option value="deposit">Money Added</option>
+                <option value="transfer">Transfers</option>
+              </select>
+              <select id="txFilterWallet" class="input-field" style="width: auto;" onchange="renderTransactions()"></select>
+            </div>
+          </div>
+
+          <div class="table-container">
+            <table>
+              <thead>
+                <tr>
+                  <th>Date</th>
+                  <th>Title</th>
+                  <th>Category</th>
+                  <th>Wallet</th>
+                  <th style="text-align: right;">Amount</th>
+                  <th style="text-align: center;">Actions</th>
+                </tr>
+              </thead>
+              <tbody id="fullTxTableBody"></tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- TAB: REMINDERS -->
+        <div id="tab-reminders" style="display: none;">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+            <div class="subtitle">Client Invoices, Salary Due, Subscriptions & Bills</div>
+            <button class="btn btn-primary" onclick="openReminderModal()">+ New Reminder / Invoice</button>
+          </div>
+          <div id="remindersGrid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 14px;"></div>
+        </div>
+
+        <!-- TAB: WALLETS -->
+        <div id="tab-wallets" style="display: none;">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+            <div class="subtitle">Manage Bank Accounts, Physical Cash & Mobile Wallets</div>
+            <button class="btn btn-primary" onclick="openAddWalletModal()">+ Add Account</button>
+          </div>
+          <div id="walletsGrid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 14px;"></div>
+        </div>
+
+        <!-- TAB: CATEGORIES -->
+        <div id="tab-categories" style="display: none;">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+            <div class="subtitle">Monthly Spending Limits & Caps</div>
+            <button class="btn btn-primary" onclick="openAddCategoryModal()">+ Add Category</button>
+          </div>
+          <div id="categoriesGrid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 14px;"></div>
+        </div>
+
+        <!-- TAB: SAVINGS -->
+        <div id="tab-savings" style="display: none;">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+            <div class="subtitle">Dedicated Reserve Funds & Goals</div>
+            <button class="btn btn-primary" onclick="openAddSavingModal()">+ New Goal</button>
+          </div>
+          <div id="savingsGrid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 14px;"></div>
+        </div>
+
+        <!-- TAB: SETTINGS -->
+        <div id="tab-settings" style="display: none;">
+          <div class="card" style="margin-bottom: 18px;">
+            <h3 style="font-size: 0.95rem; font-weight: 700; color: #fff; margin-bottom: 4px;">Master Security Passcode</h3>
+            <p class="subtitle" style="margin-bottom: 16px;">Require a 4-digit PIN to access this expense manager</p>
+            <div style="display: flex; align-items: center; gap: 12px;">
+              <button class="btn btn-primary" onclick="openPasscodeSetup()">Set / Change 4-Digit PIN</button>
+              <button id="toggleLockBtn" class="btn" onclick="togglePasscodeEnabled()">Disable Lock</button>
+            </div>
+          </div>
+
+          <div class="card" style="margin-bottom: 18px;">
+            <h3 style="font-size: 0.95rem; font-weight: 700; color: #fff; margin-bottom: 4px;">User Profile & Currency</h3>
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 14px;">
+              <div class="input-group">
+                <label class="input-label">Your Name</label>
+                <input type="text" id="settingUserName" class="input-field" onchange="saveUserProfile()">
+              </div>
+              <div class="input-group">
+                <label class="input-label">Currency Symbol</label>
+                <input type="text" id="settingCurrency" class="input-field" value="Rs. " onchange="saveUserProfile()">
+              </div>
+            </div>
+          </div>
+
+          <div class="card" style="margin-bottom: 18px;">
+            <h3 style="font-size: 0.95rem; font-weight: 700; color: #fff; margin-bottom: 4px;">100% Offline Local Backup</h3>
+            <p class="subtitle" style="margin-bottom: 14px;">Save or restore your entire database with one click</p>
+            <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+              <button class="btn btn-primary" onclick="exportDataBackup()">⬇ Export Backup (.JSON)</button>
+              <button class="btn" onclick="document.getElementById('importFile').click()">⬆ Restore Backup</button>
+              <input type="file" id="importFile" style="display: none;" accept=".json" onchange="importDataBackup(event)">
+              <button class="btn btn-danger" onclick="resetAllDataConfirm()">Wipe & Reset</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Mobile Bottom Navigation -->
+  <nav class="mobile-nav">
+    <button class="mobile-tab active" onclick="switchTab('dashboard')"><span>📊</span><span>Dashboard</span></button>
+    <button class="mobile-tab" onclick="switchTab('transactions')"><span>💳</span><span>Ledger</span></button>
+    <button class="mobile-tab" onclick="switchTab('reminders')"><span>📅</span><span>Due</span></button>
+    <button class="mobile-tab" onclick="switchTab('wallets')"><span>🏦</span><span>Wallets</span></button>
+    <button class="mobile-tab" onclick="switchTab('settings')"><span>⚙️</span><span>Settings</span></button>
+  </nav>
+
+  <!-- Lock Modal (Full Cover) -->
+  <div id="lockModal" class="modal-overlay" style="display: none;">
+    <div class="modal-card" style="text-align: center;">
+      <div style="font-size: 32px; margin-bottom: 8px;">🔒</div>
+      <h2 id="pinTitle" style="color: #fff; font-size: 1.15rem; font-weight: 700;">Enter Security PIN</h2>
+      <p id="pinSub" class="subtitle" style="margin-top: 4px;">Enter your 4-digit master passcode to unlock</p>
+      
+      <div class="pin-display">
+        <div class="pin-dot" id="dot0"></div>
+        <div class="pin-dot" id="dot1"></div>
+        <div class="pin-dot" id="dot2"></div>
+        <div class="pin-dot" id="dot3"></div>
+      </div>
+
+      <div id="pinError" style="color: var(--rose); font-size: 0.75rem; margin-bottom: 12px; display: none;">Incorrect PIN</div>
+
+      <div class="pin-grid">
+        <div class="pin-key" onclick="pressPin('1')">1</div>
+        <div class="pin-key" onclick="pressPin('2')">2</div>
+        <div class="pin-key" onclick="pressPin('3')">3</div>
+        <div class="pin-key" onclick="pressPin('4')">4</div>
+        <div class="pin-key" onclick="pressPin('5')">5</div>
+        <div class="pin-key" onclick="pressPin('6')">6</div>
+        <div class="pin-key" onclick="pressPin('7')">7</div>
+        <div class="pin-key" onclick="pressPin('8')">8</div>
+        <div class="pin-key" onclick="pressPin('9')">9</div>
+        <div class="pin-key" style="font-size: 0.8rem;" onclick="clearPin()">Clear</div>
+        <div class="pin-key" onclick="pressPin('0')">0</div>
+        <div class="pin-key" style="font-size: 0.8rem;" onclick="backspacePin()">⌫</div>
+      </div>
+      <button id="pinCancelBtn" class="btn" style="margin-top: 16px; display: none;" onclick="closePinModal()">Cancel</button>
+    </div>
+  </div>
+
+  <!-- Dynamic Generic Modal Container for Transaction / Wallet / Category / Reminders -->
+  <div id="genericModal" class="modal-overlay" style="display: none;">
+    <div class="modal-card" id="genericModalCard"></div>
+  </div>
+
+  <script>
+    // --- LOCAL DATABASE STORE ---
+    const DB_KEY = 'standalone_expense_db_v1';
+    const LOCK_KEY = 'standalone_expense_locked';
+
+    const defaultState = {
+      wallets: [
+        { id: 'w1', name: 'Primary Bank Account', balance: 0, type: 'bank', symbol: 'Rs. ' },
+        { id: 'w2', name: 'Cash / Wallet', balance: 0, type: 'cash', symbol: 'Rs. ' },
+        { id: 'w3', name: 'Raast / Digital', balance: 0, type: 'digital', symbol: 'Rs. ' }
+      ],
+      categories: [
+        { id: 'c1', name: 'Groceries & Food', type: 'expense', budgetLimit: 0 },
+        { id: 'c2', name: 'Software & Tools', type: 'expense', budgetLimit: 0 },
+        { id: 'c3', name: 'Bills & Utilities', type: 'expense', budgetLimit: 0 },
+        { id: 'c4', name: 'Transport & Fuel', type: 'expense', budgetLimit: 0 },
+        { id: 'c5', name: 'Tech & Hardware', type: 'expense', budgetLimit: 0 },
+        { id: 'c6', name: 'Client Project Work', type: 'income', budgetLimit: 0 },
+        { id: 'c7', name: 'Salary / Retainer', type: 'income', budgetLimit: 0 },
+        { id: 'c8', name: 'Added Money / Deposit', type: 'income', budgetLimit: 0 }
+      ],
+      transactions: [],
+      reminders: [],
+      savings: [],
+      settings: {
+        userName: 'Private User',
+        currency: 'Rs. ',
+        isLockEnabled: false,
+        passcodeHash: null
+      }
+    };
+
+    let state = loadState();
+
+    function loadState() {
+      try {
+        const raw = localStorage.getItem(DB_KEY);
+        if (!raw) return defaultState;
+        return { ...defaultState, ...JSON.parse(raw) };
+      } catch {
+        return defaultState;
+      }
+    }
+
+    function saveState() {
+      localStorage.setItem(DB_KEY, JSON.stringify(state));
+      renderAll();
+    }
+
+    function formatMoney(amount) {
+      return (state.settings.currency || 'Rs. ') + Math.round(amount || 0).toLocaleString();
+    }
+
+    // --- NAVIGATION ---
+    let currentTab = 'dashboard';
+    function switchTab(tab) {
+      currentTab = tab;
+      const tabs = ['dashboard', 'transactions', 'reminders', 'wallets', 'categories', 'savings', 'settings'];
+      tabs.forEach(t => {
+        const el = document.getElementById('tab-' + t);
+        if (el) el.style.display = (t === tab) ? 'block' : 'none';
+      });
+
+      document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+      document.querySelectorAll('.mobile-tab').forEach(b => b.classList.remove('active'));
+
+      const titles = {
+        dashboard: ['Dashboard', 'Personal Cashflow & Expense Ledger'],
+        transactions: ['Transactions Ledger', 'Complete history of all incomes and spendings'],
+        reminders: ['Payment Reminders', 'Client receivables and upcoming payable bills'],
+        wallets: ['Wallets & Accounts', 'Manage multi-account balances and transfers'],
+        categories: ['Categories & Spending Caps', 'Budget limits for automated surplus calculation'],
+        savings: ['Savings & Goals', 'Dedicated fund reserves'],
+        settings: ['Settings & Backup', 'Passcode security and data portability']
+      };
+      if (titles[tab]) {
+        document.getElementById('pageTitle').innerText = titles[tab][0];
+        document.getElementById('pageSubtitle').innerText = titles[tab][1];
+      }
+      renderAll();
+    }
+
+    // --- RENDER FUNCTIONS ---
+    function renderAll() {
+      renderDashboard();
+      renderTransactions();
+      renderReminders();
+      renderWallets();
+      renderCategories();
+      renderSavings();
+      renderSettings();
+    }
+
+    function renderDashboard() {
+      const totalBalance = state.wallets.reduce((sum, w) => sum + (w.balance || 0), 0);
+      
+      // Calculate this month's expenses
+      const now = new Date();
+      const currentMonthStr = now.toISOString().slice(0, 7);
+      const monthExpenses = state.transactions
+        .filter(t => t.type === 'expense' && t.date && t.date.startsWith(currentMonthStr))
+        .reduce((sum, t) => sum + (t.amount || 0), 0);
+
+      // Unspent category caps
+      let totalUnspentCaps = 0;
+      state.categories.filter(c => c.type === 'expense' && (c.budgetLimit || 0) > 0).forEach(c => {
+        const spent = state.transactions
+          .filter(t => t.type === 'expense' && t.categoryId === c.id && t.date && t.date.startsWith(currentMonthStr))
+          .reduce((sum, t) => sum + t.amount, 0);
+        const unspent = Math.max(0, c.budgetLimit - spent);
+        totalUnspentCaps += unspent;
+      });
+
+      // Pending receivables
+      const pendingReceivables = state.reminders
+        .filter(r => r.type !== 'payable' && r.status !== 'collected')
+        .reduce((sum, r) => sum + (r.amount || 0), 0);
+
+      const surplus = Math.max(0, totalBalance - totalUnspentCaps);
+
+      document.getElementById('metricTotalBalance').innerText = formatMoney(totalBalance);
+      document.getElementById('metricSurplus').innerText = formatMoney(surplus);
+      document.getElementById('metricMonthExpense').innerText = formatMoney(monthExpenses);
+      document.getElementById('metricPendingReceivables').innerText = formatMoney(pendingReceivables);
+
+      // Dash Wallets
+      const wList = document.getElementById('dashWalletList');
+      wList.innerHTML = state.wallets.map(w => `
+        <div style="background: #14161e; padding: 12px; border-radius: 12px; border: 1px solid var(--border);">
+          <div style="font-size: 11px; color: var(--text-muted);">${w.name}</div>
+          <div style="font-size: 1.1rem; font-weight: 700; color: #fff; font-family: monospace; margin-top: 2px;">${formatMoney(w.balance)}</div>
+        </div>
+      `).join('');
+
+      // Dash Recent Tx
+      const tbody = document.getElementById('dashRecentTxBody');
+      const recents = state.transactions.slice(0, 5);
+      if (recents.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="5" style="text-align: center; color: var(--text-dim); padding: 24px;">No transactions yet. Click "+ Expense" to record one.</td></tr>';
+      } else {
+        tbody.innerHTML = recents.map(t => {
+          const w = state.wallets.find(x => x.id === t.walletId);
+          const c = state.categories.find(x => x.id === t.categoryId);
+          const isExpense = t.type === 'expense';
+          const isIncome = t.type === 'income' || t.type === 'deposit';
+          const color = isExpense ? 'var(--rose)' : isIncome ? 'var(--emerald)' : 'var(--sky)';
+          const sign = isExpense ? '-' : isIncome ? '+' : '';
+          return `
+            <tr>
+              <td style="color: var(--text-muted); font-size: 11px;">${t.date || ''}</td>
+              <td style="font-weight: 600; color: #fff;">${t.title}</td>
+              <td><span class="badge">${c ? c.name : 'General'}</span></td>
+              <td style="color: var(--text-muted);">${w ? w.name : 'Account'}</td>
+              <td style="text-align: right; font-family: monospace; font-weight: 700; color: ${color};">${sign}${formatMoney(t.amount)}</td>
+            </tr>
+          `;
+        }).join('');
+      }
+    }
+
+    function renderTransactions() {
+      const q = (document.getElementById('txSearchInput')?.value || '').toLowerCase();
+      const typeF = document.getElementById('txFilterType')?.value || 'all';
+      const walF = document.getElementById('txFilterWallet')?.value || 'all';
+
+      // Update wallet filter options
+      const wSel = document.getElementById('txFilterWallet');
+      if (wSel && wSel.children.length !== state.wallets.length + 1) {
+        wSel.innerHTML = '<option value="all">All Accounts</option>' + state.wallets.map(w => `<option value="${w.id}">${w.name}</option>`).join('');
+      }
+
+      const filtered = state.transactions.filter(t => {
+        if (typeF !== 'all' && t.type !== typeF) return false;
+        if (walF !== 'all' && t.walletId !== walF && t.toWalletId !== walF) return false;
+        if (q && !t.title.toLowerCase().includes(q) && !(t.notes || '').toLowerCase().includes(q)) return false;
+        return true;
+      });
+
+      const tbody = document.getElementById('fullTxTableBody');
+      if (filtered.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="6" style="text-align: center; color: var(--text-dim); padding: 32px;">No matching transactions found.</td></tr>';
+        return;
+      }
+
+      tbody.innerHTML = filtered.map(t => {
+        const w = state.wallets.find(x => x.id === t.walletId);
+        const c = state.categories.find(x => x.id === t.categoryId);
+        const isExpense = t.type === 'expense';
+        const isIncome = t.type === 'income' || t.type === 'deposit';
+        const color = isExpense ? 'var(--rose)' : isIncome ? 'var(--emerald)' : 'var(--sky)';
+        const sign = isExpense ? '-' : isIncome ? '+' : '';
+        return `
+          <tr>
+            <td style="color: var(--text-muted); font-size: 11px;">${t.date} ${t.time || ''}</td>
+            <td style="font-weight: 600; color: #fff;">${t.title}</td>
+            <td><span class="badge">${c ? c.name : 'General'}</span></td>
+            <td style="color: var(--text-muted);">${w ? w.name : 'Account'}</td>
+            <td style="text-align: right; font-family: monospace; font-weight: 700; color: ${color};">${sign}${formatMoney(t.amount)}</td>
+            <td style="text-align: center;">
+              <button class="btn btn-danger" style="padding: 4px 8px; font-size: 10px;" onclick="deleteTransaction('${t.id}')">Delete</button>
+            </td>
+          </tr>
+        `;
+      }).join('');
+    }
+
+    function renderReminders() {
+      const container = document.getElementById('remindersGrid');
+      if (state.reminders.length === 0) {
+        container.innerHTML = '<div class="card" style="grid-column: 1/-1; text-align: center; color: var(--text-dim); padding: 40px;">No pending client receivables or bills. Click "+ New Reminder" to add one.</div>';
+        return;
+      }
+
+      container.innerHTML = state.reminders.map(r => {
+        const isCollected = r.status === 'collected';
+        const isPayable = r.type === 'payable';
+        const waText = encodeURIComponent(`Hi ${r.clientName}, gentle reminder regarding invoice for ${r.projectTitle} of ${state.settings.currency || 'Rs. '}${r.amount}. Due date: ${r.dueDate}. Thank you!`);
+        return `
+          <div class="card" style="opacity: ${isCollected ? '0.6' : '1'};">
+            <div style="display: flex; justify-content: space-between; align-items: flex-start;">
+              <div>
+                <span class="badge ${isPayable ? 'badge-rose' : 'badge-emerald'}">${isPayable ? 'Cash Payable' : 'Client Receivable'}</span>
+                <div style="font-weight: 700; color: #fff; font-size: 0.95rem; margin-top: 6px;">${r.clientName}</div>
+                <div class="subtitle">${r.projectTitle}</div>
+              </div>
+              <div style="font-family: monospace; font-weight: 700; font-size: 1.1rem; color: #fff;">${formatMoney(r.amount)}</div>
+            </div>
+            <div style="margin-top: 12px; font-size: 11px; color: var(--text-muted);">Due: <b>${r.dueDate}</b></div>
+            <div style="display: flex; gap: 8px; margin-top: 14px; border-top: 1px solid var(--border); padding-top: 12px;">
+              ${!isCollected ? `
+                <button class="btn btn-primary" style="flex: 1;" onclick="collectReminder('${r.id}')">✓ Collect</button>
+                ${!isPayable ? `<a href="https://wa.me/?text=${waText}" target="_blank" class="btn" style="text-decoration: none;">💬 WhatsApp</a>` : ''}
+              ` : '<span style="font-size: 11px; color: var(--emerald);">✓ Settled / Collected</span>'}
+              <button class="btn btn-danger" onclick="deleteReminder('${r.id}')">Delete</button>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    function renderWallets() {
+      const container = document.getElementById('walletsGrid');
+      container.innerHTML = state.wallets.map(w => `
+        <div class="card">
+          <div style="display: flex; justify-content: space-between; align-items: center;">
+            <div style="font-weight: 700; color: #fff;">${w.name}</div>
+            <span class="badge">${w.type}</span>
+          </div>
+          <div style="font-size: 1.4rem; font-weight: 700; font-family: monospace; color: #fff; margin: 10px 0;">${formatMoney(w.balance)}</div>
+          <div style="display: flex; gap: 6px;">
+            <button class="btn" style="flex: 1;" onclick="openTransferModal('${w.id}')">⇄ Transfer</button>
+            ${state.wallets.length > 1 && w.balance === 0 ? `<button class="btn btn-danger" onclick="deleteWallet('${w.id}')">Del</button>` : ''}
+          </div>
+        </div>
+      `).join('');
+    }
+
+    function renderCategories() {
+      const container = document.getElementById('categoriesGrid');
+      const nowMonth = new Date().toISOString().slice(0, 7);
+
+      container.innerHTML = state.categories.map(c => {
+        const spent = state.transactions
+          .filter(t => t.type === 'expense' && t.categoryId === c.id && t.date && t.date.startsWith(nowMonth))
+          .reduce((sum, t) => sum + t.amount, 0);
+        const hasLimit = c.budgetLimit > 0;
+        const pct = hasLimit ? Math.min(100, Math.round((spent / c.budgetLimit) * 100)) : 0;
+        return `
+          <div class="card">
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+              <div style="font-weight: 700; color: #fff;">${c.name}</div>
+              <span class="badge ${c.type === 'expense' ? 'badge-rose' : 'badge-emerald'}">${c.type}</span>
+            </div>
+            ${c.type === 'expense' ? `
+              <div style="margin: 10px 0;">
+                <div style="display: flex; justify-content: space-between; font-size: 11px; color: var(--text-muted); margin-bottom: 4px;">
+                  <span>Spent: ${formatMoney(spent)}</span>
+                  <span>Cap: ${hasLimit ? formatMoney(c.budgetLimit) : 'No Cap'}</span>
+                </div>
+                ${hasLimit ? `
+                  <div style="width: 100%; height: 6px; background: #27272a; border-radius: 999px; overflow: hidden;">
+                    <div style="width: ${pct}%; height: 100%; background: ${pct > 90 ? 'var(--rose)' : 'var(--emerald)'};"></div>
+                  </div>
+                ` : ''}
+              </div>
+            ` : '<div style="margin: 10px 0; font-size: 11px; color: var(--text-dim);">Income Source</div>'}
+            <button class="btn" style="width: 100%;" onclick="openEditCapModal('${c.id}')">${hasLimit ? 'Adjust Cap' : 'Set Cap'}</button>
+          </div>
+        `;
+      }).join('');
+    }
+
+    function renderSavings() {
+      const container = document.getElementById('savingsGrid');
+      if (state.savings.length === 0) {
+        container.innerHTML = '<div class="card" style="grid-column: 1/-1; text-align: center; color: var(--text-dim); padding: 40px;">No savings targets set yet. Click "+ New Goal" to create one.</div>';
+        return;
+      }
+      container.innerHTML = state.savings.map(s => {
+        const pct = Math.min(100, Math.round(((s.currentAmount || 0) / s.targetAmount) * 100));
+        return `
+          <div class="card">
+            <div style="font-weight: 700; color: #fff; font-size: 1rem;">${s.title}</div>
+            <div style="display: flex; justify-content: space-between; margin: 10px 0; font-family: monospace;">
+              <span style="color: var(--emerald); font-weight: 700;">${formatMoney(s.currentAmount || 0)}</span>
+              <span style="color: var(--text-muted);">Goal: ${formatMoney(s.targetAmount)}</span>
+            </div>
+            <div style="width: 100%; height: 8px; background: #27272a; border-radius: 999px; overflow: hidden; margin-bottom: 12px;">
+              <div style="width: ${pct}%; height: 100%; background: var(--emerald);"></div>
+            </div>
+            <div style="display: flex; gap: 6px;">
+              <button class="btn btn-primary" style="flex: 1;" onclick="depositSavingGoal('${s.id}')">+ Deposit</button>
+              <button class="btn btn-danger" onclick="deleteSavingGoal('${s.id}')">Del</button>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    function renderSettings() {
+      document.getElementById('settingUserName').value = state.settings.userName || '';
+      document.getElementById('settingCurrency').value = state.settings.currency || 'Rs. ';
+      document.getElementById('sidebarUserName').innerText = state.settings.userName || 'Private User';
+      const toggleBtn = document.getElementById('toggleLockBtn');
+      if (toggleBtn) {
+        toggleBtn.innerText = state.settings.isLockEnabled ? 'Disable Lock' : 'Enable Lock';
+      }
+    }
+
+    function saveUserProfile() {
+      state.settings.userName = document.getElementById('settingUserName').value.trim() || 'Private User';
+      state.settings.currency = document.getElementById('settingCurrency').value.trim() || 'Rs. ';
+      saveState();
+    }
+
+    // --- MODALS ENGINE ---
+    function showModal(html) {
+      const modal = document.getElementById('genericModal');
+      const card = document.getElementById('genericModalCard');
+      card.innerHTML = html;
+      modal.style.display = 'flex';
+    }
+
+    function closeModal() {
+      document.getElementById('genericModal').style.display = 'none';
+    }
+
+    function openTxModal(type) {
+      const title = type === 'expense' ? 'Record Expense' : type === 'income' ? 'Record Income' : 'Add Personal Money';
+      const nowStr = new Date().toISOString().slice(0, 10);
+      const cats = state.categories.filter(c => type === 'expense' ? c.type === 'expense' : c.type === 'income');
+
+      showModal(`
+        <h3 style="color: #fff; font-size: 1rem; font-weight: 700; margin-bottom: 14px;">${title}</h3>
+        <div class="input-group">
+          <label class="input-label">Title / Note</label>
+          <input type="text" id="m_title" class="input-field" placeholder="e.g. Pizza, Fuel, Client Invoice">
+        </div>
+        <div class="input-group">
+          <label class="input-label">Amount (${state.settings.currency})</label>
+          <input type="number" id="m_amount" class="input-field" placeholder="0">
+        </div>
+        <div class="input-group">
+          <label class="input-label">Category</label>
+          <select id="m_category" class="input-field">
+            ${cats.map(c => `<option value="${c.id}">${c.name}</option>`).join('')}
+          </select>
+        </div>
+        <div class="input-group">
+          <label class="input-label">Account / Wallet</label>
+          <select id="m_wallet" class="input-field">
+            ${state.wallets.map(w => `<option value="${w.id}">${w.name} (${formatMoney(w.balance)})</option>`).join('')}
+          </select>
+        </div>
+        <div class="input-group">
+          <label class="input-label">Date</label>
+          <input type="date" id="m_date" class="input-field" value="${nowStr}">
+        </div>
+        <div style="display: flex; gap: 8px; margin-top: 20px;">
+          <button class="btn btn-primary" style="flex: 1;" onclick="saveTx('${type}')">Save</button>
+          <button class="btn" onclick="closeModal()">Cancel</button>
+        </div>
+      `);
+    }
+
+    function saveTx(type) {
+      const title = document.getElementById('m_title').value.trim();
+      const amount = parseFloat(document.getElementById('m_amount').value) || 0;
+      const categoryId = document.getElementById('m_category').value;
+      const walletId = document.getElementById('m_wallet').value;
+      const date = document.getElementById('m_date').value;
+
+      if (!title || amount <= 0) {
+        alert('Please enter a valid title and amount greater than 0.');
+        return;
+      }
+
+      const tx = {
+        id: 'tx_' + Date.now(),
+        type,
+        title,
+        amount,
+        categoryId,
+        walletId,
+        date,
+        createdAt: new Date().toISOString()
+      };
+
+      state.transactions.unshift(tx);
+
+      // Adjust wallet
+      const wal = state.wallets.find(w => w.id === walletId);
+      if (wal) {
+        if (type === 'expense') wal.balance -= amount;
+        else wal.balance += amount;
+      }
+
+      closeModal();
+      saveState();
+    }
+
+    function openTransferModal(fromId) {
+      showModal(`
+        <h3 style="color: #fff; font-size: 1rem; font-weight: 700; margin-bottom: 14px;">Transfer Between Accounts</h3>
+        <div class="input-group">
+          <label class="input-label">From Account</label>
+          <select id="t_from" class="input-field">
+            ${state.wallets.map(w => `<option value="${w.id}" ${w.id === fromId ? 'selected' : ''}>${w.name} (${formatMoney(w.balance)})</option>`).join('')}
+          </select>
+        </div>
+        <div class="input-group">
+          <label class="input-label">To Account</label>
+          <select id="t_to" class="input-field">
+            ${state.wallets.map(w => `<option value="${w.id}">${w.name} (${formatMoney(w.balance)})</option>`).join('')}
+          </select>
+        </div>
+        <div class="input-group">
+          <label class="input-label">Amount</label>
+          <input type="number" id="t_amount" class="input-field" placeholder="0">
+        </div>
+        <div style="display: flex; gap: 8px; margin-top: 20px;">
+          <button class="btn btn-primary" style="flex: 1;" onclick="saveTransfer()">Execute Transfer</button>
+          <button class="btn" onclick="closeModal()">Cancel</button>
+        </div>
+      `);
+    }
+
+    function saveTransfer() {
+      const fromId = document.getElementById('t_from').value;
+      const toId = document.getElementById('t_to').value;
+      const amount = parseFloat(document.getElementById('t_amount').value) || 0;
+
+      if (fromId === toId) { alert('Choose different accounts to transfer between.'); return; }
+      if (amount <= 0) { alert('Enter an amount greater than 0.'); return; }
+
+      const fromW = state.wallets.find(w => w.id === fromId);
+      const toW = state.wallets.find(w => w.id === toId);
+
+      fromW.balance -= amount;
+      toW.balance += amount;
+
+      state.transactions.unshift({
+        id: 'tx_' + Date.now(),
+        type: 'transfer',
+        title: `Transfer: ${fromW.name} → ${toW.name}`,
+        amount,
+        walletId: fromId,
+        toWalletId: toId,
+        date: new Date().toISOString().slice(0, 10),
+        createdAt: new Date().toISOString()
+      });
+
+      closeModal();
+      saveState();
+    }
+
+    function deleteTransaction(id) {
+      const tx = state.transactions.find(t => t.id === id);
+      if (!tx || !confirm('Delete transaction "' + tx.title + '"?')) return;
+
+      const wal = state.wallets.find(w => w.id === tx.walletId);
+      if (wal) {
+        if (tx.type === 'expense') wal.balance += tx.amount;
+        else if (tx.type === 'income' || tx.type === 'deposit') wal.balance -= tx.amount;
+      }
+      if (tx.type === 'transfer' && tx.toWalletId) {
+        const toW = state.wallets.find(w => w.id === tx.toWalletId);
+        if (toW) toW.balance -= tx.amount;
+        if (wal) wal.balance += tx.amount;
+      }
+
+      state.transactions = state.transactions.filter(t => t.id !== id);
+      saveState();
+    }
+
+    function openReminderModal() {
+      const nowStr = new Date().toISOString().slice(0, 10);
+      showModal(`
+        <h3 style="color: #fff; font-size: 1rem; font-weight: 700; margin-bottom: 14px;">Add Invoice / Bill Reminder</h3>
+        <div class="input-group">
+          <label class="input-label">Type</label>
+          <select id="rem_type" class="input-field">
+            <option value="receivable">Client Receivable (Incoming Money)</option>
+            <option value="payable">Cash Payable (Bill / Rent / Salary)</option>
+          </select>
+        </div>
+        <div class="input-group">
+          <label class="input-label">Client or Vendor Name</label>
+          <input type="text" id="rem_client" class="input-field" placeholder="e.g. Acme Corp / Landlord">
+        </div>
+        <div class="input-group">
+          <label class="input-label">Project / Bill Title</label>
+          <input type="text" id="rem_title" class="input-field" placeholder="e.g. Web Design Milestone 1">
+        </div>
+        <div class="input-group">
+          <label class="input-label">Amount</label>
+          <input type="number" id="rem_amount" class="input-field" placeholder="0">
+        </div>
+        <div class="input-group">
+          <label class="input-label">Due Date</label>
+          <input type="date" id="rem_due" class="input-field" value="${nowStr}">
+        </div>
+        <div style="display: flex; gap: 8px; margin-top: 20px;">
+          <button class="btn btn-primary" style="flex: 1;" onclick="saveReminder()">Save Reminder</button>
+          <button class="btn" onclick="closeModal()">Cancel</button>
+        </div>
+      `);
+    }
+
+    function saveReminder() {
+      const type = document.getElementById('rem_type').value;
+      const clientName = document.getElementById('rem_client').value.trim();
+      const projectTitle = document.getElementById('rem_title').value.trim();
+      const amount = parseFloat(document.getElementById('rem_amount').value) || 0;
+      const dueDate = document.getElementById('rem_due').value;
+
+      if (!clientName || !projectTitle || amount <= 0) {
+        alert('Please fill out all fields.');
+        return;
+      }
+
+      state.reminders.push({
+        id: 'rem_' + Date.now(),
+        type,
+        clientName,
+        projectTitle,
+        amount,
+        dueDate,
+        status: 'pending'
+      });
+
+      closeModal();
+      saveState();
+    }
+
+    function collectReminder(id) {
+      const r = state.reminders.find(x => x.id === id);
+      if (!r) return;
+
+      const targetWallet = state.wallets[0]?.id;
+      r.status = 'collected';
+
+      // Auto add to transactions
+      state.transactions.unshift({
+        id: 'tx_' + Date.now(),
+        type: r.type === 'payable' ? 'expense' : 'income',
+        title: `${r.type === 'payable' ? 'Paid: ' : 'Collected: '} ${r.clientName} (${r.projectTitle})`,
+        amount: r.amount,
+        walletId: targetWallet,
+        date: new Date().toISOString().slice(0, 10),
+        createdAt: new Date().toISOString()
+      });
+
+      const wal = state.wallets.find(w => w.id === targetWallet);
+      if (wal) {
+        if (r.type === 'payable') wal.balance -= r.amount;
+        else wal.balance += r.amount;
+      }
+
+      saveState();
+    }
+
+    function deleteReminder(id) {
+      if (!confirm('Remove this reminder?')) return;
+      state.reminders = state.reminders.filter(r => r.id !== id);
+      saveState();
+    }
+
+    function openAddWalletModal() {
+      showModal(`
+        <h3 style="color: #fff; font-size: 1rem; font-weight: 700; margin-bottom: 14px;">Add New Account</h3>
+        <div class="input-group">
+          <label class="input-label">Account Name</label>
+          <input type="text" id="w_name" class="input-field" placeholder="e.g. Meezan Bank, SadaPay, Cash Safe">
+        </div>
+        <div class="input-group">
+          <label class="input-label">Initial Balance</label>
+          <input type="number" id="w_balance" class="input-field" placeholder="0">
+        </div>
+        <div class="input-group">
+          <label class="input-label">Account Type</label>
+          <select id="w_type" class="input-field">
+            <option value="bank">Bank Account</option>
+            <option value="cash">Physical Cash</option>
+            <option value="digital">Mobile / Digital Wallet</option>
+          </select>
+        </div>
+        <div style="display: flex; gap: 8px; margin-top: 20px;">
+          <button class="btn btn-primary" style="flex: 1;" onclick="saveWallet()">Add Account</button>
+          <button class="btn" onclick="closeModal()">Cancel</button>
+        </div>
+      `);
+    }
+
+    function saveWallet() {
+      const name = document.getElementById('w_name').value.trim();
+      const balance = parseFloat(document.getElementById('w_balance').value) || 0;
+      const type = document.getElementById('w_type').value;
+
+      if (!name) { alert('Enter account name'); return; }
+
+      state.wallets.push({
+        id: 'w_' + Date.now(),
+        name,
+        balance,
+        type,
+        symbol: state.settings.currency || 'Rs. '
+      });
+
+      closeModal();
+      saveState();
+    }
+
+    function deleteWallet(id) {
+      const wal = state.wallets.find(w => w.id === id);
+      if (!wal) return;
+      if (wal.balance !== 0) {
+        alert('Empty account balance (Rs. 0) before deleting.');
+        return;
+      }
+      if (!confirm('Delete account "' + wal.name + '"?')) return;
+      state.wallets = state.wallets.filter(w => w.id !== id);
+      saveState();
+    }
+
+    function openEditCapModal(id) {
+      const cat = state.categories.find(c => c.id === id);
+      if (!cat) return;
+      showModal(`
+        <h3 style="color: #fff; font-size: 1rem; font-weight: 700; margin-bottom: 14px;">Monthly Spending Cap: ${cat.name}</h3>
+        <p class="subtitle" style="margin-bottom: 14px;">Unused caps are reserved and subtracted from your Cash Surplus</p>
+        <div class="input-group">
+          <label class="input-label">Cap Amount (${state.settings.currency})</label>
+          <input type="number" id="cap_amount" class="input-field" value="${cat.budgetLimit || 0}">
+        </div>
+        <div style="display: flex; gap: 8px; margin-top: 20px;">
+          <button class="btn btn-primary" style="flex: 1;" onclick="saveCap('${id}')">Save Cap</button>
+          <button class="btn" onclick="closeModal()">Cancel</button>
+        </div>
+      `);
+    }
+
+    function saveCap(id) {
+      const cat = state.categories.find(c => c.id === id);
+      if (cat) {
+        cat.budgetLimit = parseFloat(document.getElementById('cap_amount').value) || 0;
+        saveState();
+      }
+      closeModal();
+    }
+
+    function openAddSavingModal() {
+      showModal(`
+        <h3 style="color: #fff; font-size: 1rem; font-weight: 700; margin-bottom: 14px;">Create Savings Target</h3>
+        <div class="input-group">
+          <label class="input-label">Goal Title</label>
+          <input type="text" id="s_title" class="input-field" placeholder="e.g. New Laptop, Emergency Fund">
+        </div>
+        <div class="input-group">
+          <label class="input-label">Target Amount</label>
+          <input type="number" id="s_target" class="input-field" placeholder="50000">
+        </div>
+        <div style="display: flex; gap: 8px; margin-top: 20px;">
+          <button class="btn btn-primary" style="flex: 1;" onclick="saveSavingGoal()">Create Goal</button>
+          <button class="btn" onclick="closeModal()">Cancel</button>
+        </div>
+      `);
+    }
+
+    function saveSavingGoal() {
+      const title = document.getElementById('s_title').value.trim();
+      const targetAmount = parseFloat(document.getElementById('s_target').value) || 0;
+      if (!title || targetAmount <= 0) { alert('Enter valid title and target amount.'); return; }
+
+      state.savings.push({
+        id: 's_' + Date.now(),
+        title,
+        targetAmount,
+        currentAmount: 0
+      });
+      closeModal();
+      saveState();
+    }
+
+    function depositSavingGoal(id) {
+      const s = state.savings.find(x => x.id === id);
+      if (!s) return;
+      const amt = parseFloat(prompt('Enter deposit amount into "' + s.title + '":', '1000')) || 0;
+      if (amt <= 0) return;
+
+      s.currentAmount = (s.currentAmount || 0) + amt;
+      saveState();
+    }
+
+    function deleteSavingGoal(id) {
+      if (!confirm('Remove this savings goal?')) return;
+      state.savings = state.savings.filter(s => s.id !== id);
+      saveState();
+    }
+
+    // --- SECURITY PIN ENGINE ---
+    let pinInput = '';
+    let pinSetupStep = null; // null | 'enter' | 'create' | 'confirm'
+    let tempNewPin = '';
+
+    async function hashPin(pin) {
+      const msg = pin + '_expense_salt_2026';
+      if (window.crypto && window.crypto.subtle) {
+        const encoder = new TextEncoder();
+        const data = encoder.encode(msg);
+        const hash = await crypto.subtle.digest('SHA-256', data);
+        return Array.from(new Uint8Array(hash)).map(b => b.toString(16).padStart(2, '0')).join('');
+      }
+      return btoa(msg); // Fallback
+    }
+
+    function pressPin(digit) {
+      if (pinInput.length >= 4) return;
+      pinInput += digit;
+      updatePinDots();
+      document.getElementById('pinError').style.display = 'none';
+
+      if (pinInput.length === 4) {
+        setTimeout(handlePinComplete, 120);
+      }
+    }
+
+    function updatePinDots() {
+      for (let i = 0; i < 4; i++) {
+        const dot = document.getElementById('dot' + i);
+        if (dot) {
+          if (pinInput.length > i) dot.classList.add('filled');
+          else dot.classList.remove('filled');
+        }
+      }
+    }
+
+    function clearPin() {
+      pinInput = '';
+      updatePinDots();
+    }
+
+    function backspacePin() {
+      pinInput = pinInput.slice(0, -1);
+      updatePinDots();
+    }
+
+    async function handlePinComplete() {
+      if (pinSetupStep === 'enter') {
+        const hashed = await hashPin(pinInput);
+        if (hashed === state.settings.passcodeHash) {
+          sessionStorage.setItem(LOCK_KEY, 'unlocked');
+          document.getElementById('lockModal').style.display = 'none';
+          pinInput = '';
+          updatePinDots();
+        } else {
+          showPinError('Incorrect passcode. Try again.');
+        }
+      } else if (pinSetupStep === 'create') {
+        tempNewPin = pinInput;
+        pinInput = '';
+        updatePinDots();
+        pinSetupStep = 'confirm';
+        document.getElementById('pinTitle').innerText = 'Confirm Your PIN';
+        document.getElementById('pinSub').innerText = 'Re-enter your 4 digits to confirm';
+      } else if (pinSetupStep === 'confirm') {
+        if (pinInput === tempNewPin) {
+          const hashed = await hashPin(pinInput);
+          state.settings.passcodeHash = hashed;
+          state.settings.isLockEnabled = true;
+          sessionStorage.setItem(LOCK_KEY, 'unlocked');
+          saveState();
+          document.getElementById('lockModal').style.display = 'none';
+          alert('4-Digit Security PIN successfully created and enabled!');
+        } else {
+          showPinError('PINs do not match. Start over.');
+          setTimeout(openPasscodeSetup, 700);
+        }
+      }
+    }
+
+    function showPinError(msg) {
+      const err = document.getElementById('pinError');
+      err.innerText = msg;
+      err.style.display = 'block';
+      setTimeout(clearPin, 600);
+    }
+
+    function openPasscodeSetup() {
+      pinInput = '';
+      tempNewPin = '';
+      pinSetupStep = 'create';
+      updatePinDots();
+      document.getElementById('pinTitle').innerText = 'Create 4-Digit PIN';
+      document.getElementById('pinSub').innerText = 'Choose a master PIN to lock your expenses';
+      document.getElementById('pinError').style.display = 'none';
+      document.getElementById('pinCancelBtn').style.display = 'inline-flex';
+      document.getElementById('lockModal').style.display = 'flex';
+    }
+
+    function closePinModal() {
+      document.getElementById('lockModal').style.display = 'none';
+      clearPin();
+    }
+
+    function togglePasscodeEnabled() {
+      if (!state.settings.passcodeHash) {
+        openPasscodeSetup();
+        return;
+      }
+      state.settings.isLockEnabled = !state.settings.isLockEnabled;
+      saveState();
+    }
+
+    function lockAppNow() {
+      if (!state.settings.isLockEnabled || !state.settings.passcodeHash) {
+        if (confirm('No passcode is configured yet. Would you like to create a 4-digit PIN now?')) {
+          openPasscodeSetup();
+        }
+        return;
+      }
+      sessionStorage.removeItem(LOCK_KEY);
+      enforceLockIfRequired();
+    }
+
+    function enforceLockIfRequired() {
+      if (state.settings.isLockEnabled && state.settings.passcodeHash) {
+        if (sessionStorage.getItem(LOCK_KEY) !== 'unlocked') {
+          pinInput = '';
+          pinSetupStep = 'enter';
+          updatePinDots();
+          document.getElementById('pinTitle').innerText = 'Enter Security PIN';
+          document.getElementById('pinSub').innerText = 'Enter your 4-digit master passcode to unlock';
+          document.getElementById('pinError').style.display = 'none';
+          document.getElementById('pinCancelBtn').style.display = 'none';
+          document.getElementById('lockModal').style.display = 'flex';
+        }
+      }
+    }
+
+    // --- DATA BACKUP & EXPORT ---
+    function exportDataBackup() {
+      const json = JSON.stringify(state, null, 2);
+      const blob = new Blob([json], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `Expense_Manager_Backup_${new Date().toISOString().slice(0, 10)}.json`;
+      a.click();
+      URL.revokeObjectURL(url);
+    }
+
+    function importDataBackup(e) {
+      const file = e.target.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = (evt) => {
+        try {
+          const imported = JSON.parse(evt.target.result);
+          if (imported.wallets && imported.transactions) {
+            state = imported;
+            saveState();
+            alert('Database backup restored successfully!');
+          } else {
+            alert('Invalid backup file format.');
+          }
+        } catch {
+          alert('Could not read backup file.');
+        }
+      };
+      reader.readAsText(file);
+    }
+
+    function resetAllDataConfirm() {
+      if (confirm('Are you sure you want to completely erase all transactions, accounts, and start over? This cannot be undone.')) {
+        state = JSON.parse(JSON.stringify(defaultState));
+        saveState();
+        alert('All local data wiped clean.');
+      }
+    }
+
+    // Keyboard support for PIN entry
+    window.addEventListener('keydown', (e) => {
+      const lockModal = document.getElementById('lockModal');
+      if (lockModal.style.display !== 'none') {
+        if (e.key >= '0' && e.key <= '9') pressPin(e.key);
+        else if (e.key === 'Backspace') backspacePin();
+        else if (e.key === 'Escape' && pinSetupStep !== 'enter') closePinModal();
+      }
+    });
+
+    // Auto-lock when tab is hidden or backgrounded on mobile
+    document.addEventListener('visibilitychange', () => {
+      if (document.visibilityState === 'hidden') {
+        sessionStorage.removeItem(LOCK_KEY);
+      } else if (document.visibilityState === 'visible') {
+        enforceLockIfRequired();
+      }
+    });
+
+    // Initial Launch
+    enforceLockIfRequired();
+    renderAll();
+  </script>
+</body>
+</html>
