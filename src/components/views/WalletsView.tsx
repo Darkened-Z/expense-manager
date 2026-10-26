@@ -119,7 +119,7 @@ export const WalletsView: React.FC<WalletsViewProps> = ({
   return (
     <div className="space-y-6">
       {/* Overview Banner */}
-      <div className="bg-[#12141a] border border-white/5 rounded-2xl p-6 shadow-xl flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+      <div className="bg-[#12141a] border border-white/5 rounded-2xl p-4 sm:p-6 shadow-xl flex flex-col sm:flex-row sm:items-center justify-between gap-4 max-w-full overflow-hidden">
         <div>
           <div className="text-xs text-zinc-400 font-medium">Total Liquidity & Balance</div>
           <div className="text-3xl font-extrabold text-white font-mono mt-1">
@@ -128,11 +128,11 @@ export const WalletsView: React.FC<WalletsViewProps> = ({
           <p className="text-xs text-zinc-500 mt-1">Combined balance across {wallets.length} active channels</p>
         </div>
 
-        <div className="flex items-center gap-2 self-start sm:self-center">
+        <div className="flex flex-wrap sm:flex-nowrap items-center gap-2 self-start sm:self-center">
           {onOpenTransfer && (
             <button
               onClick={onOpenTransfer}
-              className="bg-[#181b23] hover:bg-[#20242f] text-zinc-200 border border-white/10 font-semibold text-xs px-3.5 py-2.5 rounded-xl flex items-center gap-1.5 transition-colors shadow-sm"
+              className="bg-[#181b23] hover:bg-[#20242f] text-zinc-200 border border-white/10 font-semibold text-xs px-3.5 py-2.5 rounded-xl flex items-center gap-1.5 transition-colors shadow-sm shrink-0 whitespace-nowrap cursor-pointer"
               title="Transfer funds between accounts"
             >
               <ArrowLeftRight className="w-3.5 h-3.5 text-sky-400" />
@@ -142,7 +142,7 @@ export const WalletsView: React.FC<WalletsViewProps> = ({
 
           <button
             onClick={() => setShowAddModal(true)}
-            className="bg-zinc-100 hover:bg-white text-zinc-950 font-semibold text-xs px-4 py-2.5 rounded-xl flex items-center gap-1.5 transition-colors shadow-sm"
+            className="bg-zinc-100 hover:bg-white text-zinc-950 font-semibold text-xs px-4 py-2.5 rounded-xl flex items-center gap-1.5 transition-colors shadow-sm shrink-0 whitespace-nowrap cursor-pointer"
           >
             <Plus className="w-4 h-4 stroke-[2.5]" />
             <span>Add Account / Wallet</span>
@@ -151,7 +151,7 @@ export const WalletsView: React.FC<WalletsViewProps> = ({
       </div>
 
       {/* Wallets Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 max-w-full">
         {wallets.map((w) => {
           const Icon = getWalletIcon(w.type);
           const walletTxs = transactions.filter((t) => t.walletId === w.id);
@@ -163,7 +163,7 @@ export const WalletsView: React.FC<WalletsViewProps> = ({
             <div
               key={w.id}
               onClick={() => setSelectedWalletDetails(w)}
-              className="bg-[#12141a] border border-white/5 hover:border-white/20 rounded-2xl p-5 shadow-xl transition-all cursor-pointer group flex flex-col justify-between"
+              className="bg-[#12141a] border border-white/5 hover:border-white/20 rounded-2xl p-5 shadow-xl transition-all cursor-pointer group flex flex-col justify-between min-w-0 overflow-hidden"
             >
               <div>
                 <div className="flex items-start justify-between">

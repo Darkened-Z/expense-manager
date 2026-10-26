@@ -106,8 +106,8 @@ export const Header: React.FC<HeaderProps> = ({
   const { title, sub } = getPageTitle();
 
   return (
-    <header className="px-4 sm:px-6 lg:px-8 py-3.5 sm:py-5 border-b border-white/5 bg-[#090a0d]/90 backdrop-blur-md sticky top-0 z-30 flex flex-col gap-3">
-      <div className="flex items-center justify-between gap-2">
+    <header className="px-3.5 sm:px-6 lg:px-8 py-3.5 sm:py-5 border-b border-white/5 bg-[#090a0d]/90 backdrop-blur-md sticky top-0 z-30 flex flex-col gap-3 max-w-full overflow-hidden">
+      <div className="flex items-center justify-between gap-2 max-w-full">
         {/* Left: Mobile Menu Trigger + Title */}
         <div className="flex items-center gap-2.5 sm:gap-3">
           <button
@@ -384,7 +384,7 @@ export const Header: React.FC<HeaderProps> = ({
       </div>
 
       {/* Action Buttons Row - Dense minimal cohesive suite */}
-      <div className="flex items-center gap-2 overflow-x-auto pb-1 no-scrollbar">
+      <div className="flex items-center gap-2 overflow-x-auto pb-1 no-scrollbar scrollbar-none max-w-full">
         <button
           onClick={() => onOpenAddTx('expense')}
           className="flex-1 sm:flex-initial flex items-center justify-center gap-1.5 bg-[#14151b] hover:bg-[#1b1d26] text-zinc-300 hover:text-white border border-white/10 px-3.5 py-1.5 rounded-xl text-xs font-medium transition-colors whitespace-nowrap shadow-sm"

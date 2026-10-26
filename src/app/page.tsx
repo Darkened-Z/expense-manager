@@ -650,7 +650,7 @@ export default function Home() {
   const pendingPayablesCount = reminders.filter((r) => r.type === 'payable' && r.status === 'due_today').length;
 
   return (
-    <div className="flex min-h-screen bg-[#090a0d] text-zinc-100 font-sans">
+    <div className="flex min-h-screen bg-[#090a0d] text-zinc-100 font-sans w-full max-w-full overflow-x-hidden">
       {/* Passcode Lock Screen Overlay */}
       {isLocked && settings.isLockEnabled && settings.passcodeHash && (
         <PasscodeLockModal
@@ -721,7 +721,7 @@ export default function Home() {
           onToggleMobileMenu={() => setIsMobileMenuOpen(true)}
         />
 
-        <main className="p-4 sm:p-6 lg:p-8 pb-24 md:pb-8 flex-1 space-y-6 max-w-7xl w-full mx-auto overflow-x-hidden">
+        <main className="p-3.5 sm:p-6 lg:p-8 pb-36 md:pb-8 flex-1 space-y-6 max-w-7xl w-full mx-auto min-w-0 overflow-x-hidden">
           {/* PWA Install Banner (PC & Mobile) */}
           <PwaInstallPrompt />
 

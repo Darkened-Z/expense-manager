@@ -89,7 +89,7 @@ export const FinancialGraphs: React.FC<FinancialGraphsProps> = ({
     .sort((a, b) => b.amount - a.amount);
 
   return (
-    <div className="bg-[#12141a] border border-white/5 rounded-2xl p-4 sm:p-6 shadow-xl">
+    <div className="bg-[#12141a] border border-white/5 rounded-2xl p-4 sm:p-6 shadow-xl max-w-full overflow-hidden">
       {/* Top Header & Graph Switcher */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-4 border-b border-white/5 gap-3">
         <div>
@@ -97,10 +97,10 @@ export const FinancialGraphs: React.FC<FinancialGraphsProps> = ({
           <p className="text-xs text-zinc-500">Comparative income, expenditures, and category allocation</p>
         </div>
 
-        <div className="flex items-center gap-1 bg-[#181b23] p-1 rounded-xl border border-white/10 text-xs">
+        <div className="flex items-center gap-1 bg-[#181b23] p-1 rounded-xl border border-white/10 text-xs overflow-x-auto max-w-full scrollbar-none shrink-0">
           <button
             onClick={() => setActiveTab('cashflow')}
-            className={`px-3 py-1.5 rounded-lg transition-colors flex items-center gap-1.5 ${
+            className={`px-3 py-1.5 rounded-lg transition-colors flex items-center gap-1.5 shrink-0 whitespace-nowrap ${
               activeTab === 'cashflow' ? 'bg-white/10 text-white font-medium' : 'text-zinc-400 hover:text-zinc-200'
             }`}
           >
@@ -109,7 +109,7 @@ export const FinancialGraphs: React.FC<FinancialGraphsProps> = ({
           </button>
           <button
             onClick={() => setActiveTab('expenses')}
-            className={`px-3 py-1.5 rounded-lg transition-colors flex items-center gap-1.5 ${
+            className={`px-3 py-1.5 rounded-lg transition-colors flex items-center gap-1.5 shrink-0 whitespace-nowrap ${
               activeTab === 'expenses' ? 'bg-white/10 text-white font-medium' : 'text-zinc-400 hover:text-zinc-200'
             }`}
           >
@@ -118,7 +118,7 @@ export const FinancialGraphs: React.FC<FinancialGraphsProps> = ({
           </button>
           <button
             onClick={() => setActiveTab('sources')}
-            className={`px-3 py-1.5 rounded-lg transition-colors flex items-center gap-1.5 ${
+            className={`px-3 py-1.5 rounded-lg transition-colors flex items-center gap-1.5 shrink-0 whitespace-nowrap ${
               activeTab === 'sources' ? 'bg-white/10 text-white font-medium' : 'text-zinc-400 hover:text-zinc-200'
             }`}
           >

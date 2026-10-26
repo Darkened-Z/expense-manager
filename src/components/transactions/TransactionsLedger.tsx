@@ -117,9 +117,9 @@ export const TransactionsLedger: React.FC<TransactionsLedgerProps> = ({
         </div>
 
         {/* Filter & Search Bar */}
-        <div className="flex flex-col sm:flex-row sm:items-center gap-2.5">
+        <div className="flex flex-col sm:flex-row sm:items-center gap-2.5 max-w-full">
           {/* Search Input */}
-          <div className="relative flex-1">
+          <div className="relative flex-1 min-w-0">
             <Search className="w-3.5 h-3.5 text-zinc-500 absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" />
             <input
               type="text"
@@ -130,12 +130,12 @@ export const TransactionsLedger: React.FC<TransactionsLedgerProps> = ({
             />
           </div>
 
-          <div className="flex items-center gap-2">
+          <div className="flex flex-wrap sm:flex-nowrap items-center gap-2 max-w-full">
             {/* Type Filter Buttons */}
-            <div className="flex-1 sm:flex-initial flex items-center bg-[#181b23] p-0.5 rounded-xl border border-white/10 text-xs">
+            <div className="flex items-center bg-[#181b23] p-0.5 rounded-xl border border-white/10 text-xs overflow-x-auto max-w-full scrollbar-none shrink-0">
               <button
                 onClick={() => setSelectedType('all')}
-                className={`flex-1 sm:flex-initial px-2.5 py-1.5 rounded-lg transition-colors text-center ${
+                className={`px-2.5 py-1.5 rounded-lg transition-colors text-center shrink-0 whitespace-nowrap ${
                   selectedType === 'all' ? 'bg-[#232733] text-white font-medium' : 'text-zinc-400 hover:text-zinc-200'
                 }`}
               >
@@ -143,7 +143,7 @@ export const TransactionsLedger: React.FC<TransactionsLedgerProps> = ({
               </button>
               <button
                 onClick={() => setSelectedType('expense')}
-                className={`flex-1 sm:flex-initial px-2.5 py-1.5 rounded-lg transition-colors text-center ${
+                className={`px-2.5 py-1.5 rounded-lg transition-colors text-center shrink-0 whitespace-nowrap ${
                   selectedType === 'expense' ? 'bg-white/10 text-white font-medium' : 'text-zinc-400 hover:text-zinc-200'
                 }`}
               >
@@ -151,7 +151,7 @@ export const TransactionsLedger: React.FC<TransactionsLedgerProps> = ({
               </button>
               <button
                 onClick={() => setSelectedType('income')}
-                className={`flex-1 sm:flex-initial px-2.5 py-1.5 rounded-lg transition-colors text-center ${
+                className={`px-2.5 py-1.5 rounded-lg transition-colors text-center shrink-0 whitespace-nowrap ${
                   selectedType === 'income' ? 'bg-white/10 text-white font-medium' : 'text-zinc-400 hover:text-zinc-200'
                 }`}
               >
@@ -159,7 +159,7 @@ export const TransactionsLedger: React.FC<TransactionsLedgerProps> = ({
               </button>
               <button
                 onClick={() => setSelectedType('deposit')}
-                className={`flex-1 sm:flex-initial px-2.5 py-1.5 rounded-lg transition-colors text-center ${
+                className={`px-2.5 py-1.5 rounded-lg transition-colors text-center shrink-0 whitespace-nowrap ${
                   selectedType === 'deposit' ? 'bg-purple-500/20 text-purple-300 font-medium' : 'text-zinc-400 hover:text-zinc-200'
                 }`}
               >
@@ -167,7 +167,7 @@ export const TransactionsLedger: React.FC<TransactionsLedgerProps> = ({
               </button>
               <button
                 onClick={() => setSelectedType('transfer')}
-                className={`flex-1 sm:flex-initial px-2.5 py-1.5 rounded-lg transition-colors text-center ${
+                className={`px-2.5 py-1.5 rounded-lg transition-colors text-center shrink-0 whitespace-nowrap ${
                   selectedType === 'transfer' ? 'bg-sky-500/20 text-sky-300 font-medium' : 'text-zinc-400 hover:text-zinc-200'
                 }`}
               >
@@ -176,7 +176,7 @@ export const TransactionsLedger: React.FC<TransactionsLedgerProps> = ({
             </div>
 
             {/* Category Dropdown */}
-            <div className="relative">
+            <div className="relative shrink-0">
               <select
                 value={selectedCategory}
                 onChange={(e) => setSelectedCategory(e.target.value)}

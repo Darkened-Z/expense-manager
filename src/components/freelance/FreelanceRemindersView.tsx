@@ -227,68 +227,68 @@ export const FreelanceRemindersView: React.FC<FreelanceRemindersViewProps> = ({
       </div>
 
       {/* Top Banner Metric Cards (4 Cards) */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4 max-w-full">
         {/* Card 1: Total Remaining */}
-        <div className="bg-[#12141a] border border-white/5 rounded-2xl p-4 sm:p-5 shadow-xl relative overflow-hidden">
-          <div className="text-xs text-zinc-400 font-medium">
+        <div className="bg-[#12141a] border border-white/5 rounded-2xl p-4 sm:p-5 shadow-xl relative overflow-hidden min-w-0">
+          <div className="text-xs text-zinc-400 font-medium truncate">
             {isPayablesMode ? 'Total Remaining (This Month)' : 'Total Remaining (This Month)'}
           </div>
-          <div className="text-xl sm:text-2xl font-bold text-white font-mono mt-1">
+          <div className="text-xl sm:text-2xl font-bold text-white font-mono mt-1 truncate">
             {currencySymbol}{formatCash(totalPendingThisMonth)}
           </div>
-          <div className="text-[11px] text-zinc-500 mt-1">
+          <div className="text-[11px] text-zinc-500 mt-1 truncate">
             Across {thisMonthActive.length} active this month {totalPendingFuture > 0 ? `(+ ${currencySymbol}${formatCash(totalPendingFuture)} upcoming)` : ''}
           </div>
         </div>
 
         {/* Card 2: Cash Collected / Cash Paid (Second in the row) */}
-        <div className="bg-[#12141a] border border-white/5 rounded-2xl p-4 sm:p-5 shadow-xl relative overflow-hidden">
-          <div className="text-xs text-zinc-400 font-medium">
+        <div className="bg-[#12141a] border border-white/5 rounded-2xl p-4 sm:p-5 shadow-xl relative overflow-hidden min-w-0">
+          <div className="text-xs text-zinc-400 font-medium truncate">
             {isPayablesMode ? 'Cash Paid' : 'Cash Collected'}
           </div>
-          <div className="text-xl sm:text-2xl font-bold text-white font-mono mt-1">
+          <div className="text-xl sm:text-2xl font-bold text-white font-mono mt-1 truncate">
             {currencySymbol}{formatCash(totalSettled)}
           </div>
-          <div className="text-[11px] text-zinc-500 mt-1">
+          <div className="text-[11px] text-zinc-500 mt-1 truncate">
             Across {settledCount} {isPayablesMode ? 'paid records' : 'collected records'}
           </div>
         </div>
 
         {/* Card 3: Action Required */}
-        <div className="bg-[#12141a] border border-white/5 rounded-2xl p-4 sm:p-5 shadow-xl relative overflow-hidden">
-          <div className="text-xs text-zinc-400 font-medium">Action Required</div>
-          <div className="text-xl sm:text-2xl font-bold text-white font-mono mt-1 flex items-center gap-2">
+        <div className="bg-[#12141a] border border-white/5 rounded-2xl p-4 sm:p-5 shadow-xl relative overflow-hidden min-w-0">
+          <div className="text-xs text-zinc-400 font-medium truncate">Action Required</div>
+          <div className="text-xl sm:text-2xl font-bold text-white font-mono mt-1 flex items-center gap-2 truncate">
             <span>{urgentCount}</span>
             {urgentCount > 0 && (
-              <span className="text-xs font-medium px-2 py-0.5 rounded-full bg-rose-500/15 text-rose-300 border border-rose-500/20">
+              <span className="text-xs font-medium px-2 py-0.5 rounded-full bg-rose-500/15 text-rose-300 border border-rose-500/20 shrink-0">
                 {overdueList.length} Overdue
               </span>
             )}
           </div>
-          <div className="text-[11px] text-zinc-500 mt-1">
+          <div className="text-[11px] text-zinc-500 mt-1 truncate">
             {dueTodayList.length} item{dueTodayList.length === 1 ? '' : 's'} due today
           </div>
         </div>
 
         {/* Card 4: Total Records */}
-        <div className="bg-[#12141a] border border-white/5 rounded-2xl p-4 sm:p-5 shadow-xl relative overflow-hidden">
-          <div className="text-xs text-zinc-400 font-medium">
+        <div className="bg-[#12141a] border border-white/5 rounded-2xl p-4 sm:p-5 shadow-xl relative overflow-hidden min-w-0">
+          <div className="text-xs text-zinc-400 font-medium truncate">
             {isPayablesMode ? 'This Month Due' : 'This Month Due'}
           </div>
-          <div className="text-xl sm:text-2xl font-bold text-white font-mono mt-1">
+          <div className="text-xl sm:text-2xl font-bold text-white font-mono mt-1 truncate">
             {thisMonthActive.length}
           </div>
-          <div className="text-[11px] text-zinc-500 mt-1">
+          <div className="text-[11px] text-zinc-500 mt-1 truncate">
             {futureActive.length > 0 ? `${futureActive.length} scheduled in future months` : 'All current cycle records'}
           </div>
         </div>
       </div>
 
       {/* Main List Card */}
-      <div className="bg-[#12141a] border border-white/5 rounded-2xl shadow-xl p-3.5 sm:p-5">
+      <div className="bg-[#12141a] border border-white/5 rounded-2xl shadow-xl p-3.5 sm:p-5 max-w-full overflow-hidden">
         {/* Navigation Filters */}
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-4 border-b border-white/5 gap-3">
-          <div className="flex items-center gap-1.5 bg-[#181b23] p-1 rounded-xl border border-white/10 text-xs overflow-x-auto max-w-full pb-1 sm:pb-1">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-4 border-b border-white/5 gap-3 max-w-full">
+          <div className="flex items-center gap-1.5 bg-[#181b23] p-1 rounded-xl border border-white/10 text-xs overflow-x-auto max-w-full pb-1 sm:pb-1 scrollbar-none min-w-0">
             <button
               onClick={() => setFilterTab('this_month')}
               className={`px-3 py-1.5 rounded-lg transition-colors whitespace-nowrap cursor-pointer ${

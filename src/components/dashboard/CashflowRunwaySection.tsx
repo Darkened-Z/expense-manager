@@ -73,15 +73,15 @@ export const CashflowRunwaySection: React.FC<CashflowRunwaySectionProps> = ({
   ];
 
   return (
-    <div className="bg-[#12141a] border border-white/5 rounded-2xl p-6 shadow-xl space-y-6">
+    <div className="bg-[#12141a] border border-white/5 rounded-2xl p-4 sm:p-6 shadow-xl space-y-6 max-w-full overflow-hidden">
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-white/5 pb-4">
         <div className="flex items-center gap-3">
-          <div className="p-2.5 rounded-xl bg-white/5 text-zinc-300 border border-white/5">
+          <div className="p-2.5 rounded-xl bg-white/5 text-zinc-300 border border-white/5 shrink-0">
             <Calendar className="w-5 h-5 text-emerald-400" />
           </div>
           <div>
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-2 flex-wrap">
               <h3 className="font-bold text-white text-base">Cashflow Forecast & Runway</h3>
               <span className="text-[10px] bg-white/10 text-zinc-300 px-2 py-0.5 rounded-full font-mono font-medium">
                 Predictive
@@ -93,50 +93,50 @@ export const CashflowRunwaySection: React.FC<CashflowRunwaySectionProps> = ({
           </div>
         </div>
 
-        <div className="self-start sm:self-auto flex items-center gap-2">
+        <div className="self-start sm:self-auto flex items-center gap-2 shrink-0">
           {getStatusBadge()}
         </div>
       </div>
 
       {/* Burn Rate & Cash Summary Bar */}
-      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-        <div className="p-3.5 rounded-xl bg-[#161821] border border-white/5">
-          <div className="text-[11px] text-zinc-400 flex items-center gap-1.5">
-            <WalletIcon className="w-3.5 h-3.5 text-zinc-400" />
-            <span>Current Liquidity</span>
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 max-w-full">
+        <div className="p-3.5 rounded-xl bg-[#161821] border border-white/5 min-w-0 overflow-hidden">
+          <div className="text-[11px] text-zinc-400 flex items-center gap-1.5 truncate">
+            <WalletIcon className="w-3.5 h-3.5 text-zinc-400 shrink-0" />
+            <span className="truncate">Current Liquidity</span>
           </div>
-          <div className="text-base sm:text-lg font-mono font-bold text-white mt-1">
+          <div className="text-base sm:text-lg font-mono font-bold text-white mt-1 truncate">
             {formatCurrency(forecast.currentCash, currencySymbol)}
           </div>
         </div>
 
-        <div className="p-3.5 rounded-xl bg-[#161821] border border-white/5">
-          <div className="text-[11px] text-zinc-400 flex items-center gap-1.5">
-            <Flame className="w-3.5 h-3.5 text-amber-400" />
-            <span>Daily Burn Rate</span>
+        <div className="p-3.5 rounded-xl bg-[#161821] border border-white/5 min-w-0 overflow-hidden">
+          <div className="text-[11px] text-zinc-400 flex items-center gap-1.5 truncate">
+            <Flame className="w-3.5 h-3.5 text-amber-400 shrink-0" />
+            <span className="truncate">Daily Burn Rate</span>
           </div>
-          <div className="text-base sm:text-lg font-mono font-bold text-amber-400 mt-1">
+          <div className="text-base sm:text-lg font-mono font-bold text-amber-400 mt-1 truncate">
             {currencySymbol}{formatCash(forecast.dailyBurnRate)}
             <span className="text-[11px] text-zinc-500 font-normal ml-1">/ day</span>
           </div>
         </div>
 
-        <div className="p-3.5 rounded-xl bg-[#161821] border border-white/5">
-          <div className="text-[11px] text-zinc-400 flex items-center gap-1.5">
-            <Clock className="w-3.5 h-3.5 text-zinc-400" />
-            <span>Estimated Cash Runway</span>
+        <div className="p-3.5 rounded-xl bg-[#161821] border border-white/5 min-w-0 overflow-hidden">
+          <div className="text-[11px] text-zinc-400 flex items-center gap-1.5 truncate">
+            <Clock className="w-3.5 h-3.5 text-zinc-400 shrink-0" />
+            <span className="truncate">Estimated Runway</span>
           </div>
-          <div className="text-base sm:text-lg font-mono font-bold text-zinc-100 mt-1">
+          <div className="text-base sm:text-lg font-mono font-bold text-zinc-100 mt-1 truncate">
             {forecast.runwayDays >= 999 ? '90+ Days' : `${forecast.runwayDays} Days`}
           </div>
         </div>
 
-        <div className="p-3.5 rounded-xl bg-[#161821] border border-white/5">
-          <div className="text-[11px] text-zinc-400 flex items-center gap-1.5">
-            <TrendingUp className="w-3.5 h-3.5 text-emerald-400" />
-            <span>Adjusted (with Inflows)</span>
+        <div className="p-3.5 rounded-xl bg-[#161821] border border-white/5 min-w-0 overflow-hidden">
+          <div className="text-[11px] text-zinc-400 flex items-center gap-1.5 truncate">
+            <TrendingUp className="w-3.5 h-3.5 text-emerald-400 shrink-0" />
+            <span className="truncate">Adjusted Runway</span>
           </div>
-          <div className="text-base sm:text-lg font-mono font-bold text-emerald-400 mt-1">
+          <div className="text-base sm:text-lg font-mono font-bold text-emerald-400 mt-1 truncate">
             {forecast.adjustedRunwayDays >= 999 ? '90+ Days' : `${forecast.adjustedRunwayDays} Days`}
           </div>
         </div>

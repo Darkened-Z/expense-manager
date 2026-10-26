@@ -49,7 +49,7 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={`${geistSans.variable} ${geistMono.variable} dark`}
+      className={`${geistSans.variable} ${geistMono.variable} dark overflow-x-hidden max-w-full`}
     >
       <head>
         <script
@@ -66,7 +66,7 @@ export default function RootLayout({
           }}
         />
       </head>
-      <body className="min-h-screen bg-[#090a0d] text-zinc-100 antialiased selection:bg-white/20 selection:text-white">
+      <body className="min-h-screen bg-[#090a0d] text-zinc-100 antialiased selection:bg-white/20 selection:text-white overflow-x-hidden max-w-full w-full">
         {children}
       </body>
     </html>

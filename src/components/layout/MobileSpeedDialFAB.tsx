@@ -91,11 +91,15 @@ export const MobileSpeedDialFAB: React.FC<MobileSpeedDialFABProps> = ({
         />
       )}
 
-      {/* Floating Speed Dial Container (Mobile Only) */}
-      <div className="fixed bottom-6 right-5 z-40 md:hidden flex flex-col items-end gap-3 select-none">
+      {/* Floating Speed Dial Container (Mobile Only) - Elevated safely above mobile bottom nav */}
+      <div
+        className={`fixed bottom-[calc(4.75rem+env(safe-area-inset-bottom,0px))] right-4 md:hidden flex flex-col items-end gap-3 select-none pointer-events-none transition-all duration-200 ${
+          isOpen ? 'z-50' : 'z-30'
+        }`}
+      >
         {/* Speed Dial Menu Actions */}
         {isOpen && (
-          <div className="flex flex-col items-end gap-2.5 mb-1 animate-in fade-in slide-in-from-bottom-4 duration-200">
+          <div className="flex flex-col items-end gap-2.5 mb-1 animate-in fade-in slide-in-from-bottom-4 duration-200 pointer-events-auto">
             {actions.map((act) => {
               const Icon = act.icon;
               return (
@@ -125,15 +129,15 @@ export const MobileSpeedDialFAB: React.FC<MobileSpeedDialFABProps> = ({
         <button
           type="button"
           onClick={() => setIsOpen(!isOpen)}
-          className={`w-14 h-14 rounded-2xl shadow-xl flex items-center justify-center transition-all duration-300 active:scale-90 cursor-pointer border ${
+          className={`w-12 h-12 rounded-2xl shadow-2xl flex items-center justify-center transition-all duration-300 active:scale-90 cursor-pointer border pointer-events-auto ${
             isOpen
-              ? 'bg-[#181b23] text-white border-white/15 rotate-45 scale-95'
-              : 'bg-white text-zinc-950 border-white hover:bg-zinc-100'
+              ? 'bg-[#181b23] text-white border-white/20 rotate-45 scale-95 shadow-black/80'
+              : 'bg-white text-zinc-950 border-white/30 hover:bg-zinc-100 shadow-xl'
           }`}
           title={isOpen ? 'Close menu' : 'Quick Actions'}
           aria-label="Quick Actions"
         >
-          <Plus className="w-6 h-6 stroke-[2.5]" />
+          <Plus className="w-5 h-5 stroke-[2.5]" />
         </button>
       </div>
     </>

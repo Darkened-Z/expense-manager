@@ -44,7 +44,7 @@ export const TransactionOverviewChart: React.FC<TransactionOverviewChartProps> =
   const maxValue = Math.max(...monthlyData.map((d) => d.value), 100);
 
   return (
-    <div className="bg-[#12141a] border border-white/5 rounded-2xl p-4 sm:p-6 shadow-xl flex flex-col justify-between">
+    <div className="bg-[#12141a] border border-white/5 rounded-2xl p-4 sm:p-6 shadow-xl flex flex-col justify-between max-w-full overflow-hidden">
       {/* Header Controls */}
       <div className="flex items-center justify-between mb-4 sm:mb-6">
         <div>

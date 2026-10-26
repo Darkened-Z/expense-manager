@@ -135,7 +135,7 @@ export const CategoriesView: React.FC<CategoriesViewProps> = ({
   return (
     <div className="space-y-6">
       {/* Top Banner & Tab Switcher */}
-      <div className="bg-[#12141a] border border-white/5 rounded-2xl p-4 sm:p-6 shadow-xl flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+      <div className="bg-[#12141a] border border-white/5 rounded-2xl p-4 sm:p-6 shadow-xl flex flex-col sm:flex-row sm:items-center justify-between gap-4 max-w-full overflow-hidden">
         <div>
           <h2 className="text-base font-bold text-white tracking-wide">
             {activeTab === 'expense' ? 'Expense Categories & Budgets' : 'Income Sources'}
@@ -147,12 +147,12 @@ export const CategoriesView: React.FC<CategoriesViewProps> = ({
           </p>
         </div>
 
-        <div className="flex items-center gap-2">
+        <div className="flex flex-wrap sm:flex-nowrap items-center gap-2 max-w-full">
           {/* Tabs */}
-          <div className="flex items-center bg-[#181b23] p-1 rounded-xl border border-white/10 text-xs">
+          <div className="flex items-center bg-[#181b23] p-1 rounded-xl border border-white/10 text-xs overflow-x-auto max-w-full scrollbar-none shrink-0">
             <button
               onClick={() => setActiveTab('expense')}
-              className={`px-3 py-1.5 rounded-lg transition-colors font-medium ${
+              className={`px-3 py-1.5 rounded-lg transition-colors font-medium shrink-0 whitespace-nowrap ${
                 activeTab === 'expense' ? 'bg-white/10 text-white' : 'text-zinc-400 hover:text-zinc-200'
               }`}
             >
@@ -160,7 +160,7 @@ export const CategoriesView: React.FC<CategoriesViewProps> = ({
             </button>
             <button
               onClick={() => setActiveTab('income')}
-              className={`px-3 py-1.5 rounded-lg transition-colors font-medium ${
+              className={`px-3 py-1.5 rounded-lg transition-colors font-medium shrink-0 whitespace-nowrap ${
                 activeTab === 'income' ? 'bg-white/10 text-white' : 'text-zinc-400 hover:text-zinc-200'
               }`}
             >
@@ -170,7 +170,7 @@ export const CategoriesView: React.FC<CategoriesViewProps> = ({
 
           <button
             onClick={() => setShowAddModal(true)}
-            className="bg-zinc-100 hover:bg-white text-zinc-950 font-semibold text-xs px-3.5 py-2 rounded-xl flex items-center gap-1.5 transition-colors shadow-sm shrink-0"
+            className="bg-zinc-100 hover:bg-white text-zinc-950 font-semibold text-xs px-3.5 py-2 rounded-xl flex items-center gap-1.5 transition-colors shadow-sm shrink-0 whitespace-nowrap cursor-pointer"
           >
             <Plus className="w-4 h-4 stroke-[2.5]" />
             <span>New {activeTab === 'expense' ? 'Category' : 'Source'}</span>
@@ -199,7 +199,7 @@ export const CategoriesView: React.FC<CategoriesViewProps> = ({
           </button>
         </div>
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 max-w-full">
           {displayedList.map((cat) => {
             const Icon = getCategoryIcon(cat.icon);
             const allTimeTotal = categoryAllTimeTotals[cat.id] || 0;
@@ -213,7 +213,7 @@ export const CategoriesView: React.FC<CategoriesViewProps> = ({
               <div
                 key={cat.id}
                 onClick={() => setSelectedCategoryDetails(cat)}
-                className="bg-[#12141a] border border-white/5 hover:border-white/20 rounded-2xl p-5 shadow-xl transition-all flex flex-col justify-between cursor-pointer group"
+                className="bg-[#12141a] border border-white/5 hover:border-white/20 rounded-2xl p-5 shadow-xl transition-all flex flex-col justify-between cursor-pointer group min-w-0 overflow-hidden"
               >
                 <div>
                   <div className="flex items-start justify-between gap-2">

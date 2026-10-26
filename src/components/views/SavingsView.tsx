@@ -126,14 +126,14 @@ export const SavingsView: React.FC<SavingsViewProps> = ({
   return (
     <div className="space-y-6">
       {/* Top Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 max-w-full overflow-hidden">
         <div>
           <h2 className="text-base font-bold text-white tracking-wide">Savings & Reserve Funds</h2>
           <p className="text-xs text-zinc-400">
             Record simple savings with notes or establish structured reserve goals
           </p>
         </div>
-        <div className="flex items-center gap-2 self-start sm:self-auto">
+        <div className="flex flex-wrap sm:flex-nowrap items-center gap-2 self-start sm:self-auto">
           <button
             onClick={() => {
               setSimpleError(null);
@@ -143,14 +143,14 @@ export const SavingsView: React.FC<SavingsViewProps> = ({
               setSimpleDate(new Date().toISOString().split('T')[0]);
               setShowSimpleSavingModal(true);
             }}
-            className="bg-white/10 hover:bg-white/15 text-white border border-white/10 font-semibold py-2 px-3.5 rounded-xl text-xs flex items-center justify-center gap-1.5 transition-colors cursor-pointer shadow-sm"
+            className="bg-white/10 hover:bg-white/15 text-white border border-white/10 font-semibold py-2 px-3.5 rounded-xl text-xs flex items-center justify-center gap-1.5 transition-colors cursor-pointer shadow-sm shrink-0 whitespace-nowrap"
           >
             <StickyNote className="w-4 h-4 text-amber-400" />
             <span>+ Add Simple Saving</span>
           </button>
           <button
             onClick={() => setShowAddModal(true)}
-            className="bg-zinc-100 hover:bg-white text-zinc-950 font-semibold py-2 px-3.5 rounded-xl text-xs flex items-center justify-center gap-1.5 transition-colors shadow-sm cursor-pointer"
+            className="bg-zinc-100 hover:bg-white text-zinc-950 font-semibold py-2 px-3.5 rounded-xl text-xs flex items-center justify-center gap-1.5 transition-colors shadow-sm cursor-pointer shrink-0 whitespace-nowrap"
           >
             <Plus className="w-4 h-4 stroke-[2.5]" />
             <span>Create Goal</span>
@@ -159,9 +159,9 @@ export const SavingsView: React.FC<SavingsViewProps> = ({
       </div>
 
       {/* Overview Cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 max-w-full">
         {/* Card 1: Total Saved Overall */}
-        <div className="bg-[#12141a] border border-white/5 rounded-2xl p-5 shadow-xl">
+        <div className="bg-[#12141a] border border-white/5 rounded-2xl p-5 shadow-xl min-w-0 overflow-hidden">
           <div className="flex items-center justify-between text-xs text-zinc-400">
             <span className="font-medium uppercase tracking-wider">Total Saved</span>
             <PiggyBank className="w-4 h-4 text-zinc-400" />
@@ -175,7 +175,7 @@ export const SavingsView: React.FC<SavingsViewProps> = ({
         </div>
 
         {/* Card 2: Simple Savings (No Goals) */}
-        <div className="bg-[#12141a] border border-white/5 rounded-2xl p-5 shadow-xl">
+        <div className="bg-[#12141a] border border-white/5 rounded-2xl p-5 shadow-xl min-w-0 overflow-hidden">
           <div className="flex items-center justify-between text-xs text-zinc-400">
             <span className="font-medium uppercase tracking-wider">Simple Savings</span>
             <StickyNote className="w-4 h-4 text-amber-400" />
@@ -189,7 +189,7 @@ export const SavingsView: React.FC<SavingsViewProps> = ({
         </div>
 
         {/* Card 3: Goals Target */}
-        <div className="bg-[#12141a] border border-white/5 rounded-2xl p-5 shadow-xl">
+        <div className="bg-[#12141a] border border-white/5 rounded-2xl p-5 shadow-xl min-w-0 overflow-hidden">
           <div className="flex items-center justify-between text-xs text-zinc-400">
             <span className="font-medium uppercase tracking-wider">Goal Targets</span>
             <Target className="w-4 h-4 text-zinc-400" />
