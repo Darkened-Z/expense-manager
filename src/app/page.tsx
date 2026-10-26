@@ -53,6 +53,7 @@ export default function Home() {
   const [cloudSyncStatus, setCloudSyncStatus] = useState<'synced' | 'syncing' | 'offline' | 'unconfigured' | 'error'>('unconfigured');
   const isInitialMount = useRef(true);
   const isImportingRef = useRef(false);
+  const mainScrollRef = useRef<HTMLDivElement>(null);
 
   // Lock & Security
   const [isLocked, setIsLocked] = useState<boolean>(true);
@@ -442,6 +443,13 @@ export default function Home() {
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, []);
 
+  // Reset main pane scroll to top whenever changing sidebar tabs
+  useEffect(() => {
+    if (mainScrollRef.current) {
+      mainScrollRef.current.scrollTop = 0;
+    }
+  }, [currentTab]);
+
   if (isSyncingDirectLink) {
     return (
       <div className="min-h-screen bg-[#090a0d] flex items-center justify-center p-4">
@@ -798,7 +806,7 @@ export default function Home() {
   const pendingPayablesCount = reminders.filter((r) => r.type === 'payable' && r.status === 'due_today').length;
 
   return (
-    <div className="flex min-h-screen bg-[#090a0d] text-zinc-100 font-sans w-full max-w-full overflow-x-hidden">
+    <div className="flex h-screen h-[100dvh] bg-[#090a0d] text-zinc-100 font-sans w-full max-w-full overflow-hidden">
       {/* Set Passcode Modal */}
       {showPasscodeSetup && (
         <PasscodeLockModal
@@ -834,7 +842,7 @@ export default function Home() {
       />
 
       {/* Main Content Area */}
-      <div className="flex-1 flex flex-col min-w-0">
+      <div ref={mainScrollRef} className="flex-1 flex flex-col min-w-0 h-full overflow-y-auto">
         <Header
           currentTab={currentTab}
           wallets={wallets}

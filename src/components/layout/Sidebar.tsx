@@ -86,7 +86,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
   };
 
   const sidebarContent = (
-    <div className="h-full flex flex-col justify-between p-4 select-none">
+    <div className="h-full flex flex-col justify-between p-4 select-none overflow-y-auto no-scrollbar">
       <div className="space-y-6">
         {/* Brand Header */}
         <div className="flex items-center justify-between px-2 pt-1">
@@ -213,7 +213,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
   return (
     <>
       {/* Desktop Persistent Sidebar */}
-      <aside className="hidden md:flex w-64 min-h-screen bg-[#0d0e12] border-r border-white/5 flex-col shrink-0 sticky top-0 h-screen">
+      <aside className="hidden md:flex w-64 h-screen bg-[#0d0e12] border-r border-white/5 flex-col shrink-0 select-none overflow-hidden sticky top-0 z-20">
         {sidebarContent}
       </aside>
 
