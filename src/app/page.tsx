@@ -421,11 +421,13 @@ export default function Home() {
   const handleAddReminder = (remData: any) => {
     StorageService.addReminder(remData);
     setReminders(StorageService.getReminders());
+    setCategories(StorageService.getCategories());
   };
 
   const handleUpdateReminder = (id: string, updates: Partial<PaymentReminder>) => {
     StorageService.updateReminder(id, updates);
     setReminders(StorageService.getReminders());
+    setCategories(StorageService.getCategories());
     setTransactions(StorageService.getTransactions());
     setWallets(StorageService.getWallets());
   };
@@ -434,6 +436,7 @@ export default function Home() {
     const targetWallet = walletId || wallets[0]?.id || 'wal-bank';
     StorageService.collectPayment(reminderId, targetWallet);
     setReminders(StorageService.getReminders());
+    setCategories(StorageService.getCategories());
     setTransactions(StorageService.getTransactions());
     setWallets(StorageService.getWallets());
     playChime();
@@ -442,11 +445,13 @@ export default function Home() {
   const handleDeleteReminder = (id: string) => {
     StorageService.deleteReminder(id);
     setReminders(StorageService.getReminders());
+    setCategories(StorageService.getCategories());
   };
 
-  const handleAddCategory = (catData: any) => {
-    StorageService.addCategory(catData);
+  const handleAddCategory = (catData: any): Category => {
+    const newCat = StorageService.addCategory(catData);
     setCategories(StorageService.getCategories());
+    return newCat;
   };
 
   const handleUpdateCategory = (id: string, updates: Partial<Category>) => {
@@ -467,6 +472,11 @@ export default function Home() {
     const updated = [...wallets, newWallet];
     StorageService.saveWallets(updated);
     setWallets(updated);
+  };
+
+  const handleUpdateWallet = (id: string, updates: Partial<Wallet>) => {
+    StorageService.updateWallet(id, updates);
+    setWallets(StorageService.getWallets());
   };
 
   const handleDeleteWallet = (id: string) => {
@@ -873,6 +883,7 @@ export default function Home() {
                 currencySymbol={settings.currencySymbol}
                 onUpdateWalletBalance={StorageService.updateWalletBalance}
                 onAddWallet={handleAddWallet}
+                onUpdateWallet={handleUpdateWallet}
                 onDeleteWallet={handleDeleteWallet}
                 onOpenTransfer={() => setShowTransferModal(true)}
               />
@@ -939,6 +950,7 @@ export default function Home() {
           }}
           onSubmit={handleAddTransaction}
           onUpdate={handleUpdateTransaction}
+          onAddCategory={handleAddCategory}
         />
       )}
 

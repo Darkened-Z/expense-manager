@@ -1,11 +1,12 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { X, ArrowDownLeft, ArrowUpRight, DollarSign, Calendar, Clock, Tag, Wallet as WalletIcon, Pencil, Camera, Image as ImageIcon, Trash2 } from 'lucide-react';
+import { X, Plus, ArrowDownLeft, ArrowUpRight, DollarSign, Calendar, Clock, Tag, Wallet as WalletIcon, Pencil, Camera, Image as ImageIcon, Trash2 } from 'lucide-react';
 import { Category, Wallet, TransactionType, Transaction } from '@/types';
 import { formatDateDDMMYYYY, formatCash } from '@/lib/formatters';
 import { SUPPORTED_CURRENCIES, getDefaultRate, getCurrencySymbol } from '@/lib/currencies';
 import { compressImageToDataUrl } from '@/lib/images';
+import { StorageService } from '@/lib/storage';
 
 interface AddTransactionModalProps {
   isOpen: boolean;
@@ -34,6 +35,7 @@ interface AddTransactionModalProps {
     attachmentUrl?: string;
   }) => void;
   onUpdate?: (id: string, updates: Partial<Transaction>) => void;
+  onAddCategory?: (cat: Omit<Category, 'id'>) => Category;
 }
 
 export const AddTransactionModal: React.FC<AddTransactionModalProps> = ({
@@ -46,6 +48,7 @@ export const AddTransactionModal: React.FC<AddTransactionModalProps> = ({
   onClose,
   onSubmit,
   onUpdate,
+  onAddCategory,
 }) => {
   const [type, setType] = useState<TransactionType>(initialType);
   const [amount, setAmount] = useState<string>('');
@@ -54,6 +57,8 @@ export const AddTransactionModal: React.FC<AddTransactionModalProps> = ({
   const [title, setTitle] = useState<string>('');
   const [clientOrPayer, setClientOrPayer] = useState<string>('');
   const [categoryId, setCategoryId] = useState<string>('');
+  const [showAddCategoryInline, setShowAddCategoryInline] = useState(false);
+  const [newCategoryName, setNewCategoryName] = useState('');
   const [walletId, setWalletId] = useState<string>('');
   const [date, setDate] = useState<string>('');
   const [time, setTime] = useState<string>('');
@@ -217,6 +222,34 @@ export const AddTransactionModal: React.FC<AddTransactionModalProps> = ({
     : type === 'expense'
     ? categories.filter((c) => c.type === 'expense' && c.id !== 'cat-transfer')
     : categories.filter((c) => c.type === 'income' && c.id !== 'cat-deposit');
+
+  const handleQuickAddCategory = () => {
+    if (!newCategoryName.trim()) return;
+    const catType: 'expense' | 'income' = type === 'income' ? 'income' : 'expense';
+    let createdCat: Category;
+    if (onAddCategory) {
+      createdCat = onAddCategory({
+        name: newCategoryName.trim(),
+        type: catType,
+        icon: 'Tag',
+        color: catType === 'income' ? '#10b981' : '#f97316',
+        budgetLimit: 0,
+      });
+    } else {
+      createdCat = StorageService.addCategory({
+        name: newCategoryName.trim(),
+        type: catType,
+        icon: 'Tag',
+        color: catType === 'income' ? '#10b981' : '#f97316',
+        budgetLimit: 0,
+      });
+    }
+    if (createdCat && createdCat.id) {
+      setCategoryId(createdCat.id);
+    }
+    setNewCategoryName('');
+    setShowAddCategoryInline(false);
+  };
 
   return (
     <div className="fixed inset-0 bg-black/80 backdrop-blur-md z-50 flex items-center justify-center p-3 sm:p-4">
@@ -463,20 +496,82 @@ export const AddTransactionModal: React.FC<AddTransactionModalProps> = ({
           {/* Category & Wallet Dropdowns */}
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <label className="block text-[11px] font-medium text-zinc-400 mb-1">
-                {type === 'expense' ? 'Expense Category' : type === 'deposit' ? 'Deposit Category' : 'Income Source'}
-              </label>
-              <select
-                value={categoryId}
-                onChange={(e) => setCategoryId(e.target.value)}
-                className="w-full bg-[#171922] text-white text-xs px-3 py-2.5 rounded-xl border border-white/10 focus:outline-none focus:border-white/30"
-              >
-                {filteredCategories.map((c) => (
-                  <option key={c.id} value={c.id}>
-                    {c.name}
-                  </option>
-                ))}
-              </select>
+              <div className="flex items-center justify-between mb-1">
+                <label className="block text-[11px] font-medium text-zinc-400">
+                  {type === 'expense' ? 'Expense Category' : type === 'deposit' ? 'Deposit Category' : 'Income Source'}
+                </label>
+                <button
+                  type="button"
+                  onClick={() => setShowAddCategoryInline(!showAddCategoryInline)}
+                  className="text-[11px] font-semibold text-sky-400 hover:text-sky-300 flex items-center gap-1 transition-colors cursor-pointer"
+                >
+                  <Plus className="w-3 h-3 stroke-[2.5]" />
+                  <span>+ Add</span>
+                </button>
+              </div>
+
+              {!showAddCategoryInline ? (
+                <select
+                  value={categoryId}
+                  onChange={(e) => {
+                    if (e.target.value === '__add_new__') {
+                      setShowAddCategoryInline(true);
+                    } else {
+                      setCategoryId(e.target.value);
+                    }
+                  }}
+                  className="w-full bg-[#171922] text-white text-xs px-3 py-2.5 rounded-xl border border-white/10 focus:outline-none focus:border-white/30"
+                >
+                  {filteredCategories.map((c) => (
+                    <option key={c.id} value={c.id}>
+                      {c.id.startsWith('cat-payable-') ? `📅 ${c.name} (Monthly Payable)` : c.name}
+                    </option>
+                  ))}
+                  <option value="__add_new__">+ Add New Category...</option>
+                </select>
+              ) : (
+                <div className="bg-[#12141a] p-2.5 rounded-xl border border-sky-500/30 space-y-2 animate-in fade-in duration-150">
+                  <div className="flex items-center justify-between text-[11px]">
+                    <span className="font-semibold text-white">Create New {type === 'income' ? 'Income Source' : 'Category'}</span>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setShowAddCategoryInline(false);
+                        setNewCategoryName('');
+                      }}
+                      className="text-zinc-500 hover:text-zinc-300 p-0.5"
+                    >
+                      <X className="w-3.5 h-3.5" />
+                    </button>
+                  </div>
+                  <div className="flex items-center gap-1.5">
+                    <input
+                      type="text"
+                      autoFocus
+                      placeholder="e.g. Fuel, Amma, Gym..."
+                      value={newCategoryName}
+                      onChange={(e) => setNewCategoryName(e.target.value)}
+                      onKeyDown={(e) => {
+                        if (e.key === 'Enter') {
+                          e.preventDefault();
+                          handleQuickAddCategory();
+                        } else if (e.key === 'Escape') {
+                          setShowAddCategoryInline(false);
+                        }
+                      }}
+                      className="flex-1 bg-[#171922] text-white text-xs px-2.5 py-1.5 rounded-lg border border-white/10 focus:outline-none focus:border-white/30"
+                    />
+                    <button
+                      type="button"
+                      onClick={handleQuickAddCategory}
+                      disabled={!newCategoryName.trim()}
+                      className="px-3 py-1.5 rounded-lg text-xs font-semibold text-zinc-950 bg-white hover:bg-zinc-100 disabled:opacity-40 transition-colors shrink-0"
+                    >
+                      Add
+                    </button>
+                  </div>
+                </div>
+              )}
             </div>
 
             <div>

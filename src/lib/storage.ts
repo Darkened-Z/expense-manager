@@ -232,6 +232,9 @@ export const StorageService = {
     };
     const updated = [newRem, ...reminders];
     this.saveReminders(updated);
+    if (newRem.type === 'payable') {
+      this.syncPayableCategory(newRem);
+    }
     return newRem;
   },
 
@@ -276,6 +279,9 @@ export const StorageService = {
 
     const updated = reminders.map(r => (r.id === id ? updatedReminder : r));
     this.saveReminders(updated);
+    if (updatedReminder.type === 'payable') {
+      this.syncPayableCategory(updatedReminder);
+    }
   },
 
   collectPayment(reminderId: string, walletId: string): void {
@@ -289,6 +295,12 @@ export const StorageService = {
     // Cash transactions always record on the actual day collected/paid
     // so income, expenses, and cash surplus match your live wallet balance
     const isPayable = rem.type === 'payable';
+    const payableCatId = `cat-payable-${rem.id}`;
+    const allCats = this.getCategories();
+    const resolvedCatId = isPayable
+      ? (allCats.find(c => c.id === payableCatId || c.name.toLowerCase() === rem.clientName.trim().toLowerCase())?.id || rem.categoryId || 'cat-misc')
+      : 'inc-freelance';
+
     const tx = this.addTransaction({
       amount: rem.amount,
       type: isPayable ? 'expense' : 'income',
@@ -296,7 +308,7 @@ export const StorageService = {
         ? `Payment Paid: ${rem.clientName} (${rem.projectTitle})`
         : `Client Payment: ${rem.clientName} - ${rem.projectTitle}`,
       clientOrPayer: rem.clientName,
-      categoryId: isPayable ? (rem.categoryId || 'cat-misc') : 'inc-freelance',
+      categoryId: resolvedCatId,
       walletId: walletId,
       date: todayStr,
       time: nowTime,
@@ -450,12 +462,83 @@ export const StorageService = {
           modified = true;
         }
       }
+
+      // Auto-sync each saved monthly payable as its own individual category
+      const rawRem = localStorage.getItem(KEYS.REMINDERS);
+      if (rawRem) {
+        try {
+          const reminders: PaymentReminder[] = JSON.parse(rawRem);
+          const payables = reminders.filter(r => r.type === 'payable' && r.clientName && r.clientName.trim());
+          for (const rem of payables) {
+            const catId = `cat-payable-${rem.id}`;
+            const displayName = rem.clientName.trim();
+            const idx = updated.findIndex(c => c.id === catId || c.name.toLowerCase() === displayName.toLowerCase());
+            if (idx >= 0) {
+              if (updated[idx].id !== catId || updated[idx].budgetLimit !== rem.amount || updated[idx].name !== displayName) {
+                updated[idx] = {
+                  ...updated[idx],
+                  id: catId,
+                  name: displayName,
+                  budgetLimit: rem.amount,
+                  type: 'expense',
+                  icon: updated[idx].icon || 'Repeat',
+                  color: updated[idx].color || '#f43f5e',
+                };
+                modified = true;
+              }
+            } else {
+              updated.push({
+                id: catId,
+                name: displayName,
+                icon: 'Repeat',
+                color: '#f43f5e',
+                type: 'expense',
+                budgetLimit: rem.amount,
+              });
+              modified = true;
+            }
+          }
+        } catch {
+          // ignore
+        }
+      }
+
       if (modified) {
         localStorage.setItem(KEYS.CATEGORIES, JSON.stringify(updated));
       }
       return updated;
     } catch {
       return DEFAULT_CATEGORIES;
+    }
+  },
+
+  syncPayableCategory(rem: PaymentReminder): void {
+    if (typeof window === 'undefined' || rem.type !== 'payable' || !rem.clientName?.trim()) return;
+    const catId = `cat-payable-${rem.id}`;
+    const displayName = rem.clientName.trim();
+    const cats = this.getCategories();
+    const idx = cats.findIndex(c => c.id === catId || c.name.toLowerCase() === displayName.toLowerCase());
+    if (idx >= 0) {
+      cats[idx] = {
+        ...cats[idx],
+        id: catId,
+        name: displayName,
+        budgetLimit: rem.amount,
+        type: 'expense',
+        icon: cats[idx].icon || 'Repeat',
+        color: cats[idx].color || '#f43f5e',
+      };
+      this.saveCategories(cats);
+    } else {
+      cats.push({
+        id: catId,
+        name: displayName,
+        icon: 'Repeat',
+        color: '#f43f5e',
+        type: 'expense',
+        budgetLimit: rem.amount,
+      });
+      this.saveCategories(cats);
     }
   },
 
@@ -527,6 +610,12 @@ export const StorageService = {
   updateWalletBalance(walletId: string, delta: number): void {
     const wallets = this.getWallets();
     const updated = wallets.map(w => (w.id === walletId ? { ...w, balance: Math.round(w.balance + delta) } : w));
+    this.saveWallets(updated);
+  },
+
+  updateWallet(walletId: string, updates: Partial<Wallet>): void {
+    const wallets = this.getWallets();
+    const updated = wallets.map(w => (w.id === walletId ? { ...w, ...updates } : w));
     this.saveWallets(updated);
   },
 

@@ -223,7 +223,14 @@ export const CategoriesView: React.FC<CategoriesViewProps> = ({
                         <Icon className="w-5 h-5" />
                       </div>
                       <div className="min-w-0">
-                        <h4 className="font-bold text-white text-sm truncate">{cat.name}</h4>
+                        <div className="flex items-center gap-1.5 flex-wrap">
+                          <h4 className="font-bold text-white text-sm truncate">{cat.name}</h4>
+                          {cat.id.startsWith('cat-payable-') && (
+                            <span className="text-[9px] font-mono font-medium px-1.5 py-0.5 rounded bg-rose-500/10 text-rose-300 border border-rose-500/20 shrink-0">
+                              Monthly Payable
+                            </span>
+                          )}
+                        </div>
                         <span className="text-[10px] font-mono text-zinc-500 uppercase">
                           {cat.type === 'expense' ? 'Expense' : 'Income'}
                         </span>

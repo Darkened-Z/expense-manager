@@ -9,6 +9,7 @@ import {
   CreditCard,
   Shield,
   Coins,
+  Pencil,
   Trash2,
   AlertTriangle,
   AlertCircle,
@@ -24,6 +25,7 @@ interface WalletsViewProps {
   currencySymbol: string;
   onUpdateWalletBalance: (walletId: string, delta: number) => void;
   onAddWallet: (wallet: Omit<Wallet, 'id'>) => void;
+  onUpdateWallet?: (id: string, updates: Partial<Wallet>) => void;
   onDeleteWallet?: (walletId: string) => { success: boolean; error?: string } | void;
   onOpenTransfer?: () => void;
 }
@@ -34,12 +36,18 @@ export const WalletsView: React.FC<WalletsViewProps> = ({
   currencySymbol,
   onUpdateWalletBalance,
   onAddWallet,
+  onUpdateWallet,
   onDeleteWallet,
   onOpenTransfer,
 }) => {
   const [showAddModal, setShowAddModal] = useState(false);
   const [walletToDelete, setWalletToDelete] = useState<Wallet | null>(null);
   const [deleteError, setDeleteError] = useState<string | null>(null);
+  const [editingWallet, setEditingWallet] = useState<Wallet | null>(null);
+  const [editName, setEditName] = useState('');
+  const [editType, setEditType] = useState<Wallet['type']>('bank');
+  const [editAccountNumber, setEditAccountNumber] = useState('');
+  const [editBalance, setEditBalance] = useState('');
   const [walletName, setWalletName] = useState('');
   const [walletType, setWalletType] = useState<Wallet['type']>('bank');
   const [currency, setCurrency] = useState('PKR');
@@ -76,6 +84,30 @@ export const WalletsView: React.FC<WalletsViewProps> = ({
     setWalletName('');
     setInitialBalance('');
     setAccountNumber('');
+  };
+
+  const handleOpenEdit = (w: Wallet) => {
+    setEditingWallet(w);
+    setEditName(w.name);
+    setEditType(w.type);
+    setEditAccountNumber(w.accountNumber || '');
+    setEditBalance(w.balance.toString());
+  };
+
+  const handleSaveEdit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!editingWallet || !editName.trim()) return;
+
+    if (onUpdateWallet) {
+      onUpdateWallet(editingWallet.id, {
+        name: editName.trim(),
+        type: editType,
+        accountNumber: editAccountNumber.trim() || undefined,
+        balance: editBalance !== '' && !isNaN(parseFloat(editBalance)) ? Math.round(parseFloat(editBalance)) : editingWallet.balance,
+      });
+    }
+
+    setEditingWallet(null);
   };
 
   return (
@@ -148,6 +180,16 @@ export const WalletsView: React.FC<WalletsViewProps> = ({
                   <span className="text-xs font-mono font-bold px-2 py-0.5 rounded-md bg-white/5 text-zinc-300 border border-white/5">
                     {w.currency}
                   </span>
+                  {onUpdateWallet && (
+                    <button
+                      type="button"
+                      onClick={() => handleOpenEdit(w)}
+                      className="p-1.5 text-zinc-500 hover:text-sky-400 hover:bg-sky-500/10 rounded-lg transition-colors cursor-pointer"
+                      title={`Edit ${w.name} Info`}
+                    >
+                      <Pencil className="w-3.5 h-3.5" />
+                    </button>
+                  )}
                   {onDeleteWallet && (
                     <button
                       type="button"
@@ -267,6 +309,113 @@ export const WalletsView: React.FC<WalletsViewProps> = ({
                   className="px-5 py-2.5 rounded-xl text-xs font-semibold text-zinc-950 bg-zinc-100 hover:bg-white transition-colors shadow-sm"
                 >
                   Create Account
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* Edit Account / Wallet Modal */}
+      {editingWallet && (
+        <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+          <div className="bg-[#12141a] border border-white/10 rounded-3xl w-full max-w-md p-6 shadow-2xl animate-in fade-in zoom-in-95">
+            <div className="flex items-center justify-between pb-3 border-b border-white/5">
+              <div className="flex items-center gap-2.5">
+                <div className="p-2 rounded-xl bg-sky-500/10 border border-sky-500/20 text-sky-400">
+                  <Pencil className="w-4 h-4" />
+                </div>
+                <div>
+                  <h3 className="font-bold text-white text-base">Edit Account Info</h3>
+                  <p className="text-[11px] text-zinc-400">Update bank name, type, identifier or balance</p>
+                </div>
+              </div>
+              <button
+                type="button"
+                onClick={() => setEditingWallet(null)}
+                className="text-zinc-500 hover:text-zinc-300 p-1"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+
+            <form onSubmit={handleSaveEdit} className="space-y-4 pt-4">
+              <div>
+                <label className="block text-[11px] font-medium text-zinc-400 mb-1">Account Name</label>
+                <input
+                  type="text"
+                  placeholder="e.g. Meezan Bank, HBL, SadaPay, Cash"
+                  value={editName}
+                  onChange={(e) => setEditName(e.target.value)}
+                  className="w-full bg-[#171922] text-white text-xs px-3.5 py-2.5 rounded-xl border border-white/10 focus:outline-none focus:border-white/30"
+                  required
+                />
+              </div>
+
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-[11px] font-medium text-zinc-400 mb-1">Account Type</label>
+                  <select
+                    value={editType}
+                    onChange={(e) => setEditType(e.target.value as any)}
+                    className="w-full bg-[#171922] text-white text-xs px-3 py-2.5 rounded-xl border border-white/10 focus:outline-none focus:border-white/30"
+                  >
+                    <option value="bank">Bank Account</option>
+                    <option value="cash">Cash / Physical</option>
+                    <option value="stripe">Raast / Digital Payouts</option>
+                    <option value="paypal">Microfinance / Other</option>
+                  </select>
+                </div>
+
+                <div>
+                  <label className="block text-[11px] font-medium text-zinc-400 mb-1">Currency</label>
+                  <input
+                    type="text"
+                    value={editingWallet.currency}
+                    disabled
+                    readOnly
+                    className="w-full bg-[#171922] text-zinc-400 text-xs font-mono uppercase px-3 py-2.5 rounded-xl border border-white/10 cursor-not-allowed"
+                  />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-[11px] font-medium text-zinc-400 mb-1">Current Balance ({editingWallet.symbol.trim()})</label>
+                  <input
+                    type="number"
+                    step="1"
+                    placeholder="0"
+                    value={editBalance}
+                    onChange={(e) => setEditBalance(e.target.value)}
+                    className="w-full bg-[#171922] text-white text-xs font-mono px-3 py-2.5 rounded-xl border border-white/10 focus:outline-none focus:border-white/30"
+                  />
+                </div>
+                <div>
+                  <label className="block text-[11px] font-medium text-zinc-400 mb-1">Identifier / Masked #</label>
+                  <input
+                    type="text"
+                    placeholder="•••• 1234 or Primary"
+                    value={editAccountNumber}
+                    onChange={(e) => setEditAccountNumber(e.target.value)}
+                    className="w-full bg-[#171922] text-white text-xs font-mono px-3 py-2.5 rounded-xl border border-white/10 focus:outline-none focus:border-white/30"
+                  />
+                </div>
+              </div>
+
+              <div className="flex items-center justify-end gap-2 pt-3 border-t border-white/5">
+                <button
+                  type="button"
+                  onClick={() => setEditingWallet(null)}
+                  className="px-4 py-2 rounded-xl text-xs text-zinc-400 hover:text-white bg-white/5"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  className="px-5 py-2.5 rounded-xl text-xs font-semibold text-zinc-950 bg-zinc-100 hover:bg-white transition-colors shadow-sm"
+                >
+                  Save Changes
                 </button>
               </div>
             </form>
