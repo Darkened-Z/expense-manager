@@ -120,7 +120,7 @@ export const StorageService = {
       this.updateWalletBalance(tx.walletId, -tx.amount);
       this.updateWalletBalance(tx.toWalletId, tx.amount);
     } else {
-      this.updateWalletBalance(tx.walletId, tx.type === 'income' ? tx.amount : -tx.amount);
+      this.updateWalletBalance(tx.walletId, (tx.type === 'income' || tx.type === 'deposit') ? tx.amount : -tx.amount);
     }
     return newTx;
   },
@@ -160,7 +160,7 @@ export const StorageService = {
         this.updateWalletBalance(target.walletId, target.amount);
         this.updateWalletBalance(target.toWalletId, -target.amount);
       } else {
-        this.updateWalletBalance(target.walletId, target.type === 'income' ? -target.amount : target.amount);
+        this.updateWalletBalance(target.walletId, (target.type === 'income' || target.type === 'deposit') ? -target.amount : target.amount);
       }
     }
     const filtered = txs.filter(t => t.id !== id);
@@ -177,7 +177,7 @@ export const StorageService = {
       this.updateWalletBalance(existing.walletId, existing.amount);
       this.updateWalletBalance(existing.toWalletId, -existing.amount);
     } else {
-      this.updateWalletBalance(existing.walletId, existing.type === 'income' ? -existing.amount : existing.amount);
+      this.updateWalletBalance(existing.walletId, (existing.type === 'income' || existing.type === 'deposit') ? -existing.amount : existing.amount);
     }
 
     // Prepare updated object
@@ -188,7 +188,7 @@ export const StorageService = {
       this.updateWalletBalance(updatedTx.walletId, -updatedTx.amount);
       this.updateWalletBalance(updatedTx.toWalletId, updatedTx.amount);
     } else {
-      this.updateWalletBalance(updatedTx.walletId, updatedTx.type === 'income' ? updatedTx.amount : -updatedTx.amount);
+      this.updateWalletBalance(updatedTx.walletId, (updatedTx.type === 'income' || updatedTx.type === 'deposit') ? updatedTx.amount : -updatedTx.amount);
     }
 
     const updated = txs.map(t => (t.id === id ? updatedTx : t));
@@ -440,6 +440,13 @@ export const StorageService = {
         const transferDef = DEFAULT_CATEGORIES.find(d => d.id === 'cat-transfer');
         if (transferDef) {
           updated.push(transferDef);
+          modified = true;
+        }
+      }
+      if (!updated.some(c => c.id === 'cat-deposit')) {
+        const depositDef = DEFAULT_CATEGORIES.find(d => d.id === 'cat-deposit');
+        if (depositDef) {
+          updated.push(depositDef);
           modified = true;
         }
       }

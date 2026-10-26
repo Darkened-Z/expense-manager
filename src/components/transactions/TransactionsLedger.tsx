@@ -23,6 +23,7 @@ import {
   ChevronDown,
   Pencil,
   Camera,
+  PlusCircle,
 } from 'lucide-react';
 import { Transaction, Category, Wallet } from '@/types';
 import { formatDateTimeDDMMYYYY, formatCash } from '@/lib/formatters';
@@ -52,7 +53,7 @@ export const TransactionsLedger: React.FC<TransactionsLedgerProps> = ({
   searchQuery,
   setSearchQuery,
 }) => {
-  const [selectedType, setSelectedType] = useState<'all' | 'expense' | 'income' | 'transfer'>('all');
+  const [selectedType, setSelectedType] = useState<'all' | 'expense' | 'income' | 'transfer' | 'deposit'>('all');
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
   const [viewingReceiptTx, setViewingReceiptTx] = useState<Transaction | null>(null);
 
@@ -157,6 +158,14 @@ export const TransactionsLedger: React.FC<TransactionsLedgerProps> = ({
                 Received
               </button>
               <button
+                onClick={() => setSelectedType('deposit')}
+                className={`flex-1 sm:flex-initial px-2.5 py-1.5 rounded-lg transition-colors text-center ${
+                  selectedType === 'deposit' ? 'bg-purple-500/20 text-purple-300 font-medium' : 'text-zinc-400 hover:text-zinc-200'
+                }`}
+              >
+                Added
+              </button>
+              <button
                 onClick={() => setSelectedType('transfer')}
                 className={`flex-1 sm:flex-initial px-2.5 py-1.5 rounded-lg transition-colors text-center ${
                   selectedType === 'transfer' ? 'bg-sky-500/20 text-sky-300 font-medium' : 'text-zinc-400 hover:text-zinc-200'
@@ -199,6 +208,7 @@ export const TransactionsLedger: React.FC<TransactionsLedgerProps> = ({
             const IconComponent = cat ? getCategoryIcon(cat.icon) : Tag;
             const isExpense = tx.type === 'expense';
             const isTransfer = tx.type === 'transfer';
+            const isDeposit = tx.type === 'deposit';
             const destWallet = tx.toWalletId ? wallets.find((w) => w.id === tx.toWalletId) : null;
 
             return (
@@ -224,6 +234,8 @@ export const TransactionsLedger: React.FC<TransactionsLedgerProps> = ({
                         <span className="text-sky-300 font-medium">
                           {wallet?.name || 'Account'} → {destWallet.name}
                         </span>
+                      ) : isDeposit ? (
+                        <span className="text-purple-300 font-medium">Personal / Added Money</span>
                       ) : (
                         <span className="text-zinc-400 font-medium">{cat?.name || 'Uncategorized'}</span>
                       )}
@@ -256,7 +268,7 @@ export const TransactionsLedger: React.FC<TransactionsLedgerProps> = ({
                 <div className="flex items-center gap-2 shrink-0">
                   <div className="text-right">
                     <div className={`font-mono font-bold text-xs ${
-                      isTransfer ? 'text-sky-300' : isExpense ? 'text-zinc-200' : 'text-emerald-400'
+                      isTransfer ? 'text-sky-300' : isDeposit ? 'text-purple-300' : isExpense ? 'text-zinc-200' : 'text-emerald-400'
                     }`}>
                       {isTransfer ? '⇄ ' : isExpense ? '-' : '+'}{currencySymbol}{formatCash(tx.amount)}
                     </div>
@@ -322,14 +334,15 @@ export const TransactionsLedger: React.FC<TransactionsLedgerProps> = ({
                 const wallet = wallets.find((w) => w.id === tx.walletId);
                 const IconComponent = cat ? getCategoryIcon(cat.icon) : Tag;
                 const isExpense = tx.type === 'expense';
-            const isTransfer = tx.type === 'transfer';
-            const destWallet = tx.toWalletId ? wallets.find((w) => w.id === tx.toWalletId) : null;
+                const isTransfer = tx.type === 'transfer';
+                const isDeposit = tx.type === 'deposit';
+                const destWallet = tx.toWalletId ? wallets.find((w) => w.id === tx.toWalletId) : null;
 
                 return (
                   <tr key={tx.id} className="hover:bg-white/[0.02] transition-colors group">
                     <td className="py-3.5 px-5 font-mono font-bold text-sm">
                       <div className="flex flex-col">
-                        <span className={isTransfer ? 'text-sky-300' : isExpense ? 'text-zinc-200' : 'text-emerald-400'}>
+                        <span className={isTransfer ? 'text-sky-300' : isDeposit ? 'text-purple-300' : isExpense ? 'text-zinc-200' : 'text-emerald-400'}>
                           {isTransfer ? '⇄ ' : isExpense ? '-' : '+'}{currencySymbol}{formatCash(tx.amount)}
                         </span>
                         {tx.originalCurrency && tx.originalCurrency !== 'PKR' && tx.originalAmount && (
@@ -344,6 +357,11 @@ export const TransactionsLedger: React.FC<TransactionsLedgerProps> = ({
                         <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-sky-500/10 text-sky-300 border border-sky-500/20 font-semibold text-[11px]">
                           {wallet?.name || 'Account'} → {destWallet.name}
                         </span>
+                      ) : isDeposit ? (
+                        <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-purple-500/10 text-purple-300 border border-purple-500/20 font-semibold text-[11px]">
+                          <span className="w-1.5 h-1.5 rounded-full bg-purple-400" />
+                          Personal Inflow
+                        </span>
                       ) : (
                         <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-white/5 text-zinc-300 border border-white/5 font-semibold text-[11px]">
                           <span className="w-1.5 h-1.5 rounded-full bg-zinc-400" />
@@ -357,6 +375,11 @@ export const TransactionsLedger: React.FC<TransactionsLedgerProps> = ({
                           <span className="inline-flex items-center gap-1.5 text-sky-400 font-medium">
                             <ArrowLeftRight className="w-3.5 h-3.5 text-sky-400" />
                             <span>Transfer</span>
+                          </span>
+                        ) : isDeposit ? (
+                          <span className="inline-flex items-center gap-1.5 text-purple-400 font-medium">
+                            <PlusCircle className="w-3.5 h-3.5 text-purple-400" />
+                            <span>Added Money</span>
                           </span>
                         ) : isExpense ? (
                           <span className="inline-flex items-center gap-1.5 text-rose-400 font-medium">

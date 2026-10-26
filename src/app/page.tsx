@@ -968,6 +968,10 @@ export default function Home() {
           setEditingTransaction(null);
           setAddTxModalType('income');
         }}
+        onAddDeposit={() => {
+          setEditingTransaction(null);
+          setAddTxModalType('deposit');
+        }}
         onTransfer={() => setShowTransferModal(true)}
         onAddReminder={() => {
           setEditingReminder(null);

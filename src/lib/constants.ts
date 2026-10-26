@@ -20,6 +20,7 @@ export const DEFAULT_CATEGORIES: Category[] = [
   { id: 'inc-salary', name: 'Salary & Direct Deposit', icon: 'DollarSign', color: '#22c55e', type: 'income' },
   { id: 'inc-investments', name: 'Investments & Dividends', icon: 'TrendingUp', color: '#0ea5e9', type: 'income' },
   { id: 'inc-sidehustle', name: 'Digital Products & Sales', icon: 'Box', color: '#ea580c', type: 'income' },
+  { id: 'cat-deposit', name: 'Money Added / Family Gift', icon: 'PlusCircle', color: '#a855f7', type: 'income' },
 ];
 
 export const DEFAULT_WALLETS: Wallet[] = [

@@ -36,7 +36,7 @@ interface HeaderProps {
   settings?: AppSettings;
   cloudSyncStatus?: 'synced' | 'syncing' | 'offline' | 'unconfigured' | 'error';
   onOpenSyncSettings?: () => void;
-  onOpenAddTx: (type: 'expense' | 'income') => void;
+  onOpenAddTx: (type: 'expense' | 'income' | 'deposit') => void;
   onOpenTransfer?: () => void;
   onOpenAddReminder: () => void;
   onCollectReminder: (id: string) => void;
@@ -401,6 +401,15 @@ export const Header: React.FC<HeaderProps> = ({
         >
           <span className="w-1.5 h-1.5 rounded-full bg-emerald-400/80" />
           <span>+ Income</span>
+        </button>
+
+        <button
+          onClick={() => onOpenAddTx('deposit')}
+          className="flex-1 sm:flex-initial flex items-center justify-center gap-1.5 bg-[#14151b] hover:bg-[#1b1d26] text-zinc-300 hover:text-white border border-white/10 px-3.5 py-1.5 rounded-xl text-xs font-medium transition-colors whitespace-nowrap shadow-sm"
+          title="Add Personal Money / Family Inflow (Non-Income)"
+        >
+          <span className="w-1.5 h-1.5 rounded-full bg-purple-400" />
+          <span>+ Add Money</span>
         </button>
 
         {onOpenTransfer && (

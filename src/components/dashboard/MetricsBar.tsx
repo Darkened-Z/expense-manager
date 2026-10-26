@@ -28,6 +28,10 @@ export const MetricsBar: React.FC<MetricsBarProps> = ({
     .filter((t) => t.type === 'income')
     .reduce((sum, t) => sum + t.amount, 0);
 
+  const totalAdded = transactions
+    .filter((t) => t.type === 'deposit')
+    .reduce((sum, t) => sum + t.amount, 0);
+
   const netSavings = totalReceived - totalSpent;
   const savingsRate = totalReceived > 0 ? Math.max(0, (netSavings / totalReceived) * 100) : 0;
 
@@ -68,8 +72,9 @@ export const MetricsBar: React.FC<MetricsBarProps> = ({
         <div className="text-xl sm:text-2xl font-bold font-mono text-white mt-1.5 tracking-tight">
           {currencySymbol}{formatCash(totalReceived)}
         </div>
-        <div className="text-[10px] text-zinc-500 mt-1 font-mono">
-          {transactions.filter((t) => t.type === 'income').length} deposits as of today
+        <div className="text-[10px] text-zinc-500 mt-1 font-mono truncate">
+          {transactions.filter((t) => t.type === 'income').length} earnings records
+          {totalAdded > 0 && ` (excl. ${currencySymbol}${formatCash(totalAdded)} added)`}
         </div>
       </div>
 
@@ -102,8 +107,10 @@ export const MetricsBar: React.FC<MetricsBarProps> = ({
         <div className="text-xl sm:text-2xl font-bold font-mono text-white mt-1.5 tracking-tight">
           {formatCurrency(netSavings, currencySymbol)}
         </div>
-        <div className="text-[10px] text-zinc-500 mt-1 font-mono">
-          Unspent cash position as of today
+        <div className="text-[10px] text-zinc-500 mt-1 font-mono truncate">
+          {totalAdded > 0
+            ? `Net profit (+${currencySymbol}${formatCash(totalAdded)} added money)`
+            : 'Unspent cash position as of today'}
         </div>
       </div>
 

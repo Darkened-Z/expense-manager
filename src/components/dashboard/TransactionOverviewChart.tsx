@@ -14,7 +14,7 @@ export const TransactionOverviewChart: React.FC<TransactionOverviewChartProps> =
   transactions,
   currencySymbol,
 }) => {
-  const [chartType, setChartType] = useState<'expense' | 'income'>('expense');
+  const [chartType, setChartType] = useState<'expense' | 'income' | 'deposit'>('expense');
   const [showTypeDropdown, setShowTypeDropdown] = useState(false);
   const [hoveredIndex, setHoveredIndex] = useState<number | null>(null);
 
@@ -60,7 +60,7 @@ export const TransactionOverviewChart: React.FC<TransactionOverviewChartProps> =
               className="flex items-center gap-1.5 bg-[#181b23] hover:bg-[#1f232e] border border-white/10 px-2.5 py-1 rounded-lg text-xs font-medium text-zinc-300 transition-colors"
             >
               <span className="text-white font-medium">
-                {chartType === 'expense' ? 'Expenses' : 'Income'}
+                {chartType === 'expense' ? 'Expenses' : chartType === 'income' ? 'Income' : 'Added Money'}
               </span>
               <ChevronDown className="w-3 h-3 text-zinc-500" />
             </button>
@@ -84,6 +84,15 @@ export const TransactionOverviewChart: React.FC<TransactionOverviewChartProps> =
                   className={`w-full text-left px-3 py-1.5 text-xs ${chartType === 'income' ? 'text-white font-semibold bg-white/5' : 'text-zinc-300'}`}
                 >
                   Income
+                </button>
+                <button
+                  onClick={() => {
+                    setChartType('deposit');
+                    setShowTypeDropdown(false);
+                  }}
+                  className={`w-full text-left px-3 py-1.5 text-xs ${chartType === 'deposit' ? 'text-white font-semibold bg-white/5' : 'text-zinc-300'}`}
+                >
+                  Added Money
                 </button>
               </div>
             )}

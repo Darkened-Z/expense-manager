@@ -131,7 +131,9 @@ export const AddTransactionModal: React.FC<AddTransactionModalProps> = ({
         setTime(now.toTimeString().slice(0, 5));
 
         // Filter available categories for type
-        const suitableCats = categories.filter((c) => c.type === initialType);
+        const suitableCats = initialType === 'deposit'
+          ? categories.filter((c) => c.id === 'cat-deposit' || c.type === 'income')
+          : categories.filter((c) => c.type === initialType && c.id !== 'cat-deposit');
         setCategoryId(suitableCats[0]?.id || categories[0]?.id || '');
         setWalletId(wallets[0]?.id || '');
         setToken(wallets[0]?.currency || 'PKR');
@@ -210,7 +212,11 @@ export const AddTransactionModal: React.FC<AddTransactionModalProps> = ({
     onClose();
   };
 
-  const filteredCategories = categories.filter((c) => c.type === type);
+  const filteredCategories = type === 'deposit'
+    ? categories.filter((c) => c.id === 'cat-deposit' || c.type === 'income')
+    : type === 'expense'
+    ? categories.filter((c) => c.type === 'expense' && c.id !== 'cat-transfer')
+    : categories.filter((c) => c.type === 'income' && c.id !== 'cat-deposit');
 
   return (
     <div className="fixed inset-0 bg-black/80 backdrop-blur-md z-50 flex items-center justify-center p-3 sm:p-4">
@@ -228,7 +234,11 @@ export const AddTransactionModal: React.FC<AddTransactionModalProps> = ({
             <h2 className="text-base font-bold text-white tracking-wide">
               {transactionToEdit
                 ? 'Edit Transaction'
-                : (type === 'expense' ? 'Add Expense' : 'Add Income')}
+                : type === 'expense'
+                ? 'Add Expense'
+                : type === 'income'
+                ? 'Add Income'
+                : 'Add Money (Deposit / Family)'}
             </h2>
           </div>
           <button onClick={onClose} className="p-1 rounded-lg text-zinc-500 hover:text-white transition-colors cursor-pointer">
@@ -237,42 +247,66 @@ export const AddTransactionModal: React.FC<AddTransactionModalProps> = ({
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-4 pt-4">
-          {/* Type Toggle */}
-          <div className="grid grid-cols-2 gap-2 bg-[#171922] p-1 rounded-2xl border border-white/5">
+          {/* Type Toggle: Expense, Income, Money Added */}
+          <div className="grid grid-cols-3 gap-1.5 bg-[#171922] p-1 rounded-2xl border border-white/5">
             <button
               type="button"
               onClick={() => {
                 setType('expense');
-                const cats = categories.filter((c) => c.type === 'expense');
+                const cats = categories.filter((c) => c.type === 'expense' && c.id !== 'cat-transfer');
                 if (cats.length > 0) setCategoryId(cats[0].id);
               }}
-              className={`py-2 rounded-xl text-xs font-medium flex items-center justify-center gap-1.5 transition-all ${
+              className={`py-2 rounded-xl text-xs font-medium flex items-center justify-center gap-1.5 transition-all cursor-pointer ${
                 type === 'expense'
                   ? 'bg-white/10 text-white border border-white/10 shadow-sm'
                   : 'text-zinc-400 hover:text-zinc-200'
               }`}
             >
               <span className="w-1.5 h-1.5 rounded-full bg-rose-400/80" />
-              <span>Expense (Spent)</span>
+              <span>Expense</span>
             </button>
 
             <button
               type="button"
               onClick={() => {
                 setType('income');
-                const cats = categories.filter((c) => c.type === 'income');
+                const cats = categories.filter((c) => c.type === 'income' && c.id !== 'cat-deposit');
                 if (cats.length > 0) setCategoryId(cats[0].id);
               }}
-              className={`py-2 rounded-xl text-xs font-medium flex items-center justify-center gap-1.5 transition-all ${
+              className={`py-2 rounded-xl text-xs font-medium flex items-center justify-center gap-1.5 transition-all cursor-pointer ${
                 type === 'income'
                   ? 'bg-white/10 text-white border border-white/10 shadow-sm'
                   : 'text-zinc-400 hover:text-zinc-200'
               }`}
             >
               <span className="w-1.5 h-1.5 rounded-full bg-emerald-400/80" />
-              <span>Income (Received)</span>
+              <span>Income</span>
+            </button>
+
+            <button
+              type="button"
+              onClick={() => {
+                setType('deposit');
+                const depCat = categories.find((c) => c.id === 'cat-deposit') || categories[0];
+                if (depCat) setCategoryId(depCat.id);
+              }}
+              className={`py-2 rounded-xl text-xs font-medium flex items-center justify-center gap-1.5 transition-all cursor-pointer ${
+                type === 'deposit'
+                  ? 'bg-purple-500/20 text-purple-200 border border-purple-500/30 shadow-sm'
+                  : 'text-zinc-400 hover:text-zinc-200'
+              }`}
+            >
+              <span className="w-1.5 h-1.5 rounded-full bg-purple-400" />
+              <span>Add Money</span>
             </button>
           </div>
+
+          {/* Deposit Hint Box */}
+          {type === 'deposit' && (
+            <div className="p-3 rounded-xl bg-purple-500/10 border border-purple-500/20 text-purple-200 text-xs flex items-center gap-2 animate-in fade-in duration-150">
+              <span>💡 <strong>Money Added:</strong> Increases your wallet balance directly without counting as business/freelance income (e.g. from mother, family gift, personal deposit).</span>
+            </div>
+          )}
 
           {/* Amount and Multi-Currency Converter */}
           <div className="space-y-3">
@@ -405,7 +439,13 @@ export const AddTransactionModal: React.FC<AddTransactionModalProps> = ({
             </label>
             <input
               type="text"
-              placeholder={type === 'expense' ? 'e.g. Figma Subscription, Coffee, Uber' : 'e.g. Website Milestone 1, Retainer'}
+              placeholder={
+                type === 'expense'
+                  ? 'e.g. Figma Subscription, Coffee, Uber'
+                  : type === 'income'
+                  ? 'e.g. Website Milestone 1, Retainer'
+                  : 'e.g. Money from Amma, Family gift, Personal deposit'
+              }
               value={title}
               onChange={(e) => setTitle(e.target.value)}
               className="w-full bg-[#171922] text-white text-xs px-3.5 py-2.5 rounded-xl border border-white/10 focus:outline-none focus:border-white/30"
@@ -416,11 +456,11 @@ export const AddTransactionModal: React.FC<AddTransactionModalProps> = ({
           {/* Client or Payer (Optional) */}
           <div>
             <label className="block text-[11px] font-medium text-zinc-400 mb-1">
-              Client / Vendor (Optional)
+              {type === 'deposit' ? 'From Person / Source (Optional)' : 'Client / Vendor (Optional)'}
             </label>
             <input
               type="text"
-              placeholder="e.g. Apex Studio, Apple, Starbucks"
+              placeholder={type === 'deposit' ? 'e.g. Amma, Friend, Personal Account' : 'e.g. Apex Studio, Apple, Starbucks'}
               value={clientOrPayer}
               onChange={(e) => setClientOrPayer(e.target.value)}
               className="w-full bg-[#171922] text-white text-xs px-3.5 py-2.5 rounded-xl border border-white/10 focus:outline-none focus:border-white/30"
@@ -431,7 +471,7 @@ export const AddTransactionModal: React.FC<AddTransactionModalProps> = ({
           <div className="grid grid-cols-2 gap-3">
             <div>
               <label className="block text-[11px] font-medium text-zinc-400 mb-1">
-                {type === 'expense' ? 'Expense Category' : 'Income Source'}
+                {type === 'expense' ? 'Expense Category' : type === 'deposit' ? 'Deposit Category' : 'Income Source'}
               </label>
               <select
                 value={categoryId}
@@ -568,7 +608,11 @@ export const AddTransactionModal: React.FC<AddTransactionModalProps> = ({
             >
               {transactionToEdit
                 ? 'Save Changes'
-                : (type === 'expense' ? 'Save Expense' : 'Save Income')}
+                : type === 'expense'
+                ? 'Save Expense'
+                : type === 'income'
+                ? 'Save Income'
+                : 'Save Added Money'}
             </button>
           </div>
         </form>

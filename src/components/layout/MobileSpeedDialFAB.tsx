@@ -8,11 +8,13 @@ import {
   ArrowUpRight,
   ArrowLeftRight,
   CalendarPlus,
+  PlusCircle,
 } from 'lucide-react';
 
 interface MobileSpeedDialFABProps {
   onAddExpense: () => void;
   onAddIncome: () => void;
+  onAddDeposit?: () => void;
   onTransfer: () => void;
   onAddReminder: () => void;
 }
@@ -20,6 +22,7 @@ interface MobileSpeedDialFABProps {
 export const MobileSpeedDialFAB: React.FC<MobileSpeedDialFABProps> = ({
   onAddExpense,
   onAddIncome,
+  onAddDeposit,
   onTransfer,
   onAddReminder,
 }) => {
@@ -46,6 +49,16 @@ export const MobileSpeedDialFAB: React.FC<MobileSpeedDialFABProps> = ({
         onAddIncome();
       },
     },
+    ...(onAddDeposit ? [{
+      label: 'Add Money (Personal / Family)',
+      icon: PlusCircle,
+      color: 'bg-purple-500/20 text-purple-400 border-purple-500/30 hover:bg-purple-500/30',
+      badgeColor: 'bg-purple-950 text-purple-200 border-purple-500/30',
+      onClick: () => {
+        setIsOpen(false);
+        onAddDeposit();
+      },
+    }] : []),
     {
       label: 'Transfer Funds',
       icon: ArrowLeftRight,
