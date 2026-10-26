@@ -21,9 +21,12 @@ import {
   Repeat,
   Pencil,
   MessageSquare,
+  ShieldCheck,
+  CalendarX,
+  X,
 } from 'lucide-react';
 import confetti from 'canvas-confetti';
-import { PaymentReminder, Wallet, AppSettings } from '@/types';
+import { PaymentReminder, Wallet, AppSettings, Transaction } from '@/types';
 import { formatDateDDMMYYYY, formatCash } from '@/lib/formatters';
 import { getWhatsAppReminderUrl } from '@/lib/whatsapp';
 import { DEFAULT_SETTINGS } from '@/lib/constants';
@@ -35,10 +38,12 @@ interface FreelanceRemindersViewProps {
   wallets: Wallet[];
   currencySymbol: string;
   settings?: AppSettings;
+  transactions?: Transaction[];
   onOpenAddModal: () => void;
   onEditReminder: (reminder: PaymentReminder) => void;
   onCollectReminder: (id: string, walletId: string) => void;
   onDeleteReminder: (id: string) => void;
+  onUpdateReminder?: (id: string, updates: Partial<PaymentReminder>) => void;
 }
 
 export const FreelanceRemindersView: React.FC<FreelanceRemindersViewProps> = ({
@@ -47,15 +52,18 @@ export const FreelanceRemindersView: React.FC<FreelanceRemindersViewProps> = ({
   wallets,
   currencySymbol,
   settings = DEFAULT_SETTINGS,
+  transactions = [],
   onOpenAddModal,
   onEditReminder,
   onCollectReminder,
   onDeleteReminder,
+  onUpdateReminder,
 }) => {
   const isPayablesMode = mode === 'payables';
   const [filterTab, setFilterTab] = useState<'this_month' | 'urgent' | 'upcoming' | 'collected' | 'all'>('this_month');
   const [copiedId, setCopiedId] = useState<string | null>(null);
   const [collectingReminder, setCollectingReminder] = useState<PaymentReminder | null>(null);
+  const [reminderToDelete, setReminderToDelete] = useState<PaymentReminder | null>(null);
   const [targetWalletId, setTargetWalletId] = useState<string>(wallets[0]?.id || 'wal-bank');
 
   // Month date boundaries
@@ -71,10 +79,10 @@ export const FreelanceRemindersView: React.FC<FreelanceRemindersViewProps> = ({
 
   // Active reminders partitioned by current cycle (this month + overdue) vs future months
   const thisMonthActive = baseReminders.filter(
-    (r) => r.status !== 'collected' && r.dueDate <= endOfCurrentMonthStr
+    (r) => r.status !== 'collected' && r.status !== 'ended' && r.dueDate <= endOfCurrentMonthStr
   );
   const futureActive = baseReminders.filter(
-    (r) => r.status !== 'collected' && r.dueDate > endOfCurrentMonthStr
+    (r) => r.status !== 'collected' && r.status !== 'ended' && r.dueDate > endOfCurrentMonthStr
   );
 
   // Compute metrics for this specific tab mode
@@ -93,15 +101,21 @@ export const FreelanceRemindersView: React.FC<FreelanceRemindersViewProps> = ({
 
   // Filter list by selected tab
   const filteredList = baseReminders.filter((r) => {
-    if (filterTab === 'this_month') return r.status !== 'collected' && r.dueDate <= endOfCurrentMonthStr;
+    if (filterTab === 'this_month') return r.status !== 'collected' && r.status !== 'ended' && r.dueDate <= endOfCurrentMonthStr;
     if (filterTab === 'urgent') return r.status === 'overdue' || r.status === 'due_today';
-    if (filterTab === 'upcoming') return r.status !== 'collected' && r.dueDate > endOfCurrentMonthStr;
+    if (filterTab === 'upcoming') return r.status !== 'collected' && r.status !== 'ended' && r.dueDate > endOfCurrentMonthStr;
     if (filterTab === 'collected') return r.status === 'collected';
     return true;
   });
 
   // Calculate day difference for label
   const getDueLabel = (rem: PaymentReminder) => {
+    if (rem.status === 'ended') {
+      return {
+        text: 'Contract Ended',
+        color: 'zinc',
+      };
+    }
     if (rem.status === 'collected') {
       const settledDate = formatDateDDMMYYYY(rem.collectedAt || rem.dueDate);
       return {
@@ -387,7 +401,11 @@ export const FreelanceRemindersView: React.FC<FreelanceRemindersViewProps> = ({
                             #{rem.invoiceNumber}
                           </span>
                         )}
-                        {rem.frequency === 'monthly' ? (
+                        {rem.status === 'ended' ? (
+                          <span className="text-[10px] font-mono text-zinc-400 bg-zinc-800/80 border border-white/10 px-2 py-0.5 rounded-md font-semibold">
+                            Contract Ended
+                          </span>
+                        ) : rem.frequency === 'monthly' ? (
                           <span className="text-[10px] font-mono text-emerald-400 bg-emerald-500/10 border border-emerald-500/20 px-2 py-0.5 rounded-md flex items-center gap-1 font-semibold">
                             <Repeat className="w-3 h-3 text-emerald-400" />
                             <span>{rem.autoRenew !== false ? 'Auto-Renewing Retainer' : 'Monthly'}</span>
@@ -522,11 +540,11 @@ export const FreelanceRemindersView: React.FC<FreelanceRemindersViewProps> = ({
                           <Pencil className="w-3.5 h-3.5" />
                         </button>
 
-                        {/* Delete Button */}
+                        {/* Delete / End Contract Button */}
                         <button
-                          onClick={() => onDeleteReminder(rem.id)}
+                          onClick={() => setReminderToDelete(rem)}
                           className="p-2 text-zinc-500 hover:text-rose-400 hover:bg-rose-500/10 rounded-xl transition-colors cursor-pointer"
-                          title="Delete invoice"
+                          title={rem.frequency === 'monthly' ? "End contract or delete obligation" : "Delete obligation"}
                         >
                           <Trash2 className="w-3.5 h-3.5" />
                         </button>
@@ -611,6 +629,115 @@ export const FreelanceRemindersView: React.FC<FreelanceRemindersViewProps> = ({
           </div>
         </div>
       )}
+
+      {/* End Contract / Delete Safe Confirmation Modal */}
+      {reminderToDelete && (() => {
+        const linkedHistory = (transactions || []).filter(
+          (t) =>
+            t.reminderId === reminderToDelete.id ||
+            (t.clientOrPayer &&
+              t.clientOrPayer.trim().toLowerCase() === reminderToDelete.clientName.trim().toLowerCase())
+        );
+        const historyTotal = linkedHistory.reduce((sum, t) => sum + t.amount, 0);
+
+        return (
+          <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+            <div className="bg-[#12141a] border border-white/10 rounded-3xl w-full max-w-md p-6 shadow-2xl animate-in fade-in zoom-in-95">
+              <div className="flex items-start justify-between pb-3 border-b border-white/5">
+                <div className="flex items-center gap-3">
+                  <div className="p-2.5 rounded-2xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-400">
+                    <ShieldCheck className="w-5 h-5" />
+                  </div>
+                  <div>
+                    <h3 className="font-bold text-white text-base">
+                      {reminderToDelete.frequency === 'monthly' ? 'End Contract / Remove' : 'Remove Obligation'}
+                    </h3>
+                    <p className="text-[11px] text-zinc-400">
+                      {reminderToDelete.clientName} • {reminderToDelete.projectTitle}
+                    </p>
+                  </div>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setReminderToDelete(null)}
+                  className="text-zinc-500 hover:text-zinc-300 p-1"
+                >
+                  <X className="w-4 h-4" />
+                </button>
+              </div>
+
+              <div className="my-4 space-y-3">
+                {/* Green Ledger Protection Guarantee */}
+                <div className="bg-emerald-500/10 border border-emerald-500/20 rounded-2xl p-4">
+                  <div className="flex items-center gap-2 text-emerald-300 text-xs font-bold">
+                    <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
+                    <span>Ledger History Is 100% Protected</span>
+                  </div>
+                  <p className="text-[11px] text-zinc-300 mt-2 leading-relaxed">
+                    Ending or removing this contract will <strong>never delete your past transaction history</strong>. All historical income and expense transactions stay permanently recorded in your ledger and wallet balances.
+                  </p>
+                  {linkedHistory.length > 0 ? (
+                    <div className="mt-2.5 pt-2.5 border-t border-emerald-500/20 flex items-center justify-between text-[11px] font-mono">
+                      <span className="text-zinc-400">Safely preserved history:</span>
+                      <span className="text-emerald-300 font-bold">{linkedHistory.length} record(s) ({currencySymbol}{formatCash(historyTotal)})</span>
+                    </div>
+                  ) : (
+                    <div className="mt-2 text-[10px] text-zinc-400">
+                      Previous reports, category expenses, and balances remain completely intact.
+                    </div>
+                  )}
+                </div>
+
+                <p className="text-xs text-zinc-400 leading-relaxed bg-[#171922] p-3 rounded-xl border border-white/5">
+                  {reminderToDelete.frequency === 'monthly'
+                    ? 'If your contract with this party has ended, click "End Contract" to cancel upcoming reminders and stop monthly auto-renewals.'
+                    : 'Remove this obligation from your active schedule. Historical transaction entries stay safe in your ledger.'}
+                </p>
+              </div>
+
+              <div className="pt-3 border-t border-white/5 flex flex-col gap-2">
+                {reminderToDelete.frequency === 'monthly' && onUpdateReminder && (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      onUpdateReminder(reminderToDelete.id, {
+                        status: 'ended',
+                        autoRenew: false,
+                      });
+                      setReminderToDelete(null);
+                    }}
+                    className="w-full py-2.5 px-4 bg-amber-500/15 hover:bg-amber-500/25 text-amber-300 border border-amber-500/30 font-semibold text-xs rounded-xl flex items-center justify-center gap-2 transition-colors cursor-pointer"
+                  >
+                    <CalendarX className="w-3.5 h-3.5 text-amber-400" />
+                    <span>End Contract (Stop Future Renewals)</span>
+                  </button>
+                )}
+
+                <div className="flex items-center gap-2">
+                  <button
+                    type="button"
+                    onClick={() => setReminderToDelete(null)}
+                    className="flex-1 py-2.5 px-4 rounded-xl text-xs font-semibold text-zinc-400 hover:text-white bg-white/5 hover:bg-white/10 transition-colors"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      onDeleteReminder(reminderToDelete.id);
+                      setReminderToDelete(null);
+                    }}
+                    className="flex-1 py-2.5 px-4 rounded-xl text-xs font-semibold text-rose-300 hover:text-white bg-rose-500/15 hover:bg-rose-600 border border-rose-500/25 transition-colors flex items-center justify-center gap-1.5 cursor-pointer"
+                  >
+                    <Trash2 className="w-3.5 h-3.5" />
+                    <span>Delete from List</span>
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        );
+      })()}
     </div>
   );
 };

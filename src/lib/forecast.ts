@@ -54,9 +54,9 @@ export function calculateRunwayForecast(
   const dailyBurnRate = effective30DayExpense > 0 ? effective30DayExpense / 30 : 0;
   const monthlyBurnRate = dailyBurnRate * 30;
 
-  // Active uncollected reminders
+  // Active uncollected reminders (excluding ended/cancelled contracts)
   const activeReminders = reminders.filter(
-    (r) => r.status !== 'collected'
+    (r) => r.status !== 'collected' && r.status !== 'ended'
   );
 
   const getRemindersWithinDays = (days: number) => {

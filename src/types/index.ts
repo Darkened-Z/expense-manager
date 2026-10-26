@@ -43,7 +43,7 @@ export interface Transaction {
   createdAt: string;
 }
 
-export type PaymentReminderStatus = 'pending' | 'due_today' | 'overdue' | 'collected';
+export type PaymentReminderStatus = 'pending' | 'due_today' | 'overdue' | 'collected' | 'ended';
 export type ReminderType = 'receivable' | 'payable';
 
 export interface PaymentReminder {

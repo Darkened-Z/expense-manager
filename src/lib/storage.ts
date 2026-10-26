@@ -55,6 +55,7 @@ export async function hashPasscode(passcode: string): Promise<string> {
 
 export function computeReminderStatus(dueDateStr: string, currentStatus: PaymentReminderStatus): PaymentReminderStatus {
   if (currentStatus === 'collected') return 'collected';
+  if (currentStatus === 'ended') return 'ended';
 
   const todayStr = new Date().toISOString().split('T')[0];
   const due = new Date(dueDateStr + 'T00:00:00');

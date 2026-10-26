@@ -815,6 +815,7 @@ export default function Home() {
                 wallets={wallets}
                 currencySymbol={settings.currencySymbol}
                 settings={settings}
+                transactions={transactions}
                 onOpenAddModal={() => {
                   setEditingReminder(null);
                   setAddReminderType('receivable');
@@ -827,6 +828,7 @@ export default function Home() {
                 }}
                 onCollectReminder={handleCollectReminder}
                 onDeleteReminder={handleDeleteReminder}
+                onUpdateReminder={handleUpdateReminder}
               />
             </div>
           )}
@@ -840,6 +842,7 @@ export default function Home() {
                 wallets={wallets}
                 currencySymbol={settings.currencySymbol}
                 settings={settings}
+                transactions={transactions}
                 onOpenAddModal={() => {
                   setEditingReminder(null);
                   setAddReminderType('payable');
@@ -852,6 +855,7 @@ export default function Home() {
                 }}
                 onCollectReminder={handleCollectReminder}
                 onDeleteReminder={handleDeleteReminder}
+                onUpdateReminder={handleUpdateReminder}
               />
             </div>
           )}
