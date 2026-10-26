@@ -11,6 +11,7 @@ export const DEFAULT_CATEGORIES: Category[] = [
   { id: 'cat-marketing', name: 'Marketing & Domains', icon: 'Globe', color: '#ec4899', type: 'expense', budgetLimit: 0 },
   { id: 'cat-taxes', name: 'Taxes & Accounting', icon: 'FileText', color: '#ef4444', type: 'expense', budgetLimit: 0 },
   { id: 'cat-misc', name: 'Miscellaneous', icon: 'ShoppingBag', color: '#64748b', type: 'expense', budgetLimit: 0 },
+  { id: 'cat-transfer', name: 'Internal Transfer', icon: 'ArrowLeftRight', color: '#0ea5e9', type: 'expense', budgetLimit: 0 },
 
   // Income Sources
   { id: 'inc-freelance', name: 'Client Project Work', icon: 'Briefcase', color: '#10b981', type: 'income' },

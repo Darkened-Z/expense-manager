@@ -1,4 +1,4 @@
-export type TransactionType = 'expense' | 'income';
+export type TransactionType = 'expense' | 'income' | 'transfer';
 
 export interface Category {
   id: string;
@@ -28,6 +28,7 @@ export interface Transaction {
   title: string;
   categoryId: string; // References Category (if expense) or Income Source (if income)
   walletId: string;
+  toWalletId?: string; // Destination wallet for transfers
   clientOrPayer?: string;
   date: string; // YYYY-MM-DD
   time: string; // HH:mm

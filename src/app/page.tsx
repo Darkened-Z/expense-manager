@@ -17,6 +17,7 @@ import { SettingsView } from '@/components/views/SettingsView';
 import { PasscodeLockModal } from '@/components/auth/PasscodeLockModal';
 import { AddTransactionModal } from '@/components/modals/AddTransactionModal';
 import { AddReminderModal } from '@/components/modals/AddReminderModal';
+import { TransferModal } from '@/components/modals/TransferModal';
 import { StorageService } from '@/lib/storage';
 import { NotificationService } from '@/lib/notifications';
 import { PwaInstallPrompt } from '@/components/pwa/PwaInstallPrompt';
@@ -57,6 +58,7 @@ export default function Home() {
 
   // Modals
   const [addTxModalType, setAddTxModalType] = useState<TransactionType | null>(null);
+  const [showTransferModal, setShowTransferModal] = useState<boolean>(false);
   const [editingTransaction, setEditingTransaction] = useState<Transaction | null>(null);
   const [showAddReminderModal, setShowAddReminderModal] = useState<boolean>(false);
   const [addReminderType, setAddReminderType] = useState<ReminderType>('receivable');
@@ -400,6 +402,20 @@ export default function Home() {
     setWallets(StorageService.getWallets());
   };
 
+  const handleTransfer = (data: {
+    fromWalletId: string;
+    toWalletId: string;
+    amount: number;
+    date: string;
+    time?: string;
+    notes?: string;
+  }) => {
+    StorageService.addTransfer(data);
+    setTransactions(StorageService.getTransactions());
+    setWallets(StorageService.getWallets());
+    playChime();
+  };
+
   const handleAddReminder = (remData: any) => {
     StorageService.addReminder(remData);
     setReminders(StorageService.getReminders());
@@ -664,6 +680,7 @@ export default function Home() {
           cloudSyncStatus={cloudSyncStatus}
           onOpenSyncSettings={() => setCurrentTab('settings')}
           onOpenAddTx={(type) => setAddTxModalType(type)}
+          onOpenTransfer={() => setShowTransferModal(true)}
           onOpenAddReminder={() => {
             setAddReminderType(currentTab === 'payables' ? 'payable' : 'receivable');
             setShowAddReminderModal(true);
@@ -825,6 +842,7 @@ export default function Home() {
                 currencySymbol={settings.currencySymbol}
                 onUpdateWalletBalance={StorageService.updateWalletBalance}
                 onAddWallet={handleAddWallet}
+                onOpenTransfer={() => setShowTransferModal(true)}
               />
             </div>
           )}
@@ -904,6 +922,17 @@ export default function Home() {
           }}
           onSubmit={handleAddReminder}
           onUpdate={handleUpdateReminder}
+        />
+      )}
+
+      {/* Wallet-to-Wallet Transfer Modal */}
+      {showTransferModal && (
+        <TransferModal
+          isOpen={true}
+          wallets={wallets}
+          currencySymbol={settings.currencySymbol}
+          onClose={() => setShowTransferModal(false)}
+          onSubmit={handleTransfer}
         />
       )}
     </div>

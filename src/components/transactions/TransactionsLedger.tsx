@@ -8,6 +8,7 @@ import {
   Trash2,
   ArrowUpRight,
   ArrowDownLeft,
+  ArrowLeftRight,
   Tag,
   Coffee,
   Car,
@@ -48,7 +49,7 @@ export const TransactionsLedger: React.FC<TransactionsLedgerProps> = ({
   searchQuery,
   setSearchQuery,
 }) => {
-  const [selectedType, setSelectedType] = useState<'all' | 'expense' | 'income'>('all');
+  const [selectedType, setSelectedType] = useState<'all' | 'expense' | 'income' | 'transfer'>('all');
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
 
   const getCategoryIcon = (iconName: string) => {
@@ -151,6 +152,14 @@ export const TransactionsLedger: React.FC<TransactionsLedgerProps> = ({
               >
                 Received
               </button>
+              <button
+                onClick={() => setSelectedType('transfer')}
+                className={`flex-1 sm:flex-initial px-2.5 py-1.5 rounded-lg transition-colors text-center ${
+                  selectedType === 'transfer' ? 'bg-sky-500/20 text-sky-300 font-medium' : 'text-zinc-400 hover:text-zinc-200'
+                }`}
+              >
+                Transfers
+              </button>
             </div>
 
             {/* Category Dropdown */}
@@ -185,6 +194,8 @@ export const TransactionsLedger: React.FC<TransactionsLedgerProps> = ({
             const wallet = wallets.find((w) => w.id === tx.walletId);
             const IconComponent = cat ? getCategoryIcon(cat.icon) : Tag;
             const isExpense = tx.type === 'expense';
+            const isTransfer = tx.type === 'transfer';
+            const destWallet = tx.toWalletId ? wallets.find((w) => w.id === tx.toWalletId) : null;
 
             return (
               <div key={tx.id} className="p-3.5 hover:bg-white/[0.02] transition-colors flex items-center justify-between gap-3">
@@ -205,7 +216,13 @@ export const TransactionsLedger: React.FC<TransactionsLedgerProps> = ({
                   <div className="min-w-0">
                     <div className="font-semibold text-zinc-200 text-xs truncate">{tx.title}</div>
                     <div className="flex items-center gap-1.5 text-[10px] text-zinc-500 mt-0.5">
-                      <span className="text-zinc-400 font-medium">{cat?.name || 'Uncategorized'}</span>
+                      {isTransfer && destWallet ? (
+                        <span className="text-sky-300 font-medium">
+                          {wallet?.name || 'Account'} → {destWallet.name}
+                        </span>
+                      ) : (
+                        <span className="text-zinc-400 font-medium">{cat?.name || 'Uncategorized'}</span>
+                      )}
                       <span>•</span>
                       <span>{formatDateTime(tx.date, tx.time)}</span>
                       {tx.frequency === 'monthly' && (
@@ -221,8 +238,10 @@ export const TransactionsLedger: React.FC<TransactionsLedgerProps> = ({
                 {/* Amount and delete action */}
                 <div className="flex items-center gap-2 shrink-0">
                   <div className="text-right">
-                    <div className={`font-mono font-bold text-xs ${isExpense ? 'text-zinc-200' : 'text-emerald-400'}`}>
-                      {isExpense ? '-' : '+'}{currencySymbol}{formatCash(tx.amount)}
+                    <div className={`font-mono font-bold text-xs ${
+                      isTransfer ? 'text-sky-300' : isExpense ? 'text-zinc-200' : 'text-emerald-400'
+                    }`}>
+                      {isTransfer ? '⇄ ' : isExpense ? '-' : '+'}{currencySymbol}{formatCash(tx.amount)}
                     </div>
                     <span className="text-[9px] font-mono text-zinc-500 uppercase">
                       {tx.token || wallet?.currency || 'PKR'}
@@ -280,21 +299,36 @@ export const TransactionsLedger: React.FC<TransactionsLedgerProps> = ({
                 const wallet = wallets.find((w) => w.id === tx.walletId);
                 const IconComponent = cat ? getCategoryIcon(cat.icon) : Tag;
                 const isExpense = tx.type === 'expense';
+            const isTransfer = tx.type === 'transfer';
+            const destWallet = tx.toWalletId ? wallets.find((w) => w.id === tx.toWalletId) : null;
 
                 return (
                   <tr key={tx.id} className="hover:bg-white/[0.02] transition-colors group">
-                    <td className="py-3.5 px-5 font-mono font-bold text-white text-sm">
-                      {currencySymbol}{formatCash(tx.amount)}
+                    <td className="py-3.5 px-5 font-mono font-bold text-sm">
+                      <span className={isTransfer ? 'text-sky-300' : isExpense ? 'text-zinc-200' : 'text-emerald-400'}>
+                        {isTransfer ? '⇄ ' : isExpense ? '-' : '+'}{currencySymbol}{formatCash(tx.amount)}
+                      </span>
                     </td>
                     <td className="py-3.5 px-4 font-mono">
-                      <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-white/5 text-zinc-300 border border-white/5 font-semibold text-[11px]">
-                        <span className="w-1.5 h-1.5 rounded-full bg-zinc-400" />
-                        {tx.token || wallet?.currency || 'PKR'}
-                      </span>
+                      {isTransfer && destWallet ? (
+                        <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-sky-500/10 text-sky-300 border border-sky-500/20 font-semibold text-[11px]">
+                          {wallet?.name || 'Account'} → {destWallet.name}
+                        </span>
+                      ) : (
+                        <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-white/5 text-zinc-300 border border-white/5 font-semibold text-[11px]">
+                          <span className="w-1.5 h-1.5 rounded-full bg-zinc-400" />
+                          {tx.token || wallet?.currency || 'PKR'}
+                        </span>
+                      )}
                     </td>
                     <td className="py-3.5 px-4">
                       <div className="flex items-center gap-1.5">
-                        {isExpense ? (
+                        {isTransfer ? (
+                          <span className="inline-flex items-center gap-1.5 text-sky-400 font-medium">
+                            <ArrowLeftRight className="w-3.5 h-3.5 text-sky-400" />
+                            <span>Transfer</span>
+                          </span>
+                        ) : isExpense ? (
                           <span className="inline-flex items-center gap-1.5 text-rose-400 font-medium">
                             <ArrowDownLeft className="w-3.5 h-3.5 text-rose-400" />
                             <span>Spent</span>

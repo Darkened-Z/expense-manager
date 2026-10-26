@@ -116,15 +116,52 @@ export const StorageService = {
     };
     const updated = [newTx, ...txs];
     this.saveTransactions(updated);
-    this.updateWalletBalance(tx.walletId, tx.type === 'income' ? tx.amount : -tx.amount);
+    if (tx.type === 'transfer' && tx.toWalletId) {
+      this.updateWalletBalance(tx.walletId, -tx.amount);
+      this.updateWalletBalance(tx.toWalletId, tx.amount);
+    } else {
+      this.updateWalletBalance(tx.walletId, tx.type === 'income' ? tx.amount : -tx.amount);
+    }
     return newTx;
+  },
+
+  addTransfer(data: {
+    fromWalletId: string;
+    toWalletId: string;
+    amount: number;
+    date: string;
+    time?: string;
+    notes?: string;
+  }): Transaction {
+    const fromWallet = this.getWallets().find(w => w.id === data.fromWalletId);
+    const toWallet = this.getWallets().find(w => w.id === data.toWalletId);
+    const fromName = fromWallet?.name || 'Account';
+    const toName = toWallet?.name || 'Account';
+
+    return this.addTransaction({
+      amount: data.amount,
+      type: 'transfer',
+      title: `Transfer: ${fromName} → ${toName}`,
+      categoryId: 'cat-transfer',
+      walletId: data.fromWalletId,
+      toWalletId: data.toWalletId,
+      date: data.date,
+      time: data.time || new Date().toTimeString().slice(0, 5),
+      notes: data.notes || `Transferred from ${fromName} to ${toName}`,
+      token: fromWallet?.currency || 'PKR',
+    });
   },
 
   deleteTransaction(id: string): void {
     const txs = this.getTransactions();
     const target = txs.find(t => t.id === id);
     if (target) {
-      this.updateWalletBalance(target.walletId, target.type === 'income' ? -target.amount : target.amount);
+      if (target.type === 'transfer' && target.toWalletId) {
+        this.updateWalletBalance(target.walletId, target.amount);
+        this.updateWalletBalance(target.toWalletId, -target.amount);
+      } else {
+        this.updateWalletBalance(target.walletId, target.type === 'income' ? -target.amount : target.amount);
+      }
     }
     const filtered = txs.filter(t => t.id !== id);
     this.saveTransactions(filtered);
@@ -135,28 +172,26 @@ export const StorageService = {
     const existing = txs.find(t => t.id === id);
     if (!existing) return;
 
-    // Adjust wallet balances if amount, type, or walletId changed
-    const oldAmount = existing.amount;
-    const oldType = existing.type;
-    const oldWalletId = existing.walletId;
-
-    const newAmount = updates.amount !== undefined ? updates.amount : oldAmount;
-    const newType = updates.type !== undefined ? updates.type : oldType;
-    const newWalletId = updates.walletId !== undefined ? updates.walletId : oldWalletId;
-
-    if (oldWalletId === newWalletId) {
-      const revertDelta = oldType === 'income' ? -oldAmount : oldAmount;
-      const applyDelta = newType === 'income' ? newAmount : -newAmount;
-      const totalDelta = revertDelta + applyDelta;
-      if (totalDelta !== 0) {
-        this.updateWalletBalance(oldWalletId, totalDelta);
-      }
+    // Revert existing balance impact
+    if (existing.type === 'transfer' && existing.toWalletId) {
+      this.updateWalletBalance(existing.walletId, existing.amount);
+      this.updateWalletBalance(existing.toWalletId, -existing.amount);
     } else {
-      this.updateWalletBalance(oldWalletId, oldType === 'income' ? -oldAmount : oldAmount);
-      this.updateWalletBalance(newWalletId, newType === 'income' ? newAmount : -newAmount);
+      this.updateWalletBalance(existing.walletId, existing.type === 'income' ? -existing.amount : existing.amount);
     }
 
-    const updated = txs.map(t => (t.id === id ? { ...t, ...updates } : t));
+    // Prepare updated object
+    const updatedTx: Transaction = { ...existing, ...updates };
+
+    // Apply new balance impact
+    if (updatedTx.type === 'transfer' && updatedTx.toWalletId) {
+      this.updateWalletBalance(updatedTx.walletId, -updatedTx.amount);
+      this.updateWalletBalance(updatedTx.toWalletId, updatedTx.amount);
+    } else {
+      this.updateWalletBalance(updatedTx.walletId, updatedTx.type === 'income' ? updatedTx.amount : -updatedTx.amount);
+    }
+
+    const updated = txs.map(t => (t.id === id ? updatedTx : t));
     this.saveTransactions(updated);
   },
 
@@ -355,6 +390,13 @@ export const StorageService = {
         }
         return c;
       });
+      if (!updated.some(c => c.id === 'cat-transfer')) {
+        const transferDef = DEFAULT_CATEGORIES.find(d => d.id === 'cat-transfer');
+        if (transferDef) {
+          updated.push(transferDef);
+          modified = true;
+        }
+      }
       if (modified) {
         localStorage.setItem(KEYS.CATEGORIES, JSON.stringify(updated));
       }

@@ -11,6 +11,7 @@ interface WalletsViewProps {
   currencySymbol: string;
   onUpdateWalletBalance: (walletId: string, delta: number) => void;
   onAddWallet: (wallet: Omit<Wallet, 'id'>) => void;
+  onOpenTransfer?: () => void;
 }
 
 export const WalletsView: React.FC<WalletsViewProps> = ({
@@ -19,6 +20,7 @@ export const WalletsView: React.FC<WalletsViewProps> = ({
   currencySymbol,
   onUpdateWalletBalance,
   onAddWallet,
+  onOpenTransfer,
 }) => {
   const [showAddModal, setShowAddModal] = useState(false);
   const [walletName, setWalletName] = useState('');
@@ -71,13 +73,26 @@ export const WalletsView: React.FC<WalletsViewProps> = ({
           <p className="text-xs text-zinc-500 mt-1">Combined balance across {wallets.length} active channels</p>
         </div>
 
-        <button
-          onClick={() => setShowAddModal(true)}
-          className="bg-zinc-100 hover:bg-white text-zinc-950 font-semibold text-xs px-4 py-2.5 rounded-xl flex items-center gap-1.5 transition-colors shadow-sm self-start sm:self-center"
-        >
-          <Plus className="w-4 h-4 stroke-[2.5]" />
-          <span>Add Account / Wallet</span>
-        </button>
+        <div className="flex items-center gap-2 self-start sm:self-center">
+          {onOpenTransfer && (
+            <button
+              onClick={onOpenTransfer}
+              className="bg-[#181b23] hover:bg-[#20242f] text-zinc-200 border border-white/10 font-semibold text-xs px-3.5 py-2.5 rounded-xl flex items-center gap-1.5 transition-colors shadow-sm"
+              title="Transfer funds between accounts"
+            >
+              <ArrowLeftRight className="w-3.5 h-3.5 text-sky-400" />
+              <span>Transfer Funds</span>
+            </button>
+          )}
+
+          <button
+            onClick={() => setShowAddModal(true)}
+            className="bg-zinc-100 hover:bg-white text-zinc-950 font-semibold text-xs px-4 py-2.5 rounded-xl flex items-center gap-1.5 transition-colors shadow-sm"
+          >
+            <Plus className="w-4 h-4 stroke-[2.5]" />
+            <span>Add Account / Wallet</span>
+          </button>
+        </div>
       </div>
 
       {/* Wallets Grid */}
