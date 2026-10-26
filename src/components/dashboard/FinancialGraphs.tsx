@@ -37,13 +37,17 @@ export const FinancialGraphs: React.FC<FinancialGraphsProps> = ({
     });
 
     const incomeSum = txMatches.filter((t) => t.type === 'income').reduce((s, t) => s + t.amount, 0);
+    const addedSum = txMatches.filter((t) => t.type === 'deposit').reduce((s, t) => s + t.amount, 0);
+    const totalInflow = incomeSum + addedSum;
     const expenseSum = txMatches.filter((t) => t.type === 'expense').reduce((s, t) => s + t.amount, 0);
 
     return {
       month: label,
-      income: incomeSum,
+      income: totalInflow,
+      earnedIncome: incomeSum,
+      added: addedSum,
       expense: expenseSum,
-      net: incomeSum - expenseSum,
+      net: totalInflow - expenseSum,
     };
   });
 
@@ -167,7 +171,7 @@ export const FinancialGraphs: React.FC<FinancialGraphsProps> = ({
                         <div
                           className="w-full rounded-t-lg bg-emerald-500 group-hover:bg-emerald-400 transition-all"
                           style={{ height: `${incHeight}%` }}
-                          title={`${d.month} Income: ${currencySymbol}${formatCash(d.income)}`}
+                          title={`${d.month} Inflow: ${currencySymbol}${formatCash(d.income)}${d.added > 0 ? ` (${currencySymbol}${formatCash(d.earnedIncome)} earned + ${currencySymbol}${formatCash(d.added)} added)` : ''}`}
                         />
                       </div>
 

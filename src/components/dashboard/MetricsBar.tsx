@@ -34,8 +34,10 @@ export const MetricsBar: React.FC<MetricsBarProps> = ({
     .filter((t) => t.type === 'deposit')
     .reduce((sum, t) => sum + t.amount, 0);
 
-  const netSavings = totalReceived - totalSpent;
-  const savingsRate = totalReceived > 0 ? Math.max(0, (netSavings / totalReceived) * 100) : 0;
+  // Total cash inflow includes earned income plus money added from elsewhere (mother, personal gift, etc.)
+  const totalInflow = totalReceived + totalAdded;
+  const netSavings = totalInflow - totalSpent;
+  const savingsRate = totalInflow > 0 ? Math.max(0, (netSavings / totalInflow) * 100) : 0;
 
   const now = new Date();
   const todayStr = now.toISOString().split('T')[0];
@@ -141,8 +143,8 @@ export const MetricsBar: React.FC<MetricsBarProps> = ({
           </div>
           <div className="text-[10px] text-zinc-500 mt-1 font-mono truncate">
             {totalAdded > 0
-              ? `+${currencySymbol}${formatCash(totalAdded)} added`
-              : 'Unspent position'}
+              ? `Includes +${currencySymbol}${formatCash(totalAdded)} added`
+              : 'Net cash position'}
           </div>
         </div>
         <div className="mt-2 pt-1.5 border-t border-white/[0.03] flex items-center justify-between text-[10px] text-zinc-500 group-hover:text-zinc-300 transition-colors">
