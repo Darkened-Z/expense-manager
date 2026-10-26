@@ -158,6 +158,15 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
       vaultId: supabaseVaultId.trim() || 'main',
     });
     setIsConfigured(isSupabaseConfigured());
+    const snap = StorageService.getFullSnapshot();
+    try {
+      await fetch('/api/sync', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ data: snap }),
+      });
+      await pushToSupabase(snap);
+    } catch {}
     await handleTestConnection();
     if (onSyncComplete) onSyncComplete();
   };
@@ -244,8 +253,20 @@ create policy "Allow anon access" on expense_sync
     setTimeout(() => setCopiedSql(false), 2500);
   };
 
-  const handleCopyMobileLink = () => {
+  const handleCopyMobileLink = async () => {
     if (typeof window === 'undefined') return;
+    const snap = StorageService.getFullSnapshot();
+    try {
+      await fetch('/api/sync', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ data: snap }),
+      });
+      if (isSupabaseConfigured()) {
+        await pushToSupabase(snap);
+      }
+    } catch {}
+
     const url = `${window.location.origin}/?supabase_url=${encodeURIComponent(supabaseUrl)}&supabase_key=${encodeURIComponent(supabaseAnonKey)}&vault=${encodeURIComponent(supabaseVaultId)}`;
     navigator.clipboard.writeText(url);
     setCopiedMobileLink(true);

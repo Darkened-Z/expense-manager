@@ -65,6 +65,30 @@ export const PasscodeLockModal: React.FC<PasscodeLockModalProps> = ({
     }
   }, [isOpen, isSetupMode, enableBiometrics]);
 
+  useEffect(() => {
+    if (!isOpen) return;
+
+    const handleKeyDown = (e: KeyboardEvent) => {
+      // Don't capture if user is typing in an input element
+      const target = e.target as HTMLElement;
+      if (target && (target.tagName === 'INPUT' || target.tagName === 'TEXTAREA')) return;
+
+      if (e.key >= '0' && e.key <= '9') {
+        e.preventDefault();
+        handleKeyPress(e.key);
+      } else if (e.key === 'Backspace') {
+        e.preventDefault();
+        handleDelete();
+      } else if (e.key === 'Escape' && onCancel) {
+        e.preventDefault();
+        onCancel();
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [isOpen, pin, step, confirmPin, savedHash, onCancel]);
+
   if (!isOpen) return null;
 
   const handleKeyPress = async (num: string) => {

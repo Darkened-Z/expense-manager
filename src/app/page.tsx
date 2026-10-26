@@ -55,8 +55,15 @@ export default function Home() {
   const isImportingRef = useRef(false);
 
   // Lock & Security
-  const [isLocked, setIsLocked] = useState<boolean>(false);
+  const [isLocked, setIsLocked] = useState<boolean>(true);
   const [showPasscodeSetup, setShowPasscodeSetup] = useState<boolean>(false);
+  const [isSyncingDirectLink, setIsSyncingDirectLink] = useState<boolean>(() => {
+    if (typeof window !== 'undefined') {
+      const p = new URLSearchParams(window.location.search);
+      return Boolean(p.get('supabase_url') && p.get('supabase_key'));
+    }
+    return false;
+  });
 
   // Modals
   const [addTxModalType, setAddTxModalType] = useState<TransactionType | null>(null);
@@ -104,32 +111,78 @@ export default function Home() {
 
   // Load state on mount & initialize Supabase Auto-Sync
   useEffect(() => {
-    // Check if mobile setup URL parameters exist (?supabase_url=...&supabase_key=...&vault=...)
-    if (typeof window !== 'undefined') {
-      const urlParams = new URLSearchParams(window.location.search);
-      const urlParam = urlParams.get('supabase_url');
-      const keyParam = urlParams.get('supabase_key');
-      const vaultParam = urlParams.get('vault');
-      if (urlParam && keyParam) {
-        saveSupabaseConfig({
-          url: decodeURIComponent(urlParam),
-          anonKey: decodeURIComponent(keyParam),
-          vaultId: vaultParam ? decodeURIComponent(vaultParam) : 'main',
-        });
-        window.history.replaceState({}, document.title, window.location.pathname);
+    const initApp = async () => {
+      // Check if mobile setup URL parameters exist (?supabase_url=...&supabase_key=...&vault=...)
+      if (typeof window !== 'undefined') {
+        const urlParams = new URLSearchParams(window.location.search);
+        const urlParam = urlParams.get('supabase_url');
+        const keyParam = urlParams.get('supabase_key');
+        const vaultParam = urlParams.get('vault');
+
+        if (urlParam && keyParam) {
+          // Immediately enforce locked state for direct sync links
+          StorageService.setSessionLocked(true);
+          setIsLocked(true);
+
+          saveSupabaseConfig({
+            url: decodeURIComponent(urlParam),
+            anonKey: decodeURIComponent(keyParam),
+            vaultId: vaultParam ? decodeURIComponent(vaultParam) : 'main',
+          });
+
+          // Clean query parameters from address bar so URL remains clean
+          window.history.replaceState({}, document.title, window.location.pathname);
+
+          // Fetch cloud snapshot immediately
+          try {
+            const supRes = await pullFromSupabase();
+            if (supRes?.success && supRes.data) {
+              StorageService.importFullSnapshot(supRes.data);
+            }
+          } catch (err) {
+            console.warn('Direct sync pull error:', err);
+          }
+
+          try {
+            const sRes = await fetch('/api/sync').then((r) => r.json());
+            if (sRes?.success && sRes.data) {
+              const snap = StorageService.getFullSnapshot();
+              if ((snap.transactions?.length || 0) === 0 && (snap.reminders?.length || 0) === 0) {
+                StorageService.importFullSnapshot(sRes.data);
+              }
+            }
+          } catch {}
+
+          StorageService.syncFutureCollectedDates();
+          reloadAllFromStorage();
+
+          const freshSets = StorageService.getSettings();
+          if (freshSets.isLockEnabled && freshSets.passcodeHash) {
+            StorageService.setSessionLocked(true);
+            setIsLocked(true);
+          } else {
+            setIsLocked(false);
+          }
+
+          setIsSyncingDirectLink(false);
+          setMounted(true);
+          return;
+        }
       }
-    }
 
-    StorageService.syncFutureCollectedDates();
-    reloadAllFromStorage();
-    const locked = StorageService.isSessionLocked();
-    setIsLocked(locked);
-    setMounted(true);
+      StorageService.syncFutureCollectedDates();
+      reloadAllFromStorage();
+      const locked = StorageService.isSessionLocked();
+      setIsLocked(locked);
+      setMounted(true);
 
-    const currentSets = StorageService.getSettings();
-    if (currentSets.enableBrowserNotifications) {
-      NotificationService.checkDueInvoicesAndNotify(StorageService.getReminders());
-    }
+      const currentSets = StorageService.getSettings();
+      if (currentSets.enableBrowserNotifications) {
+        NotificationService.checkDueInvoicesAndNotify(StorageService.getReminders());
+      }
+    };
+
+    initApp();
 
     // Auto-fetch server config so mobile & all client devices connect instantly with 0 manual steps
     if (!isSupabaseConfigured()) {
@@ -191,6 +244,10 @@ export default function Home() {
         isImportingRef.current = true;
         StorageService.importFullSnapshot(remotePayload);
         reloadAllFromStorage();
+        if (remotePayload.settings?.isLockEnabled && remotePayload.settings?.passcodeHash) {
+          StorageService.setSessionLocked(true);
+          setIsLocked(true);
+        }
         setCloudSyncStatus('synced');
       } else if (hasLocalData && !remoteHasData) {
         // Source device (e.g. PC!): seed remote cloud & server with full snapshot!
@@ -204,6 +261,9 @@ export default function Home() {
           isImportingRef.current = true;
           StorageService.importFullSnapshot(remotePayload);
           reloadAllFromStorage();
+          if (remotePayload.settings?.isLockEnabled && remotePayload.settings?.passcodeHash && StorageService.isSessionLocked()) {
+            setIsLocked(true);
+          }
         } else if (localTime > remoteTime) {
           await pushAllSync(localSnapshot);
         }
@@ -223,6 +283,10 @@ export default function Home() {
         isImportingRef.current = true;
         StorageService.importFullSnapshot(cloudPayload);
         reloadAllFromStorage();
+        const currentSets = StorageService.getSettings();
+        if (currentSets.isLockEnabled && currentSets.passcodeHash && StorageService.isSessionLocked()) {
+          setIsLocked(true);
+        }
         setCloudSyncStatus('synced');
       });
     }
@@ -247,6 +311,62 @@ export default function Home() {
       clearInterval(intervalTimer);
       window.removeEventListener('focus', handleRefresh);
       document.removeEventListener('visibilitychange', handleRefresh);
+    };
+  }, []);
+
+  // User activity tracker and auto-lock check
+  useEffect(() => {
+    const handleActivity = () => {
+      StorageService.recordUserActivity();
+    };
+
+    window.addEventListener('mousemove', handleActivity);
+    window.addEventListener('keydown', handleActivity);
+    window.addEventListener('click', handleActivity);
+    window.addEventListener('touchstart', handleActivity);
+    window.addEventListener('scroll', handleActivity);
+
+    // Initial activity timestamp
+    StorageService.recordUserActivity();
+
+    // Check auto-lock periodically every 5 seconds
+    const lockCheckInterval = setInterval(() => {
+      if (typeof document !== 'undefined' && document.visibilityState === 'hidden') return;
+      const s = StorageService.getSettings();
+      if (s.isLockEnabled && s.passcodeHash && StorageService.isSessionLocked()) {
+        setIsLocked(true);
+      }
+    }, 5000);
+
+    // Auto-lock when tab is closed, switched, or backgrounded
+    const handleVisibilityChange = () => {
+      const s = StorageService.getSettings();
+      if (!s.isLockEnabled || !s.passcodeHash) return;
+
+      if (document.visibilityState === 'hidden') {
+        if (s.autoLockMinutes === 0) {
+          StorageService.setSessionLocked(true);
+          setIsLocked(true);
+        }
+      } else if (document.visibilityState === 'visible') {
+        if (StorageService.isSessionLocked()) {
+          setIsLocked(true);
+        }
+      }
+    };
+
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+    window.addEventListener('focus', handleVisibilityChange);
+
+    return () => {
+      window.removeEventListener('mousemove', handleActivity);
+      window.removeEventListener('keydown', handleActivity);
+      window.removeEventListener('click', handleActivity);
+      window.removeEventListener('touchstart', handleActivity);
+      window.removeEventListener('scroll', handleActivity);
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+      window.removeEventListener('focus', handleVisibilityChange);
+      clearInterval(lockCheckInterval);
     };
   }, []);
 
@@ -322,6 +442,20 @@ export default function Home() {
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, []);
 
+  if (isSyncingDirectLink) {
+    return (
+      <div className="min-h-screen bg-[#090a0d] flex items-center justify-center p-4">
+        <div className="flex flex-col items-center gap-4 text-center max-w-sm">
+          <div className="w-10 h-10 rounded-full border-2 border-emerald-500/20 border-t-emerald-400 animate-spin" />
+          <div>
+            <div className="text-sm font-semibold text-white">Connecting Secure Vault...</div>
+            <div className="text-xs text-zinc-400 mt-1">Retrieving encrypted settings & records</div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   if (!mounted || !settings) {
     return (
       <div className="min-h-screen bg-[#090a0d] flex items-center justify-center">
@@ -337,6 +471,20 @@ export default function Home() {
     setIsLocked(false);
     StorageService.setSessionLocked(false, settings?.passcodeHash || undefined);
   };
+
+  if (isLocked && settings.isLockEnabled && settings.passcodeHash) {
+    return (
+      <div className="min-h-screen bg-[#090a0d] flex items-center justify-center p-4">
+        <PasscodeLockModal
+          isOpen={true}
+          savedHash={settings.passcodeHash}
+          enableBiometrics={settings.enableBiometrics}
+          biometricCredentialId={settings.biometricCredentialId}
+          onSuccess={handleUnlockSuccess}
+        />
+      </div>
+    );
+  }
 
   const handleSetPasscodeSuccess = async (newHash?: string) => {
     if (newHash) {
@@ -651,17 +799,6 @@ export default function Home() {
 
   return (
     <div className="flex min-h-screen bg-[#090a0d] text-zinc-100 font-sans w-full max-w-full overflow-x-hidden">
-      {/* Passcode Lock Screen Overlay */}
-      {isLocked && settings.isLockEnabled && settings.passcodeHash && (
-        <PasscodeLockModal
-          isOpen={true}
-          savedHash={settings.passcodeHash}
-          enableBiometrics={settings.enableBiometrics}
-          biometricCredentialId={settings.biometricCredentialId}
-          onSuccess={handleUnlockSuccess}
-        />
-      )}
-
       {/* Set Passcode Modal */}
       {showPasscodeSetup && (
         <PasscodeLockModal
