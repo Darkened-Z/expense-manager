@@ -260,7 +260,8 @@ export const FreelanceRemindersView: React.FC<FreelanceRemindersViewProps> = ({
           <div className="text-xl sm:text-2xl font-bold text-white font-mono mt-1 flex items-center gap-2 truncate">
             <span>{urgentCount}</span>
             {urgentCount > 0 && (
-              <span className="text-xs font-medium px-2 py-0.5 rounded-full bg-rose-500/15 text-rose-300 border border-rose-500/20 shrink-0">
+              <span className="text-xs font-medium text-rose-400 shrink-0 flex items-center gap-1.5">
+                <span className="w-1.5 h-1.5 rounded-full bg-rose-400 animate-pulse" />
                 {overdueList.length} Overdue
               </span>
             )}
@@ -305,8 +306,8 @@ export const FreelanceRemindersView: React.FC<FreelanceRemindersViewProps> = ({
             >
               <span>Needs Attention</span>
               {urgentCount > 0 && (
-                <span className="w-4 h-4 rounded-full bg-rose-500/30 text-rose-300 font-bold text-[10px] flex items-center justify-center border border-rose-500/40">
-                  {urgentCount}
+                <span className="font-mono text-[11px] font-bold text-rose-400">
+                  ({urgentCount})
                 </span>
               )}
             </button>
@@ -318,8 +319,8 @@ export const FreelanceRemindersView: React.FC<FreelanceRemindersViewProps> = ({
             >
               <span>Upcoming Months</span>
               {futureActive.length > 0 && (
-                <span className="px-1.5 py-0.2 rounded-full bg-blue-500/20 text-blue-300 font-semibold text-[10px] border border-blue-500/30">
-                  {futureActive.length}
+                <span className="font-mono text-[11px] font-semibold text-sky-400">
+                  ({futureActive.length})
                 </span>
               )}
             </button>
@@ -400,16 +401,17 @@ export const FreelanceRemindersView: React.FC<FreelanceRemindersViewProps> = ({
                         )}
                         <span className="font-bold text-white text-sm group-hover:text-sky-300 transition-colors">{rem.clientName}</span>
                         {rem.invoiceNumber && (
-                          <span className="text-[10px] bg-white/5 text-zinc-400 px-2 py-0.5 rounded font-mono border border-white/5">
+                          <span className="text-[10px] text-zinc-500 font-mono">
                             #{rem.invoiceNumber}
                           </span>
                         )}
                         {rem.status === 'ended' ? (
-                          <span className="text-[10px] font-mono text-zinc-400 bg-zinc-800/80 border border-white/10 px-2 py-0.5 rounded-md font-semibold">
+                          <span className="text-[10px] font-mono text-zinc-400 font-semibold flex items-center gap-1">
+                            <span className="w-1.5 h-1.5 rounded-full bg-zinc-500" />
                             Contract Ended
                           </span>
                         ) : rem.frequency === 'monthly' ? (
-                          <span className="text-[10px] font-mono text-emerald-400 bg-emerald-500/10 border border-emerald-500/20 px-2 py-0.5 rounded-md flex items-center gap-1 font-semibold">
+                          <span className="text-[10px] font-mono text-emerald-400 flex items-center gap-1 font-semibold">
                             <Repeat className="w-3 h-3 text-emerald-400" />
                             <span>{rem.autoRenew !== false ? 'Auto-Renewing Retainer' : 'Monthly'}</span>
                           </span>
@@ -419,14 +421,21 @@ export const FreelanceRemindersView: React.FC<FreelanceRemindersViewProps> = ({
                           </span>
                         )}
                         <span
-                          className={`text-[10px] px-2 py-0.5 rounded-full font-medium uppercase tracking-wider ${
+                          className={`text-[10px] font-semibold uppercase tracking-wider flex items-center gap-1 ${
                             dueInfo.color === 'rose'
-                              ? 'bg-rose-500/15 text-rose-300 border border-rose-500/20'
+                              ? 'text-rose-400'
                               : dueInfo.color === 'emerald'
-                              ? 'bg-emerald-500/15 text-emerald-300 border border-emerald-500/20'
-                              : 'bg-white/10 text-zinc-200 border border-white/20'
+                              ? 'text-emerald-400'
+                              : 'text-zinc-300'
                           }`}
                         >
+                          <span className={`w-1.5 h-1.5 rounded-full ${
+                            dueInfo.color === 'rose'
+                              ? 'bg-rose-400'
+                              : dueInfo.color === 'emerald'
+                              ? 'bg-emerald-400'
+                              : 'bg-zinc-400'
+                          }`} />
                           {dueInfo.text}
                         </span>
                       </div>
@@ -538,7 +547,7 @@ export const FreelanceRemindersView: React.FC<FreelanceRemindersViewProps> = ({
                             </button>
                           </>
                         ) : (
-                          <div className="flex items-center gap-1 text-xs text-emerald-400 font-semibold px-3 py-1.5 rounded-xl bg-emerald-500/10 border border-emerald-500/20">
+                          <div className="flex items-center gap-1.5 text-xs text-emerald-400 font-medium py-1">
                             <CheckCircle2 className="w-3.5 h-3.5" />
                             <span>{rem.type === 'payable' ? 'Paid & Deducted' : 'Paid & Deposited'}</span>
                           </div>
@@ -794,24 +803,25 @@ export const FreelanceRemindersView: React.FC<FreelanceRemindersViewProps> = ({
                   <div>
                     <div className="flex items-center gap-2 flex-wrap">
                       <h3 className="font-bold text-white text-lg sm:text-xl">{selectedReminderDetails.clientName}</h3>
-                      <span className={`text-[10px] font-mono uppercase px-2 py-0.5 rounded-md border ${
+                      <span className={`text-[10px] font-mono uppercase font-semibold ${
                         selectedReminderDetails.type === 'payable'
-                          ? 'bg-rose-500/10 text-rose-300 border-rose-500/20'
-                          : 'bg-emerald-500/10 text-emerald-300 border-emerald-500/20'
+                          ? 'text-rose-400'
+                          : 'text-emerald-400'
                       }`}>
                         {selectedReminderDetails.type === 'payable' ? 'Payable Contract' : 'Receivable Contract'}
                       </span>
                       {selectedReminderDetails.status === 'ended' ? (
-                        <span className="text-[10px] font-mono text-zinc-400 bg-zinc-800/80 border border-white/10 px-2 py-0.5 rounded-md font-semibold">
+                        <span className="text-[10px] font-mono text-zinc-400 font-semibold flex items-center gap-1">
+                          <span className="w-1.5 h-1.5 rounded-full bg-zinc-500" />
                           Contract Ended
                         </span>
                       ) : selectedReminderDetails.frequency === 'monthly' ? (
-                        <span className="text-[10px] font-mono text-emerald-400 bg-emerald-500/10 border border-emerald-500/20 px-2 py-0.5 rounded-md flex items-center gap-1 font-semibold">
+                        <span className="text-[10px] font-mono text-emerald-400 flex items-center gap-1 font-semibold">
                           <Repeat className="w-3 h-3 text-emerald-400" />
                           <span>Monthly Retainer</span>
                         </span>
                       ) : (
-                        <span className="text-[10px] font-mono text-zinc-400 bg-white/5 border border-white/10 px-2 py-0.5 rounded-md">
+                        <span className="text-[10px] font-mono text-zinc-400">
                           One-Time
                         </span>
                       )}

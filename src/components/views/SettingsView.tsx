@@ -375,11 +375,12 @@ create policy "Allow anon access" on expense_sync
                 <div className="text-xs font-semibold text-white flex items-center gap-2">
                   <span>Biometric Unlock (Touch ID / Face ID / Windows Hello)</span>
                   {biometricsAvailable ? (
-                    <span className="text-[10px] bg-emerald-500/15 text-emerald-400 border border-emerald-500/25 px-2 py-0.5 rounded-full font-medium">
+                    <span className="text-[10px] text-emerald-400 font-medium flex items-center gap-1">
+                      <span className="w-1.5 h-1.5 rounded-full bg-emerald-400" />
                       Sensor Ready
                     </span>
                   ) : (
-                    <span className="text-[10px] bg-zinc-800 text-zinc-400 px-2 py-0.5 rounded-full font-medium">
+                    <span className="text-[10px] text-zinc-500 font-medium">
                       Browser Not Supported
                     </span>
                   )}
@@ -611,7 +612,8 @@ create policy "Allow anon access" on expense_sync
             <div>
               <div className="flex items-center gap-2">
                 <h3 className="font-bold text-white text-sm">Cross-Device Cloud Sync (Supabase)</h3>
-                <span className="text-[10px] bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 px-2 py-0.5 rounded-full font-medium">
+                <span className="text-[10px] text-emerald-400 font-medium flex items-center gap-1">
+                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-400" />
                   Real-time
                 </span>
               </div>
@@ -622,12 +624,13 @@ create policy "Allow anon access" on expense_sync
           </div>
           <div className="flex items-center gap-2 self-start sm:self-auto">
             {isConfigured ? (
-              <span className="inline-flex items-center gap-1.5 text-xs font-medium text-emerald-400 bg-emerald-500/10 border border-emerald-500/20 px-3 py-1 rounded-full">
+              <span className="inline-flex items-center gap-1.5 text-xs font-medium text-emerald-400">
                 <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
                 <span>Auto-Sync Active</span>
               </span>
             ) : (
-              <span className="inline-flex items-center gap-1.5 text-xs font-medium text-zinc-400 bg-white/5 border border-white/5 px-3 py-1 rounded-full">
+              <span className="inline-flex items-center gap-1.5 text-xs font-medium text-zinc-400">
+                <span className="w-1.5 h-1.5 rounded-full bg-zinc-500" />
                 <span>Local Mode (Offline)</span>
               </span>
             )}

@@ -181,11 +181,12 @@ export const WalletsView: React.FC<WalletsViewProps> = ({
 
                   <div className="flex items-center gap-1.5" onClick={(e) => e.stopPropagation()}>
                     {Math.round(w.balance) === 0 && (
-                      <span className="text-[10px] font-mono font-medium px-2 py-0.5 rounded-md bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
+                      <span className="text-[10px] font-mono font-medium text-emerald-400 flex items-center gap-1">
+                        <span className="w-1.5 h-1.5 rounded-full bg-emerald-400" />
                         Empty
                       </span>
                     )}
-                    <span className="text-xs font-mono font-bold px-2 py-0.5 rounded-md bg-white/5 text-zinc-300 border border-white/5">
+                    <span className="text-xs font-mono font-bold text-zinc-400">
                       {w.currency}
                     </span>
                     {onUpdateWallet && (
@@ -551,7 +552,7 @@ export const WalletsView: React.FC<WalletsViewProps> = ({
                   </div>
                   <h3 className="font-bold text-white text-base">Remove {walletToDelete.name}?</h3>
 
-                  <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-xs font-mono my-2.5 font-medium">
+                  <div className="inline-flex items-center gap-1.5 text-emerald-400 text-xs font-mono my-2.5 font-medium">
                     <CheckCircle2 className="w-3.5 h-3.5" />
                     <span>Balance Empty (Rs. 0)</span>
                   </div>
@@ -637,7 +638,7 @@ export const WalletsView: React.FC<WalletsViewProps> = ({
                   <div>
                     <div className="flex items-center gap-2">
                       <h3 className="font-bold text-white text-lg sm:text-xl">{selectedWalletDetails.name}</h3>
-                      <span className="text-[10px] font-mono uppercase px-2 py-0.5 rounded-md bg-white/5 text-zinc-400 border border-white/5">
+                      <span className="text-[10px] font-mono uppercase text-zinc-400">
                         {selectedWalletDetails.type}
                       </span>
                     </div>

@@ -100,8 +100,8 @@ export const TransactionsLedger: React.FC<TransactionsLedgerProps> = ({
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
             <h3 className="text-sm font-semibold text-white tracking-wide">Transaction Ledger</h3>
-            <span className="text-[10px] bg-white/5 text-zinc-400 px-2 py-0.5 rounded-full font-mono">
-              {filteredTransactions.length}
+            <span className="text-xs text-zinc-500 font-mono">
+              ({filteredTransactions.length})
             </span>
           </div>
 
@@ -371,17 +371,17 @@ export const TransactionsLedger: React.FC<TransactionsLedgerProps> = ({
                     </td>
                     <td className="py-3.5 px-4 font-mono">
                       {isTransfer && destWallet ? (
-                        <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-sky-500/10 text-sky-300 border border-sky-500/20 font-semibold text-[11px]">
+                        <span className="inline-flex items-center gap-1 text-sky-400 font-medium text-xs">
                           {wallet?.name || 'Account'} → {destWallet.name}
                         </span>
                       ) : isDeposit ? (
-                        <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-purple-500/10 text-purple-300 border border-purple-500/20 font-semibold text-[11px]">
-                          <span className="w-1.5 h-1.5 rounded-full bg-purple-400" />
+                        <span className="inline-flex items-center gap-1.5 text-purple-300 font-medium text-xs">
+                          <span className="w-1.5 h-1.5 rounded-full bg-purple-400 shrink-0" />
                           Personal Inflow
                         </span>
                       ) : (
-                        <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-white/5 text-zinc-300 border border-white/5 font-semibold text-[11px]">
-                          <span className="w-1.5 h-1.5 rounded-full bg-zinc-400" />
+                        <span className="inline-flex items-center gap-1.5 text-zinc-400 text-xs">
+                          <span className="w-1.5 h-1.5 rounded-full bg-zinc-500 shrink-0" />
                           {tx.token || wallet?.currency || 'PKR'}
                         </span>
                       )}
@@ -426,10 +426,10 @@ export const TransactionsLedger: React.FC<TransactionsLedgerProps> = ({
                               e.stopPropagation();
                               setViewingReceiptTx(tx);
                             }}
-                            className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-md bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-400 border border-emerald-500/20 text-[10px] font-medium transition-colors cursor-pointer"
+                            className="inline-flex items-center gap-1 text-[11px] text-emerald-400 hover:text-emerald-300 font-medium transition-colors cursor-pointer"
                             title="View attached receipt / bill photo"
                           >
-                            <Camera className="w-3 h-3" />
+                            <Camera className="w-3.5 h-3.5" />
                             <span>Receipt</span>
                           </button>
                         )}
@@ -439,7 +439,7 @@ export const TransactionsLedger: React.FC<TransactionsLedgerProps> = ({
                       )}
                     </td>
                     <td className="py-3.5 px-4">
-                      <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-[11px] font-medium bg-white/[0.04] text-zinc-300 border border-white/[0.08]">
+                      <span className="inline-flex items-center gap-1.5 text-xs font-medium text-zinc-300">
                         <span className="w-1.5 h-1.5 rounded-full shrink-0" style={{ backgroundColor: cat?.color || '#71717a' }} />
                         <IconComponent className="w-3.5 h-3.5 text-zinc-400 shrink-0" />
                         <span className="truncate max-w-[140px]">{cat?.name || 'Uncategorized'}</span>

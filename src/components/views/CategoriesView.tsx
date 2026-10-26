@@ -232,7 +232,8 @@ export const CategoriesView: React.FC<CategoriesViewProps> = ({
                         <div className="flex items-center gap-1.5 flex-wrap">
                           <h4 className="font-bold text-white text-sm truncate group-hover:text-sky-300 transition-colors">{cat.name}</h4>
                           {cat.id.startsWith('cat-payable-') && (
-                            <span className="text-[9px] font-mono font-medium px-1.5 py-0.5 rounded bg-rose-500/10 text-rose-300 border border-rose-500/20 shrink-0">
+                            <span className="text-[9px] font-mono font-medium text-rose-400 shrink-0 flex items-center gap-1">
+                              <span className="w-1 h-1 rounded-full bg-rose-400" />
                               Monthly Payable
                             </span>
                           )}
@@ -336,7 +337,7 @@ export const CategoriesView: React.FC<CategoriesViewProps> = ({
                               setEditingBudgetCat(cat);
                               setEditBudgetAmount('');
                             }}
-                            className="text-[10px] text-sky-400 hover:text-sky-300 font-semibold px-2 py-0.5 rounded-lg bg-sky-500/10 hover:bg-sky-500/20 border border-sky-500/20 transition-colors cursor-pointer"
+                            className="text-[10px] text-sky-400 hover:text-sky-300 font-semibold transition-colors cursor-pointer hover:underline"
                           >
                             + Set Monthly Cap
                           </button>
@@ -513,11 +514,12 @@ export const CategoriesView: React.FC<CategoriesViewProps> = ({
                   <div>
                     <div className="flex items-center gap-2 flex-wrap">
                       <h3 className="font-bold text-white text-lg sm:text-xl">{selectedCategoryDetails.name}</h3>
-                      <span className="text-[10px] font-mono uppercase px-2 py-0.5 rounded-md bg-white/5 text-zinc-400 border border-white/5">
+                      <span className="text-[10px] font-mono uppercase text-zinc-400">
                         {selectedCategoryDetails.type === 'expense' ? 'Expense Category' : 'Income Source'}
                       </span>
                       {selectedCategoryDetails.id.startsWith('cat-payable-') && (
-                        <span className="text-[10px] font-mono font-medium px-2 py-0.5 rounded-md bg-rose-500/10 text-rose-300 border border-rose-500/20">
+                        <span className="text-[10px] font-mono font-medium text-rose-400 flex items-center gap-1">
+                          <span className="w-1.5 h-1.5 rounded-full bg-rose-400" />
                           Auto-Linked Monthly Payable
                         </span>
                       )}

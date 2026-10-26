@@ -325,12 +325,12 @@ export const Header: React.FC<HeaderProps> = ({
                           <div className="text-right">
                             <div className="font-mono font-bold text-white">{currencySymbol}{formatCash(rem.amount)}</div>
                             <span
-                              className={`text-[9px] uppercase px-1.5 py-0.5 rounded font-bold ${
+                              className={`text-[9px] uppercase font-bold ${
                                 rem.status === 'overdue'
-                                  ? 'bg-rose-500/15 text-rose-300 border border-rose-500/20'
+                                  ? 'text-rose-400'
                                   : rem.status === 'due_today'
-                                  ? 'bg-white/10 text-zinc-200 border border-white/10'
-                                  : 'bg-zinc-800 text-zinc-400'
+                                  ? 'text-amber-400'
+                                  : 'text-zinc-400'
                               }`}
                             >
                               {rem.status === 'overdue' ? 'Overdue' : rem.status === 'due_today' ? 'Due Today' : `Due ${formatDateDDMMYYYY(rem.dueDate)}`}
@@ -345,7 +345,7 @@ export const Header: React.FC<HeaderProps> = ({
                                 href={getWhatsAppReminderUrl(rem, settings)}
                                 target="_blank"
                                 rel="noopener noreferrer"
-                                className="text-[10px] bg-emerald-500/15 hover:bg-emerald-500/25 border border-emerald-500/30 text-emerald-300 font-semibold px-2 py-0.5 rounded transition-colors flex items-center gap-1"
+                                className="text-[10px] bg-white/5 hover:bg-white/10 text-emerald-400 font-semibold px-2 py-1 rounded-lg transition-colors flex items-center gap-1"
                                 title="Send WhatsApp payment reminder"
                               >
                                 <MessageSquare className="w-2.5 h-2.5" />
@@ -357,7 +357,7 @@ export const Header: React.FC<HeaderProps> = ({
                                 onCollectReminder(rem.id);
                                 setShowNotifications(false);
                               }}
-                              className="text-[10px] bg-zinc-200 hover:bg-white text-zinc-950 font-semibold px-2 py-0.5 rounded transition-colors"
+                              className="text-[10px] bg-white/10 hover:bg-white/20 text-white font-semibold px-2 py-1 rounded-lg transition-colors"
                             >
                               Mark Paid
                             </button>

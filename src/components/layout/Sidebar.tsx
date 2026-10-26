@@ -150,13 +150,13 @@ export const Sidebar: React.FC<SidebarProps> = ({
                 </div>
                 {item.badge && (
                   <span
-                    className={`text-[10px] px-2 py-0.5 rounded-full font-semibold ${
+                    className={`text-[11px] font-mono font-semibold ${
                       item.badgeType === 'danger'
-                        ? 'bg-rose-500/15 text-rose-300 border border-rose-500/20'
-                        : 'bg-white/10 text-zinc-300 border border-white/10'
+                        ? 'text-rose-400'
+                        : 'text-zinc-400'
                     }`}
                   >
-                    {item.badge}
+                    ({item.badge})
                   </span>
                 )}
               </button>

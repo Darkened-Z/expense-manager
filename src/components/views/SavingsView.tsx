@@ -289,11 +289,11 @@ export const SavingsView: React.FC<SavingsViewProps> = ({
                         {currencySymbol}{formatCash(item.amount)}
                       </div>
                       {wal ? (
-                        <span className="text-[10px] font-mono text-zinc-400 bg-white/5 px-2 py-0.5 rounded border border-white/5">
+                        <span className="text-[10px] font-mono text-zinc-400">
                           {wal.name}
                         </span>
                       ) : (
-                        <span className="text-[10px] font-mono text-zinc-500 bg-white/[0.02] px-2 py-0.5 rounded">
+                        <span className="text-[10px] font-mono text-zinc-500">
                           Cash Aside
                         </span>
                       )}
@@ -366,7 +366,7 @@ export const SavingsView: React.FC<SavingsViewProps> = ({
                 <div>
                   <div className="flex items-start justify-between">
                     <div>
-                      <span className="text-[10px] uppercase font-mono tracking-wider px-2 py-0.5 rounded bg-white/5 text-zinc-400 border border-white/5">
+                      <span className="text-[10px] uppercase font-mono tracking-wider text-zinc-400 font-semibold">
                         {goal.category}
                       </span>
                       <h4 className="font-bold text-white text-sm mt-2 group-hover:text-sky-300 transition-colors">{goal.title}</h4>
@@ -772,7 +772,7 @@ export const SavingsView: React.FC<SavingsViewProps> = ({
                   <div>
                     <div className="flex items-center gap-2 flex-wrap">
                       <h3 className="font-bold text-white text-lg sm:text-xl">{selectedGoalDetails.title}</h3>
-                      <span className="text-[10px] font-mono uppercase px-2 py-0.5 rounded-md bg-white/5 text-zinc-400 border border-white/5">
+                      <span className="text-[10px] font-mono uppercase text-zinc-400">
                         {selectedGoalDetails.category}
                       </span>
                     </div>

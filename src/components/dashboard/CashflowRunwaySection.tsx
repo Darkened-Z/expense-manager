@@ -36,21 +36,21 @@ export const CashflowRunwaySection: React.FC<CashflowRunwaySectionProps> = ({
     switch (forecast.healthStatus) {
       case 'critical':
         return (
-          <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-rose-500/15 text-rose-400 border border-rose-500/25">
+          <span className="inline-flex items-center gap-1.5 text-xs font-semibold text-rose-400">
             <AlertTriangle className="w-3.5 h-3.5" />
             <span>Critical Runway (&lt; 30 Days)</span>
           </span>
         );
       case 'warning':
         return (
-          <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-amber-500/15 text-amber-400 border border-amber-500/25">
+          <span className="inline-flex items-center gap-1.5 text-xs font-semibold text-amber-400">
             <Clock className="w-3.5 h-3.5" />
             <span>Moderate Runway (30–60 Days)</span>
           </span>
         );
       case 'solid':
         return (
-          <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-blue-500/15 text-blue-400 border border-blue-500/25">
+          <span className="inline-flex items-center gap-1.5 text-xs font-semibold text-blue-400">
             <ShieldCheck className="w-3.5 h-3.5" />
             <span>Solid Runway (60–90 Days)</span>
           </span>
@@ -58,7 +58,7 @@ export const CashflowRunwaySection: React.FC<CashflowRunwaySectionProps> = ({
       case 'abundant':
       default:
         return (
-          <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-emerald-500/15 text-emerald-400 border border-emerald-500/25">
+          <span className="inline-flex items-center gap-1.5 text-xs font-semibold text-emerald-400">
             <Sparkles className="w-3.5 h-3.5" />
             <span>Abundant Runway (90+ Days)</span>
           </span>
@@ -83,7 +83,8 @@ export const CashflowRunwaySection: React.FC<CashflowRunwaySectionProps> = ({
           <div>
             <div className="flex items-center gap-2 flex-wrap">
               <h3 className="font-bold text-white text-base">Cashflow Forecast & Runway</h3>
-              <span className="text-[10px] bg-white/10 text-zinc-300 px-2 py-0.5 rounded-full font-mono font-medium">
+              <span className="text-[10px] text-zinc-400 font-mono font-medium flex items-center gap-1">
+                <span className="w-1.5 h-1.5 rounded-full bg-emerald-400" />
                 Predictive
               </span>
             </div>

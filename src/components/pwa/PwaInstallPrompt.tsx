@@ -68,7 +68,8 @@ export const PwaInstallPrompt: React.FC = () => {
         <div>
           <h4 className="text-xs sm:text-sm font-bold text-white flex items-center gap-2">
             <span>Install App on PC / Phone</span>
-            <span className="text-[10px] bg-white/5 text-zinc-300 px-2 py-0.5 rounded font-mono border border-white/10">
+            <span className="text-[10px] text-zinc-400 font-mono flex items-center gap-1">
+              <span className="w-1.5 h-1.5 rounded-full bg-emerald-400" />
               Offline Ready
             </span>
           </h4>
