@@ -21,7 +21,30 @@ const getFallbackKey = () =>
     ? atob('c2Jfc2VjcmV0XzBiZjM0bm9ralkyd01zZ1AtVjJhY1FfU0ZLVEswMkQ=')
     : Buffer.from('c2Jfc2VjcmV0XzBiZjM0bm9ralkyd01zZ1AtVjJhY1FfU0ZLVEswMkQ=', 'base64').toString('utf-8');
 
+export function isLocalDatabaseMode(): boolean {
+  if (typeof window === 'undefined') return false;
+  return localStorage.getItem('expense_manager_local_mode') === 'true';
+}
+
+export function setLocalDatabaseMode(enabled: boolean): void {
+  if (typeof window === 'undefined') return;
+  if (enabled) {
+    localStorage.setItem('expense_manager_local_mode', 'true');
+    localStorage.removeItem(STORAGE_KEYS.SUPABASE_URL);
+    localStorage.removeItem(STORAGE_KEYS.SUPABASE_KEY);
+    localStorage.removeItem(STORAGE_KEYS.SUPABASE_VAULT_ID);
+  } else {
+    localStorage.removeItem('expense_manager_local_mode');
+  }
+  cachedClient = null;
+  cachedConfigKey = '';
+}
+
 export function getSupabaseConfig(): SupabaseConfig {
+  if (isLocalDatabaseMode()) {
+    return { url: '', anonKey: '', vaultId: 'local' };
+  }
+
   const fallbackKey = getFallbackKey();
 
   if (typeof window === 'undefined') {
@@ -63,6 +86,7 @@ export function saveSupabaseConfig(config: Partial<SupabaseConfig>): void {
 }
 
 export function isSupabaseConfigured(): boolean {
+  if (isLocalDatabaseMode()) return false;
   const config = getSupabaseConfig();
   return Boolean(config.url && config.anonKey && config.url.startsWith('http'));
 }

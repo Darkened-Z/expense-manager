@@ -40,6 +40,8 @@ import {
   testSupabaseConnection,
   pushToSupabase,
   pullFromSupabase,
+  isLocalDatabaseMode,
+  setLocalDatabaseMode,
 } from '@/lib/supabase';
 
 interface SettingsViewProps {
@@ -80,6 +82,8 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
   const [showSqlGuide, setShowSqlGuide] = useState(false);
   const [copiedSql, setCopiedSql] = useState(false);
   const [copiedMobileLink, setCopiedMobileLink] = useState(false);
+  const [copiedFriendLink, setCopiedFriendLink] = useState(false);
+  const [isLocalMode, setIsLocalMode] = useState(false);
   const [syncStatus, setSyncStatus] = useState<string | null>(null);
   const [isSyncing, setIsSyncing] = useState(false);
   const [lastSyncTime, setLastSyncTime] = useState<string | null>(null);
@@ -100,6 +104,7 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
 
   React.useEffect(() => {
     if (typeof window !== 'undefined') {
+      setIsLocalMode(isLocalDatabaseMode());
       const config = getSupabaseConfig();
       setSupabaseUrl(config.url);
       setSupabaseAnonKey(config.anonKey);
@@ -271,6 +276,14 @@ create policy "Allow anon access" on expense_sync
     navigator.clipboard.writeText(url);
     setCopiedMobileLink(true);
     setTimeout(() => setCopiedMobileLink(false), 3000);
+  };
+
+  const handleCopyFriendLocalLink = () => {
+    if (typeof window === 'undefined') return;
+    const url = `${window.location.origin}/?mode=local`;
+    navigator.clipboard.writeText(url);
+    setCopiedFriendLink(true);
+    setTimeout(() => setCopiedFriendLink(false), 3000);
   };
 
   const handleSaveProfile = (e: React.FormEvent) => {
@@ -761,6 +774,16 @@ create policy "Allow anon access" on expense_sync
                 >
                   {copiedMobileLink ? <Check className="w-3.5 h-3.5 text-emerald-400" /> : <Smartphone className="w-3.5 h-3.5 text-zinc-400" />}
                   <span>{copiedMobileLink ? 'Copied Mobile Setup Link!' : 'Copy Mobile Setup Link'}</span>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={handleCopyFriendLocalLink}
+                  className="px-3.5 py-2.5 rounded-xl text-xs font-medium text-emerald-400 bg-emerald-500/10 hover:bg-emerald-500/20 border border-emerald-500/25 transition-colors cursor-pointer flex items-center gap-1.5"
+                  title="Copy link for a friend to use on their phone with a 100% private local database (not connected to your database)"
+                >
+                  {copiedFriendLink ? <Check className="w-3.5 h-3.5 text-emerald-400" /> : <Smartphone className="w-3.5 h-3.5 text-emerald-400" />}
+                  <span>{copiedFriendLink ? 'Copied Friend Standalone Link!' : 'Share with Friend (Local DB Only)'}</span>
                 </button>
               </>
             )}

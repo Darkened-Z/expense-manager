@@ -30,6 +30,8 @@ import {
   pullFromSupabase,
   subscribeToSupabaseUpdates,
   saveSupabaseConfig,
+  isLocalDatabaseMode,
+  setLocalDatabaseMode,
 } from '@/lib/supabase';
 
 export default function Home() {
@@ -76,6 +78,7 @@ export default function Home() {
 
   // Helper function to push local data to both server /api/sync and Supabase
   const pushAllSync = async (snapshot: any) => {
+    if (isLocalDatabaseMode()) return;
     try {
       await fetch('/api/sync', {
         method: 'POST',
@@ -113,14 +116,33 @@ export default function Home() {
   // Load state on mount & initialize Supabase Auto-Sync
   useEffect(() => {
     const initApp = async () => {
-      // Check if mobile setup URL parameters exist (?supabase_url=...&supabase_key=...&vault=...)
+      // Check if standalone local mode or mobile setup URL parameters exist
       if (typeof window !== 'undefined') {
         const urlParams = new URLSearchParams(window.location.search);
+        const modeParam = urlParams.get('mode');
+        const standaloneParam = urlParams.get('standalone');
+        const localParam = urlParams.get('local');
+
+        // Standalone Local Mode for friends or phone-only databases
+        if (modeParam === 'local' || standaloneParam === 'true' || localParam === 'true') {
+          setLocalDatabaseMode(true);
+          window.history.replaceState({}, document.title, window.location.pathname);
+          StorageService.syncFutureCollectedDates();
+          reloadAllFromStorage();
+          setIsLocked(false);
+          setMounted(true);
+          setCloudSyncStatus('offline');
+          return;
+        }
+
         const urlParam = urlParams.get('supabase_url');
         const keyParam = urlParams.get('supabase_key');
         const vaultParam = urlParams.get('vault');
 
         if (urlParam && keyParam) {
+          // Explicitly disable local mode when connecting to a remote cloud vault
+          setLocalDatabaseMode(false);
+
           // Immediately enforce locked state for direct sync links
           StorageService.setSessionLocked(true);
           setIsLocked(true);
@@ -186,7 +208,7 @@ export default function Home() {
     initApp();
 
     // Auto-fetch server config so mobile & all client devices connect instantly with 0 manual steps
-    if (!isSupabaseConfigured()) {
+    if (!isLocalDatabaseMode() && !isSupabaseConfigured()) {
       fetch('/api/sync/config')
         .then((res) => res.json())
         .then((cfg) => {
@@ -199,6 +221,10 @@ export default function Home() {
 
     // Two-way synchronization engine
     const syncWithCloudAndServer = async () => {
+      if (isLocalDatabaseMode()) {
+        setCloudSyncStatus('offline');
+        return;
+      }
       const localSnapshot = StorageService.getFullSnapshot();
       const hasLocalData =
         (localSnapshot.transactions?.length || 0) > 0 ||
@@ -379,6 +405,10 @@ export default function Home() {
     }
     if (isImportingRef.current) {
       isImportingRef.current = false;
+      return;
+    }
+    if (isLocalDatabaseMode()) {
+      setCloudSyncStatus('offline');
       return;
     }
 
