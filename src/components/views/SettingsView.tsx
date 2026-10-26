@@ -64,6 +64,7 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
   const [userEmail, setUserEmail] = useState(settings.userEmail);
   const [currencySymbol, setCurrencySymbol] = useState(settings.currencySymbol);
   const [currencyCode, setCurrencyCode] = useState(settings.currencyCode);
+  const [bankPayoutDetails, setBankPayoutDetails] = useState(settings.bankPayoutDetails || '');
   const [savedSuccess, setSavedSuccess] = useState(false);
 
   // Supabase Cloud Sync state
@@ -209,6 +210,7 @@ create policy "Allow anon access" on expense_sync
       userEmail: userEmail.trim(),
       currencySymbol,
       currencyCode: currencyCode.toUpperCase(),
+      bankPayoutDetails: bankPayoutDetails.trim(),
     });
     setSavedSuccess(true);
     setTimeout(() => setSavedSuccess(false), 2500);
@@ -369,6 +371,22 @@ create policy "Allow anon access" on expense_sync
                 className="w-full bg-[#171922] text-white text-xs font-mono uppercase px-3.5 py-2.5 rounded-xl border border-white/10 focus:outline-none focus:border-white/30"
               />
             </div>
+          </div>
+
+          <div>
+            <label className="block text-[11px] font-medium text-zinc-400 mb-1">
+              Bank / Raast Payout Details (Included in 1-Click WhatsApp Reminders)
+            </label>
+            <textarea
+              rows={2}
+              placeholder="e.g. Meezan Bank • IBAN: PK36MEZN00... • Raast ID: 03001234567 • Title: Muhammad Z"
+              value={bankPayoutDetails}
+              onChange={(e) => setBankPayoutDetails(e.target.value)}
+              className="w-full bg-[#171922] text-white text-xs px-3.5 py-2.5 rounded-xl border border-white/10 focus:outline-none focus:border-white/30"
+            />
+            <span className="text-[10px] text-zinc-500 mt-0.5 block">
+              These details are automatically attached when you click &quot;WhatsApp&quot; on any pending client invoice.
+            </span>
           </div>
 
           <div className="flex items-center justify-end gap-3 pt-2">

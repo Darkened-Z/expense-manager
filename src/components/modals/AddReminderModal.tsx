@@ -425,7 +425,7 @@ export const AddReminderModal: React.FC<AddReminderModalProps> = ({
             </div>
             <div>
               <label className="block text-[11px] font-medium text-zinc-400 mb-1">
-                {type === 'payable' ? 'Payee Phone (Optional)' : 'Client Phone (Optional)'}
+                {type === 'payable' ? 'Payee Phone (Optional)' : 'Client WhatsApp / Phone (Optional)'}
               </label>
               <input
                 type="text"

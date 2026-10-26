@@ -38,6 +38,8 @@ export const DEFAULT_SETTINGS: AppSettings = {
   currencyCode: 'PKR',
   enableAudioChime: true,
   enableBrowserNotifications: true,
+  bankPayoutDetails: '',
+  whatsappReminderTemplate: '',
 };
 
 // Clean slate: completely empty initial goals, reminders, and transactions

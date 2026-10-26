@@ -20,16 +20,20 @@ import {
   Filter,
   Repeat,
   Pencil,
+  MessageSquare,
 } from 'lucide-react';
 import confetti from 'canvas-confetti';
-import { PaymentReminder, Wallet } from '@/types';
+import { PaymentReminder, Wallet, AppSettings } from '@/types';
 import { formatDateDDMMYYYY, formatCash } from '@/lib/formatters';
+import { getWhatsAppReminderUrl } from '@/lib/whatsapp';
+import { DEFAULT_SETTINGS } from '@/lib/constants';
 
 interface FreelanceRemindersViewProps {
   mode?: 'receivables' | 'payables';
   reminders: PaymentReminder[];
   wallets: Wallet[];
   currencySymbol: string;
+  settings?: AppSettings;
   onOpenAddModal: () => void;
   onEditReminder: (reminder: PaymentReminder) => void;
   onCollectReminder: (id: string, walletId: string) => void;
@@ -41,6 +45,7 @@ export const FreelanceRemindersView: React.FC<FreelanceRemindersViewProps> = ({
   reminders,
   wallets,
   currencySymbol,
+  settings = DEFAULT_SETTINGS,
   onOpenAddModal,
   onEditReminder,
   onCollectReminder,
@@ -451,6 +456,20 @@ export const FreelanceRemindersView: React.FC<FreelanceRemindersViewProps> = ({
                               <CheckCircle2 className="w-3.5 h-3.5 stroke-[2.5]" />
                               <span>{rem.type === 'payable' ? 'Mark as Paid' : 'Collect Payment'}</span>
                             </button>
+
+                            {/* 1-Click WhatsApp Payment Reminder */}
+                            {rem.type !== 'payable' && (
+                              <a
+                                href={getWhatsAppReminderUrl(rem, settings)}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="bg-emerald-500/15 hover:bg-emerald-500/25 border border-emerald-500/30 text-emerald-400 text-xs px-2.5 py-2 rounded-xl flex items-center gap-1.5 transition-colors cursor-pointer"
+                                title="Send WhatsApp payment reminder"
+                              >
+                                <MessageSquare className="w-3.5 h-3.5" />
+                                <span className="hidden sm:inline font-medium">WhatsApp</span>
+                              </a>
+                            )}
 
                             {/* Copy Reminder Message */}
                             <button

@@ -677,6 +677,7 @@ export default function Home() {
           setDateRange={setDateRange}
           reminders={reminders}
           currencySymbol={settings.currencySymbol}
+          settings={settings}
           cloudSyncStatus={cloudSyncStatus}
           onOpenSyncSettings={() => setCurrentTab('settings')}
           onOpenAddTx={(type) => setAddTxModalType(type)}
@@ -775,6 +776,7 @@ export default function Home() {
                 reminders={reminders}
                 wallets={wallets}
                 currencySymbol={settings.currencySymbol}
+                settings={settings}
                 onOpenAddModal={() => {
                   setEditingReminder(null);
                   setAddReminderType('receivable');
@@ -799,6 +801,7 @@ export default function Home() {
                 reminders={reminders}
                 wallets={wallets}
                 currencySymbol={settings.currencySymbol}
+                settings={settings}
                 onOpenAddModal={() => {
                   setEditingReminder(null);
                   setAddReminderType('payable');

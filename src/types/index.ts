@@ -95,4 +95,6 @@ export interface AppSettings {
   currencyCode: string;
   enableAudioChime: boolean;
   enableBrowserNotifications: boolean;
+  bankPayoutDetails?: string;
+  whatsappReminderTemplate?: string;
 }

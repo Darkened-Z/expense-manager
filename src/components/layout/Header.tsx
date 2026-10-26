@@ -12,14 +12,17 @@ import {
   ArrowUpRight,
   ArrowDownLeft,
   ArrowLeftRight,
+  MessageSquare,
   X,
   Menu,
   Cloud,
   CloudOff,
   RefreshCw,
 } from 'lucide-react';
-import { Wallet, PaymentReminder } from '@/types';
+import { Wallet, PaymentReminder, AppSettings } from '@/types';
 import { formatDateDDMMYYYY, formatCash } from '@/lib/formatters';
+import { getWhatsAppReminderUrl } from '@/lib/whatsapp';
+import { DEFAULT_SETTINGS } from '@/lib/constants';
 
 interface HeaderProps {
   currentTab: string;
@@ -30,6 +33,7 @@ interface HeaderProps {
   setDateRange: (range: any) => void;
   reminders: PaymentReminder[];
   currencySymbol?: string;
+  settings?: AppSettings;
   cloudSyncStatus?: 'synced' | 'syncing' | 'offline' | 'unconfigured' | 'error';
   onOpenSyncSettings?: () => void;
   onOpenAddTx: (type: 'expense' | 'income') => void;
@@ -49,6 +53,7 @@ export const Header: React.FC<HeaderProps> = ({
   setDateRange,
   reminders,
   currencySymbol = 'Rs. ',
+  settings = DEFAULT_SETTINGS,
   cloudSyncStatus = 'unconfigured',
   onOpenSyncSettings,
   onOpenAddTx,
@@ -334,15 +339,29 @@ export const Header: React.FC<HeaderProps> = ({
                         </div>
                         <div className="mt-2 flex items-center justify-between pt-1 border-t border-white/5">
                           <span className="text-[10px] text-zinc-500">Due: {formatDateDDMMYYYY(rem.dueDate)}</span>
-                          <button
-                            onClick={() => {
-                              onCollectReminder(rem.id);
-                              setShowNotifications(false);
-                            }}
-                            className="text-[10px] bg-zinc-200 hover:bg-white text-zinc-950 font-semibold px-2 py-0.5 rounded transition-colors"
-                          >
-                            Mark Paid
-                          </button>
+                          <div className="flex items-center gap-1.5">
+                            {rem.type !== 'payable' && (
+                              <a
+                                href={getWhatsAppReminderUrl(rem, settings)}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="text-[10px] bg-emerald-500/15 hover:bg-emerald-500/25 border border-emerald-500/30 text-emerald-300 font-semibold px-2 py-0.5 rounded transition-colors flex items-center gap-1"
+                                title="Send WhatsApp payment reminder"
+                              >
+                                <MessageSquare className="w-2.5 h-2.5" />
+                                <span>WhatsApp</span>
+                              </a>
+                            )}
+                            <button
+                              onClick={() => {
+                                onCollectReminder(rem.id);
+                                setShowNotifications(false);
+                              }}
+                              className="text-[10px] bg-zinc-200 hover:bg-white text-zinc-950 font-semibold px-2 py-0.5 rounded transition-colors"
+                            >
+                              Mark Paid
+                            </button>
+                          </div>
                         </div>
                       </div>
                     ))
