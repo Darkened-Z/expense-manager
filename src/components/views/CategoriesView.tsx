@@ -21,9 +21,13 @@ import {
   AlertTriangle,
   X,
   ArrowLeftRight,
+  History,
+  ArrowDownLeft,
+  ArrowUpRight,
+  CheckCircle2,
 } from 'lucide-react';
 import { Category, Transaction } from '@/types';
-import { formatCash } from '@/lib/formatters';
+import { formatCash, formatDateDDMMYYYY } from '@/lib/formatters';
 
 interface CategoriesViewProps {
   categories: Category[];
@@ -44,6 +48,7 @@ export const CategoriesView: React.FC<CategoriesViewProps> = ({
 }) => {
   const [activeTab, setActiveTab] = useState<'expense' | 'income'>('expense');
   const [showAddModal, setShowAddModal] = useState(false);
+  const [selectedCategoryDetails, setSelectedCategoryDetails] = useState<Category | null>(null);
   const [name, setName] = useState('');
   const [color, setColor] = useState('#64748b');
   const [budgetLimit, setBudgetLimit] = useState('');
@@ -207,13 +212,14 @@ export const CategoriesView: React.FC<CategoriesViewProps> = ({
             return (
               <div
                 key={cat.id}
-                className="bg-[#12141a] border border-white/5 hover:border-white/10 rounded-2xl p-5 shadow-xl transition-all flex flex-col justify-between"
+                onClick={() => setSelectedCategoryDetails(cat)}
+                className="bg-[#12141a] border border-white/5 hover:border-white/20 rounded-2xl p-5 shadow-xl transition-all flex flex-col justify-between cursor-pointer group"
               >
                 <div>
                   <div className="flex items-start justify-between gap-2">
                     <div className="flex items-center gap-3 min-w-0">
                       <div
-                        className="p-3 rounded-2xl border transition-colors shrink-0"
+                        className="p-3 rounded-2xl border transition-colors shrink-0 group-hover:scale-105"
                         style={{
                           backgroundColor: `${cat.color}15`,
                           borderColor: `${cat.color}35`,
@@ -224,7 +230,7 @@ export const CategoriesView: React.FC<CategoriesViewProps> = ({
                       </div>
                       <div className="min-w-0">
                         <div className="flex items-center gap-1.5 flex-wrap">
-                          <h4 className="font-bold text-white text-sm truncate">{cat.name}</h4>
+                          <h4 className="font-bold text-white text-sm truncate group-hover:text-sky-300 transition-colors">{cat.name}</h4>
                           {cat.id.startsWith('cat-payable-') && (
                             <span className="text-[9px] font-mono font-medium px-1.5 py-0.5 rounded bg-rose-500/10 text-rose-300 border border-rose-500/20 shrink-0">
                               Monthly Payable
@@ -248,12 +254,13 @@ export const CategoriesView: React.FC<CategoriesViewProps> = ({
                       </div>
 
                       <button
-                        onClick={() => {
+                        onClick={(e) => {
+                          e.stopPropagation();
                           if (confirm(`Delete "${cat.name}"?`)) {
                             onDeleteCategory(cat.id);
                           }
                         }}
-                        className="p-1.5 text-zinc-600 hover:text-rose-400 hover:bg-rose-500/10 rounded-lg transition-colors -mr-1"
+                        className="p-1.5 text-zinc-600 hover:text-rose-400 hover:bg-rose-500/10 rounded-lg transition-colors -mr-1 cursor-pointer"
                         title={`Delete ${cat.name}`}
                       >
                         <Trash2 className="w-3.5 h-3.5" />
@@ -291,11 +298,12 @@ export const CategoriesView: React.FC<CategoriesViewProps> = ({
                             </span>
                             {onUpdateCategory && (
                               <button
-                                onClick={() => {
+                                onClick={(e) => {
+                                  e.stopPropagation();
                                   setEditingBudgetCat(cat);
                                   setEditBudgetAmount(limit.toString());
                                 }}
-                                className="p-1 text-zinc-500 hover:text-white rounded transition-colors"
+                                className="p-1 text-zinc-500 hover:text-white rounded transition-colors cursor-pointer"
                                 title="Edit monthly budget cap"
                               >
                                 <Pencil className="w-3 h-3" />
@@ -323,11 +331,12 @@ export const CategoriesView: React.FC<CategoriesViewProps> = ({
                         <span className="text-[11px] text-zinc-500 font-mono">No budget cap set</span>
                         {onUpdateCategory && (
                           <button
-                            onClick={() => {
+                            onClick={(e) => {
+                              e.stopPropagation();
                               setEditingBudgetCat(cat);
                               setEditBudgetAmount('');
                             }}
-                            className="text-[10px] text-sky-400 hover:text-sky-300 font-semibold px-2 py-0.5 rounded-lg bg-sky-500/10 hover:bg-sky-500/20 border border-sky-500/20 transition-colors"
+                            className="text-[10px] text-sky-400 hover:text-sky-300 font-semibold px-2 py-0.5 rounded-lg bg-sky-500/10 hover:bg-sky-500/20 border border-sky-500/20 transition-colors cursor-pointer"
                           >
                             + Set Monthly Cap
                           </button>
@@ -336,6 +345,11 @@ export const CategoriesView: React.FC<CategoriesViewProps> = ({
                     )}
                   </div>
                 )}
+
+                <div className="mt-3 pt-2.5 border-t border-white/[0.03] flex items-center justify-between text-[11px] text-zinc-500 group-hover:text-zinc-300 transition-colors">
+                  <span>View category transactions</span>
+                  <span className="group-hover:translate-x-0.5 transition-transform font-mono text-sky-400">→</span>
+                </div>
               </div>
             );
           })}
@@ -468,6 +482,227 @@ export const CategoriesView: React.FC<CategoriesViewProps> = ({
           </div>
         </div>
       )}
+      {/* Category Breakdown & Full Transaction History Modal */}
+      {selectedCategoryDetails && (() => {
+        const catTxs = transactions
+          .filter((t) => t.categoryId === selectedCategoryDetails.id)
+          .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+
+        const monthlySpent = categoryMonthlySpent[selectedCategoryDetails.id] || 0;
+        const allTimeTotal = categoryAllTimeTotals[selectedCategoryDetails.id] || 0;
+        const limit = selectedCategoryDetails.budgetLimit || 0;
+        const percent = limit > 0 ? Math.min((monthlySpent / limit) * 100, 100) : 0;
+        const Icon = getCategoryIcon(selectedCategoryDetails.icon);
+
+        return (
+          <div className="fixed inset-0 bg-black/85 backdrop-blur-md z-50 flex items-center justify-center p-3 sm:p-4">
+            <div className="bg-[#12141a] border border-white/10 rounded-3xl w-full max-w-2xl max-h-[90vh] flex flex-col shadow-2xl animate-in fade-in zoom-in-95 overflow-hidden">
+              {/* Header */}
+              <div className="p-5 sm:p-6 border-b border-white/10 flex items-start justify-between bg-white/[0.02]">
+                <div className="flex items-center gap-3.5">
+                  <div
+                    className="p-3.5 rounded-2xl border"
+                    style={{
+                      backgroundColor: `${selectedCategoryDetails.color}15`,
+                      borderColor: `${selectedCategoryDetails.color}35`,
+                      color: selectedCategoryDetails.color,
+                    }}
+                  >
+                    <Icon className="w-6 h-6" />
+                  </div>
+                  <div>
+                    <div className="flex items-center gap-2 flex-wrap">
+                      <h3 className="font-bold text-white text-lg sm:text-xl">{selectedCategoryDetails.name}</h3>
+                      <span className="text-[10px] font-mono uppercase px-2 py-0.5 rounded-md bg-white/5 text-zinc-400 border border-white/5">
+                        {selectedCategoryDetails.type === 'expense' ? 'Expense Category' : 'Income Source'}
+                      </span>
+                      {selectedCategoryDetails.id.startsWith('cat-payable-') && (
+                        <span className="text-[10px] font-mono font-medium px-2 py-0.5 rounded-md bg-rose-500/10 text-rose-300 border border-rose-500/20">
+                          Auto-Linked Monthly Payable
+                        </span>
+                      )}
+                    </div>
+                    <p className="text-xs text-zinc-400 mt-0.5">
+                      {catTxs.length} total recorded transaction{catTxs.length === 1 ? '' : 's'}
+                    </p>
+                  </div>
+                </div>
+
+                <button
+                  type="button"
+                  onClick={() => setSelectedCategoryDetails(null)}
+                  className="p-2 text-zinc-400 hover:text-white rounded-xl bg-white/5 hover:bg-white/10 transition-colors"
+                >
+                  <X className="w-4 h-4" />
+                </button>
+              </div>
+
+              {/* Financial Metrics */}
+              <div className="p-5 sm:p-6 border-b border-white/10 grid grid-cols-3 gap-3 bg-[#0d0f14]/50">
+                {selectedCategoryDetails.type === 'expense' ? (
+                  <>
+                    <div className="bg-[#171922] p-3.5 rounded-2xl border border-white/5">
+                      <span className="text-[10px] font-medium text-zinc-400 uppercase tracking-wider block">Spent This Month</span>
+                      <div className="text-lg sm:text-xl font-bold font-mono text-white mt-1">
+                        {currencySymbol}{formatCash(monthlySpent)}
+                      </div>
+                    </div>
+
+                    <div className="bg-[#171922] p-3.5 rounded-2xl border border-white/5">
+                      <span className="text-[10px] font-medium text-zinc-400 uppercase tracking-wider block">Monthly Budget Cap</span>
+                      <div className="text-lg sm:text-xl font-bold font-mono text-zinc-200 mt-1">
+                        {limit > 0 ? `${currencySymbol}${formatCash(limit)}` : 'None'}
+                      </div>
+                      {limit > 0 && (
+                        <span className={`text-[10px] font-mono font-semibold block mt-0.5 ${
+                          monthlySpent > limit ? 'text-rose-400' : 'text-emerald-400'
+                        }`}>
+                          {percent.toFixed(0)}% used
+                        </span>
+                      )}
+                    </div>
+
+                    <div className="bg-[#171922] p-3.5 rounded-2xl border border-white/5">
+                      <span className="text-[10px] font-medium text-zinc-400 uppercase tracking-wider block">All-Time Outflow</span>
+                      <div className="text-lg sm:text-xl font-bold font-mono text-rose-400 mt-1">
+                        {currencySymbol}{formatCash(allTimeTotal)}
+                      </div>
+                    </div>
+                  </>
+                ) : (
+                  <>
+                    <div className="bg-[#171922] p-3.5 rounded-2xl border border-white/5">
+                      <span className="text-[10px] font-medium text-zinc-400 uppercase tracking-wider block">Total Revenue</span>
+                      <div className="text-lg sm:text-xl font-bold font-mono text-emerald-400 mt-1">
+                        +{currencySymbol}{formatCash(allTimeTotal)}
+                      </div>
+                    </div>
+
+                    <div className="bg-[#171922] p-3.5 rounded-2xl border border-white/5">
+                      <span className="text-[10px] font-medium text-zinc-400 uppercase tracking-wider block">Total Records</span>
+                      <div className="text-lg sm:text-xl font-bold font-mono text-white mt-1">
+                        {catTxs.length}
+                      </div>
+                    </div>
+
+                    <div className="bg-[#171922] p-3.5 rounded-2xl border border-white/5">
+                      <span className="text-[10px] font-medium text-zinc-400 uppercase tracking-wider block">Average Payout</span>
+                      <div className="text-lg sm:text-xl font-bold font-mono text-sky-400 mt-1">
+                        {catTxs.length > 0
+                          ? `${currencySymbol}${formatCash(Math.round(allTimeTotal / catTxs.length))}`
+                          : `${currencySymbol}0`}
+                      </div>
+                    </div>
+                  </>
+                )}
+              </div>
+
+              {/* Action Bar */}
+              <div className="px-5 py-3 border-b border-white/5 flex items-center justify-between gap-2 bg-[#12141a]">
+                <div className="text-xs text-zinc-400 font-medium">
+                  Associated Transactions <span className="font-mono text-zinc-500">({catTxs.length})</span>
+                </div>
+                {selectedCategoryDetails.type === 'expense' && onUpdateCategory && (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      const c = selectedCategoryDetails;
+                      setSelectedCategoryDetails(null);
+                      setEditingBudgetCat(c);
+                      setEditBudgetAmount((c.budgetLimit || 0) > 0 ? (c.budgetLimit || 0).toString() : '');
+                    }}
+                    className="px-3 py-1.5 text-xs rounded-xl bg-white/5 hover:bg-white/10 text-zinc-300 border border-white/10 flex items-center gap-1.5 transition-colors font-medium"
+                  >
+                    <Pencil className="w-3 h-3" />
+                    <span>{limit > 0 ? 'Edit Budget Cap' : 'Set Budget Cap'}</span>
+                  </button>
+                )}
+              </div>
+
+              {/* Transactions List */}
+              <div className="p-4 sm:p-6 overflow-y-auto max-h-[45vh] space-y-2">
+                {catTxs.length === 0 ? (
+                  <div className="text-center py-12 text-zinc-500">
+                    <History className="w-8 h-8 mx-auto mb-2 opacity-40" />
+                    <p className="text-xs">No transactions recorded under this category yet.</p>
+                  </div>
+                ) : (
+                  catTxs.map((tx) => {
+                    const isCredit = tx.type === 'income' || tx.type === 'deposit';
+
+                    return (
+                      <div
+                        key={tx.id}
+                        className="p-3 bg-[#171922] hover:bg-[#1a1e29] border border-white/5 rounded-2xl flex items-center justify-between gap-3 transition-colors"
+                      >
+                        <div className="flex items-center gap-3 min-w-0">
+                          <div
+                            className={`p-2 rounded-xl border flex-shrink-0 ${
+                              isCredit
+                                ? 'bg-emerald-500/10 border-emerald-500/20 text-emerald-400'
+                                : 'bg-rose-500/10 border-rose-500/20 text-rose-400'
+                            }`}
+                          >
+                            {isCredit ? (
+                              <ArrowDownLeft className="w-4 h-4" />
+                            ) : (
+                              <ArrowUpRight className="w-4 h-4" />
+                            )}
+                          </div>
+                          <div className="min-w-0">
+                            <div className="text-xs font-semibold text-white truncate">
+                              {tx.title}
+                            </div>
+                            <div className="flex items-center gap-2 mt-0.5 text-[11px] text-zinc-500">
+                              <span>{formatDateDDMMYYYY(tx.date)}</span>
+                              {tx.clientOrPayer && (
+                                <>
+                                  <span>•</span>
+                                  <span className="truncate">{tx.clientOrPayer}</span>
+                                </>
+                              )}
+                              {tx.notes && (
+                                <>
+                                  <span>•</span>
+                                  <span className="truncate text-zinc-400 italic">&ldquo;{tx.notes}&rdquo;</span>
+                                </>
+                              )}
+                            </div>
+                          </div>
+                        </div>
+
+                        <div className="text-right flex-shrink-0">
+                          <div
+                            className={`text-xs font-mono font-bold ${
+                              isCredit ? 'text-emerald-400' : 'text-zinc-200'
+                            }`}
+                          >
+                            {isCredit ? '+' : '-'}{currencySymbol}{formatCash(tx.amount)}
+                          </div>
+                          <div className="text-[10px] font-mono text-zinc-500 uppercase">
+                            {tx.type.replace('_', ' ')}
+                          </div>
+                        </div>
+                      </div>
+                    );
+                  })
+                )}
+              </div>
+
+              {/* Modal Footer */}
+              <div className="p-4 border-t border-white/5 bg-[#0d0f14]/50 flex justify-end">
+                <button
+                  type="button"
+                  onClick={() => setSelectedCategoryDetails(null)}
+                  className="px-5 py-2 rounded-xl text-xs font-semibold text-white bg-white/10 hover:bg-white/15 transition-colors"
+                >
+                  Done
+                </button>
+              </div>
+            </div>
+          </div>
+        );
+      })()}
     </div>
   );
 };

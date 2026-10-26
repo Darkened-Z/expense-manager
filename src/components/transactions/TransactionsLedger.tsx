@@ -212,11 +212,15 @@ export const TransactionsLedger: React.FC<TransactionsLedgerProps> = ({
             const destWallet = tx.toWalletId ? wallets.find((w) => w.id === tx.toWalletId) : null;
 
             return (
-              <div key={tx.id} className="p-3.5 hover:bg-white/[0.02] transition-colors flex items-center justify-between gap-3">
+              <div
+                key={tx.id}
+                onClick={() => onEditTransaction && onEditTransaction(tx)}
+                className="p-3.5 hover:bg-white/[0.04] transition-colors flex items-center justify-between gap-3 cursor-pointer group"
+              >
                 <div className="flex items-center gap-3 min-w-0">
                   {/* Category / Icon Badge */}
                   <div
-                    className="w-9 h-9 rounded-xl flex items-center justify-center shrink-0 border"
+                    className="w-9 h-9 rounded-xl flex items-center justify-center shrink-0 border group-hover:scale-105 transition-transform"
                     style={{
                       backgroundColor: `${cat?.color || '#71717a'}18`,
                       borderColor: `${cat?.color || '#71717a'}35`,
@@ -228,7 +232,7 @@ export const TransactionsLedger: React.FC<TransactionsLedgerProps> = ({
 
                   {/* Title & Metadata */}
                   <div className="min-w-0">
-                    <div className="font-semibold text-zinc-200 text-xs truncate">{tx.title}</div>
+                    <div className="font-semibold text-zinc-200 text-xs truncate group-hover:text-white transition-colors">{tx.title}</div>
                     <div className="flex items-center gap-1.5 text-[10px] text-zinc-500 mt-0.5">
                       {isTransfer && destWallet ? (
                         <span className="text-sky-300 font-medium">
@@ -252,7 +256,10 @@ export const TransactionsLedger: React.FC<TransactionsLedgerProps> = ({
                           <span>•</span>
                           <button
                             type="button"
-                            onClick={() => setViewingReceiptTx(tx)}
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              setViewingReceiptTx(tx);
+                            }}
                             className="inline-flex items-center gap-1 text-[10px] text-emerald-400 font-medium hover:underline cursor-pointer"
                           >
                             <Camera className="w-3 h-3" />
@@ -285,7 +292,10 @@ export const TransactionsLedger: React.FC<TransactionsLedgerProps> = ({
 
                   {onEditTransaction && (
                     <button
-                      onClick={() => onEditTransaction(tx)}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        onEditTransaction(tx);
+                      }}
                       className="p-1.5 text-zinc-500 hover:text-white rounded-lg transition-colors cursor-pointer"
                       title="Edit transaction"
                     >
@@ -294,7 +304,10 @@ export const TransactionsLedger: React.FC<TransactionsLedgerProps> = ({
                   )}
 
                   <button
-                    onClick={() => onDeleteTransaction(tx.id)}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      onDeleteTransaction(tx.id);
+                    }}
                     className="p-1.5 text-zinc-600 hover:text-rose-400 rounded-lg transition-colors cursor-pointer"
                     title="Delete"
                   >
@@ -339,7 +352,11 @@ export const TransactionsLedger: React.FC<TransactionsLedgerProps> = ({
                 const destWallet = tx.toWalletId ? wallets.find((w) => w.id === tx.toWalletId) : null;
 
                 return (
-                  <tr key={tx.id} className="hover:bg-white/[0.02] transition-colors group">
+                  <tr
+                    key={tx.id}
+                    onClick={() => onEditTransaction && onEditTransaction(tx)}
+                    className="hover:bg-white/[0.04] transition-colors group cursor-pointer"
+                  >
                     <td className="py-3.5 px-5 font-mono font-bold text-sm">
                       <div className="flex flex-col">
                         <span className={isTransfer ? 'text-sky-300' : isDeposit ? 'text-purple-300' : isExpense ? 'text-zinc-200' : 'text-emerald-400'}>
@@ -401,11 +418,14 @@ export const TransactionsLedger: React.FC<TransactionsLedgerProps> = ({
                     </td>
                     <td className="py-3.5 px-4">
                       <div className="flex items-center gap-2">
-                        <span className="font-semibold text-zinc-200">{tx.title}</span>
+                        <span className="font-semibold text-zinc-200 group-hover:text-white transition-colors">{tx.title}</span>
                         {tx.attachmentUrl && (
                           <button
                             type="button"
-                            onClick={() => setViewingReceiptTx(tx)}
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              setViewingReceiptTx(tx);
+                            }}
                             className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-md bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-400 border border-emerald-500/20 text-[10px] font-medium transition-colors cursor-pointer"
                             title="View attached receipt / bill photo"
                           >
@@ -429,10 +449,13 @@ export const TransactionsLedger: React.FC<TransactionsLedgerProps> = ({
                       {formatDateTime(tx.date, tx.time)}
                     </td>
                     <td className="py-3.5 px-4 text-right">
-                      <div className="flex items-center justify-end gap-1">
+                      <div className="flex items-center justify-end gap-1" onClick={(e) => e.stopPropagation()}>
                         {onEditTransaction && (
                           <button
-                            onClick={() => onEditTransaction(tx)}
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              onEditTransaction(tx);
+                            }}
                             className="opacity-0 group-hover:opacity-100 p-1.5 text-zinc-400 hover:text-white hover:bg-white/10 rounded-lg transition-all cursor-pointer"
                             title="Edit transaction"
                           >
@@ -440,7 +463,10 @@ export const TransactionsLedger: React.FC<TransactionsLedgerProps> = ({
                           </button>
                         )}
                         <button
-                          onClick={() => onDeleteTransaction(tx.id)}
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            onDeleteTransaction(tx.id);
+                          }}
                           className="opacity-0 group-hover:opacity-100 p-1.5 text-zinc-500 hover:text-rose-400 hover:bg-rose-500/10 rounded-lg transition-all cursor-pointer"
                           title="Delete transaction"
                         >

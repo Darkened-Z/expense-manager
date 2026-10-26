@@ -1,8 +1,8 @@
 'use client';
 
 import React, { useState } from 'react';
-import { PiggyBank, Plus, TrendingUp, Target, Calendar, ArrowUpRight, ArrowDownLeft, Trash2, CheckCircle2, StickyNote, X } from 'lucide-react';
-import { SavingsGoal, Wallet, SimpleSaving } from '@/types';
+import { PiggyBank, Plus, TrendingUp, Target, Calendar, ArrowUpRight, ArrowDownLeft, Trash2, CheckCircle2, StickyNote, X, History } from 'lucide-react';
+import { SavingsGoal, Wallet, SimpleSaving, Transaction } from '@/types';
 import { formatCash, formatDateDDMMYYYY } from '@/lib/formatters';
 
 interface SavingsViewProps {
@@ -10,6 +10,7 @@ interface SavingsViewProps {
   simpleSavings?: SimpleSaving[];
   wallets: Wallet[];
   currencySymbol: string;
+  transactions?: Transaction[];
   onAddSavingsGoal: (goal: Omit<SavingsGoal, 'id'>) => void;
   onUpdateSavingsGoal: (id: string, updates: Partial<SavingsGoal>) => void;
   onDeleteSavingsGoal: (id: string) => void;
@@ -23,6 +24,7 @@ export const SavingsView: React.FC<SavingsViewProps> = ({
   simpleSavings = [],
   wallets,
   currencySymbol,
+  transactions = [],
   onAddSavingsGoal,
   onUpdateSavingsGoal,
   onDeleteSavingsGoal,
@@ -32,6 +34,8 @@ export const SavingsView: React.FC<SavingsViewProps> = ({
 }) => {
   const [showAddModal, setShowAddModal] = useState(false);
   const [showSimpleSavingModal, setShowSimpleSavingModal] = useState(false);
+  const [selectedGoalDetails, setSelectedGoalDetails] = useState<SavingsGoal | null>(null);
+  const [selectedSimpleSaving, setSelectedSimpleSaving] = useState<SimpleSaving | null>(null);
   const [depositGoal, setDepositGoal] = useState<SavingsGoal | null>(null);
   const [depositAmount, setDepositAmount] = useState('');
   const [selectedWalletId, setSelectedWalletId] = useState(wallets[0]?.id || '');
@@ -253,7 +257,8 @@ export const SavingsView: React.FC<SavingsViewProps> = ({
               return (
                 <div
                   key={item.id}
-                  className="bg-[#171922] border border-white/5 hover:border-white/10 rounded-xl p-4 flex flex-col justify-between transition-all group"
+                  onClick={() => setSelectedSimpleSaving(item)}
+                  className="bg-[#171922] border border-white/5 hover:border-white/20 rounded-xl p-4 flex flex-col justify-between transition-all group cursor-pointer"
                 >
                   <div>
                     <div className="flex items-start justify-between gap-2">
@@ -262,7 +267,10 @@ export const SavingsView: React.FC<SavingsViewProps> = ({
                       </span>
                       {onDeleteSimpleSaving && (
                         <button
-                          onClick={() => onDeleteSimpleSaving(item.id)}
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            onDeleteSimpleSaving(item.id);
+                          }}
                           className="text-zinc-600 hover:text-rose-400 p-1 transition-colors rounded cursor-pointer"
                           title="Delete saving note"
                         >
@@ -270,24 +278,31 @@ export const SavingsView: React.FC<SavingsViewProps> = ({
                         </button>
                       )}
                     </div>
-                    <p className="text-xs text-zinc-200 font-medium mt-1.5 leading-relaxed break-words">
+                    <p className="text-xs text-zinc-200 group-hover:text-white font-medium mt-1.5 leading-relaxed break-words transition-colors">
                       {item.note}
                     </p>
                   </div>
 
-                  <div className="mt-4 pt-3 border-t border-white/5 flex items-baseline justify-between">
-                    <div className="text-base font-bold font-mono text-white">
-                      {currencySymbol}{formatCash(item.amount)}
+                  <div>
+                    <div className="mt-4 pt-3 border-t border-white/5 flex items-baseline justify-between">
+                      <div className="text-base font-bold font-mono text-white">
+                        {currencySymbol}{formatCash(item.amount)}
+                      </div>
+                      {wal ? (
+                        <span className="text-[10px] font-mono text-zinc-400 bg-white/5 px-2 py-0.5 rounded border border-white/5">
+                          {wal.name}
+                        </span>
+                      ) : (
+                        <span className="text-[10px] font-mono text-zinc-500 bg-white/[0.02] px-2 py-0.5 rounded">
+                          Cash Aside
+                        </span>
+                      )}
                     </div>
-                    {wal ? (
-                      <span className="text-[10px] font-mono text-zinc-400 bg-white/5 px-2 py-0.5 rounded border border-white/5">
-                        {wal.name}
-                      </span>
-                    ) : (
-                      <span className="text-[10px] font-mono text-zinc-500 bg-white/[0.02] px-2 py-0.5 rounded">
-                        Cash Aside
-                      </span>
-                    )}
+
+                    <div className="mt-2.5 pt-2 border-t border-white/[0.03] flex items-center justify-between text-[10px] text-zinc-500 group-hover:text-zinc-300 transition-colors">
+                      <span>View details</span>
+                      <span className="group-hover:translate-x-0.5 transition-transform font-mono text-sky-400">→</span>
+                    </div>
                   </div>
                 </div>
               );
@@ -345,7 +360,8 @@ export const SavingsView: React.FC<SavingsViewProps> = ({
             return (
               <div
                 key={goal.id}
-                className="bg-[#12141a] border border-white/5 hover:border-white/10 rounded-2xl p-5 shadow-xl flex flex-col justify-between transition-all"
+                onClick={() => setSelectedGoalDetails(goal)}
+                className="bg-[#12141a] border border-white/5 hover:border-white/20 rounded-2xl p-5 shadow-xl flex flex-col justify-between transition-all cursor-pointer group"
               >
                 <div>
                   <div className="flex items-start justify-between">
@@ -353,11 +369,14 @@ export const SavingsView: React.FC<SavingsViewProps> = ({
                       <span className="text-[10px] uppercase font-mono tracking-wider px-2 py-0.5 rounded bg-white/5 text-zinc-400 border border-white/5">
                         {goal.category}
                       </span>
-                      <h4 className="font-bold text-white text-sm mt-2">{goal.title}</h4>
+                      <h4 className="font-bold text-white text-sm mt-2 group-hover:text-sky-300 transition-colors">{goal.title}</h4>
                     </div>
                     <button
-                      onClick={() => onDeleteSavingsGoal(goal.id)}
-                      className="text-zinc-600 hover:text-rose-400 transition-colors p-1"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        onDeleteSavingsGoal(goal.id);
+                      }}
+                      className="text-zinc-600 hover:text-rose-400 transition-colors p-1 cursor-pointer"
                       title="Delete goal"
                     >
                       <Trash2 className="w-3.5 h-3.5" />
@@ -404,15 +423,25 @@ export const SavingsView: React.FC<SavingsViewProps> = ({
                   )}
                 </div>
 
-                {/* Deposit Button */}
-                <div className="mt-5 pt-3 border-t border-white/5">
-                  <button
-                    onClick={() => setDepositGoal(goal)}
-                    className="w-full bg-[#181b23] hover:bg-[#20242f] text-zinc-200 border border-white/10 hover:border-white/20 py-2 rounded-xl text-xs font-semibold flex items-center justify-center gap-1.5 transition-all"
-                  >
-                    <Plus className="w-3.5 h-3.5" />
-                    <span>Deposit Funds</span>
-                  </button>
+                <div>
+                  {/* Deposit Button */}
+                  <div className="mt-5 pt-3 border-t border-white/5">
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setDepositGoal(goal);
+                      }}
+                      className="w-full bg-[#181b23] hover:bg-[#20242f] text-zinc-200 border border-white/10 hover:border-white/20 py-2 rounded-xl text-xs font-semibold flex items-center justify-center gap-1.5 transition-all cursor-pointer"
+                    >
+                      <Plus className="w-3.5 h-3.5" />
+                      <span>Deposit Funds</span>
+                    </button>
+                  </div>
+
+                  <div className="mt-2.5 pt-2 border-t border-white/[0.03] flex items-center justify-between text-[10px] text-zinc-500 group-hover:text-zinc-300 transition-colors">
+                    <span>View breakdown & pace</span>
+                    <span className="group-hover:translate-x-0.5 transition-transform font-mono text-sky-400">→</span>
+                  </div>
                 </div>
               </div>
             );
@@ -701,6 +730,274 @@ export const SavingsView: React.FC<SavingsViewProps> = ({
           </div>
         </div>
       )}
+      {/* Savings Goal Details & Pace Modal */}
+      {selectedGoalDetails && (() => {
+        const pct = Math.min((selectedGoalDetails.currentAmount / selectedGoalDetails.targetAmount) * 100, 100);
+        const remaining = Math.max(selectedGoalDetails.targetAmount - selectedGoalDetails.currentAmount, 0);
+
+        // Calculate months until target date and required monthly pace
+        let monthlyPace: number | null = null;
+        let monthsRemaining = 0;
+        if (selectedGoalDetails.targetDate) {
+          const targetD = new Date(selectedGoalDetails.targetDate + 'T00:00:00');
+          const now = new Date();
+          monthsRemaining = (targetD.getFullYear() - now.getFullYear()) * 12 + (targetD.getMonth() - now.getMonth());
+          if (monthsRemaining > 0 && remaining > 0) {
+            monthlyPace = Math.ceil(remaining / monthsRemaining);
+          }
+        }
+
+        const linkedTxs = transactions.filter(
+          (t) =>
+            t.title.toLowerCase().includes(selectedGoalDetails.title.toLowerCase()) ||
+            (t.notes && t.notes.toLowerCase().includes(selectedGoalDetails.title.toLowerCase()))
+        );
+
+        return (
+          <div className="fixed inset-0 bg-black/85 backdrop-blur-md z-50 flex items-center justify-center p-3 sm:p-4">
+            <div className="bg-[#12141a] border border-white/10 rounded-3xl w-full max-w-xl max-h-[90vh] flex flex-col shadow-2xl animate-in fade-in zoom-in-95 overflow-hidden">
+              {/* Header */}
+              <div className="p-5 sm:p-6 border-b border-white/10 flex items-start justify-between bg-white/[0.02]">
+                <div className="flex items-center gap-3.5">
+                  <div
+                    className="p-3.5 rounded-2xl border"
+                    style={{
+                      backgroundColor: `${selectedGoalDetails.color}15`,
+                      borderColor: `${selectedGoalDetails.color}35`,
+                      color: selectedGoalDetails.color,
+                    }}
+                  >
+                    <Target className="w-6 h-6" />
+                  </div>
+                  <div>
+                    <div className="flex items-center gap-2 flex-wrap">
+                      <h3 className="font-bold text-white text-lg sm:text-xl">{selectedGoalDetails.title}</h3>
+                      <span className="text-[10px] font-mono uppercase px-2 py-0.5 rounded-md bg-white/5 text-zinc-400 border border-white/5">
+                        {selectedGoalDetails.category}
+                      </span>
+                    </div>
+                    {selectedGoalDetails.targetDate && (
+                      <p className="text-xs text-zinc-400 mt-0.5 font-mono flex items-center gap-1.5">
+                        <Calendar className="w-3.5 h-3.5 text-zinc-500" />
+                        <span>Deadline: {selectedGoalDetails.targetDate}</span>
+                      </p>
+                    )}
+                  </div>
+                </div>
+
+                <button
+                  type="button"
+                  onClick={() => setSelectedGoalDetails(null)}
+                  className="p-2 text-zinc-400 hover:text-white rounded-xl bg-white/5 hover:bg-white/10 transition-colors cursor-pointer"
+                >
+                  <X className="w-4 h-4" />
+                </button>
+              </div>
+
+              {/* Progress & Financial Overview */}
+              <div className="p-5 sm:p-6 border-b border-white/10 grid grid-cols-3 gap-3 bg-[#0d0f14]/50">
+                <div className="bg-[#171922] p-3.5 rounded-2xl border border-white/5">
+                  <span className="text-[10px] font-medium text-zinc-400 uppercase tracking-wider block">Current Saved</span>
+                  <div className="text-lg sm:text-xl font-bold font-mono text-white mt-1">
+                    {currencySymbol}{formatCash(selectedGoalDetails.currentAmount)}
+                  </div>
+                  <span className="text-[10px] font-mono text-emerald-400 font-semibold block mt-0.5">
+                    {pct.toFixed(0)}% funded
+                  </span>
+                </div>
+
+                <div className="bg-[#171922] p-3.5 rounded-2xl border border-white/5">
+                  <span className="text-[10px] font-medium text-zinc-400 uppercase tracking-wider block">Target Goal</span>
+                  <div className="text-lg sm:text-xl font-bold font-mono text-zinc-200 mt-1">
+                    {currencySymbol}{formatCash(selectedGoalDetails.targetAmount)}
+                  </div>
+                </div>
+
+                <div className="bg-[#171922] p-3.5 rounded-2xl border border-white/5">
+                  <span className="text-[10px] font-medium text-zinc-400 uppercase tracking-wider block">Remaining</span>
+                  <div className="text-lg sm:text-xl font-bold font-mono text-amber-300 mt-1">
+                    {currencySymbol}{formatCash(remaining)}
+                  </div>
+                </div>
+              </div>
+
+              {/* Detailed Progress Bar & Pace Banner */}
+              <div className="p-5 sm:p-6 border-b border-white/10 space-y-4">
+                <div>
+                  <div className="flex items-center justify-between text-xs mb-1.5 font-mono">
+                    <span className="text-zinc-400">{pct.toFixed(1)}% of goal reached</span>
+                    <span className="text-zinc-300 font-semibold">{currencySymbol}{formatCash(remaining)} to go</span>
+                  </div>
+                  <div className="w-full h-3 bg-white/5 rounded-full overflow-hidden p-0.5 border border-white/5">
+                    <div
+                      className="h-full rounded-full transition-all duration-500 shadow-sm"
+                      style={{
+                        width: `${pct}%`,
+                        backgroundColor: selectedGoalDetails.color,
+                      }}
+                    />
+                  </div>
+                </div>
+
+                {monthlyPace !== null && (
+                  <div className="p-3.5 rounded-2xl bg-sky-500/10 border border-sky-500/20 flex items-center justify-between">
+                    <div>
+                      <div className="text-xs font-semibold text-sky-300 flex items-center gap-1.5">
+                        <TrendingUp className="w-4 h-4 text-sky-400" />
+                        <span>Required Savings Pace</span>
+                      </div>
+                      <p className="text-[11px] text-zinc-400 mt-0.5">
+                        Save monthly over {monthsRemaining} remaining month{monthsRemaining === 1 ? '' : 's'}
+                      </p>
+                    </div>
+                    <div className="text-right">
+                      <div className="text-base font-bold font-mono text-sky-300">
+                        {currencySymbol}{formatCash(monthlyPace)}/mo
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                {linkedTxs.length > 0 && (
+                  <div>
+                    <div className="text-xs text-zinc-400 font-medium mb-2">
+                      Recent Linked Transactions ({linkedTxs.length})
+                    </div>
+                    <div className="space-y-1.5 max-h-32 overflow-y-auto">
+                      {linkedTxs.map((tx) => (
+                        <div key={tx.id} className="p-2.5 bg-[#171922] border border-white/5 rounded-xl flex items-center justify-between text-xs">
+                          <div>
+                            <div className="font-semibold text-white">{tx.title}</div>
+                            <div className="text-[10px] text-zinc-500 font-mono">{formatDateDDMMYYYY(tx.date)}</div>
+                          </div>
+                          <div className="font-mono font-bold text-white">
+                            {currencySymbol}{formatCash(tx.amount)}
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
+
+              {/* Modal Footer / Actions */}
+              <div className="p-4 border-t border-white/5 bg-[#0d0f14]/50 flex items-center justify-between gap-2">
+                <button
+                  type="button"
+                  onClick={() => {
+                    const g = selectedGoalDetails;
+                    setSelectedGoalDetails(null);
+                    onDeleteSavingsGoal(g.id);
+                  }}
+                  className="px-3.5 py-2 rounded-xl text-xs font-semibold text-rose-400 hover:text-rose-300 hover:bg-rose-500/10 transition-colors flex items-center gap-1.5 cursor-pointer"
+                >
+                  <Trash2 className="w-3.5 h-3.5" />
+                  <span>Delete Goal</span>
+                </button>
+
+                <div className="flex items-center gap-2">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      const g = selectedGoalDetails;
+                      setSelectedGoalDetails(null);
+                      setDepositGoal(g);
+                    }}
+                    className="px-4 py-2 rounded-xl text-xs font-semibold text-zinc-950 bg-white hover:bg-zinc-200 transition-colors flex items-center gap-1.5 cursor-pointer shadow-sm"
+                  >
+                    <Plus className="w-3.5 h-3.5" />
+                    <span>Deposit Funds</span>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setSelectedGoalDetails(null)}
+                    className="px-4 py-2 rounded-xl text-xs font-semibold text-zinc-400 hover:text-white bg-white/5 hover:bg-white/10 transition-colors cursor-pointer"
+                  >
+                    Close
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        );
+      })()}
+
+      {/* Simple Saving Details Modal */}
+      {selectedSimpleSaving && (() => {
+        const wal = wallets.find((w) => w.id === selectedSimpleSaving.walletId);
+
+        return (
+          <div className="fixed inset-0 bg-black/85 backdrop-blur-md z-50 flex items-center justify-center p-3 sm:p-4">
+            <div className="bg-[#12141a] border border-white/10 rounded-3xl w-full max-w-md p-6 shadow-2xl animate-in fade-in zoom-in-95">
+              <div className="flex items-start justify-between pb-4 border-b border-white/10">
+                <div className="flex items-center gap-3">
+                  <div className="p-3 rounded-2xl bg-amber-400/10 border border-amber-400/20 text-amber-400">
+                    <StickyNote className="w-5 h-5" />
+                  </div>
+                  <div>
+                    <h3 className="font-bold text-white text-base">Simple Saving Note</h3>
+                    <p className="text-[11px] font-mono text-zinc-400 mt-0.5">
+                      Recorded on {formatDateDDMMYYYY(selectedSimpleSaving.date)}
+                    </p>
+                  </div>
+                </div>
+
+                <button
+                  type="button"
+                  onClick={() => setSelectedSimpleSaving(null)}
+                  className="p-1.5 text-zinc-400 hover:text-white rounded-lg bg-white/5 transition-colors cursor-pointer"
+                >
+                  <X className="w-4 h-4" />
+                </button>
+              </div>
+
+              <div className="my-5 space-y-4">
+                <div className="bg-[#171922] p-4 rounded-2xl border border-white/5 text-center">
+                  <div className="text-[11px] font-mono uppercase tracking-wider text-zinc-400">
+                    Amount Stashed
+                  </div>
+                  <div className="text-3xl font-bold font-mono text-emerald-400 mt-1">
+                    {currencySymbol}{formatCash(selectedSimpleSaving.amount)}
+                  </div>
+                  <div className="text-xs text-zinc-400 mt-1 font-mono">
+                    Account: {wal ? wal.name : 'Physical Cash Aside'}
+                  </div>
+                </div>
+
+                <div className="p-3.5 bg-[#171922] border border-white/5 rounded-2xl">
+                  <div className="text-[11px] font-medium text-zinc-400 mb-1">Note / Description</div>
+                  <p className="text-sm text-zinc-200 leading-relaxed break-words font-medium">
+                    {selectedSimpleSaving.note}
+                  </p>
+                </div>
+              </div>
+
+              <div className="pt-4 border-t border-white/5 flex items-center justify-between">
+                {onDeleteSimpleSaving && (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      onDeleteSimpleSaving(selectedSimpleSaving.id);
+                      setSelectedSimpleSaving(null);
+                    }}
+                    className="px-3.5 py-2 rounded-xl text-xs font-semibold text-rose-400 hover:text-rose-300 hover:bg-rose-500/10 transition-colors flex items-center gap-1.5 cursor-pointer"
+                  >
+                    <Trash2 className="w-3.5 h-3.5" />
+                    <span>Delete</span>
+                  </button>
+                )}
+                <button
+                  type="button"
+                  onClick={() => setSelectedSimpleSaving(null)}
+                  className="ml-auto px-5 py-2 rounded-xl text-xs font-semibold text-white bg-white/10 hover:bg-white/15 transition-colors cursor-pointer"
+                >
+                  Done
+                </button>
+              </div>
+            </div>
+          </div>
+        );
+      })()}
     </div>
   );
 };

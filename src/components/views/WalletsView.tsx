@@ -15,9 +15,14 @@ import {
   AlertCircle,
   CheckCircle2,
   X,
+  TrendingUp,
+  TrendingDown,
+  ArrowDownLeft,
+  ArrowUpRight,
+  History,
 } from 'lucide-react';
 import { Wallet, Transaction } from '@/types';
-import { formatCash } from '@/lib/formatters';
+import { formatCash, formatDateDDMMYYYY } from '@/lib/formatters';
 
 interface WalletsViewProps {
   wallets: Wallet[];
@@ -41,6 +46,7 @@ export const WalletsView: React.FC<WalletsViewProps> = ({
   onOpenTransfer,
 }) => {
   const [showAddModal, setShowAddModal] = useState(false);
+  const [selectedWalletDetails, setSelectedWalletDetails] = useState<Wallet | null>(null);
   const [walletToDelete, setWalletToDelete] = useState<Wallet | null>(null);
   const [deleteError, setDeleteError] = useState<string | null>(null);
   const [editingWallet, setEditingWallet] = useState<Wallet | null>(null);
@@ -156,68 +162,80 @@ export const WalletsView: React.FC<WalletsViewProps> = ({
           return (
             <div
               key={w.id}
-              className="bg-[#12141a] border border-white/5 hover:border-white/10 rounded-2xl p-5 shadow-xl transition-all"
+              onClick={() => setSelectedWalletDetails(w)}
+              className="bg-[#12141a] border border-white/5 hover:border-white/20 rounded-2xl p-5 shadow-xl transition-all cursor-pointer group flex flex-col justify-between"
             >
-              <div className="flex items-start justify-between">
-                <div className="flex items-center gap-3">
-                  <div className="p-3 rounded-2xl bg-white/5 border border-white/5 text-zinc-300">
-                    <Icon className="w-5 h-5" />
+              <div>
+                <div className="flex items-start justify-between">
+                  <div className="flex items-center gap-3">
+                    <div className="p-3 rounded-2xl bg-white/5 border border-white/5 text-zinc-300 group-hover:border-white/15 transition-colors">
+                      <Icon className="w-5 h-5" />
+                    </div>
+                    <div>
+                      <h4 className="font-bold text-white text-sm group-hover:text-sky-300 transition-colors">{w.name}</h4>
+                      <span className="text-[10px] font-mono text-zinc-500 uppercase">
+                        {w.type} • {w.accountNumber || 'Primary'}
+                      </span>
+                    </div>
                   </div>
-                  <div>
-                    <h4 className="font-bold text-white text-sm">{w.name}</h4>
-                    <span className="text-[10px] font-mono text-zinc-500 uppercase">
-                      {w.type} • {w.accountNumber || 'Primary'}
+
+                  <div className="flex items-center gap-1.5" onClick={(e) => e.stopPropagation()}>
+                    {Math.round(w.balance) === 0 && (
+                      <span className="text-[10px] font-mono font-medium px-2 py-0.5 rounded-md bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
+                        Empty
+                      </span>
+                    )}
+                    <span className="text-xs font-mono font-bold px-2 py-0.5 rounded-md bg-white/5 text-zinc-300 border border-white/5">
+                      {w.currency}
                     </span>
+                    {onUpdateWallet && (
+                      <button
+                        type="button"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleOpenEdit(w);
+                        }}
+                        className="p-1.5 text-zinc-500 hover:text-sky-400 hover:bg-sky-500/10 rounded-lg transition-colors cursor-pointer"
+                        title={`Edit ${w.name} Info`}
+                      >
+                        <Pencil className="w-3.5 h-3.5" />
+                      </button>
+                    )}
+                    {onDeleteWallet && (
+                      <button
+                        type="button"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setDeleteError(null);
+                          setWalletToDelete(w);
+                        }}
+                        className="p-1.5 text-zinc-500 hover:text-rose-400 hover:bg-rose-500/10 rounded-lg transition-colors -mr-1 cursor-pointer"
+                        title={Math.round(w.balance) !== 0 ? `Cannot delete ${w.name}: balance is not Rs. 0` : `Remove ${w.name}`}
+                      >
+                        <Trash2 className="w-3.5 h-3.5" />
+                      </button>
+                    )}
                   </div>
                 </div>
 
-                <div className="flex items-center gap-1.5">
-                  {Math.round(w.balance) === 0 && (
-                    <span className="text-[10px] font-mono font-medium px-2 py-0.5 rounded-md bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
-                      Empty
-                    </span>
-                  )}
-                  <span className="text-xs font-mono font-bold px-2 py-0.5 rounded-md bg-white/5 text-zinc-300 border border-white/5">
-                    {w.currency}
-                  </span>
-                  {onUpdateWallet && (
-                    <button
-                      type="button"
-                      onClick={() => handleOpenEdit(w)}
-                      className="p-1.5 text-zinc-500 hover:text-sky-400 hover:bg-sky-500/10 rounded-lg transition-colors cursor-pointer"
-                      title={`Edit ${w.name} Info`}
-                    >
-                      <Pencil className="w-3.5 h-3.5" />
-                    </button>
-                  )}
-                  {onDeleteWallet && (
-                    <button
-                      type="button"
-                      onClick={() => {
-                        setDeleteError(null);
-                        setWalletToDelete(w);
-                      }}
-                      className="p-1.5 text-zinc-500 hover:text-rose-400 hover:bg-rose-500/10 rounded-lg transition-colors -mr-1"
-                      title={Math.round(w.balance) !== 0 ? `Cannot delete ${w.name}: balance is not Rs. 0` : `Remove ${w.name}`}
-                    >
-                      <Trash2 className="w-3.5 h-3.5" />
-                    </button>
-                  )}
+                <div className="mt-6 pt-4 border-t border-white/5 flex items-baseline justify-between">
+                  <div>
+                    <div className="text-[11px] text-zinc-400">Current Balance</div>
+                    <div className="text-2xl font-bold font-mono text-white mt-0.5">
+                      {w.symbol}{formatCash(w.balance)}
+                    </div>
+                  </div>
+
+                  <div className="text-right text-[11px] text-zinc-500 font-mono">
+                    <div>Spent: {w.symbol}{formatCash(spentThisMonth)}</div>
+                    <div>{walletTxs.length} transactions</div>
+                  </div>
                 </div>
               </div>
 
-              <div className="mt-6 pt-4 border-t border-white/5 flex items-baseline justify-between">
-                <div>
-                  <div className="text-[11px] text-zinc-400">Current Balance</div>
-                  <div className="text-2xl font-bold font-mono text-white mt-0.5">
-                    {w.symbol}{formatCash(w.balance)}
-                  </div>
-                </div>
-
-                <div className="text-right text-[11px] text-zinc-500 font-mono">
-                  <div>Spent: {w.symbol}{formatCash(spentThisMonth)}</div>
-                  <div>{walletTxs.length} transactions</div>
-                </div>
+              <div className="mt-3 pt-2.5 border-t border-white/[0.03] flex items-center justify-between text-[11px] text-zinc-500 group-hover:text-zinc-300 transition-colors">
+                <span>View full transaction history</span>
+                <span className="group-hover:translate-x-0.5 transition-transform font-mono text-sky-400">→</span>
               </div>
             </div>
           );
@@ -584,6 +602,208 @@ export const WalletsView: React.FC<WalletsViewProps> = ({
           </div>
         </div>
       )}
+      {/* Account Details & Full Transaction History Modal */}
+      {selectedWalletDetails && (() => {
+        const accountTxs = transactions
+          .filter((t) => t.walletId === selectedWalletDetails.id || t.toWalletId === selectedWalletDetails.id)
+          .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+
+        const totalInflow = accountTxs
+          .filter((t) => (
+            t.type === 'income' ||
+            t.type === 'deposit' ||
+            (t.type === 'transfer' && t.toWalletId === selectedWalletDetails.id)
+          ))
+          .reduce((sum, t) => sum + t.amount, 0);
+
+        const totalOutflow = accountTxs
+          .filter((t) => (
+            t.type === 'expense' ||
+            (t.type === 'transfer' && t.walletId === selectedWalletDetails.id)
+          ))
+          .reduce((sum, t) => sum + t.amount, 0);
+
+        const Icon = getWalletIcon(selectedWalletDetails.type);
+
+        return (
+          <div className="fixed inset-0 bg-black/85 backdrop-blur-md z-50 flex items-center justify-center p-3 sm:p-4">
+            <div className="bg-[#12141a] border border-white/10 rounded-3xl w-full max-w-2xl max-h-[90vh] flex flex-col shadow-2xl animate-in fade-in zoom-in-95 overflow-hidden">
+              {/* Header */}
+              <div className="p-5 sm:p-6 border-b border-white/10 flex items-start justify-between bg-white/[0.02]">
+                <div className="flex items-center gap-3.5">
+                  <div className="p-3.5 rounded-2xl bg-white/5 border border-white/10 text-white">
+                    <Icon className="w-6 h-6" />
+                  </div>
+                  <div>
+                    <div className="flex items-center gap-2">
+                      <h3 className="font-bold text-white text-lg sm:text-xl">{selectedWalletDetails.name}</h3>
+                      <span className="text-[10px] font-mono uppercase px-2 py-0.5 rounded-md bg-white/5 text-zinc-400 border border-white/5">
+                        {selectedWalletDetails.type}
+                      </span>
+                    </div>
+                    <p className="text-xs font-mono text-zinc-400 mt-0.5">
+                      {selectedWalletDetails.accountNumber || 'Primary Account'} • {selectedWalletDetails.currency}
+                    </p>
+                  </div>
+                </div>
+
+                <button
+                  type="button"
+                  onClick={() => setSelectedWalletDetails(null)}
+                  className="p-2 text-zinc-400 hover:text-white rounded-xl bg-white/5 hover:bg-white/10 transition-colors"
+                >
+                  <X className="w-4 h-4" />
+                </button>
+              </div>
+
+              {/* Account Financial Overview Grid */}
+              <div className="p-5 sm:p-6 border-b border-white/10 grid grid-cols-3 gap-3 bg-[#0d0f14]/50">
+                <div className="bg-[#171922] p-3.5 rounded-2xl border border-white/5">
+                  <span className="text-[10px] font-medium text-zinc-400 uppercase tracking-wider block">Current Balance</span>
+                  <div className="text-lg sm:text-xl font-bold font-mono text-white mt-1">
+                    {selectedWalletDetails.symbol}{formatCash(selectedWalletDetails.balance)}
+                  </div>
+                </div>
+
+                <div className="bg-[#171922] p-3.5 rounded-2xl border border-white/5">
+                  <div className="flex items-center gap-1 text-[10px] font-medium text-emerald-400 uppercase tracking-wider">
+                    <ArrowDownLeft className="w-3 h-3" /> Total Inflow
+                  </div>
+                  <div className="text-lg sm:text-xl font-bold font-mono text-emerald-400 mt-1">
+                    +{selectedWalletDetails.symbol}{formatCash(totalInflow)}
+                  </div>
+                </div>
+
+                <div className="bg-[#171922] p-3.5 rounded-2xl border border-white/5">
+                  <div className="flex items-center gap-1 text-[10px] font-medium text-rose-400 uppercase tracking-wider">
+                    <ArrowUpRight className="w-3 h-3" /> Total Outflow
+                  </div>
+                  <div className="text-lg sm:text-xl font-bold font-mono text-rose-400 mt-1">
+                    -{selectedWalletDetails.symbol}{formatCash(totalOutflow)}
+                  </div>
+                </div>
+              </div>
+
+              {/* Quick Actions Bar */}
+              <div className="px-5 py-3 border-b border-white/5 flex items-center justify-between gap-2 bg-[#12141a]">
+                <div className="text-xs text-zinc-400 font-medium">
+                  Transaction History <span className="font-mono text-zinc-500">({accountTxs.length})</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  {onOpenTransfer && (
+                    <button
+                      type="button"
+                      onClick={() => {
+                        const target = selectedWalletDetails;
+                        setSelectedWalletDetails(null);
+                        onOpenTransfer();
+                      }}
+                      className="px-3 py-1.5 text-xs rounded-xl bg-sky-500/15 hover:bg-sky-500/25 text-sky-300 border border-sky-500/30 flex items-center gap-1.5 transition-colors font-medium"
+                    >
+                      <ArrowLeftRight className="w-3 h-3" />
+                      <span>Transfer</span>
+                    </button>
+                  )}
+                  {onUpdateWallet && (
+                    <button
+                      type="button"
+                      onClick={() => {
+                        const w = selectedWalletDetails;
+                        setSelectedWalletDetails(null);
+                        handleOpenEdit(w);
+                      }}
+                      className="px-3 py-1.5 text-xs rounded-xl bg-white/5 hover:bg-white/10 text-zinc-300 border border-white/10 flex items-center gap-1.5 transition-colors font-medium"
+                    >
+                      <Pencil className="w-3 h-3" />
+                      <span>Edit Info</span>
+                    </button>
+                  )}
+                </div>
+              </div>
+
+              {/* Transactions List */}
+              <div className="p-4 sm:p-6 overflow-y-auto max-h-[45vh] space-y-2">
+                {accountTxs.length === 0 ? (
+                  <div className="text-center py-12 text-zinc-500">
+                    <History className="w-8 h-8 mx-auto mb-2 opacity-40" />
+                    <p className="text-xs">No transactions recorded for this account yet.</p>
+                  </div>
+                ) : (
+                  accountTxs.map((tx) => {
+                    const isCredit =
+                      tx.type === 'income' ||
+                      tx.type === 'deposit' ||
+                      (tx.type === 'transfer' && tx.toWalletId === selectedWalletDetails.id);
+
+                    return (
+                      <div
+                        key={tx.id}
+                        className="p-3 bg-[#171922] hover:bg-[#1a1e29] border border-white/5 rounded-2xl flex items-center justify-between gap-3 transition-colors"
+                      >
+                        <div className="flex items-center gap-3 min-w-0">
+                          <div
+                            className={`p-2 rounded-xl border flex-shrink-0 ${
+                              isCredit
+                                ? 'bg-emerald-500/10 border-emerald-500/20 text-emerald-400'
+                                : 'bg-rose-500/10 border-rose-500/20 text-rose-400'
+                            }`}
+                          >
+                            {isCredit ? (
+                              <ArrowDownLeft className="w-4 h-4" />
+                            ) : (
+                              <ArrowUpRight className="w-4 h-4" />
+                            )}
+                          </div>
+                          <div className="min-w-0">
+                            <div className="text-xs font-semibold text-white truncate">
+                              {tx.title || (tx.type === 'transfer' ? 'Wallet Transfer' : 'Transaction')}
+                            </div>
+                            <div className="flex items-center gap-2 mt-0.5 text-[11px] text-zinc-500">
+                              <span>{formatDateDDMMYYYY(tx.date)}</span>
+                              <span>•</span>
+                              <span className="capitalize">{tx.type.replace('_', ' ')}</span>
+                              {tx.clientOrPayer && (
+                                <>
+                                  <span>•</span>
+                                  <span className="truncate">{tx.clientOrPayer}</span>
+                                </>
+                              )}
+                            </div>
+                          </div>
+                        </div>
+
+                        <div className="text-right flex-shrink-0">
+                          <div
+                            className={`text-xs font-mono font-bold ${
+                              isCredit ? 'text-emerald-400' : 'text-zinc-200'
+                            }`}
+                          >
+                            {isCredit ? '+' : '-'}{selectedWalletDetails.symbol}{formatCash(tx.amount)}
+                          </div>
+                          <div className="text-[10px] font-mono text-zinc-500 uppercase">
+                            {tx.type}
+                          </div>
+                        </div>
+                      </div>
+                    );
+                  })
+                )}
+              </div>
+
+              {/* Modal Footer */}
+              <div className="p-4 border-t border-white/5 bg-[#0d0f14]/50 flex justify-end">
+                <button
+                  type="button"
+                  onClick={() => setSelectedWalletDetails(null)}
+                  className="px-5 py-2 rounded-xl text-xs font-semibold text-white bg-white/10 hover:bg-white/15 transition-colors"
+                >
+                  Done
+                </button>
+              </div>
+            </div>
+          </div>
+        );
+      })()}
     </div>
   );
 };

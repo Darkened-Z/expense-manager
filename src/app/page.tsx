@@ -742,6 +742,7 @@ export default function Home() {
                 reminders={reminders}
                 wallets={wallets}
                 currencySymbol={settings.currencySymbol}
+                onNavigateTab={setCurrentTab}
               />
 
               {/* Financial Cashflow Graphs */}
@@ -868,6 +869,7 @@ export default function Home() {
                 simpleSavings={simpleSavings}
                 wallets={wallets}
                 currencySymbol={settings.currencySymbol}
+                transactions={transactions}
                 onAddSavingsGoal={handleAddSavingsGoal}
                 onUpdateSavingsGoal={handleUpdateSavingsGoal}
                 onDeleteSavingsGoal={handleDeleteSavingsGoal}

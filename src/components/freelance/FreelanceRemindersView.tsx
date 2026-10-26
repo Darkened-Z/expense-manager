@@ -24,6 +24,7 @@ import {
   ShieldCheck,
   CalendarX,
   X,
+  History,
 } from 'lucide-react';
 import confetti from 'canvas-confetti';
 import { PaymentReminder, Wallet, AppSettings, Transaction } from '@/types';
@@ -62,6 +63,7 @@ export const FreelanceRemindersView: React.FC<FreelanceRemindersViewProps> = ({
   const isPayablesMode = mode === 'payables';
   const [filterTab, setFilterTab] = useState<'this_month' | 'urgent' | 'upcoming' | 'collected' | 'all'>('this_month');
   const [copiedId, setCopiedId] = useState<string | null>(null);
+  const [selectedReminderDetails, setSelectedReminderDetails] = useState<PaymentReminder | null>(null);
   const [collectingReminder, setCollectingReminder] = useState<PaymentReminder | null>(null);
   const [reminderToDelete, setReminderToDelete] = useState<PaymentReminder | null>(null);
   const [targetWalletId, setTargetWalletId] = useState<string>(wallets[0]?.id || 'wal-bank');
@@ -370,14 +372,15 @@ export const FreelanceRemindersView: React.FC<FreelanceRemindersViewProps> = ({
               return (
                 <div
                   key={rem.id}
-                  className={`p-4 rounded-xl border transition-all ${
+                  onClick={() => setSelectedReminderDetails(rem)}
+                  className={`p-4 rounded-xl border transition-all cursor-pointer group ${
                     rem.status === 'overdue'
                       ? 'bg-rose-950/15 border-rose-500/30 hover:border-rose-500/50'
                       : rem.status === 'due_today'
                       ? 'bg-[#181a24] border-white/20 hover:border-white/30'
                       : isCollected
-                      ? 'bg-emerald-950/10 border-white/5 opacity-75'
-                      : 'bg-[#161821] border-white/5 hover:border-white/10'
+                      ? 'bg-emerald-950/10 border-white/5 opacity-75 hover:border-white/20'
+                      : 'bg-[#161821] border-white/5 hover:border-white/20'
                   }`}
                 >
                   <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
@@ -395,7 +398,7 @@ export const FreelanceRemindersView: React.FC<FreelanceRemindersViewProps> = ({
                             <span>To Collect</span>
                           </span>
                         )}
-                        <span className="font-bold text-white text-sm">{rem.clientName}</span>
+                        <span className="font-bold text-white text-sm group-hover:text-sky-300 transition-colors">{rem.clientName}</span>
                         {rem.invoiceNumber && (
                           <span className="text-[10px] bg-white/5 text-zinc-400 px-2 py-0.5 rounded font-mono border border-white/5">
                             #{rem.invoiceNumber}
@@ -453,7 +456,7 @@ export const FreelanceRemindersView: React.FC<FreelanceRemindersViewProps> = ({
                     </div>
 
                     {/* Right: Amount & Action Buttons */}
-                    <div className="flex flex-col sm:flex-row sm:items-center gap-3 shrink-0 self-end lg:self-center">
+                    <div className="flex flex-col sm:flex-row sm:items-center gap-3 shrink-0 self-end lg:self-center" onClick={(e) => e.stopPropagation()}>
                       <div className="text-right">
                         <div className="text-lg font-bold text-white font-mono">
                           {currencySymbol}{formatCash(rem.amount)}
@@ -475,7 +478,10 @@ export const FreelanceRemindersView: React.FC<FreelanceRemindersViewProps> = ({
                           <>
                             {/* Action Button */}
                             <button
-                              onClick={() => setCollectingReminder(rem)}
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                setCollectingReminder(rem);
+                              }}
                               className="bg-zinc-100 hover:bg-white text-zinc-950 font-semibold text-xs px-3 py-2 rounded-xl flex items-center gap-1.5 transition-colors shadow-sm cursor-pointer"
                             >
                               <CheckCircle2 className="w-3.5 h-3.5 stroke-[2.5]" />
@@ -488,6 +494,7 @@ export const FreelanceRemindersView: React.FC<FreelanceRemindersViewProps> = ({
                                 href={getWhatsAppReminderUrl(rem, settings)}
                                 target="_blank"
                                 rel="noopener noreferrer"
+                                onClick={(e) => e.stopPropagation()}
                                 className="bg-emerald-500/15 hover:bg-emerald-500/25 border border-emerald-500/30 text-emerald-400 text-xs px-2.5 py-2 rounded-xl flex items-center gap-1.5 transition-colors cursor-pointer"
                                 title="Send WhatsApp payment reminder"
                               >
@@ -498,7 +505,10 @@ export const FreelanceRemindersView: React.FC<FreelanceRemindersViewProps> = ({
 
                             {/* Copy Reminder Message */}
                             <button
-                              onClick={() => handleCopyReminderText(rem)}
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                handleCopyReminderText(rem);
+                              }}
                               className="bg-[#202430] hover:bg-[#282d3c] text-zinc-200 text-xs px-2.5 py-2 rounded-xl flex items-center gap-1 border border-white/10 transition-colors cursor-pointer"
                               title={rem.type === 'payable' ? "Copy expense reminder details" : "Copy professional reminder message to clipboard"}
                             >
@@ -517,7 +527,10 @@ export const FreelanceRemindersView: React.FC<FreelanceRemindersViewProps> = ({
 
                             {/* Download ICS */}
                             <button
-                              onClick={() => handleDownloadICS(rem)}
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                handleDownloadICS(rem);
+                              }}
                               className="p-2 text-zinc-400 hover:text-white bg-[#202430] hover:bg-[#282d3c] border border-white/10 rounded-xl transition-colors cursor-pointer"
                               title="Add reminder to Google / Apple Calendar (.ics)"
                             >
@@ -533,7 +546,10 @@ export const FreelanceRemindersView: React.FC<FreelanceRemindersViewProps> = ({
 
                         {/* Edit Button */}
                         <button
-                          onClick={() => onEditReminder(rem)}
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            onEditReminder(rem);
+                          }}
                           className="p-2 text-zinc-400 hover:text-white hover:bg-white/10 rounded-xl transition-colors cursor-pointer"
                           title={rem.type === 'payable' ? "Edit payable obligation & schedule" : "Edit invoice & schedule"}
                         >
@@ -542,7 +558,10 @@ export const FreelanceRemindersView: React.FC<FreelanceRemindersViewProps> = ({
 
                         {/* Delete / End Contract Button */}
                         <button
-                          onClick={() => setReminderToDelete(rem)}
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setReminderToDelete(rem);
+                          }}
                           className="p-2 text-zinc-500 hover:text-rose-400 hover:bg-rose-500/10 rounded-xl transition-colors cursor-pointer"
                           title={rem.frequency === 'monthly' ? "End contract or delete obligation" : "Delete obligation"}
                         >
@@ -550,6 +569,11 @@ export const FreelanceRemindersView: React.FC<FreelanceRemindersViewProps> = ({
                         </button>
                       </div>
                     </div>
+                  </div>
+
+                  <div className="mt-3 pt-2.5 border-t border-white/[0.03] flex items-center justify-between text-[11px] text-zinc-500 group-hover:text-zinc-300 transition-colors">
+                    <span>View contract & settlement history</span>
+                    <span className="group-hover:translate-x-0.5 transition-transform font-mono text-sky-400">→</span>
                   </div>
                 </div>
               );
@@ -733,6 +757,255 @@ export const FreelanceRemindersView: React.FC<FreelanceRemindersViewProps> = ({
                     <span>Delete from List</span>
                   </button>
                 </div>
+              </div>
+            </div>
+          </div>
+        );
+      })()}
+      {/* Contract & Payment History Modal */}
+      {selectedReminderDetails && (() => {
+        const dueInfo = getDueLabel(selectedReminderDetails);
+        const settledHistory = transactions
+          .filter((t) => (
+            t.reminderId === selectedReminderDetails.id ||
+            (t.clientOrPayer && t.clientOrPayer.toLowerCase() === selectedReminderDetails.clientName.toLowerCase())
+          ))
+          .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+
+        const totalSettledAmount = settledHistory.reduce((sum, t) => sum + t.amount, 0);
+
+        return (
+          <div className="fixed inset-0 bg-black/85 backdrop-blur-md z-50 flex items-center justify-center p-3 sm:p-4">
+            <div className="bg-[#12141a] border border-white/10 rounded-3xl w-full max-w-2xl max-h-[90vh] flex flex-col shadow-2xl animate-in fade-in zoom-in-95 overflow-hidden">
+              {/* Header */}
+              <div className="p-5 sm:p-6 border-b border-white/10 flex items-start justify-between bg-white/[0.02]">
+                <div className="flex items-center gap-3.5">
+                  <div className={`p-3.5 rounded-2xl border ${
+                    selectedReminderDetails.type === 'payable'
+                      ? 'bg-rose-500/10 border-rose-500/20 text-rose-400'
+                      : 'bg-emerald-500/10 border-emerald-500/20 text-emerald-400'
+                  }`}>
+                    {selectedReminderDetails.type === 'payable' ? (
+                      <ArrowDownLeft className="w-6 h-6" />
+                    ) : (
+                      <ArrowUpRight className="w-6 h-6" />
+                    )}
+                  </div>
+                  <div>
+                    <div className="flex items-center gap-2 flex-wrap">
+                      <h3 className="font-bold text-white text-lg sm:text-xl">{selectedReminderDetails.clientName}</h3>
+                      <span className={`text-[10px] font-mono uppercase px-2 py-0.5 rounded-md border ${
+                        selectedReminderDetails.type === 'payable'
+                          ? 'bg-rose-500/10 text-rose-300 border-rose-500/20'
+                          : 'bg-emerald-500/10 text-emerald-300 border-emerald-500/20'
+                      }`}>
+                        {selectedReminderDetails.type === 'payable' ? 'Payable Contract' : 'Receivable Contract'}
+                      </span>
+                      {selectedReminderDetails.status === 'ended' ? (
+                        <span className="text-[10px] font-mono text-zinc-400 bg-zinc-800/80 border border-white/10 px-2 py-0.5 rounded-md font-semibold">
+                          Contract Ended
+                        </span>
+                      ) : selectedReminderDetails.frequency === 'monthly' ? (
+                        <span className="text-[10px] font-mono text-emerald-400 bg-emerald-500/10 border border-emerald-500/20 px-2 py-0.5 rounded-md flex items-center gap-1 font-semibold">
+                          <Repeat className="w-3 h-3 text-emerald-400" />
+                          <span>Monthly Retainer</span>
+                        </span>
+                      ) : (
+                        <span className="text-[10px] font-mono text-zinc-400 bg-white/5 border border-white/10 px-2 py-0.5 rounded-md">
+                          One-Time
+                        </span>
+                      )}
+                    </div>
+                    <p className="text-xs text-zinc-300 mt-0.5 font-medium">
+                      {selectedReminderDetails.projectTitle}
+                      {selectedReminderDetails.invoiceNumber && ` • Invoice #${selectedReminderDetails.invoiceNumber}`}
+                    </p>
+                  </div>
+                </div>
+
+                <button
+                  type="button"
+                  onClick={() => setSelectedReminderDetails(null)}
+                  className="p-2 text-zinc-400 hover:text-white rounded-xl bg-white/5 hover:bg-white/10 transition-colors"
+                >
+                  <X className="w-4 h-4" />
+                </button>
+              </div>
+
+              {/* Obligation & Status Highlights */}
+              <div className="p-5 sm:p-6 border-b border-white/10 grid grid-cols-2 sm:grid-cols-3 gap-3 bg-[#0d0f14]/50">
+                <div className="bg-[#171922] p-3.5 rounded-2xl border border-white/5">
+                  <span className="text-[10px] font-medium text-zinc-400 uppercase tracking-wider block">Current Obligation</span>
+                  <div className="text-lg sm:text-xl font-bold font-mono text-white mt-1">
+                    {currencySymbol}{formatCash(selectedReminderDetails.amount)}
+                  </div>
+                  {selectedReminderDetails.originalCurrency && selectedReminderDetails.originalCurrency !== 'PKR' && selectedReminderDetails.originalAmount && (
+                    <div className="text-[10px] text-zinc-400 font-mono mt-0.5">
+                      {formatForeignAmount(selectedReminderDetails.originalAmount, selectedReminderDetails.originalCurrency)}
+                    </div>
+                  )}
+                </div>
+
+                <div className="bg-[#171922] p-3.5 rounded-2xl border border-white/5">
+                  <span className="text-[10px] font-medium text-zinc-400 uppercase tracking-wider block">Status / Due Date</span>
+                  <div className="text-sm sm:text-base font-bold font-mono text-white mt-1">
+                    {formatDateDDMMYYYY(selectedReminderDetails.dueDate)}
+                  </div>
+                  <span className={`text-[10px] font-mono font-semibold uppercase block mt-0.5 ${
+                    dueInfo.color === 'rose' ? 'text-rose-400' : dueInfo.color === 'emerald' ? 'text-emerald-400' : 'text-zinc-300'
+                  }`}>
+                    {dueInfo.text}
+                  </span>
+                </div>
+
+                <div className="bg-[#171922] p-3.5 rounded-2xl border border-white/5 col-span-2 sm:col-span-1">
+                  <span className="text-[10px] font-medium text-zinc-400 uppercase tracking-wider block">All-Time Settled</span>
+                  <div className="text-lg sm:text-xl font-bold font-mono text-emerald-400 mt-1">
+                    {currencySymbol}{formatCash(totalSettledAmount)}
+                  </div>
+                  <div className="text-[10px] text-zinc-400 mt-0.5">
+                    {settledHistory.length} ledger payment{settledHistory.length === 1 ? '' : 's'}
+                  </div>
+                </div>
+              </div>
+
+              {/* Client Contact & Notes (if available) */}
+              {(selectedReminderDetails.clientEmail || selectedReminderDetails.clientPhone || selectedReminderDetails.notes) && (
+                <div className="px-5 py-3 border-b border-white/5 bg-[#14161f] text-xs text-zinc-400 flex flex-wrap gap-4 items-center">
+                  {selectedReminderDetails.clientEmail && (
+                    <span><strong>Email:</strong> {selectedReminderDetails.clientEmail}</span>
+                  )}
+                  {selectedReminderDetails.clientPhone && (
+                    <span><strong>Phone:</strong> {selectedReminderDetails.clientPhone}</span>
+                  )}
+                  {selectedReminderDetails.notes && (
+                    <span className="italic text-zinc-300">&ldquo;{selectedReminderDetails.notes}&rdquo;</span>
+                  )}
+                </div>
+              )}
+
+              {/* Quick Actions Bar */}
+              <div className="px-5 py-3 border-b border-white/5 flex items-center justify-between gap-2 bg-[#12141a]">
+                <div className="text-xs text-zinc-400 font-medium">
+                  Past Settled Transactions <span className="font-mono text-zinc-500">({settledHistory.length})</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  {selectedReminderDetails.status !== 'collected' && selectedReminderDetails.status !== 'ended' && (
+                    <button
+                      type="button"
+                      onClick={() => {
+                        const r = selectedReminderDetails;
+                        setSelectedReminderDetails(null);
+                        setCollectingReminder(r);
+                      }}
+                      className="px-3 py-1.5 text-xs rounded-xl bg-emerald-500/15 hover:bg-emerald-500/25 text-emerald-300 border border-emerald-500/30 flex items-center gap-1.5 transition-colors font-medium cursor-pointer"
+                    >
+                      <CheckCircle2 className="w-3.5 h-3.5" />
+                      <span>{selectedReminderDetails.type === 'payable' ? 'Mark as Paid' : 'Collect Payment'}</span>
+                    </button>
+                  )}
+                  {selectedReminderDetails.type !== 'payable' && (
+                    <a
+                      href={getWhatsAppReminderUrl(selectedReminderDetails, settings)}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="px-3 py-1.5 text-xs rounded-xl bg-emerald-500/15 hover:bg-emerald-500/25 text-emerald-400 border border-emerald-500/30 flex items-center gap-1.5 transition-colors font-medium cursor-pointer"
+                    >
+                      <MessageSquare className="w-3.5 h-3.5" />
+                      <span>WhatsApp</span>
+                    </a>
+                  )}
+                  <button
+                    type="button"
+                    onClick={() => {
+                      const r = selectedReminderDetails;
+                      setSelectedReminderDetails(null);
+                      onEditReminder(r);
+                    }}
+                    className="px-3 py-1.5 text-xs rounded-xl bg-white/5 hover:bg-white/10 text-zinc-300 border border-white/10 flex items-center gap-1.5 transition-colors font-medium cursor-pointer"
+                  >
+                    <Pencil className="w-3 h-3" />
+                    <span>Edit</span>
+                  </button>
+                </div>
+              </div>
+
+              {/* Transactions List */}
+              <div className="p-4 sm:p-6 overflow-y-auto max-h-[45vh] space-y-2">
+                {settledHistory.length === 0 ? (
+                  <div className="text-center py-12 text-zinc-500">
+                    <History className="w-8 h-8 mx-auto mb-2 opacity-40" />
+                    <p className="text-xs">No historical settlements recorded for this contract yet.</p>
+                  </div>
+                ) : (
+                  settledHistory.map((tx) => {
+                    const isCredit = tx.type === 'income' || tx.type === 'deposit';
+                    const walletName = wallets.find((w) => w.id === tx.walletId)?.name || 'Account';
+
+                    return (
+                      <div
+                        key={tx.id}
+                        className="p-3 bg-[#171922] hover:bg-[#1a1e29] border border-white/5 rounded-2xl flex items-center justify-between gap-3 transition-colors"
+                      >
+                        <div className="flex items-center gap-3 min-w-0">
+                          <div
+                            className={`p-2 rounded-xl border flex-shrink-0 ${
+                              isCredit
+                                ? 'bg-emerald-500/10 border-emerald-500/20 text-emerald-400'
+                                : 'bg-rose-500/10 border-rose-500/20 text-rose-400'
+                            }`}
+                          >
+                            {isCredit ? (
+                              <ArrowDownLeft className="w-4 h-4" />
+                            ) : (
+                              <ArrowUpRight className="w-4 h-4" />
+                            )}
+                          </div>
+                          <div className="min-w-0">
+                            <div className="text-xs font-semibold text-white truncate">
+                              {tx.title}
+                            </div>
+                            <div className="flex items-center gap-2 mt-0.5 text-[11px] text-zinc-500 font-mono">
+                              <span>{formatDateDDMMYYYY(tx.date)}</span>
+                              <span>•</span>
+                              <span>{walletName}</span>
+                              {tx.notes && (
+                                <>
+                                  <span>•</span>
+                                  <span className="truncate text-zinc-400 font-sans italic">&ldquo;{tx.notes}&rdquo;</span>
+                                </>
+                              )}
+                            </div>
+                          </div>
+                        </div>
+
+                        <div className="text-right flex-shrink-0">
+                          <div
+                            className={`text-xs font-mono font-bold ${
+                              isCredit ? 'text-emerald-400' : 'text-zinc-200'
+                            }`}
+                          >
+                            {isCredit ? '+' : '-'}{currencySymbol}{formatCash(tx.amount)}
+                          </div>
+                          <div className="text-[10px] font-mono text-zinc-500 uppercase">
+                            {tx.type}
+                          </div>
+                        </div>
+                      </div>
+                    );
+                  })
+                )}
+              </div>
+
+              {/* Modal Footer */}
+              <div className="p-4 border-t border-white/5 bg-[#0d0f14]/50 flex justify-end">
+                <button
+                  type="button"
+                  onClick={() => setSelectedReminderDetails(null)}
+                  className="px-5 py-2 rounded-xl text-xs font-semibold text-white bg-white/10 hover:bg-white/15 transition-colors cursor-pointer"
+                >
+                  Done
+                </button>
               </div>
             </div>
           </div>
