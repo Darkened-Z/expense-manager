@@ -1,10 +1,11 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { X, ArrowDownLeft, ArrowUpRight, DollarSign, Calendar, Clock, Tag, Wallet as WalletIcon, Pencil } from 'lucide-react';
+import { X, ArrowDownLeft, ArrowUpRight, DollarSign, Calendar, Clock, Tag, Wallet as WalletIcon, Pencil, Camera, Image as ImageIcon, Trash2 } from 'lucide-react';
 import { Category, Wallet, TransactionType, Transaction } from '@/types';
 import { formatDateDDMMYYYY, formatCash } from '@/lib/formatters';
 import { SUPPORTED_CURRENCIES, getDefaultRate, getCurrencySymbol } from '@/lib/currencies';
+import { compressImageToDataUrl } from '@/lib/images';
 
 interface AddTransactionModalProps {
   isOpen: boolean;
@@ -30,6 +31,7 @@ interface AddTransactionModalProps {
     originalAmount?: number;
     originalCurrency?: string;
     exchangeRate?: number;
+    attachmentUrl?: string;
   }) => void;
   onUpdate?: (id: string, updates: Partial<Transaction>) => void;
 }
@@ -58,6 +60,8 @@ export const AddTransactionModal: React.FC<AddTransactionModalProps> = ({
   const [token, setToken] = useState<string>('PKR');
   const [frequency, setFrequency] = useState<'once' | 'monthly'>('once');
   const [createReminder, setCreateReminder] = useState<boolean>(false);
+  const [attachmentUrl, setAttachmentUrl] = useState<string | null>(null);
+  const [isUploadingImage, setIsUploadingImage] = useState<boolean>(false);
   const [notes, setNotes] = useState<string>('');
   const [error, setError] = useState<string | null>(null);
 
@@ -65,6 +69,21 @@ export const AddTransactionModal: React.FC<AddTransactionModalProps> = ({
     setCurrency(newCurr);
     const def = getDefaultRate(newCurr);
     setExchangeRate(def.toString());
+  };
+
+  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setIsUploadingImage(true);
+    try {
+      const compressed = await compressImageToDataUrl(file);
+      setAttachmentUrl(compressed);
+    } catch (err) {
+      console.error('Failed to process image attachment:', err);
+      alert('Could not process this image. Please try a different photo.');
+    } finally {
+      setIsUploadingImage(false);
+    }
   };
 
   useEffect(() => {
@@ -90,6 +109,7 @@ export const AddTransactionModal: React.FC<AddTransactionModalProps> = ({
         setToken(transactionToEdit.token || 'PKR');
         setFrequency(transactionToEdit.frequency || 'once');
         setCreateReminder(false);
+        setAttachmentUrl(transactionToEdit.attachmentUrl || null);
         setNotes(transactionToEdit.notes || '');
         setError(null);
       } else {
@@ -100,6 +120,7 @@ export const AddTransactionModal: React.FC<AddTransactionModalProps> = ({
         setTitle('');
         setClientOrPayer('');
         setNotes('');
+        setAttachmentUrl(null);
         setError(null);
         setFrequency('once');
         setCreateReminder(false);
@@ -163,6 +184,7 @@ export const AddTransactionModal: React.FC<AddTransactionModalProps> = ({
         originalAmount: currency !== 'PKR' ? parsedInputAmount : undefined,
         originalCurrency: currency !== 'PKR' ? currency : undefined,
         exchangeRate: currency !== 'PKR' ? parsedRate : undefined,
+        attachmentUrl: attachmentUrl || undefined,
       });
     } else {
       onSubmit({
@@ -181,6 +203,7 @@ export const AddTransactionModal: React.FC<AddTransactionModalProps> = ({
         originalAmount: currency !== 'PKR' ? parsedInputAmount : undefined,
         originalCurrency: currency !== 'PKR' ? currency : undefined,
         exchangeRate: currency !== 'PKR' ? parsedRate : undefined,
+        attachmentUrl: attachmentUrl || undefined,
       });
     }
 
@@ -482,6 +505,50 @@ export const AddTransactionModal: React.FC<AddTransactionModalProps> = ({
               onChange={(e) => setNotes(e.target.value)}
               className="w-full bg-[#171922] text-white text-xs px-3.5 py-2.5 rounded-xl border border-white/10 focus:outline-none focus:border-white/30"
             />
+          </div>
+
+          {/* Receipt / Bill Photo Attachment */}
+          <div>
+            <label className="block text-[11px] font-medium text-zinc-400 mb-1">
+              Receipt / Bill Photo (Optional)
+            </label>
+            {attachmentUrl ? (
+              <div className="relative rounded-2xl overflow-hidden border border-white/10 bg-[#161821] p-2.5 flex items-center justify-between gap-3">
+                <div className="flex items-center gap-3">
+                  <img
+                    src={attachmentUrl}
+                    alt="Receipt preview"
+                    className="w-12 h-12 rounded-xl object-cover border border-white/10"
+                  />
+                  <div>
+                    <div className="text-xs font-semibold text-white">Receipt Attached</div>
+                    <div className="text-[10px] text-emerald-400">Compressed & ready to save</div>
+                  </div>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setAttachmentUrl(null)}
+                  className="p-2 text-zinc-400 hover:text-rose-400 rounded-xl hover:bg-rose-500/10 transition-colors"
+                  title="Remove receipt"
+                >
+                  <Trash2 className="w-4 h-4" />
+                </button>
+              </div>
+            ) : (
+              <label className="flex items-center justify-center gap-2 p-3.5 rounded-xl border border-dashed border-white/15 hover:border-white/30 bg-[#161821]/50 hover:bg-[#161821] transition-all cursor-pointer">
+                <Camera className="w-4 h-4 text-zinc-400" />
+                <span className="text-xs font-medium text-zinc-300">
+                  {isUploadingImage ? 'Compressing photo...' : 'Snap or Upload Receipt / Bill Photo'}
+                </span>
+                <input
+                  type="file"
+                  accept="image/*"
+                  onChange={handleFileChange}
+                  disabled={isUploadingImage}
+                  className="hidden"
+                />
+              </label>
+            )}
           </div>
 
           {error && <div className="text-rose-400 text-xs font-medium">{error}</div>}

@@ -39,6 +39,7 @@ export interface Transaction {
   originalAmount?: number;
   originalCurrency?: string;
   exchangeRate?: number;
+  attachmentUrl?: string;
   createdAt: string;
 }
 

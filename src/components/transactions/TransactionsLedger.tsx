@@ -22,10 +22,12 @@ import {
   Repeat,
   ChevronDown,
   Pencil,
+  Camera,
 } from 'lucide-react';
 import { Transaction, Category, Wallet } from '@/types';
 import { formatDateTimeDDMMYYYY, formatCash } from '@/lib/formatters';
 import { formatForeignAmount } from '@/lib/currencies';
+import { ReceiptLightboxModal } from '@/components/modals/ReceiptLightboxModal';
 
 interface TransactionsLedgerProps {
   transactions: Transaction[];
@@ -52,6 +54,7 @@ export const TransactionsLedger: React.FC<TransactionsLedgerProps> = ({
 }) => {
   const [selectedType, setSelectedType] = useState<'all' | 'expense' | 'income' | 'transfer'>('all');
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
+  const [viewingReceiptTx, setViewingReceiptTx] = useState<Transaction | null>(null);
 
   const getCategoryIcon = (iconName: string) => {
     switch (iconName) {
@@ -232,6 +235,19 @@ export const TransactionsLedger: React.FC<TransactionsLedgerProps> = ({
                           <span className="text-zinc-400 font-mono">Monthly</span>
                         </>
                       )}
+                      {tx.attachmentUrl && (
+                        <>
+                          <span>•</span>
+                          <button
+                            type="button"
+                            onClick={() => setViewingReceiptTx(tx)}
+                            className="inline-flex items-center gap-1 text-[10px] text-emerald-400 font-medium hover:underline cursor-pointer"
+                          >
+                            <Camera className="w-3 h-3" />
+                            <span>Receipt</span>
+                          </button>
+                        </>
+                      )}
                     </div>
                   </div>
                 </div>
@@ -361,7 +377,20 @@ export const TransactionsLedger: React.FC<TransactionsLedgerProps> = ({
                       </div>
                     </td>
                     <td className="py-3.5 px-4">
-                      <div className="font-semibold text-zinc-200">{tx.title}</div>
+                      <div className="flex items-center gap-2">
+                        <span className="font-semibold text-zinc-200">{tx.title}</span>
+                        {tx.attachmentUrl && (
+                          <button
+                            type="button"
+                            onClick={() => setViewingReceiptTx(tx)}
+                            className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-md bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-400 border border-emerald-500/20 text-[10px] font-medium transition-colors cursor-pointer"
+                            title="View attached receipt / bill photo"
+                          >
+                            <Camera className="w-3 h-3" />
+                            <span>Receipt</span>
+                          </button>
+                        )}
+                      </div>
                       {tx.clientOrPayer && (
                         <div className="text-[10px] text-zinc-500">Client: {tx.clientOrPayer}</div>
                       )}
@@ -403,6 +432,14 @@ export const TransactionsLedger: React.FC<TransactionsLedgerProps> = ({
           </tbody>
         </table>
       </div>
+
+      {/* Receipt Photo Lightbox Modal */}
+      <ReceiptLightboxModal
+        isOpen={!!viewingReceiptTx}
+        transaction={viewingReceiptTx}
+        currencySymbol={currencySymbol}
+        onClose={() => setViewingReceiptTx(null)}
+      />
     </div>
   );
 };
