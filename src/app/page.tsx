@@ -469,6 +469,17 @@ export default function Home() {
     setWallets(updated);
   };
 
+  const handleDeleteWallet = (id: string) => {
+    const res = StorageService.deleteWallet(id);
+    if (res.success) {
+      setWallets(StorageService.getWallets());
+      if (selectedWalletId === id) {
+        setSelectedWalletId('all');
+      }
+    }
+    return res;
+  };
+
   const handleAddSavingsGoal = (goalData: any) => {
     StorageService.addSavingsGoal(goalData);
     setSavingsGoals(StorageService.getSavingsGoals());
@@ -862,6 +873,7 @@ export default function Home() {
                 currencySymbol={settings.currencySymbol}
                 onUpdateWalletBalance={StorageService.updateWalletBalance}
                 onAddWallet={handleAddWallet}
+                onDeleteWallet={handleDeleteWallet}
                 onOpenTransfer={() => setShowTransferModal(true)}
               />
             </div>

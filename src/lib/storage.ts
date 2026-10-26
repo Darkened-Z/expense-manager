@@ -530,6 +530,26 @@ export const StorageService = {
     this.saveWallets(updated);
   },
 
+  deleteWallet(walletId: string): { success: boolean; error?: string } {
+    const wallets = this.getWallets();
+    const target = wallets.find(w => w.id === walletId);
+    if (!target) {
+      return { success: false, error: 'Account not found.' };
+    }
+    if (wallets.length <= 1) {
+      return { success: false, error: 'You must maintain at least one active bank or wallet.' };
+    }
+    if (Math.round(target.balance) !== 0) {
+      return {
+        success: false,
+        error: `Cannot delete "${target.name}". Account currently has a balance of Rs. ${Math.round(target.balance)}. Please transfer or withdraw all funds to empty the account (Rs. 0) before removing it.`,
+      };
+    }
+    const updated = wallets.filter(w => w.id !== walletId);
+    this.saveWallets(updated);
+    return { success: true };
+  },
+
   // --- Savings Goals ---
   getSavingsGoals(): SavingsGoal[] {
     if (typeof window === 'undefined') return INITIAL_SAVINGS_GOALS;
