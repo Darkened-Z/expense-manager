@@ -317,6 +317,49 @@ export const StorageService = {
       collectedWalletId: walletId,
       collectedTransactionId: tx.id,
     });
+
+    // Auto-Renew Monthly Retainers & Subscriptions
+    // Automatically schedules the next month's payment cycle so recurring income/expenses never get missed
+    if (rem.frequency === 'monthly' && rem.autoRenew !== false) {
+      const [year, month, day] = rem.dueDate.split('-').map(Number);
+      let nextYear = year;
+      let nextMonth = month + 1;
+      if (nextMonth > 12) {
+        nextMonth = 1;
+        nextYear += 1;
+      }
+      const daysInNextMonth = new Date(nextYear, nextMonth, 0).getDate();
+      const targetDay = Math.min(day, daysInNextMonth);
+      const mm = nextMonth < 10 ? `0${nextMonth}` : `${nextMonth}`;
+      const dd = targetDay < 10 ? `0${targetDay}` : `${targetDay}`;
+      const nextDueDate = `${nextYear}-${mm}-${dd}`;
+
+      const nextDueObj = new Date(nextDueDate + 'T00:00:00');
+      nextDueObj.setDate(nextDueObj.getDate() - 2);
+      const nextReminderDate = nextDueObj.toISOString().split('T')[0];
+
+      this.addReminder({
+        type: rem.type,
+        clientName: rem.clientName,
+        clientEmail: rem.clientEmail,
+        clientPhone: rem.clientPhone,
+        projectTitle: rem.projectTitle,
+        invoiceNumber: rem.invoiceNumber,
+        amount: rem.amount,
+        currency: rem.currency || 'PKR',
+        token: rem.token || rem.currency || 'PKR',
+        categoryId: rem.categoryId,
+        invoiceDate: todayStr,
+        dueDate: nextDueDate,
+        reminderDate: nextReminderDate,
+        frequency: 'monthly',
+        autoRenew: true,
+        originalAmount: rem.originalAmount,
+        originalCurrency: rem.originalCurrency,
+        exchangeRate: rem.exchangeRate,
+        notes: rem.notes,
+      });
+    }
   },
 
   deleteReminder(id: string): void {

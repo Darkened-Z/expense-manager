@@ -62,6 +62,7 @@ export interface PaymentReminder {
   reminderDate: string; // YYYY-MM-DD
   status: PaymentReminderStatus;
   frequency?: PaymentFrequency;
+  autoRenew?: boolean;
   originalAmount?: number;
   originalCurrency?: string;
   exchangeRate?: number;

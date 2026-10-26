@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { X, Clock, Calendar, DollarSign, User, FileText, Bell, ArrowUpRight, ArrowDownLeft, AlertTriangle, Pencil } from 'lucide-react';
+import { X, Clock, Calendar, DollarSign, User, FileText, Bell, ArrowUpRight, ArrowDownLeft, AlertTriangle, Pencil, Repeat } from 'lucide-react';
 import { Category, ReminderType, PaymentReminder } from '@/types';
 import { formatDateDDMMYYYY } from '@/lib/formatters';
 import { SUPPORTED_CURRENCIES, getDefaultRate, getCurrencySymbol } from '@/lib/currencies';
@@ -32,6 +32,7 @@ interface AddReminderModalProps {
     originalAmount?: number;
     originalCurrency?: string;
     exchangeRate?: number;
+    autoRenew?: boolean;
   }) => void;
   onUpdate?: (id: string, updates: Partial<PaymentReminder>) => void;
 }
@@ -56,6 +57,7 @@ export const AddReminderModal: React.FC<AddReminderModalProps> = ({
   const [currency, setCurrency] = useState('PKR');
   const [exchangeRate, setExchangeRate] = useState('1');
   const [frequency, setFrequency] = useState<'once' | 'monthly'>('once');
+  const [autoRenew, setAutoRenew] = useState<boolean>(true);
   const [invoiceDate, setInvoiceDate] = useState('');
   const [dueDate, setDueDate] = useState('');
   const [reminderDate, setReminderDate] = useState('');
@@ -88,6 +90,7 @@ export const AddReminderModal: React.FC<AddReminderModalProps> = ({
             : ''
         );
         setFrequency(reminderToEdit.frequency || 'once');
+        setAutoRenew(reminderToEdit.autoRenew !== false);
         setInvoiceDate(reminderToEdit.invoiceDate || new Date().toISOString().split('T')[0]);
         setDueDate(reminderToEdit.dueDate || '');
         setReminderDate(reminderToEdit.reminderDate || reminderToEdit.dueDate || '');
@@ -117,6 +120,7 @@ export const AddReminderModal: React.FC<AddReminderModalProps> = ({
         setCurrency('PKR');
         setExchangeRate('1');
         setFrequency(initialType === 'payable' ? 'monthly' : 'once');
+        setAutoRenew(true);
         setInvoiceDate(todayStr);
         setDueDate(dueStr);
         setReminderDate(remStr);
@@ -179,6 +183,7 @@ export const AddReminderModal: React.FC<AddReminderModalProps> = ({
         currency: 'PKR',
         token: currency,
         frequency,
+        autoRenew: frequency === 'monthly' ? autoRenew : false,
         invoiceDate: invoiceDate || new Date().toISOString().split('T')[0],
         dueDate,
         reminderDate: reminderDate || dueDate,
@@ -199,6 +204,7 @@ export const AddReminderModal: React.FC<AddReminderModalProps> = ({
         currency: 'PKR',
         token: currency,
         frequency,
+        autoRenew: frequency === 'monthly' ? autoRenew : false,
         invoiceDate: invoiceDate || new Date().toISOString().split('T')[0],
         dueDate,
         reminderDate: reminderDate || dueDate,
@@ -422,11 +428,25 @@ export const AddReminderModal: React.FC<AddReminderModalProps> = ({
               </button>
             </div>
             {frequency === 'monthly' && (
-              <p className="text-[10px] text-zinc-400 mt-1 pl-1">
-                {type === 'payable'
-                  ? 'Upon settling this payment, the next month’s expense reminder will automatically be scheduled.'
-                  : 'Upon collection, the next month’s reminder will automatically be scheduled.'}
-              </p>
+              <div className="space-y-2 mt-2">
+                <div className="flex items-center justify-between p-3 rounded-xl bg-[#161821] border border-white/5 animate-in fade-in duration-150">
+                  <div className="flex items-center gap-2">
+                    <Repeat className="w-4 h-4 text-emerald-400" />
+                    <div>
+                      <div className="text-xs font-semibold text-white">Auto-Renew Monthly Cycle</div>
+                      <div className="text-[10px] text-zinc-400">
+                        Automatically schedule next month&apos;s invoice cycle when this is collected
+                      </div>
+                    </div>
+                  </div>
+                  <input
+                    type="checkbox"
+                    checked={autoRenew}
+                    onChange={(e) => setAutoRenew(e.target.checked)}
+                    className="w-4 h-4 accent-emerald-500 cursor-pointer"
+                  />
+                </div>
+              </div>
             )}
           </div>
 
