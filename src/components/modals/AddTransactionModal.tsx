@@ -524,7 +524,7 @@ export const AddTransactionModal: React.FC<AddTransactionModalProps> = ({
                 >
                   {filteredCategories.map((c) => (
                     <option key={c.id} value={c.id}>
-                      {c.id.startsWith('cat-payable-') ? `📅 ${c.name} (Monthly Payable)` : c.name}
+                      {c.name}
                     </option>
                   ))}
                   <option value="__add_new__">+ Add New Category...</option>

@@ -233,9 +233,6 @@ export const StorageService = {
     };
     const updated = [newRem, ...reminders];
     this.saveReminders(updated);
-    if (newRem.type === 'payable') {
-      this.syncPayableCategory(newRem);
-    }
     return newRem;
   },
 
@@ -280,9 +277,6 @@ export const StorageService = {
 
     const updated = reminders.map(r => (r.id === id ? updatedReminder : r));
     this.saveReminders(updated);
-    if (updatedReminder.type === 'payable') {
-      this.syncPayableCategory(updatedReminder);
-    }
   },
 
   collectPayment(reminderId: string, walletId: string): void {
@@ -296,11 +290,9 @@ export const StorageService = {
     // Cash transactions always record on the actual day collected/paid
     // so income, expenses, and cash surplus match your live wallet balance
     const isPayable = rem.type === 'payable';
-    const payableCatId = `cat-payable-${rem.id}`;
-    const allCats = this.getCategories();
     const resolvedCatId = isPayable
-      ? (allCats.find(c => c.id === payableCatId || c.name.toLowerCase() === rem.clientName.trim().toLowerCase())?.id || rem.categoryId || 'cat-misc')
-      : 'inc-freelance';
+      ? (rem.categoryId || 'cat-utilities')
+      : (rem.categoryId || 'inc-freelance');
 
     const tx = this.addTransaction({
       amount: rem.amount,
@@ -441,7 +433,7 @@ export const StorageService = {
       const parsed: Category[] = JSON.parse(raw);
       let modified = false;
       const defaultMap = new Map(DEFAULT_CATEGORIES.map(d => [d.id, d.color]));
-      const updated = parsed.map(c => {
+      let updated = parsed.map(c => {
         // If it was forced to monochrome gray in the previous step, restore its basic clean color
         if ((c.color === '#71717a' || c.color === '#a1a1aa') && defaultMap.has(c.id)) {
           modified = true;
@@ -464,44 +456,10 @@ export const StorageService = {
         }
       }
 
-      // Auto-sync each saved monthly payable as its own individual category
-      const rawRem = localStorage.getItem(KEYS.REMINDERS);
-      if (rawRem) {
-        try {
-          const reminders: PaymentReminder[] = JSON.parse(rawRem);
-          const payables = reminders.filter(r => r.type === 'payable' && r.clientName && r.clientName.trim());
-          for (const rem of payables) {
-            const catId = `cat-payable-${rem.id}`;
-            const displayName = rem.clientName.trim();
-            const idx = updated.findIndex(c => c.id === catId || c.name.toLowerCase() === displayName.toLowerCase());
-            if (idx >= 0) {
-              if (updated[idx].id !== catId || updated[idx].budgetLimit !== rem.amount || updated[idx].name !== displayName) {
-                updated[idx] = {
-                  ...updated[idx],
-                  id: catId,
-                  name: displayName,
-                  budgetLimit: rem.amount,
-                  type: 'expense',
-                  icon: updated[idx].icon || 'Repeat',
-                  color: updated[idx].color || '#f43f5e',
-                };
-                modified = true;
-              }
-            } else {
-              updated.push({
-                id: catId,
-                name: displayName,
-                icon: 'Repeat',
-                color: '#f43f5e',
-                type: 'expense',
-                budgetLimit: rem.amount,
-              });
-              modified = true;
-            }
-          }
-        } catch {
-          // ignore
-        }
+      // Clean up any legacy auto-synced payable categories so daily expense categories remain pure
+      if (updated.some(c => c.id.startsWith('cat-payable-'))) {
+        updated = updated.filter(c => !c.id.startsWith('cat-payable-'));
+        modified = true;
       }
 
       if (modified) {
@@ -510,36 +468,6 @@ export const StorageService = {
       return updated;
     } catch {
       return DEFAULT_CATEGORIES;
-    }
-  },
-
-  syncPayableCategory(rem: PaymentReminder): void {
-    if (typeof window === 'undefined' || rem.type !== 'payable' || !rem.clientName?.trim()) return;
-    const catId = `cat-payable-${rem.id}`;
-    const displayName = rem.clientName.trim();
-    const cats = this.getCategories();
-    const idx = cats.findIndex(c => c.id === catId || c.name.toLowerCase() === displayName.toLowerCase());
-    if (idx >= 0) {
-      cats[idx] = {
-        ...cats[idx],
-        id: catId,
-        name: displayName,
-        budgetLimit: rem.amount,
-        type: 'expense',
-        icon: cats[idx].icon || 'Repeat',
-        color: cats[idx].color || '#f43f5e',
-      };
-      this.saveCategories(cats);
-    } else {
-      cats.push({
-        id: catId,
-        name: displayName,
-        icon: 'Repeat',
-        color: '#f43f5e',
-        type: 'expense',
-        budgetLimit: rem.amount,
-      });
-      this.saveCategories(cats);
     }
   },
 

@@ -231,12 +231,6 @@ export const CategoriesView: React.FC<CategoriesViewProps> = ({
                       <div className="min-w-0">
                         <div className="flex items-center gap-1.5 flex-wrap">
                           <h4 className="font-bold text-white text-sm truncate group-hover:text-sky-300 transition-colors">{cat.name}</h4>
-                          {cat.id.startsWith('cat-payable-') && (
-                            <span className="text-[9px] font-mono font-medium text-rose-400 shrink-0 flex items-center gap-1">
-                              <span className="w-1 h-1 rounded-full bg-rose-400" />
-                              Monthly Payable
-                            </span>
-                          )}
                         </div>
                         <span className="text-[10px] font-mono text-zinc-500 uppercase">
                           {cat.type === 'expense' ? 'Expense' : 'Income'}
@@ -517,12 +511,6 @@ export const CategoriesView: React.FC<CategoriesViewProps> = ({
                       <span className="text-[10px] font-mono uppercase text-zinc-400">
                         {selectedCategoryDetails.type === 'expense' ? 'Expense Category' : 'Income Source'}
                       </span>
-                      {selectedCategoryDetails.id.startsWith('cat-payable-') && (
-                        <span className="text-[10px] font-mono font-medium text-rose-400 flex items-center gap-1">
-                          <span className="w-1.5 h-1.5 rounded-full bg-rose-400" />
-                          Auto-Linked Monthly Payable
-                        </span>
-                      )}
                     </div>
                     <p className="text-xs text-zinc-400 mt-0.5">
                       {catTxs.length} total recorded transaction{catTxs.length === 1 ? '' : 's'}
