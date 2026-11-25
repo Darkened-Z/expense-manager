@@ -41,6 +41,7 @@ interface HeaderProps {
   onOpenAddReminder: () => void;
   onCollectReminder: (id: string) => void;
   onNavigateToReminders: () => void;
+  onNavigateTab?: (tab: string) => void;
   onToggleMobileMenu: () => void;
 }
 
@@ -61,6 +62,7 @@ export const Header: React.FC<HeaderProps> = ({
   onOpenAddReminder,
   onCollectReminder,
   onNavigateToReminders,
+  onNavigateTab,
   onToggleMobileMenu,
 }) => {
   const [showNotifications, setShowNotifications] = useState(false);
@@ -261,6 +263,8 @@ export const Header: React.FC<HeaderProps> = ({
                   ? 'Syncing changes to Supabase in background...'
                   : cloudSyncStatus === 'error'
                   ? 'Cloud sync issue. Click to check Supabase settings.'
+                  : cloudSyncStatus === 'offline'
+                  ? 'Private on-device storage. Changes stay in this browser on this device.'
                   : 'Cloud sync not configured. Click to connect Supabase.'
               }
             >
@@ -275,6 +279,8 @@ export const Header: React.FC<HeaderProps> = ({
                   ? 'Syncing'
                   : cloudSyncStatus === 'error'
                   ? 'Sync Issue'
+                  : cloudSyncStatus === 'offline'
+                  ? 'On Device'
                   : 'Sync Off'}
               </span>
             </button>
@@ -366,12 +372,24 @@ export const Header: React.FC<HeaderProps> = ({
                             )}
                             <button
                               onClick={() => {
-                                onCollectReminder(rem.id);
+                                if (rem.amountType === 'variable' || rem.amountType === 'hybrid') {
+                                  if (onNavigateTab) {
+                                    onNavigateTab(rem.type === 'payable' ? 'payables' : 'receivables');
+                                  } else {
+                                    onNavigateToReminders();
+                                  }
+                                } else {
+                                  onCollectReminder(rem.id);
+                                }
                                 setShowNotifications(false);
                               }}
                               className="text-[10px] bg-white/10 hover:bg-white/20 text-white font-semibold px-2 py-1 rounded-lg transition-colors"
                             >
-                              Mark Paid
+                              {rem.amountType === 'variable' || rem.amountType === 'hybrid'
+                                ? 'Set Amount'
+                                : rem.type === 'payable'
+                                ? 'Mark Paid'
+                                : 'Collect'}
                             </button>
                           </div>
                         </div>

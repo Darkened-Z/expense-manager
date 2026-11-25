@@ -365,10 +365,35 @@ export const StorageService = {
     this.saveReminders(updated);
   },
 
-  collectPayment(reminderId: string, walletId: string): void {
+  collectPayment(
+    reminderId: string,
+    walletId: string,
+    overrideAmounts?: {
+      amountPKR: number;
+      variableAmountPKR?: number;
+      originalAmount?: number;
+      originalVariableAmount?: number;
+    }
+  ): void {
     const reminders = this.getReminders();
     const rem = reminders.find(r => r.id === reminderId);
     if (!rem) return;
+
+    const finalAmount = overrideAmounts ? Math.round(overrideAmounts.amountPKR) : rem.amount;
+    if (isNaN(finalAmount) || finalAmount <= 0) return;
+
+    const finalVariablePKR =
+      overrideAmounts?.variableAmountPKR !== undefined
+        ? Math.round(overrideAmounts.variableAmountPKR)
+        : rem.variableAmount;
+    const finalOriginalAmount =
+      overrideAmounts?.originalAmount !== undefined
+        ? overrideAmounts.originalAmount
+        : rem.originalAmount;
+    const finalOriginalVariable =
+      overrideAmounts?.originalVariableAmount !== undefined
+        ? overrideAmounts.originalVariableAmount
+        : rem.originalVariableAmount;
 
     const todayStr = new Date().toISOString().split('T')[0];
     const nowTime = new Date().toTimeString().slice(0, 5);
@@ -380,8 +405,15 @@ export const StorageService = {
       ? (rem.categoryId || 'cat-utilities')
       : (rem.categoryId || 'inc-freelance');
 
+    const breakdownTag =
+      rem.amountType === 'hybrid'
+        ? ` [Fixed: ${rem.fixedAmount || 0} + Variable: ${finalVariablePKR || 0}]`
+        : rem.amountType === 'variable'
+        ? ` [Variable Cycle]`
+        : '';
+
     const tx = this.addTransaction({
-      amount: rem.amount,
+      amount: finalAmount,
       type: isPayable ? 'expense' : 'income',
       title: isPayable
         ? `Payment Paid: ${rem.clientName} (${rem.projectTitle})`
@@ -393,11 +425,11 @@ export const StorageService = {
       time: nowTime,
       token: rem.token || 'PKR',
       notes: isPayable
-        ? `Settled expense for ${rem.clientName}. ${rem.notes || ''}`
-        : `Settled Invoice #${rem.invoiceNumber || 'N/A'}. ${rem.notes || ''}`,
+        ? `Settled expense for ${rem.clientName}.${breakdownTag} ${rem.notes || ''}`.trim()
+        : `Settled Invoice #${rem.invoiceNumber || 'N/A'}.${breakdownTag} ${rem.notes || ''}`.trim(),
       reminderId: rem.id,
       frequency: rem.frequency,
-      originalAmount: rem.originalAmount,
+      originalAmount: finalOriginalAmount,
       originalCurrency: rem.originalCurrency,
       exchangeRate: rem.exchangeRate,
     });
@@ -407,6 +439,10 @@ export const StorageService = {
       collectedAt: todayStr,
       collectedWalletId: walletId,
       collectedTransactionId: tx.id,
+      amount: finalAmount,
+      variableAmount: finalVariablePKR,
+      originalAmount: finalOriginalAmount,
+      originalVariableAmount: finalOriginalVariable,
     });
 
     // Auto-Renew Monthly Retainers & Subscriptions
@@ -429,6 +465,30 @@ export const StorageService = {
       nextDueObj.setDate(nextDueObj.getDate() - 2);
       const nextReminderDate = nextDueObj.toISOString().split('T')[0];
 
+      const isForeign = Boolean(rem.originalCurrency && rem.originalCurrency !== 'PKR');
+      let nextAmountPKR = rem.amount;
+      let nextFixedPKR = rem.fixedAmount;
+      let nextVarPKR = rem.variableAmount;
+      let nextOrigAmount = rem.originalAmount;
+      let nextOrigFixed = rem.originalFixedAmount;
+      let nextOrigVar = rem.originalVariableAmount;
+
+      if (rem.amountType === 'hybrid') {
+        nextFixedPKR = rem.fixedAmount || 0;
+        nextVarPKR = 0;
+        nextAmountPKR = nextFixedPKR;
+        nextOrigFixed = isForeign ? rem.originalFixedAmount : undefined;
+        nextOrigVar = isForeign ? 0 : undefined;
+        nextOrigAmount = isForeign ? nextOrigFixed : undefined;
+      } else if (rem.amountType === 'variable') {
+        nextFixedPKR = 0;
+        nextVarPKR = 0;
+        nextAmountPKR = 0;
+        nextOrigFixed = undefined;
+        nextOrigVar = isForeign ? 0 : undefined;
+        nextOrigAmount = isForeign ? 0 : undefined;
+      }
+
       this.addReminder({
         type: rem.type,
         clientName: rem.clientName,
@@ -436,7 +496,10 @@ export const StorageService = {
         clientPhone: rem.clientPhone,
         projectTitle: rem.projectTitle,
         invoiceNumber: rem.invoiceNumber,
-        amount: rem.amount,
+        amount: nextAmountPKR,
+        amountType: rem.amountType || 'fixed',
+        fixedAmount: nextFixedPKR,
+        variableAmount: nextVarPKR,
         currency: rem.currency || 'PKR',
         token: rem.token || rem.currency || 'PKR',
         categoryId: rem.categoryId,
@@ -445,7 +508,9 @@ export const StorageService = {
         reminderDate: nextReminderDate,
         frequency: 'monthly',
         autoRenew: true,
-        originalAmount: rem.originalAmount,
+        originalAmount: nextOrigAmount,
+        originalFixedAmount: nextOrigFixed,
+        originalVariableAmount: nextOrigVar,
         originalCurrency: rem.originalCurrency,
         exchangeRate: rem.exchangeRate,
         notes: rem.notes,

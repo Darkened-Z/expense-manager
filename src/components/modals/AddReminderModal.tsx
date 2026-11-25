@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { X, Clock, Calendar, DollarSign, User, FileText, Bell, ArrowUpRight, ArrowDownLeft, AlertTriangle, Pencil, Repeat } from 'lucide-react';
-import { Category, ReminderType, PaymentReminder } from '@/types';
+import { Category, ReminderType, PaymentReminder, ReminderAmountType } from '@/types';
 import { formatDateDDMMYYYY } from '@/lib/formatters';
 import { SUPPORTED_CURRENCIES, getDefaultRate, getCurrencySymbol } from '@/lib/currencies';
 
@@ -21,6 +21,9 @@ interface AddReminderModalProps {
     projectTitle: string;
     invoiceNumber?: string;
     amount: number;
+    amountType?: ReminderAmountType;
+    fixedAmount?: number;
+    variableAmount?: number;
     currency: string;
     token?: string;
     categoryId?: string;
@@ -30,6 +33,8 @@ interface AddReminderModalProps {
     reminderDate: string;
     notes?: string;
     originalAmount?: number;
+    originalFixedAmount?: number;
+    originalVariableAmount?: number;
     originalCurrency?: string;
     exchangeRate?: number;
     autoRenew?: boolean;
@@ -53,7 +58,10 @@ export const AddReminderModal: React.FC<AddReminderModalProps> = ({
   const [clientPhone, setClientPhone] = useState('');
   const [projectTitle, setProjectTitle] = useState('');
   const [invoiceNumber, setInvoiceNumber] = useState('');
+  const [amountType, setAmountType] = useState<ReminderAmountType>('fixed');
   const [amount, setAmount] = useState('');
+  const [fixedAmount, setFixedAmount] = useState('');
+  const [variableAmount, setVariableAmount] = useState('');
   const [currency, setCurrency] = useState('PKR');
   const [exchangeRate, setExchangeRate] = useState('1');
   const [frequency, setFrequency] = useState<'once' | 'monthly'>('once');
@@ -82,13 +90,30 @@ export const AddReminderModal: React.FC<AddReminderModalProps> = ({
         const origCurr = reminderToEdit.originalCurrency || reminderToEdit.currency || 'PKR';
         setCurrency(origCurr);
         setExchangeRate(reminderToEdit.exchangeRate ? reminderToEdit.exchangeRate.toString() : getDefaultRate(origCurr).toString());
-        setAmount(
-          reminderToEdit.originalAmount
-            ? reminderToEdit.originalAmount.toString()
-            : reminderToEdit.amount
-            ? reminderToEdit.amount.toString()
-            : ''
-        );
+
+        const editPlan: ReminderAmountType = reminderToEdit.amountType || 'fixed';
+        setAmountType(editPlan);
+
+        const isForeign = origCurr !== 'PKR';
+        const displayTotal = isForeign ? reminderToEdit.originalAmount : reminderToEdit.amount;
+        const displayFixed = isForeign ? reminderToEdit.originalFixedAmount : reminderToEdit.fixedAmount;
+        const displayVar = isForeign ? reminderToEdit.originalVariableAmount : reminderToEdit.variableAmount;
+
+        if (editPlan === 'hybrid') {
+          setFixedAmount(displayFixed !== undefined ? displayFixed.toString() : '');
+          setVariableAmount(displayVar !== undefined && displayVar > 0 ? displayVar.toString() : '');
+          setAmount('');
+        } else if (editPlan === 'variable') {
+          const v = displayVar !== undefined ? displayVar : displayTotal;
+          setVariableAmount(v !== undefined && v > 0 ? v.toString() : '');
+          setFixedAmount('');
+          setAmount('');
+        } else {
+          setAmount(displayTotal ? displayTotal.toString() : '');
+          setFixedAmount('');
+          setVariableAmount('');
+        }
+
         setFrequency(reminderToEdit.frequency || 'once');
         setAutoRenew(reminderToEdit.autoRenew !== false);
         setInvoiceDate(reminderToEdit.invoiceDate || new Date().toISOString().split('T')[0]);
@@ -116,7 +141,10 @@ export const AddReminderModal: React.FC<AddReminderModalProps> = ({
         setClientPhone('');
         setProjectTitle('');
         setInvoiceNumber(initialType === 'payable' ? `PAY-${new Date().getFullYear()}-${Math.floor(10 + Math.random() * 90)}` : `INV-${new Date().getFullYear()}-${Math.floor(10 + Math.random() * 90)}`);
+        setAmountType('fixed');
         setAmount('');
+        setFixedAmount('');
+        setVariableAmount('');
         setCurrency('PKR');
         setExchangeRate('1');
         setFrequency(initialType === 'payable' ? 'monthly' : 'once');
@@ -144,9 +172,44 @@ export const AddReminderModal: React.FC<AddReminderModalProps> = ({
 
   if (!isOpen) return null;
 
-  const parsedInputAmount = parseFloat(amount) || 0;
   const parsedRate = parseFloat(exchangeRate) || 1;
-  const computedPKR = currency === 'PKR' ? Math.round(parsedInputAmount) : Math.round(parsedInputAmount * parsedRate);
+  const parsedFixedInput = Math.max(0, parseFloat(fixedAmount) || 0);
+  const parsedVarInput = Math.max(0, parseFloat(variableAmount) || 0);
+  const parsedSingleAmount = Math.max(0, parseFloat(amount) || 0);
+
+  const parsedInputAmount =
+    amountType === 'hybrid'
+      ? parsedFixedInput + parsedVarInput
+      : amountType === 'variable'
+      ? parsedVarInput
+      : parsedSingleAmount;
+
+  const fixedPKR = currency === 'PKR' ? Math.round(parsedFixedInput) : Math.round(parsedFixedInput * parsedRate);
+  const variablePKR = currency === 'PKR' ? Math.round(parsedVarInput) : Math.round(parsedVarInput * parsedRate);
+  const computedPKR =
+    amountType === 'hybrid'
+      ? fixedPKR + variablePKR
+      : amountType === 'variable'
+      ? variablePKR
+      : currency === 'PKR'
+      ? Math.round(parsedSingleAmount)
+      : Math.round(parsedSingleAmount * parsedRate);
+
+  const handlePlanSwitch = (nextPlan: ReminderAmountType) => {
+    if (nextPlan === amountType) return;
+    if (nextPlan === 'hybrid') {
+      if (!fixedAmount && amount) setFixedAmount(amount);
+    } else if (nextPlan === 'variable') {
+      if (!variableAmount && amount) setVariableAmount(amount);
+    } else {
+      if (!amount) {
+        if (fixedAmount) setAmount(fixedAmount);
+        else if (variableAmount) setAmount(variableAmount);
+      }
+    }
+    setAmountType(nextPlan);
+    setError(null);
+  };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -158,8 +221,16 @@ export const AddReminderModal: React.FC<AddReminderModalProps> = ({
       setError(type === 'payable' ? 'Please enter the salary or expense purpose' : 'Please enter the project or milestone title');
       return;
     }
-    if (isNaN(parsedInputAmount) || parsedInputAmount <= 0) {
-      setError('Please enter a valid amount');
+    if (amountType === 'fixed' && (isNaN(parsedSingleAmount) || parsedSingleAmount <= 0)) {
+      setError('Please enter a valid fixed amount');
+      return;
+    }
+    if (amountType === 'hybrid' && (isNaN(parsedFixedInput) || parsedFixedInput <= 0)) {
+      setError('Please enter a valid fixed base amount for a hybrid plan');
+      return;
+    }
+    if (amountType === 'variable' && (isNaN(parsedVarInput) || parsedVarInput < 0)) {
+      setError('Variable amount cannot be negative');
       return;
     }
     if (currency !== 'PKR' && (isNaN(parsedRate) || parsedRate <= 0)) {
@@ -171,48 +242,39 @@ export const AddReminderModal: React.FC<AddReminderModalProps> = ({
       return;
     }
 
+    const payload = {
+      type,
+      clientName: clientName.trim(),
+      clientEmail: clientEmail.trim() || undefined,
+      clientPhone: clientPhone.trim() || undefined,
+      projectTitle: projectTitle.trim(),
+      invoiceNumber: invoiceNumber.trim() || undefined,
+      amount: computedPKR,
+      amountType,
+      fixedAmount: amountType === 'hybrid' ? fixedPKR : undefined,
+      variableAmount: amountType === 'variable' || amountType === 'hybrid' ? variablePKR : undefined,
+      currency: 'PKR',
+      token: currency,
+      frequency,
+      autoRenew: frequency === 'monthly' ? autoRenew : false,
+      invoiceDate: invoiceDate || new Date().toISOString().split('T')[0],
+      dueDate,
+      reminderDate: reminderDate || dueDate,
+      notes: notes.trim() || undefined,
+      originalAmount: currency !== 'PKR' ? parsedInputAmount : undefined,
+      originalFixedAmount: currency !== 'PKR' && amountType === 'hybrid' ? parsedFixedInput : undefined,
+      originalVariableAmount:
+        currency !== 'PKR' && (amountType === 'variable' || amountType === 'hybrid')
+          ? parsedVarInput
+          : undefined,
+      originalCurrency: currency !== 'PKR' ? currency : undefined,
+      exchangeRate: currency !== 'PKR' ? parsedRate : undefined,
+    };
+
     if (reminderToEdit && onUpdate) {
-      onUpdate(reminderToEdit.id, {
-        type,
-        clientName: clientName.trim(),
-        clientEmail: clientEmail.trim() || undefined,
-        clientPhone: clientPhone.trim() || undefined,
-        projectTitle: projectTitle.trim(),
-        invoiceNumber: invoiceNumber.trim() || undefined,
-        amount: computedPKR,
-        currency: 'PKR',
-        token: currency,
-        frequency,
-        autoRenew: frequency === 'monthly' ? autoRenew : false,
-        invoiceDate: invoiceDate || new Date().toISOString().split('T')[0],
-        dueDate,
-        reminderDate: reminderDate || dueDate,
-        notes: notes.trim() || undefined,
-        originalAmount: currency !== 'PKR' ? parsedInputAmount : undefined,
-        originalCurrency: currency !== 'PKR' ? currency : undefined,
-        exchangeRate: currency !== 'PKR' ? parsedRate : undefined,
-      });
+      onUpdate(reminderToEdit.id, payload);
     } else {
-      onSubmit({
-        type,
-        clientName: clientName.trim(),
-        clientEmail: clientEmail.trim() || undefined,
-        clientPhone: clientPhone.trim() || undefined,
-        projectTitle: projectTitle.trim(),
-        invoiceNumber: invoiceNumber.trim() || undefined,
-        amount: computedPKR,
-        currency: 'PKR',
-        token: currency,
-        frequency,
-        autoRenew: frequency === 'monthly' ? autoRenew : false,
-        invoiceDate: invoiceDate || new Date().toISOString().split('T')[0],
-        dueDate,
-        reminderDate: reminderDate || dueDate,
-        notes: notes.trim() || undefined,
-        originalAmount: currency !== 'PKR' ? parsedInputAmount : undefined,
-        originalCurrency: currency !== 'PKR' ? currency : undefined,
-        exchangeRate: currency !== 'PKR' ? parsedRate : undefined,
-      });
+      onSubmit(payload);
     }
 
     onClose();
@@ -327,44 +389,153 @@ export const AddReminderModal: React.FC<AddReminderModalProps> = ({
           </div>
 
 
+          {/* Billing Plan: Fixed vs Variable vs Hybrid */}
+          <div>
+            <label className="block text-[11px] font-medium text-zinc-400 mb-1.5">
+              Amount Plan
+            </label>
+            <div className="grid grid-cols-3 gap-1.5 bg-[#171922] p-1 rounded-xl border border-white/5">
+              {[
+                { id: 'fixed' as const, label: 'Fixed' },
+                { id: 'variable' as const, label: 'Variable' },
+                { id: 'hybrid' as const, label: 'Hybrid (Fixed + Var)' },
+              ].map((plan) => (
+                <button
+                  key={plan.id}
+                  type="button"
+                  onClick={() => handlePlanSwitch(plan.id)}
+                  className={`py-2 px-2 text-[11px] font-semibold rounded-lg transition-all cursor-pointer ${
+                    amountType === plan.id
+                      ? 'bg-white/10 text-white shadow-sm'
+                      : 'text-zinc-400 hover:text-zinc-200'
+                  }`}
+                >
+                  {plan.label}
+                </button>
+              ))}
+            </div>
+            <p className="text-[10px] text-zinc-500 mt-1">
+              {amountType === 'fixed'
+                ? 'Same fixed amount each cycle.'
+                : amountType === 'variable'
+                ? 'Changes every month — enter an estimate or leave at 0 and fill when settling.'
+                : 'Fixed base amount every month + a variable amount you can set each cycle.'}
+            </p>
+          </div>
+
           {/* Amount & Multi-Currency Converter */}
           <div className="space-y-3">
-            <div className="grid grid-cols-3 gap-3">
-              <div className="col-span-2">
-                <label className="block text-[11px] font-medium text-zinc-400 mb-1">
-                  {type === 'payable' ? 'Payment Amount' : 'Receivable Amount'} ({currency})
-                </label>
-                <div className="relative">
-                  <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-zinc-400 font-mono text-xs font-semibold select-none">
-                    {getCurrencySymbol(currency)}
+            {amountType === 'hybrid' ? (
+              <div className="space-y-2.5">
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                  <div>
+                    <label className="block text-[11px] font-medium text-zinc-400 mb-1">
+                      Fixed Base ({currency})
+                    </label>
+                    <div className="relative">
+                      <span className="absolute left-3 top-1/2 -translate-y-1/2 text-zinc-400 font-mono text-xs font-semibold select-none">
+                        {getCurrencySymbol(currency)}
+                      </span>
+                      <input
+                        type="number"
+                        step="any"
+                        placeholder="4000"
+                        value={fixedAmount}
+                        onChange={(e) => setFixedAmount(e.target.value)}
+                        className="w-full bg-[#171922] text-white text-sm font-mono font-bold pl-11 pr-3 py-2.5 rounded-xl border border-white/10 focus:outline-none focus:border-white/30"
+                        required
+                      />
+                    </div>
+                  </div>
+
+                  <div>
+                    <label className="block text-[11px] font-medium text-zinc-400 mb-1">
+                      + Variable ({currency})
+                    </label>
+                    <div className="relative">
+                      <span className="absolute left-3 top-1/2 -translate-y-1/2 text-zinc-400 font-mono text-xs font-semibold select-none">
+                        {getCurrencySymbol(currency)}
+                      </span>
+                      <input
+                        type="number"
+                        step="any"
+                        min="0"
+                        placeholder="0 (TBD)"
+                        value={variableAmount}
+                        onChange={(e) => setVariableAmount(e.target.value)}
+                        className="w-full bg-[#171922] text-white text-sm font-mono font-bold pl-11 pr-3 py-2.5 rounded-xl border border-white/10 focus:outline-none focus:border-white/30"
+                      />
+                    </div>
+                  </div>
+
+                  <div>
+                    <label className="block text-[11px] font-medium text-zinc-400 mb-1">Currency</label>
+                    <select
+                      value={currency}
+                      onChange={(e) => handleCurrencyChange(e.target.value)}
+                      className="w-full bg-[#171922] text-white text-xs font-mono font-semibold px-2.5 py-3 rounded-xl border border-white/10 focus:outline-none focus:border-white/30 cursor-pointer"
+                    >
+                      {SUPPORTED_CURRENCIES.map((c) => (
+                        <option key={c.code} value={c.code}>
+                          {c.code} ({c.symbol.trim()})
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                </div>
+
+                <div className="px-3.5 py-2 rounded-xl bg-[#161821] border border-white/5 flex items-center justify-between text-[11px] font-mono">
+                  <span className="text-zinc-400">
+                    Fixed {getCurrencySymbol(currency)}{parsedFixedInput.toLocaleString()} + Variable {getCurrencySymbol(currency)}{parsedVarInput.toLocaleString()}
                   </span>
-                  <input
-                    type="number"
-                    step="any"
-                    placeholder="0"
-                    value={amount}
-                    onChange={(e) => setAmount(e.target.value)}
-                    className="w-full bg-[#171922] text-white text-base font-mono font-bold pl-12 pr-3 py-2.5 rounded-xl border border-white/10 focus:outline-none focus:border-white/30"
-                    required
-                  />
+                  <span className="text-white font-bold">
+                    Total: {getCurrencySymbol(currency)}{parsedInputAmount.toLocaleString()}
+                  </span>
                 </div>
               </div>
+            ) : (
+              <div className="grid grid-cols-3 gap-3">
+                <div className="col-span-2">
+                  <label className="block text-[11px] font-medium text-zinc-400 mb-1">
+                    {amountType === 'variable'
+                      ? `Variable Amount This Month (${currency}) — Optional`
+                      : `${type === 'payable' ? 'Payment Amount' : 'Receivable Amount'} (${currency})`}
+                  </label>
+                  <div className="relative">
+                    <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-zinc-400 font-mono text-xs font-semibold select-none">
+                      {getCurrencySymbol(currency)}
+                    </span>
+                    <input
+                      type="number"
+                      step="any"
+                      min={amountType === 'variable' ? '0' : undefined}
+                      placeholder={amountType === 'variable' ? '0 (Set when settling)' : '0'}
+                      value={amountType === 'variable' ? variableAmount : amount}
+                      onChange={(e) =>
+                        amountType === 'variable' ? setVariableAmount(e.target.value) : setAmount(e.target.value)
+                      }
+                      className="w-full bg-[#171922] text-white text-base font-mono font-bold pl-12 pr-3 py-2.5 rounded-xl border border-white/10 focus:outline-none focus:border-white/30"
+                      required={amountType === 'fixed'}
+                    />
+                  </div>
+                </div>
 
-              <div>
-                <label className="block text-[11px] font-medium text-zinc-400 mb-1">Currency</label>
-                <select
-                  value={currency}
-                  onChange={(e) => handleCurrencyChange(e.target.value)}
-                  className="w-full bg-[#171922] text-white text-xs font-mono font-semibold px-2.5 py-3 rounded-xl border border-white/10 focus:outline-none focus:border-white/30 cursor-pointer"
-                >
-                  {SUPPORTED_CURRENCIES.map((c) => (
-                    <option key={c.code} value={c.code}>
-                      {c.code} ({c.symbol.trim()})
-                    </option>
-                  ))}
-                </select>
+                <div>
+                  <label className="block text-[11px] font-medium text-zinc-400 mb-1">Currency</label>
+                  <select
+                    value={currency}
+                    onChange={(e) => handleCurrencyChange(e.target.value)}
+                    className="w-full bg-[#171922] text-white text-xs font-mono font-semibold px-2.5 py-3 rounded-xl border border-white/10 focus:outline-none focus:border-white/30 cursor-pointer"
+                  >
+                    {SUPPORTED_CURRENCIES.map((c) => (
+                      <option key={c.code} value={c.code}>
+                        {c.code} ({c.symbol.trim()})
+                      </option>
+                    ))}
+                  </select>
+                </div>
               </div>
-            </div>
+            )}
 
             {/* Foreign Exchange Rate & Live Conversion Banner */}
             {currency !== 'PKR' && (

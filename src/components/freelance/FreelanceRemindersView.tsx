@@ -31,7 +31,14 @@ import { PaymentReminder, Wallet, AppSettings, Transaction } from '@/types';
 import { formatDateDDMMYYYY, formatCash } from '@/lib/formatters';
 import { getWhatsAppReminderUrl } from '@/lib/whatsapp';
 import { DEFAULT_SETTINGS } from '@/lib/constants';
-import { formatForeignAmount } from '@/lib/currencies';
+import { formatForeignAmount, getCurrencySymbol } from '@/lib/currencies';
+
+interface CollectOverrideAmounts {
+  amountPKR: number;
+  variableAmountPKR?: number;
+  originalAmount?: number;
+  originalVariableAmount?: number;
+}
 
 interface FreelanceRemindersViewProps {
   mode?: 'receivables' | 'payables';
@@ -42,7 +49,7 @@ interface FreelanceRemindersViewProps {
   transactions?: Transaction[];
   onOpenAddModal: () => void;
   onEditReminder: (reminder: PaymentReminder) => void;
-  onCollectReminder: (id: string, walletId: string) => void;
+  onCollectReminder: (id: string, walletId: string, overrideAmounts?: CollectOverrideAmounts) => void;
   onDeleteReminder: (id: string) => void;
   onUpdateReminder?: (id: string, updates: Partial<PaymentReminder>) => void;
 }
@@ -65,8 +72,25 @@ export const FreelanceRemindersView: React.FC<FreelanceRemindersViewProps> = ({
   const [copiedId, setCopiedId] = useState<string | null>(null);
   const [selectedReminderDetails, setSelectedReminderDetails] = useState<PaymentReminder | null>(null);
   const [collectingReminder, setCollectingReminder] = useState<PaymentReminder | null>(null);
+  const [settleVariableInput, setSettleVariableInput] = useState<string>('');
+  const [settleError, setSettleError] = useState<string | null>(null);
   const [reminderToDelete, setReminderToDelete] = useState<PaymentReminder | null>(null);
   const [targetWalletId, setTargetWalletId] = useState<string>(wallets[0]?.id || 'wal-bank');
+
+  const openCollectModal = (rem: PaymentReminder) => {
+    setCollectingReminder(rem);
+    const isForeign = Boolean(rem.originalCurrency && rem.originalCurrency !== 'PKR');
+    if (rem.amountType === 'hybrid') {
+      const varInit = isForeign ? (rem.originalVariableAmount ?? 0) : (rem.variableAmount ?? 0);
+      setSettleVariableInput(varInit > 0 ? varInit.toString() : '');
+    } else if (rem.amountType === 'variable') {
+      const initAmt = isForeign ? (rem.originalAmount ?? 0) : (rem.amount ?? 0);
+      setSettleVariableInput(initAmt > 0 ? initAmt.toString() : '');
+    } else {
+      setSettleVariableInput('');
+    }
+    setSettleError(null);
+  };
 
   // Month date boundaries
   const today = new Date();
@@ -187,9 +211,68 @@ export const FreelanceRemindersView: React.FC<FreelanceRemindersViewProps> = ({
     URL.revokeObjectURL(url);
   };
 
+  const computeSettlementBreakdown = (rem: PaymentReminder, varInputStr: string) => {
+    const planType = rem.amountType || 'fixed';
+    const isForeign = Boolean(rem.originalCurrency && rem.originalCurrency !== 'PKR');
+    const rate = rem.exchangeRate || 1;
+
+    if (planType === 'fixed') {
+      return {
+        planType,
+        isForeign,
+        displayCurr: rem.originalCurrency || 'PKR',
+        fixedDisplay: 0,
+        varDisplay: 0,
+        totalDisplay: isForeign ? (rem.originalAmount || 0) : rem.amount,
+        fixedPKR: rem.amount,
+        varPKR: 0,
+        totalPKR: rem.amount,
+      };
+    }
+
+    const parsedVar = Math.max(0, parseFloat(varInputStr) || 0);
+    const varPKR = isForeign ? Math.round(parsedVar * rate) : Math.round(parsedVar);
+
+    if (planType === 'hybrid') {
+      const fixedPKR = rem.fixedAmount || 0;
+      const fixedDisplay = isForeign
+        ? (rem.originalFixedAmount ?? Math.round(fixedPKR / rate))
+        : fixedPKR;
+      return {
+        planType,
+        isForeign,
+        displayCurr: rem.originalCurrency || 'PKR',
+        fixedDisplay,
+        varDisplay: parsedVar,
+        totalDisplay: fixedDisplay + parsedVar,
+        fixedPKR,
+        varPKR,
+        totalPKR: fixedPKR + varPKR,
+      };
+    }
+
+    return {
+      planType,
+      isForeign,
+      displayCurr: rem.originalCurrency || 'PKR',
+      fixedDisplay: 0,
+      varDisplay: parsedVar,
+      totalDisplay: parsedVar,
+      fixedPKR: 0,
+      varPKR,
+      totalPKR: varPKR,
+    };
+  };
+
   // Finalize payment collection
   const handleConfirmCollect = () => {
     if (!collectingReminder) return;
+
+    const breakdown = computeSettlementBreakdown(collectingReminder, settleVariableInput);
+    if (breakdown.totalPKR <= 0) {
+      setSettleError('Please enter a valid amount greater than 0 before settling.');
+      return;
+    }
 
     // Trigger celebration confetti!
     confetti({
@@ -199,7 +282,16 @@ export const FreelanceRemindersView: React.FC<FreelanceRemindersViewProps> = ({
       colors: ['#10b981', '#f97316', '#38bdf8', '#fbbf24'],
     });
 
-    onCollectReminder(collectingReminder.id, targetWalletId);
+    if (breakdown.planType === 'variable' || breakdown.planType === 'hybrid') {
+      onCollectReminder(collectingReminder.id, targetWalletId, {
+        amountPKR: breakdown.totalPKR,
+        variableAmountPKR: breakdown.varPKR,
+        originalAmount: breakdown.isForeign ? breakdown.totalDisplay : undefined,
+        originalVariableAmount: breakdown.isForeign ? breakdown.varDisplay : undefined,
+      });
+    } else {
+      onCollectReminder(collectingReminder.id, targetWalletId);
+    }
     setCollectingReminder(null);
   };
 
@@ -420,6 +512,16 @@ export const FreelanceRemindersView: React.FC<FreelanceRemindersViewProps> = ({
                             Once
                           </span>
                         )}
+                        {rem.amountType === 'hybrid' && (
+                          <span className="text-[10px] font-mono text-sky-400 font-semibold">
+                            • Fixed + Variable
+                          </span>
+                        )}
+                        {rem.amountType === 'variable' && (
+                          <span className="text-[10px] font-mono text-amber-400 font-semibold">
+                            • Variable
+                          </span>
+                        )}
                         <span
                           className={`text-[10px] font-semibold uppercase tracking-wider flex items-center gap-1 ${
                             dueInfo.color === 'rose'
@@ -468,14 +570,24 @@ export const FreelanceRemindersView: React.FC<FreelanceRemindersViewProps> = ({
                     <div className="flex flex-col sm:flex-row sm:items-center gap-3 shrink-0 self-end lg:self-center" onClick={(e) => e.stopPropagation()}>
                       <div className="text-right">
                         <div className="text-lg font-bold text-white font-mono">
-                          {currencySymbol}{formatCash(rem.amount)}
+                          {rem.amountType === 'variable' && rem.amount === 0
+                            ? 'Variable (TBD)'
+                            : `${currencySymbol}${formatCash(rem.amount)}`}
                         </div>
-                        {rem.originalCurrency && rem.originalCurrency !== 'PKR' && rem.originalAmount ? (
+                        {rem.amountType === 'hybrid' ? (
+                          <div className="text-[10px] text-sky-300/90 font-mono">
+                            Fixed {currencySymbol}{formatCash(rem.fixedAmount || 0)} + Var{' '}
+                            {rem.variableAmount && rem.variableAmount > 0
+                              ? `${currencySymbol}${formatCash(rem.variableAmount)}`
+                              : 'TBD'}
+                          </div>
+                        ) : rem.originalCurrency && rem.originalCurrency !== 'PKR' && rem.originalAmount ? (
                           <div className="text-[11px] text-zinc-400 font-mono font-medium">
                             {formatForeignAmount(rem.originalAmount, rem.originalCurrency)} (@ {rem.exchangeRate})
                           </div>
                         ) : (
                           <div className="text-[10px] text-zinc-500 font-mono uppercase">
+                            {rem.amountType === 'variable' ? 'Variable Plan • ' : ''}
                             {rem.token || rem.currency || 'PKR'}
                           </div>
                         )}
@@ -489,7 +601,7 @@ export const FreelanceRemindersView: React.FC<FreelanceRemindersViewProps> = ({
                             <button
                               onClick={(e) => {
                                 e.stopPropagation();
-                                setCollectingReminder(rem);
+                                openCollectModal(rem);
                               }}
                               className="bg-zinc-100 hover:bg-white text-zinc-950 font-semibold text-xs px-3 py-2 rounded-xl flex items-center gap-1.5 transition-colors shadow-sm cursor-pointer"
                             >
@@ -592,76 +704,152 @@ export const FreelanceRemindersView: React.FC<FreelanceRemindersViewProps> = ({
       </div>
 
       {/* Collect / Pay Settlement Modal */}
-      {collectingReminder && (
-        <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-          <div className="bg-[#14161d] border border-white/10 rounded-2xl w-full max-w-md p-6 shadow-2xl animate-in fade-in zoom-in-95">
-            <div className="flex items-center justify-between pb-3 border-b border-white/5">
-              <div className="flex items-center gap-2 text-emerald-400">
-                <CheckCircle2 className="w-5 h-5" />
-                <h3 className="font-bold text-white text-base">
-                  {collectingReminder.type === 'payable' ? 'Settle Outgoing Expense' : 'Collect Client Payment'}
-                </h3>
-              </div>
-              <button
-                onClick={() => setCollectingReminder(null)}
-                className="text-zinc-500 hover:text-white text-xs cursor-pointer"
-              >
-                Cancel
-              </button>
-            </div>
+      {collectingReminder && (() => {
+        const settleBreakdown = computeSettlementBreakdown(collectingReminder, settleVariableInput);
+        const isVariableOrHybrid = settleBreakdown.planType === 'variable' || settleBreakdown.planType === 'hybrid';
+        const displaySym = settleBreakdown.isForeign ? getCurrencySymbol(settleBreakdown.displayCurr) : currencySymbol;
 
-            <div className="py-4 space-y-4">
-              <div className="bg-[#1c1f28] p-3 rounded-xl border border-white/5">
-                <div className="text-xs text-zinc-400">
-                  {collectingReminder.type === 'payable' ? 'Payee & Expense' : 'Client & Invoice'}
+        return (
+          <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+            <div className="bg-[#14161d] border border-white/10 rounded-2xl w-full max-w-md p-6 shadow-2xl animate-in fade-in zoom-in-95">
+              <div className="flex items-center justify-between pb-3 border-b border-white/5">
+                <div className="flex items-center gap-2 text-emerald-400">
+                  <CheckCircle2 className="w-5 h-5" />
+                  <h3 className="font-bold text-white text-base">
+                    {collectingReminder.type === 'payable' ? 'Settle Outgoing Expense' : 'Collect Client Payment'}
+                  </h3>
                 </div>
-                <div className="font-semibold text-white mt-0.5">{collectingReminder.clientName}</div>
-                <div className="text-xs text-zinc-400">{collectingReminder.projectTitle}</div>
-                <div className="text-lg font-mono font-bold text-white mt-2">
-                  {currencySymbol}{formatCash(collectingReminder.amount)} {collectingReminder.token}
-                </div>
-              </div>
-
-              <div>
-                <label className="block text-xs font-medium text-zinc-300 mb-1.5">
-                  {collectingReminder.type === 'payable' ? 'Select Account / Wallet to Pay From:' : 'Select Deposit Account / Wallet:'}
-                </label>
-                <select
-                  value={targetWalletId}
-                  onChange={(e) => setTargetWalletId(e.target.value)}
-                  className="w-full bg-[#181b23] border border-white/10 rounded-xl px-3 py-2 text-xs text-zinc-200 focus:outline-none focus:border-white/30"
+                <button
+                  onClick={() => setCollectingReminder(null)}
+                  className="text-zinc-500 hover:text-white text-xs cursor-pointer"
                 >
-                  {wallets.map((w) => (
-                    <option key={w.id} value={w.id}>
-                      {w.name} ({w.currency} - Current Balance: {w.symbol}{formatCash(w.balance)})
-                    </option>
-                  ))}
-                </select>
-                <p className="text-[11px] text-zinc-500 mt-1.5">
-                  {collectingReminder.type === 'payable'
-                    ? `This will mark the expense as Paid, deduct ${currencySymbol}${formatCash(collectingReminder.amount)} from the selected wallet, and log an Expense transaction.${collectingReminder.frequency === 'monthly' ? ' Next month’s recurring expense reminder will automatically be scheduled.' : ''}`
-                    : `This will mark the invoice as Collected, immediately deposit ${currencySymbol}${formatCash(collectingReminder.amount)} into the selected wallet, and log an Income transaction.${collectingReminder.frequency === 'monthly' ? ' Next month’s recurring retainer will automatically be scheduled.' : ''}`}
-                </p>
+                  Cancel
+                </button>
               </div>
-            </div>
 
-            <div className="flex items-center justify-end gap-2 pt-3 border-t border-white/5">
-              <button
-                onClick={() => setCollectingReminder(null)}
-                className="px-4 py-2 rounded-xl text-xs font-medium text-zinc-400 hover:text-white bg-white/5 hover:bg-white/10 cursor-pointer"
-              >
-                Cancel
-              </button>
-              <button
-                onClick={handleConfirmCollect}
-                className="px-5 py-2.5 rounded-xl text-xs font-semibold text-zinc-950 bg-zinc-100 hover:bg-white transition-colors shadow-sm cursor-pointer"
-              >
-                {collectingReminder.type === 'payable' ? 'Confirm Payment' : 'Confirm Collection'}
-              </button>
+              <div className="py-4 space-y-4">
+                {settleError && (
+                  <div className="p-2.5 rounded-xl bg-rose-500/10 border border-rose-500/20 text-rose-300 text-xs flex items-center gap-2">
+                    <AlertTriangle className="w-4 h-4 shrink-0" />
+                    <span>{settleError}</span>
+                  </div>
+                )}
+
+                <div className="bg-[#1c1f28] p-3.5 rounded-xl border border-white/5 space-y-2">
+                  <div className="flex items-start justify-between gap-2">
+                    <div>
+                      <div className="text-xs text-zinc-400">
+                        {collectingReminder.type === 'payable' ? 'Payee & Expense' : 'Client & Invoice'}
+                      </div>
+                      <div className="font-semibold text-white mt-0.5">{collectingReminder.clientName}</div>
+                      <div className="text-xs text-zinc-400">{collectingReminder.projectTitle}</div>
+                    </div>
+                    {settleBreakdown.planType !== 'fixed' && (
+                      <span className="text-[10px] font-mono uppercase font-semibold text-sky-400">
+                        {settleBreakdown.planType === 'hybrid' ? 'Hybrid Plan' : 'Variable Plan'}
+                      </span>
+                    )}
+                  </div>
+
+                  {isVariableOrHybrid ? (
+                    <div className="pt-2.5 border-t border-white/5 space-y-2.5">
+                      {settleBreakdown.planType === 'hybrid' && (
+                        <div className="flex items-center justify-between text-xs font-mono">
+                          <span className="text-zinc-400">Fixed Base Amount:</span>
+                          <span className="text-zinc-200 font-semibold">
+                            {displaySym}{formatCash(settleBreakdown.fixedDisplay)}
+                          </span>
+                        </div>
+                      )}
+
+                      <div>
+                        <label className="block text-[11px] font-medium text-zinc-300 mb-1">
+                          {settleBreakdown.planType === 'hybrid'
+                            ? `+ Variable Amount This Month (${settleBreakdown.displayCurr})`
+                            : `Actual Variable Amount This Month (${settleBreakdown.displayCurr})`}
+                        </label>
+                        <div className="relative">
+                          <span className="absolute left-3 top-1/2 -translate-y-1/2 text-zinc-400 font-mono text-xs font-semibold select-none">
+                            {displaySym}
+                          </span>
+                          <input
+                            type="number"
+                            step="any"
+                            min="0"
+                            placeholder="0"
+                            value={settleVariableInput}
+                            onChange={(e) => {
+                              setSettleVariableInput(e.target.value);
+                              setSettleError(null);
+                            }}
+                            className="w-full bg-[#12141a] text-white text-sm font-mono font-bold pl-11 pr-3 py-2 rounded-xl border border-white/15 focus:outline-none focus:border-white/40"
+                            autoFocus
+                          />
+                        </div>
+                      </div>
+
+                      <div className="flex items-center justify-between pt-1.5 border-t border-white/5">
+                        <span className="text-xs text-zinc-300 font-medium">Total to Settle:</span>
+                        <div className="text-right font-mono">
+                          <div className="text-base font-bold text-white">
+                            {currencySymbol}{formatCash(settleBreakdown.totalPKR)}
+                          </div>
+                          {settleBreakdown.isForeign && (
+                            <div className="text-[10px] text-zinc-400">
+                              ({displaySym}{settleBreakdown.totalDisplay.toLocaleString()} {settleBreakdown.displayCurr})
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="text-lg font-mono font-bold text-white mt-2">
+                      {currencySymbol}{formatCash(collectingReminder.amount)} {collectingReminder.token}
+                    </div>
+                  )}
+                </div>
+
+                <div>
+                  <label className="block text-xs font-medium text-zinc-300 mb-1.5">
+                    {collectingReminder.type === 'payable' ? 'Select Account / Wallet to Pay From:' : 'Select Deposit Account / Wallet:'}
+                  </label>
+                  <select
+                    value={targetWalletId}
+                    onChange={(e) => setTargetWalletId(e.target.value)}
+                    className="w-full bg-[#181b23] border border-white/10 rounded-xl px-3 py-2 text-xs text-zinc-200 focus:outline-none focus:border-white/30"
+                  >
+                    {wallets.map((w) => (
+                      <option key={w.id} value={w.id}>
+                        {w.name} ({w.currency} - Current Balance: {w.symbol}{formatCash(w.balance)})
+                      </option>
+                    ))}
+                  </select>
+                  <p className="text-[11px] text-zinc-500 mt-1.5">
+                    {collectingReminder.type === 'payable'
+                      ? `This will mark the expense as Paid, deduct ${currencySymbol}${formatCash(settleBreakdown.totalPKR)} from the selected wallet, and log an Expense transaction.${collectingReminder.frequency === 'monthly' ? (settleBreakdown.planType === 'hybrid' ? ` Next month will renew with Fixed ${currencySymbol}${formatCash(settleBreakdown.fixedPKR)} + Variable.` : settleBreakdown.planType === 'variable' ? ' Next month will renew as Variable for your next bill.' : ' Next month’s recurring expense reminder will automatically be scheduled.') : ''}`
+                      : `This will mark the invoice as Collected, immediately deposit ${currencySymbol}${formatCash(settleBreakdown.totalPKR)} into the selected wallet, and log an Income transaction.${collectingReminder.frequency === 'monthly' ? (settleBreakdown.planType === 'hybrid' ? ` Next month will renew with Fixed ${currencySymbol}${formatCash(settleBreakdown.fixedPKR)} + Variable.` : settleBreakdown.planType === 'variable' ? ' Next month will renew as Variable for your next cycle.' : ' Next month’s recurring retainer will automatically be scheduled.') : ''}`}
+                  </p>
+                </div>
+              </div>
+
+              <div className="flex items-center justify-end gap-2 pt-3 border-t border-white/5">
+                <button
+                  onClick={() => setCollectingReminder(null)}
+                  className="px-4 py-2 rounded-xl text-xs font-medium text-zinc-400 hover:text-white bg-white/5 hover:bg-white/10 cursor-pointer"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={handleConfirmCollect}
+                  className="px-5 py-2.5 rounded-xl text-xs font-semibold text-zinc-950 bg-zinc-100 hover:bg-white transition-colors shadow-sm cursor-pointer"
+                >
+                  {collectingReminder.type === 'payable' ? 'Confirm Payment' : 'Confirm Collection'}
+                </button>
+              </div>
             </div>
           </div>
-        </div>
-      )}
+        );
+      })()}
 
       {/* End Contract / Delete Safe Confirmation Modal */}
       {reminderToDelete && (() => {
@@ -847,13 +1035,22 @@ export const FreelanceRemindersView: React.FC<FreelanceRemindersViewProps> = ({
                 <div className="bg-[#171922] p-3.5 rounded-2xl border border-white/5">
                   <span className="text-[10px] font-medium text-zinc-400 uppercase tracking-wider block">Current Obligation</span>
                   <div className="text-lg sm:text-xl font-bold font-mono text-white mt-1">
-                    {currencySymbol}{formatCash(selectedReminderDetails.amount)}
+                    {selectedReminderDetails.amountType === 'variable' && selectedReminderDetails.amount === 0
+                      ? 'Variable (TBD)'
+                      : `${currencySymbol}${formatCash(selectedReminderDetails.amount)}`}
                   </div>
-                  {selectedReminderDetails.originalCurrency && selectedReminderDetails.originalCurrency !== 'PKR' && selectedReminderDetails.originalAmount && (
+                  {selectedReminderDetails.amountType === 'hybrid' ? (
+                    <div className="text-[10px] text-sky-400 font-mono mt-0.5">
+                      Fixed {currencySymbol}{formatCash(selectedReminderDetails.fixedAmount || 0)} + Var{' '}
+                      {selectedReminderDetails.variableAmount && selectedReminderDetails.variableAmount > 0
+                        ? `${currencySymbol}${formatCash(selectedReminderDetails.variableAmount)}`
+                        : 'TBD'}
+                    </div>
+                  ) : selectedReminderDetails.originalCurrency && selectedReminderDetails.originalCurrency !== 'PKR' && selectedReminderDetails.originalAmount ? (
                     <div className="text-[10px] text-zinc-400 font-mono mt-0.5">
                       {formatForeignAmount(selectedReminderDetails.originalAmount, selectedReminderDetails.originalCurrency)}
                     </div>
-                  )}
+                  ) : null}
                 </div>
 
                 <div className="bg-[#171922] p-3.5 rounded-2xl border border-white/5">
@@ -906,7 +1103,7 @@ export const FreelanceRemindersView: React.FC<FreelanceRemindersViewProps> = ({
                       onClick={() => {
                         const r = selectedReminderDetails;
                         setSelectedReminderDetails(null);
-                        setCollectingReminder(r);
+                        openCollectModal(r);
                       }}
                       className="px-3 py-1.5 text-xs rounded-xl bg-emerald-500/15 hover:bg-emerald-500/25 text-emerald-300 border border-emerald-500/30 flex items-center gap-1.5 transition-colors font-medium cursor-pointer"
                     >

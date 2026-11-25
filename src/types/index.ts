@@ -45,6 +45,7 @@ export interface Transaction {
 
 export type PaymentReminderStatus = 'pending' | 'due_today' | 'overdue' | 'collected' | 'ended';
 export type ReminderType = 'receivable' | 'payable';
+export type ReminderAmountType = 'fixed' | 'variable' | 'hybrid';
 
 export interface PaymentReminder {
   id: string;
@@ -55,6 +56,9 @@ export interface PaymentReminder {
   projectTitle: string;
   invoiceNumber?: string;
   amount: number;
+  amountType?: ReminderAmountType;
+  fixedAmount?: number;
+  variableAmount?: number;
   currency: string;
   token?: string;
   categoryId?: string;
@@ -65,6 +69,8 @@ export interface PaymentReminder {
   frequency?: PaymentFrequency;
   autoRenew?: boolean;
   originalAmount?: number;
+  originalFixedAmount?: number;
+  originalVariableAmount?: number;
   originalCurrency?: string;
   exchangeRate?: number;
   notes?: string;

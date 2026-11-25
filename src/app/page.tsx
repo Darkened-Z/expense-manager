@@ -618,9 +618,18 @@ export default function Home() {
     setWallets(StorageService.getWallets());
   };
 
-  const handleCollectReminder = (reminderId: string, walletId?: string) => {
+  const handleCollectReminder = (
+    reminderId: string,
+    walletId?: string,
+    overrideAmounts?: {
+      amountPKR: number;
+      variableAmountPKR?: number;
+      originalAmount?: number;
+      originalVariableAmount?: number;
+    }
+  ) => {
     const targetWallet = walletId || wallets[0]?.id || 'wal-bank';
-    StorageService.collectPayment(reminderId, targetWallet);
+    StorageService.collectPayment(reminderId, targetWallet, overrideAmounts);
     setReminders(StorageService.getReminders());
     setCategories(StorageService.getCategories());
     setTransactions(StorageService.getTransactions());
@@ -891,8 +900,16 @@ export default function Home() {
             setAddReminderType(currentTab === 'payables' ? 'payable' : 'receivable');
             setShowAddReminderModal(true);
           }}
-          onCollectReminder={(id) => handleCollectReminder(id)}
+          onCollectReminder={(id) => {
+            const rem = reminders.find((r) => r.id === id);
+            if (rem && (rem.amountType === 'variable' || rem.amountType === 'hybrid')) {
+              setCurrentTab(rem.type === 'payable' ? 'payables' : 'receivables');
+              return;
+            }
+            handleCollectReminder(id);
+          }}
           onNavigateToReminders={() => setCurrentTab('receivables')}
+          onNavigateTab={setCurrentTab}
           onToggleMobileMenu={() => setIsMobileMenuOpen(true)}
         />
 
