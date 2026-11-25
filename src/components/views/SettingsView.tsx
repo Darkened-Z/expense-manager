@@ -157,6 +157,8 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
   };
 
   const handleSaveSupabase = async () => {
+    setLocalDatabaseMode(false);
+    setIsLocalMode(false);
     saveSupabaseConfig({
       url: supabaseUrl.trim(),
       anonKey: supabaseAnonKey.trim(),
@@ -174,6 +176,25 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
     } catch {}
     await handleTestConnection();
     if (onSyncComplete) onSyncComplete();
+  };
+
+  const handleSwitchToLocalMode = () => {
+    setLocalDatabaseMode(true);
+    setIsLocalMode(true);
+    setIsConfigured(false);
+    setTestResult(null);
+    setSyncStatus(null);
+    if (onSyncComplete) onSyncComplete();
+  };
+
+  const handleEnableCloudMode = () => {
+    setLocalDatabaseMode(false);
+    setIsLocalMode(false);
+    const config = getSupabaseConfig();
+    setSupabaseUrl(config.url);
+    setSupabaseAnonKey(config.anonKey);
+    setSupabaseVaultId(config.vaultId);
+    setIsConfigured(isSupabaseConfigured());
   };
 
   const handleTestConnection = async () => {
@@ -636,6 +657,30 @@ create policy "Allow anon access" on expense_sync
         </div>
       </div>
 
+      {isLocalMode ? (
+        <div className="bg-[#12141a] border border-white/5 rounded-2xl p-5 sm:p-6 shadow-xl flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+          <div className="flex items-center gap-3">
+            <div className="p-2.5 rounded-xl bg-white/5 text-zinc-300 border border-white/5 shrink-0">
+              <HardDrive className="w-5 h-5 text-emerald-400" />
+            </div>
+            <div>
+              <h3 className="font-bold text-white text-sm">Private, on-device data</h3>
+              <p className="text-xs text-zinc-400 mt-0.5">
+                This app saves your finances in this browser on this device. It does not connect to a cloud database. Use Backup, Restore &amp; Export below to move your data yourself.
+              </p>
+            </div>
+          </div>
+          <button
+            type="button"
+            onClick={handleEnableCloudMode}
+            className="px-3.5 py-2 rounded-xl text-xs font-medium text-zinc-300 hover:text-white bg-white/5 hover:bg-white/10 border border-white/10 transition-colors cursor-pointer shrink-0 flex items-center gap-1.5 self-start sm:self-auto"
+          >
+            <Cloud className="w-3.5 h-3.5 text-zinc-400" />
+            <span>Configure Cloud Sync</span>
+          </button>
+        </div>
+      ) : (
+      <>
       {/* Cross-Device Cloud Sync Section (Supabase) */}
       <div className="bg-[#12141a] border border-white/5 rounded-2xl p-6 shadow-xl space-y-5">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between border-b border-white/5 pb-4 gap-3">
@@ -656,7 +701,7 @@ create policy "Allow anon access" on expense_sync
               </p>
             </div>
           </div>
-          <div className="flex items-center gap-2 self-start sm:self-auto">
+          <div className="flex items-center gap-2 self-start sm:self-auto flex-wrap">
             {isConfigured ? (
               <span className="inline-flex items-center gap-1.5 text-xs font-medium text-emerald-400">
                 <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
@@ -673,6 +718,14 @@ create policy "Allow anon access" on expense_sync
                 {new Date(lastSyncTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
               </span>
             )}
+            <button
+              type="button"
+              onClick={handleSwitchToLocalMode}
+              className="text-[11px] font-medium text-zinc-400 hover:text-white bg-white/5 hover:bg-white/10 px-2.5 py-1 rounded-lg border border-white/10 transition-colors cursor-pointer"
+              title="Disconnect cloud sync and store finances only on this device"
+            >
+              Use Local Only
+            </button>
           </div>
         </div>
 
@@ -865,6 +918,8 @@ create policy "Allow anon access" on expense_sync
           </div>
         </div>
       </div>
+      </>
+      )}
 
       {/* Data Backup & Disaster Recovery */}
       <div className="bg-[#12141a] border border-white/5 rounded-2xl p-6 shadow-xl space-y-4">
@@ -897,7 +952,7 @@ create policy "Allow anon access" on expense_sync
           </div>
           <div className="text-[11px] text-zinc-500 flex flex-col sm:flex-row sm:items-center justify-between gap-1">
             <span>Capacity: {storageStats.approximateCapacity} (~10+ years of daily use)</span>
-            <span className="text-zinc-400">Cloud Sync & file backups: Unlimited</span>
+            <span className="text-zinc-400">Your backups stay in files you control</span>
           </div>
         </div>
 

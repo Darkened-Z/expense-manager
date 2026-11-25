@@ -23,7 +23,16 @@ export function buildWhatsAppReminderMessage(
   const projectTitle = reminder.projectTitle || 'Project Services';
   const invoiceNum = reminder.invoiceNumber ? `#${reminder.invoiceNumber}` : 'Pending Settlement';
 
-  let formattedAmount = `${settings.currencySymbol || 'Rs. '}${formatCash(reminder.amount)}`;
+  const sym = settings.currencySymbol || 'Rs. ';
+  let formattedAmount =
+    reminder.amountType === 'variable' && reminder.amount === 0
+      ? 'Variable (To be finalized)'
+      : `${sym}${formatCash(reminder.amount)}`;
+
+  if (reminder.amountType === 'hybrid' && reminder.amount > 0 && (reminder.variableAmount || 0) > 0) {
+    formattedAmount = `${formattedAmount} (Fixed ${sym}${formatCash(reminder.fixedAmount || 0)} + Variable ${sym}${formatCash(reminder.variableAmount || 0)})`;
+  }
+
   if (reminder.originalCurrency && reminder.originalCurrency !== 'PKR' && reminder.originalAmount) {
     formattedAmount = `${formatForeignAmount(reminder.originalAmount, reminder.originalCurrency)} (${formattedAmount})`;
   }

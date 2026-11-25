@@ -5,7 +5,9 @@ export default function manifest(): MetadataRoute.Manifest {
     name: 'Expense Manager — Freelance Suite',
     short_name: 'ExpenseManager',
     description: 'High-performance expense tracker, freelance payment due-date reminders, and savings manager',
-    start_url: '/',
+    // Start installed phone apps in private device-only mode. This prevents
+    // the web app's optional server or Supabase sync from being initialized.
+    start_url: '/?mode=local',
     display: 'standalone',
     background_color: '#090a0d',
     theme_color: '#090a0d',

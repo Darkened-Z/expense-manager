@@ -15,15 +15,17 @@ const STORAGE_KEYS = {
 let cachedClient: SupabaseClient | null = null;
 let cachedConfigKey = '';
 
-const FALLBACK_URL = 'https://euymzglumqnehbssksam.supabase.co';
-const getFallbackKey = () =>
-  typeof window !== 'undefined'
-    ? atob('c2Jfc2VjcmV0XzBiZjM0bm9ralkyd01zZ1AtVjJhY1FfU0ZLVEswMkQ=')
-    : Buffer.from('c2Jfc2VjcmV0XzBiZjM0bm9ralkyd01zZ1AtVjJhY1FfU0ZLVEswMkQ=', 'base64').toString('utf-8');
-
 export function isLocalDatabaseMode(): boolean {
   if (typeof window === 'undefined') return false;
-  return localStorage.getItem('expense_manager_local_mode') === 'true';
+  const flag = localStorage.getItem('expense_manager_local_mode');
+  if (flag === 'true') return true;
+  if (flag === 'false') return false;
+  // Keep brand-new installs private by default unless Supabase credentials are already saved locally
+  const hasSavedConfig = Boolean(
+    localStorage.getItem(STORAGE_KEYS.SUPABASE_URL) &&
+    localStorage.getItem(STORAGE_KEYS.SUPABASE_KEY)
+  );
+  return !hasSavedConfig;
 }
 
 export function setLocalDatabaseMode(enabled: boolean): void {
@@ -34,7 +36,7 @@ export function setLocalDatabaseMode(enabled: boolean): void {
     localStorage.removeItem(STORAGE_KEYS.SUPABASE_KEY);
     localStorage.removeItem(STORAGE_KEYS.SUPABASE_VAULT_ID);
   } else {
-    localStorage.removeItem('expense_manager_local_mode');
+    localStorage.setItem('expense_manager_local_mode', 'false');
   }
   cachedClient = null;
   cachedConfigKey = '';
@@ -45,12 +47,10 @@ export function getSupabaseConfig(): SupabaseConfig {
     return { url: '', anonKey: '', vaultId: 'local' };
   }
 
-  const fallbackKey = getFallbackKey();
-
   if (typeof window === 'undefined') {
     return {
-      url: process.env.NEXT_PUBLIC_SUPABASE_URL || FALLBACK_URL,
-      anonKey: process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || fallbackKey,
+      url: process.env.NEXT_PUBLIC_SUPABASE_URL || '',
+      anonKey: process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || '',
       vaultId: process.env.NEXT_PUBLIC_SUPABASE_VAULT_ID || 'main',
     };
   }
@@ -60,8 +60,8 @@ export function getSupabaseConfig(): SupabaseConfig {
   const storedVaultId = localStorage.getItem(STORAGE_KEYS.SUPABASE_VAULT_ID);
 
   return {
-    url: storedUrl || process.env.NEXT_PUBLIC_SUPABASE_URL || FALLBACK_URL,
-    anonKey: storedKey || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || fallbackKey,
+    url: storedUrl || process.env.NEXT_PUBLIC_SUPABASE_URL || '',
+    anonKey: storedKey || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || '',
     vaultId: storedVaultId || process.env.NEXT_PUBLIC_SUPABASE_VAULT_ID || 'main',
   };
 }

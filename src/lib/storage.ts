@@ -344,6 +344,15 @@ export const StorageService = {
       if (updates.amount !== undefined && updates.amount !== existing.amount) {
         txUpdates.amount = updates.amount;
       }
+      if (updates.originalAmount !== undefined) {
+        txUpdates.originalAmount = updates.originalAmount;
+      }
+      if (updates.originalCurrency !== undefined) {
+        txUpdates.originalCurrency = updates.originalCurrency;
+      }
+      if (updates.exchangeRate !== undefined) {
+        txUpdates.exchangeRate = updates.exchangeRate;
+      }
       if (updates.projectTitle !== undefined || updates.clientName !== undefined) {
         const isPayable = (updates.type || existing.type) === 'payable';
         const client = updates.clientName || existing.clientName;

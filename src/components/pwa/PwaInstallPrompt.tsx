@@ -67,14 +67,14 @@ export const PwaInstallPrompt: React.FC = () => {
         </div>
         <div>
           <h4 className="text-xs sm:text-sm font-bold text-white flex items-center gap-2">
-            <span>Install App on PC / Phone</span>
+            <span>Install Expense Manager</span>
             <span className="text-[10px] text-zinc-400 font-mono flex items-center gap-1">
               <span className="w-1.5 h-1.5 rounded-full bg-emerald-400" />
               Offline Ready
             </span>
           </h4>
           <p className="text-[11px] text-zinc-400 mt-0.5 hidden xs:block">
-            Launch from your desktop taskbar or home screen with full offline access
+            Keep your finances on this device and open the app from your home screen
           </p>
         </div>
       </div>

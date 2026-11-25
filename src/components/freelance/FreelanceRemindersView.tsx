@@ -167,9 +167,17 @@ export const FreelanceRemindersView: React.FC<FreelanceRemindersViewProps> = ({
   const handleCopyReminderText = (rem: PaymentReminder) => {
     const isPayable = rem.type === 'payable';
     const formattedDue = formatDateDDMMYYYY(rem.dueDate);
+    let amountLabel =
+      rem.amountType === 'variable' && rem.amount === 0
+        ? 'Variable (To be finalized)'
+        : `${currencySymbol}${formatCash(rem.amount)}`;
+    if (rem.amountType === 'hybrid' && rem.amount > 0 && (rem.variableAmount || 0) > 0) {
+      amountLabel = `${amountLabel} (Fixed ${currencySymbol}${formatCash(rem.fixedAmount || 0)} + Variable ${currencySymbol}${formatCash(rem.variableAmount || 0)})`;
+    }
+
     const text = isPayable
-      ? `Payment Reminder: ${rem.projectTitle}\nPayee: ${rem.clientName}\nAmount: ${currencySymbol}${formatCash(rem.amount)}\nDue Date: ${formattedDue}${rem.notes ? `\nNotes: ${rem.notes}` : ''}`
-      : `Hi ${rem.clientName},\n\nI hope you're having a great week! Friendly reminder that Invoice #${rem.invoiceNumber || 'INV'} for "${rem.projectTitle}" in the amount of ${currencySymbol}${formatCash(rem.amount)} was due on ${formattedDue}.\n\nPlease let me know once the payment has been initiated or if you need any additional invoice documentation.\n\nThank you!`;
+      ? `Payment Reminder: ${rem.projectTitle}\nPayee: ${rem.clientName}\nAmount: ${amountLabel}\nDue Date: ${formattedDue}${rem.notes ? `\nNotes: ${rem.notes}` : ''}`
+      : `Hi ${rem.clientName},\n\nI hope you're having a great week! Friendly reminder that Invoice #${rem.invoiceNumber || 'INV'} for "${rem.projectTitle}" in the amount of ${amountLabel} was due on ${formattedDue}.\n\nPlease let me know once the payment has been initiated or if you need any additional invoice documentation.\n\nThank you!`;
 
     navigator.clipboard.writeText(text);
     setCopiedId(rem.id);
