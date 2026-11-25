@@ -75,6 +75,7 @@ export default function Home() {
   const [showAddReminderModal, setShowAddReminderModal] = useState<boolean>(false);
   const [addReminderType, setAddReminderType] = useState<ReminderType>('receivable');
   const [editingReminder, setEditingReminder] = useState<PaymentReminder | null>(null);
+  const [preselectedCollectId, setPreselectedCollectId] = useState<string | null>(null);
 
   // Helper function to push local data to both server /api/sync and Supabase
   const pushAllSync = async (snapshot: any) => {
@@ -903,13 +904,13 @@ export default function Home() {
           onCollectReminder={(id) => {
             const rem = reminders.find((r) => r.id === id);
             if (rem && (rem.amountType === 'variable' || rem.amountType === 'hybrid')) {
+              setPreselectedCollectId(id);
               setCurrentTab(rem.type === 'payable' ? 'payables' : 'receivables');
               return;
             }
             handleCollectReminder(id);
           }}
           onNavigateToReminders={() => setCurrentTab('receivables')}
-          onNavigateTab={setCurrentTab}
           onToggleMobileMenu={() => setIsMobileMenuOpen(true)}
         />
 
@@ -1010,6 +1011,8 @@ export default function Home() {
                 currencySymbol={settings.currencySymbol}
                 settings={settings}
                 transactions={transactions}
+                initialCollectId={preselectedCollectId}
+                onClearInitialCollectId={() => setPreselectedCollectId(null)}
                 onOpenAddModal={() => {
                   setEditingReminder(null);
                   setAddReminderType('receivable');
@@ -1037,6 +1040,8 @@ export default function Home() {
                 currencySymbol={settings.currencySymbol}
                 settings={settings}
                 transactions={transactions}
+                initialCollectId={preselectedCollectId}
+                onClearInitialCollectId={() => setPreselectedCollectId(null)}
                 onOpenAddModal={() => {
                   setEditingReminder(null);
                   setAddReminderType('payable');

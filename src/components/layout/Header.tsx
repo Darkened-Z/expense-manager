@@ -41,7 +41,6 @@ interface HeaderProps {
   onOpenAddReminder: () => void;
   onCollectReminder: (id: string) => void;
   onNavigateToReminders: () => void;
-  onNavigateTab?: (tab: string) => void;
   onToggleMobileMenu: () => void;
 }
 
@@ -62,7 +61,6 @@ export const Header: React.FC<HeaderProps> = ({
   onOpenAddReminder,
   onCollectReminder,
   onNavigateToReminders,
-  onNavigateTab,
   onToggleMobileMenu,
 }) => {
   const [showNotifications, setShowNotifications] = useState(false);
@@ -372,15 +370,7 @@ export const Header: React.FC<HeaderProps> = ({
                             )}
                             <button
                               onClick={() => {
-                                if (rem.amountType === 'variable' || rem.amountType === 'hybrid') {
-                                  if (onNavigateTab) {
-                                    onNavigateTab(rem.type === 'payable' ? 'payables' : 'receivables');
-                                  } else {
-                                    onNavigateToReminders();
-                                  }
-                                } else {
-                                  onCollectReminder(rem.id);
-                                }
+                                onCollectReminder(rem.id);
                                 setShowNotifications(false);
                               }}
                               className="text-[10px] bg-white/10 hover:bg-white/20 text-white font-semibold px-2 py-1 rounded-lg transition-colors"

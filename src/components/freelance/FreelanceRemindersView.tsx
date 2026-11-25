@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   Clock,
   AlertTriangle,
@@ -47,6 +47,8 @@ interface FreelanceRemindersViewProps {
   currencySymbol: string;
   settings?: AppSettings;
   transactions?: Transaction[];
+  initialCollectId?: string | null;
+  onClearInitialCollectId?: () => void;
   onOpenAddModal: () => void;
   onEditReminder: (reminder: PaymentReminder) => void;
   onCollectReminder: (id: string, walletId: string, overrideAmounts?: CollectOverrideAmounts) => void;
@@ -61,6 +63,8 @@ export const FreelanceRemindersView: React.FC<FreelanceRemindersViewProps> = ({
   currencySymbol,
   settings = DEFAULT_SETTINGS,
   transactions = [],
+  initialCollectId = null,
+  onClearInitialCollectId,
   onOpenAddModal,
   onEditReminder,
   onCollectReminder,
@@ -91,6 +95,15 @@ export const FreelanceRemindersView: React.FC<FreelanceRemindersViewProps> = ({
     }
     setSettleError(null);
   };
+
+  useEffect(() => {
+    if (!initialCollectId) return;
+    const match = reminders.find((r) => r.id === initialCollectId && r.status !== 'collected');
+    if (match) {
+      openCollectModal(match);
+    }
+    if (onClearInitialCollectId) onClearInitialCollectId();
+  }, [initialCollectId, reminders, onClearInitialCollectId]);
 
   // Month date boundaries
   const today = new Date();
@@ -579,15 +592,22 @@ export const FreelanceRemindersView: React.FC<FreelanceRemindersViewProps> = ({
                       <div className="text-right">
                         <div className="text-lg font-bold text-white font-mono">
                           {rem.amountType === 'variable' && rem.amount === 0
-                            ? 'Variable (TBD)'
+                            ? 'Variable'
+                            : rem.amountType === 'hybrid' && (rem.variableAmount || 0) === 0
+                            ? `${currencySymbol}${formatCash(rem.fixedAmount || rem.amount)} + Var`
                             : `${currencySymbol}${formatCash(rem.amount)}`}
                         </div>
                         {rem.amountType === 'hybrid' ? (
                           <div className="text-[10px] text-sky-300/90 font-mono">
-                            Fixed {currencySymbol}{formatCash(rem.fixedAmount || 0)} + Var{' '}
-                            {rem.variableAmount && rem.variableAmount > 0
-                              ? `${currencySymbol}${formatCash(rem.variableAmount)}`
-                              : 'TBD'}
+                            {(rem.variableAmount || 0) > 0
+                              ? `Fixed ${currencySymbol}${formatCash(rem.fixedAmount || 0)} + Var ${currencySymbol}${formatCash(rem.variableAmount || 0)}`
+                              : 'Fixed base + Variable asked when settling'}
+                          </div>
+                        ) : rem.amountType === 'variable' ? (
+                          <div className="text-[10px] text-amber-300/90 font-mono">
+                            {rem.amount > 0
+                              ? `Variable • ${rem.token || rem.currency || 'PKR'}`
+                              : 'Amount asked when settling'}
                           </div>
                         ) : rem.originalCurrency && rem.originalCurrency !== 'PKR' && rem.originalAmount ? (
                           <div className="text-[11px] text-zinc-400 font-mono font-medium">
@@ -595,7 +615,6 @@ export const FreelanceRemindersView: React.FC<FreelanceRemindersViewProps> = ({
                           </div>
                         ) : (
                           <div className="text-[10px] text-zinc-500 font-mono uppercase">
-                            {rem.amountType === 'variable' ? 'Variable Plan • ' : ''}
                             {rem.token || rem.currency || 'PKR'}
                           </div>
                         )}

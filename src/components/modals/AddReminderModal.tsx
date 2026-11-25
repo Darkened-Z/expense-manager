@@ -418,8 +418,8 @@ export const AddReminderModal: React.FC<AddReminderModalProps> = ({
               {amountType === 'fixed'
                 ? 'Same fixed amount each cycle.'
                 : amountType === 'variable'
-                ? 'Changes every month — enter an estimate or leave at 0 and fill when settling.'
-                : 'Fixed base amount every month + a variable amount you can set each cycle.'}
+                ? 'Different every month — you will be asked for the variable amount when receiving or paying.'
+                : 'Fixed base amount every month + variable amount asked when receiving or paying.'}
             </p>
           </div>
 
@@ -427,10 +427,10 @@ export const AddReminderModal: React.FC<AddReminderModalProps> = ({
           <div className="space-y-3">
             {amountType === 'hybrid' ? (
               <div className="space-y-2.5">
-                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                  <div>
+                <div className={`grid grid-cols-1 ${reminderToEdit?.status === 'collected' ? 'sm:grid-cols-3' : 'sm:grid-cols-3'} gap-3`}>
+                  <div className={reminderToEdit?.status === 'collected' ? '' : 'sm:col-span-2'}>
                     <label className="block text-[11px] font-medium text-zinc-400 mb-1">
-                      Fixed Base ({currency})
+                      Fixed Base Amount ({currency})
                     </label>
                     <div className="relative">
                       <span className="absolute left-3 top-1/2 -translate-y-1/2 text-zinc-400 font-mono text-xs font-semibold select-none">
@@ -448,25 +448,27 @@ export const AddReminderModal: React.FC<AddReminderModalProps> = ({
                     </div>
                   </div>
 
-                  <div>
-                    <label className="block text-[11px] font-medium text-zinc-400 mb-1">
-                      + Variable ({currency})
-                    </label>
-                    <div className="relative">
-                      <span className="absolute left-3 top-1/2 -translate-y-1/2 text-zinc-400 font-mono text-xs font-semibold select-none">
-                        {getCurrencySymbol(currency)}
-                      </span>
-                      <input
-                        type="number"
-                        step="any"
-                        min="0"
-                        placeholder="0 (TBD)"
-                        value={variableAmount}
-                        onChange={(e) => setVariableAmount(e.target.value)}
-                        className="w-full bg-[#171922] text-white text-sm font-mono font-bold pl-11 pr-3 py-2.5 rounded-xl border border-white/10 focus:outline-none focus:border-white/30"
-                      />
+                  {reminderToEdit?.status === 'collected' && (
+                    <div>
+                      <label className="block text-[11px] font-medium text-zinc-400 mb-1">
+                        + Variable Settled ({currency})
+                      </label>
+                      <div className="relative">
+                        <span className="absolute left-3 top-1/2 -translate-y-1/2 text-zinc-400 font-mono text-xs font-semibold select-none">
+                          {getCurrencySymbol(currency)}
+                        </span>
+                        <input
+                          type="number"
+                          step="any"
+                          min="0"
+                          placeholder="0"
+                          value={variableAmount}
+                          onChange={(e) => setVariableAmount(e.target.value)}
+                          className="w-full bg-[#171922] text-white text-sm font-mono font-bold pl-11 pr-3 py-2.5 rounded-xl border border-white/10 focus:outline-none focus:border-white/30"
+                        />
+                      </div>
                     </div>
-                  </div>
+                  )}
 
                   <div>
                     <label className="block text-[11px] font-medium text-zinc-400 mb-1">Currency</label>
@@ -486,11 +488,37 @@ export const AddReminderModal: React.FC<AddReminderModalProps> = ({
 
                 <div className="px-3.5 py-2 rounded-xl bg-[#161821] border border-white/5 flex items-center justify-between text-[11px] font-mono">
                   <span className="text-zinc-400">
-                    Fixed {getCurrencySymbol(currency)}{parsedFixedInput.toLocaleString()} + Variable {getCurrencySymbol(currency)}{parsedVarInput.toLocaleString()}
+                    Fixed {getCurrencySymbol(currency)}{parsedFixedInput.toLocaleString()} + Variable (asked on settlement)
                   </span>
-                  <span className="text-white font-bold">
-                    Total: {getCurrencySymbol(currency)}{parsedInputAmount.toLocaleString()}
-                  </span>
+                  {reminderToEdit?.status === 'collected' && (
+                    <span className="text-white font-bold">
+                      Total: {getCurrencySymbol(currency)}{parsedInputAmount.toLocaleString()}
+                    </span>
+                  )}
+                </div>
+              </div>
+            ) : amountType === 'variable' && reminderToEdit?.status !== 'collected' ? (
+              <div className="grid grid-cols-3 gap-3 items-end">
+                <div className="col-span-2 bg-[#171922] border border-white/10 rounded-xl px-3.5 py-2.5">
+                  <div className="text-[11px] font-semibold text-amber-400">Variable Amount Each Month</div>
+                  <div className="text-[10px] text-zinc-400 mt-0.5">
+                    App will ask you for the exact amount whenever you {type === 'payable' ? 'pay' : 'receive'} it.
+                  </div>
+                </div>
+
+                <div>
+                  <label className="block text-[11px] font-medium text-zinc-400 mb-1">Currency</label>
+                  <select
+                    value={currency}
+                    onChange={(e) => handleCurrencyChange(e.target.value)}
+                    className="w-full bg-[#171922] text-white text-xs font-mono font-semibold px-2.5 py-3 rounded-xl border border-white/10 focus:outline-none focus:border-white/30 cursor-pointer"
+                  >
+                    {SUPPORTED_CURRENCIES.map((c) => (
+                      <option key={c.code} value={c.code}>
+                        {c.code} ({c.symbol.trim()})
+                      </option>
+                    ))}
+                  </select>
                 </div>
               </div>
             ) : (
@@ -498,7 +526,7 @@ export const AddReminderModal: React.FC<AddReminderModalProps> = ({
                 <div className="col-span-2">
                   <label className="block text-[11px] font-medium text-zinc-400 mb-1">
                     {amountType === 'variable'
-                      ? `Variable Amount This Month (${currency}) — Optional`
+                      ? `Settled Variable Amount (${currency})`
                       : `${type === 'payable' ? 'Payment Amount' : 'Receivable Amount'} (${currency})`}
                   </label>
                   <div className="relative">
@@ -508,14 +536,13 @@ export const AddReminderModal: React.FC<AddReminderModalProps> = ({
                     <input
                       type="number"
                       step="any"
-                      min={amountType === 'variable' ? '0' : undefined}
-                      placeholder={amountType === 'variable' ? '0 (Set when settling)' : '0'}
+                      placeholder="0"
                       value={amountType === 'variable' ? variableAmount : amount}
                       onChange={(e) =>
                         amountType === 'variable' ? setVariableAmount(e.target.value) : setAmount(e.target.value)
                       }
                       className="w-full bg-[#171922] text-white text-base font-mono font-bold pl-12 pr-3 py-2.5 rounded-xl border border-white/10 focus:outline-none focus:border-white/30"
-                      required={amountType === 'fixed'}
+                      required
                     />
                   </div>
                 </div>
