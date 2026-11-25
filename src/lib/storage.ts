@@ -1071,6 +1071,18 @@ export const StorageService = {
     this.markLocalUpdate();
   },
 
+  resetKeepReminders(): void {
+    if (typeof window === 'undefined') return;
+    const currentWallets = this.getWallets().map((w) => ({ ...w, balance: 0 }));
+    const currentCats = this.getCategories().map((c) => ({ ...c, budgetLimit: 0 }));
+    localStorage.setItem(KEYS.TRANSACTIONS, JSON.stringify(INITIAL_TRANSACTIONS));
+    localStorage.setItem(KEYS.CATEGORIES, JSON.stringify(currentCats.length > 0 ? currentCats : DEFAULT_CATEGORIES));
+    localStorage.setItem(KEYS.WALLETS, JSON.stringify(currentWallets.length > 0 ? currentWallets : DEFAULT_WALLETS));
+    localStorage.setItem(KEYS.SAVINGS, JSON.stringify(INITIAL_SAVINGS_GOALS));
+    localStorage.removeItem(KEYS.SIMPLE_SAVINGS);
+    this.markLocalUpdate();
+  },
+
   clearAllData(): void {
     if (typeof window === 'undefined') return;
     this.resetAllData();

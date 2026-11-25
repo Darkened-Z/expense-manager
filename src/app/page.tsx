@@ -789,6 +789,17 @@ export default function Home() {
     setSettings(StorageService.getSettings());
   };
 
+  const handleResetKeepReminders = () => {
+    StorageService.resetKeepReminders();
+    setTransactions(StorageService.getTransactions());
+    setReminders(StorageService.getReminders());
+    setCategories(StorageService.getCategories());
+    setWallets(StorageService.getWallets());
+    setSavingsGoals(StorageService.getSavingsGoals());
+    setSimpleSavings(StorageService.getSimpleSavings());
+    setSettings(StorageService.getSettings());
+  };
+
   const filteredTxs = transactions.filter((t) => {
     if (selectedWalletId !== 'all' && t.walletId !== selectedWalletId) return false;
 
@@ -1132,6 +1143,7 @@ export default function Home() {
                 onImportBackup={handleImportBackup}
                 onExportCSV={handleExportCSV}
                 onResetAllData={handleResetAllData}
+                onResetKeepReminders={handleResetKeepReminders}
                 onSyncComplete={reloadAllFromStorage}
               />
             </div>

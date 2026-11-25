@@ -52,6 +52,7 @@ interface SettingsViewProps {
   onImportBackup: (jsonStr: string) => void;
   onExportCSV: () => void;
   onResetAllData: () => void;
+  onResetKeepReminders?: () => void;
   onSyncComplete?: () => void;
 }
 
@@ -63,6 +64,7 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
   onImportBackup,
   onExportCSV,
   onResetAllData,
+  onResetKeepReminders,
   onSyncComplete,
 }) => {
   const [userName, setUserName] = useState(settings.userName);
@@ -979,6 +981,28 @@ create policy "Allow anon access" on expense_sync
             <span>Export CSV Ledger</span>
           </button>
         </div>
+
+        {onResetKeepReminders && (
+          <div className="pt-4 border-t border-white/5 flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+            <div>
+              <div className="text-xs font-semibold text-amber-400">Start Fresh (Keep Payables &amp; Receivables)</div>
+              <div className="text-[11px] text-zinc-500">
+                Clear transactions, savings, budget caps &amp; zero balances while keeping payables, receivables &amp; PIN
+              </div>
+            </div>
+            <button
+              type="button"
+              onClick={() => {
+                if (confirm('Clear all transactions, savings, caps, and wallet balances while keeping your payables & receivables?')) {
+                  onResetKeepReminders();
+                }
+              }}
+              className="px-3.5 py-2 rounded-xl text-xs font-medium text-amber-300 hover:text-white bg-amber-500/10 hover:bg-amber-500/20 border border-amber-500/20 transition-colors cursor-pointer shrink-0 self-start sm:self-auto"
+            >
+              Reset (Keep Bills)
+            </button>
+          </div>
+        )}
 
         <div className="pt-4 border-t border-white/5 flex items-center justify-between">
           <div>
