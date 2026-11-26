@@ -73,6 +73,7 @@ export const FreelanceRemindersView: React.FC<FreelanceRemindersViewProps> = ({
 }) => {
   const isPayablesMode = mode === 'payables';
   const [filterTab, setFilterTab] = useState<'this_month' | 'urgent' | 'upcoming' | 'collected' | 'all'>('this_month');
+  const [progressScope, setProgressScope] = useState<'overall' | 'this_month'>('overall');
   const [copiedId, setCopiedId] = useState<string | null>(null);
   const [selectedReminderDetails, setSelectedReminderDetails] = useState<PaymentReminder | null>(null);
   const [collectingReminder, setCollectingReminder] = useState<PaymentReminder | null>(null);
@@ -136,7 +137,31 @@ export const FreelanceRemindersView: React.FC<FreelanceRemindersViewProps> = ({
   const dueTodayList = baseReminders.filter((r) => r.status === 'due_today');
   const urgentCount = overdueList.length + dueTodayList.length;
 
-  const settledCount = baseReminders.filter((r) => r.status === 'collected').length;
+  const settledList = baseReminders.filter((r) => r.status === 'collected');
+  const settledCount = settledList.length;
+
+  // Progress bar stats (Total vs Given/Taken vs Left, with amounts and percentages)
+  const currentMonthPrefix = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}`;
+  const thisMonthSettledList = settledList.filter(
+    (r) => r.dueDate.startsWith(currentMonthPrefix) || (r.collectedAt && r.collectedAt.startsWith(currentMonthPrefix))
+  );
+  const settledThisMonth = thisMonthSettledList.reduce((sum, r) => sum + r.amount, 0);
+
+  const progressGivenOrTaken = progressScope === 'this_month' ? settledThisMonth : totalSettled;
+  const progressLeft =
+    progressScope === 'this_month' ? totalPendingThisMonth : totalPendingThisMonth + totalPendingFuture;
+  const progressTotal = progressGivenOrTaken + progressLeft;
+
+  const progressSettledPct = progressTotal > 0 ? (progressGivenOrTaken / progressTotal) * 100 : 0;
+  const progressLeftPct = progressTotal > 0 ? Math.max(0, 100 - progressSettledPct) : 0;
+
+  const activeScopeItems =
+    progressScope === 'this_month' ? thisMonthActive : [...thisMonthActive, ...futureActive];
+  const hasVariableInScope = activeScopeItems.some(
+    (r) => r.amountType === 'variable' || (r.amountType === 'hybrid' && (r.variableAmount || 0) === 0)
+  );
+  const progressSettledCount = progressScope === 'this_month' ? thisMonthSettledList.length : settledCount;
+  const progressLeftCount = activeScopeItems.length;
 
   // Filter list by selected tab
   const filteredList = baseReminders.filter((r) => {
@@ -394,6 +419,143 @@ export const FreelanceRemindersView: React.FC<FreelanceRemindersViewProps> = ({
           </div>
           <div className="text-[11px] text-zinc-500 mt-1 truncate">
             {futureActive.length > 0 ? `${futureActive.length} scheduled in future months` : 'All current cycle records'}
+          </div>
+        </div>
+      </div>
+
+      {/* Settlement Breakdown Bar (Total vs Given/Taken vs Left with Amount & Percentage) */}
+      <div className="bg-[#12141a] border border-white/5 rounded-2xl p-4 sm:p-5 shadow-xl space-y-4">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5">
+          <div>
+            <h3 className="text-xs sm:text-sm font-bold text-white flex items-center gap-2">
+              <span>{isPayablesMode ? 'Payables Progress (Given vs Left)' : 'Receivables Progress (Taken vs Left)'}</span>
+              {hasVariableInScope && (
+                <span className="text-[10px] font-mono font-normal text-amber-400">
+                  + Variable TBD
+                </span>
+              )}
+            </h3>
+            <p className="text-[11px] text-zinc-400 mt-0.5">
+              Total {isPayablesMode ? 'obligations' : 'invoices'}:{' '}
+              <span className="font-mono font-semibold text-white">
+                {currencySymbol}{formatCash(progressTotal)}
+              </span>{' '}
+              <span className="text-zinc-500">
+                ({progressSettledCount} settled • {progressLeftCount} remaining)
+              </span>
+            </p>
+          </div>
+
+          {/* Scope Toggle: Overall vs This Month */}
+          <div className="inline-flex items-center gap-1 bg-[#181b23] p-1 rounded-xl border border-white/10 text-[11px] self-start sm:self-auto">
+            <button
+              type="button"
+              onClick={() => setProgressScope('overall')}
+              className={`px-2.5 py-1 rounded-lg transition-colors cursor-pointer ${
+                progressScope === 'overall' ? 'bg-white/10 text-white font-semibold' : 'text-zinc-400 hover:text-zinc-200'
+              }`}
+            >
+              Overall
+            </button>
+            <button
+              type="button"
+              onClick={() => setProgressScope('this_month')}
+              className={`px-2.5 py-1 rounded-lg transition-colors cursor-pointer ${
+                progressScope === 'this_month' ? 'bg-white/10 text-white font-semibold' : 'text-zinc-400 hover:text-zinc-200'
+              }`}
+            >
+              This Month
+            </button>
+          </div>
+        </div>
+
+        {/* Summary Figures Row */}
+        <div className="grid grid-cols-3 gap-2.5 sm:gap-4">
+          <div className="bg-[#161821] border border-white/5 rounded-xl p-3 min-w-0">
+            <div className="flex items-center gap-1.5 text-[11px] text-zinc-400 font-medium">
+              <span className="w-2 h-2 rounded-full bg-emerald-400 shrink-0" />
+              <span className="truncate">{isPayablesMode ? 'Given (Paid)' : 'Taken (Collected)'}</span>
+            </div>
+            <div className="mt-1 flex items-baseline justify-between gap-1 flex-wrap">
+              <span className="text-sm sm:text-base font-bold font-mono text-emerald-400 truncate">
+                {currencySymbol}{formatCash(progressGivenOrTaken)}
+              </span>
+              <span className="text-xs font-mono font-bold text-emerald-300">
+                {progressSettledPct.toFixed(1)}%
+              </span>
+            </div>
+          </div>
+
+          <div className="bg-[#161821] border border-white/5 rounded-xl p-3 min-w-0">
+            <div className="flex items-center gap-1.5 text-[11px] text-zinc-400 font-medium">
+              <span className={`w-2 h-2 rounded-full shrink-0 ${isPayablesMode ? 'bg-rose-400' : 'bg-amber-400'}`} />
+              <span className="truncate">Left (Remaining)</span>
+            </div>
+            <div className="mt-1 flex items-baseline justify-between gap-1 flex-wrap">
+              <span className={`text-sm sm:text-base font-bold font-mono truncate ${isPayablesMode ? 'text-rose-400' : 'text-amber-300'}`}>
+                {currencySymbol}{formatCash(progressLeft)}
+              </span>
+              <span className={`text-xs font-mono font-bold ${isPayablesMode ? 'text-rose-300' : 'text-amber-300'}`}>
+                {progressLeftPct.toFixed(1)}%
+              </span>
+            </div>
+          </div>
+
+          <div className="bg-[#161821] border border-white/5 rounded-xl p-3 min-w-0">
+            <div className="flex items-center gap-1.5 text-[11px] text-zinc-400 font-medium">
+              <span className="w-2 h-2 rounded-full bg-zinc-300 shrink-0" />
+              <span className="truncate">Total</span>
+            </div>
+            <div className="mt-1 flex items-baseline justify-between gap-1 flex-wrap">
+              <span className="text-sm sm:text-base font-bold font-mono text-white truncate">
+                {currencySymbol}{formatCash(progressTotal)}
+              </span>
+              <span className="text-xs font-mono font-semibold text-zinc-400">
+                {progressTotal > 0 ? '100%' : '0%'}
+              </span>
+            </div>
+          </div>
+        </div>
+
+        {/* Visual Split Bar Showing Amount & Percentage */}
+        <div className="space-y-1.5">
+          <div className="w-full h-8 rounded-xl bg-[#181b23] border border-white/10 overflow-hidden flex font-mono text-[11px] font-semibold">
+            {progressTotal === 0 ? (
+              <div className="w-full h-full flex items-center justify-center text-zinc-500">
+                No amounts recorded yet (0%)
+              </div>
+            ) : (
+              <>
+                {progressSettledPct > 0 && (
+                  <div
+                    className="h-full bg-emerald-500/80 text-zinc-950 flex items-center justify-center px-2 transition-all duration-500 overflow-hidden whitespace-nowrap"
+                    style={{ width: `${progressSettledPct}%` }}
+                    title={`${isPayablesMode ? 'Given' : 'Taken'}: ${currencySymbol}${formatCash(progressGivenOrTaken)} (${progressSettledPct.toFixed(1)}%)`}
+                  >
+                    {progressSettledPct >= 18 && (
+                      <span className="truncate font-bold">
+                        {isPayablesMode ? 'Given' : 'Taken'} {currencySymbol}{formatCash(progressGivenOrTaken)} ({progressSettledPct.toFixed(0)}%)
+                      </span>
+                    )}
+                  </div>
+                )}
+                {progressLeftPct > 0 && (
+                  <div
+                    className={`h-full flex items-center justify-center px-2 transition-all duration-500 overflow-hidden whitespace-nowrap ${
+                      isPayablesMode ? 'bg-rose-500/25 text-rose-200' : 'bg-amber-500/25 text-amber-200'
+                    }`}
+                    style={{ width: `${progressLeftPct}%` }}
+                    title={`Left: ${currencySymbol}${formatCash(progressLeft)} (${progressLeftPct.toFixed(1)}%)`}
+                  >
+                    {progressLeftPct >= 18 && (
+                      <span className="truncate">
+                        Left {currencySymbol}{formatCash(progressLeft)} ({progressLeftPct.toFixed(0)}%)
+                      </span>
+                    )}
+                  </div>
+                )}
+              </>
+            )}
           </div>
         </div>
       </div>
