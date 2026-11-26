@@ -282,11 +282,11 @@ export const AddReminderModal: React.FC<AddReminderModalProps> = ({
   };
 
   return (
-    <div className="fixed inset-0 bg-black/80 backdrop-blur-md z-50 flex items-center justify-center p-3 sm:p-4">
-      <div className="bg-[#12141a] border border-white/10 rounded-2xl sm:rounded-3xl w-full max-w-lg p-4 sm:p-6 max-h-[92vh] overflow-y-auto shadow-2xl animate-in fade-in zoom-in-95">
-        <div className="flex items-center justify-between pb-4 border-b border-white/5">
+    <div className="fixed inset-0 bg-black/80 z-50 flex items-center justify-center p-3 sm:p-4">
+      <div className="bg-[#12141a] border border-[#2c303d] rounded-none sm:rounded-none w-full max-w-lg p-4 sm:p-6 max-h-[92vh] overflow-y-auto animate-in fade-in zoom-in-95">
+        <div className="flex items-center justify-between pb-4 border-b border-[#22252f]">
           <div className="flex items-center gap-2">
-            <div className="p-1.5 rounded-lg bg-white/5 text-zinc-300 border border-white/5">
+            <div className="p-1.5 rounded-none bg-[#16181f] text-zinc-300 border border-[#22252f]">
               {reminderToEdit ? (
                 <Pencil className="w-4 h-4 text-emerald-400" />
               ) : (
@@ -299,30 +299,30 @@ export const AddReminderModal: React.FC<AddReminderModalProps> = ({
                 : (type === 'payable' ? 'New Payable Due Date' : 'New Client Invoice Due Date')}
             </h2>
           </div>
-          <button onClick={onClose} className="p-1 rounded-lg text-zinc-500 hover:text-white transition-colors">
+          <button onClick={onClose} className="p-1 rounded-none text-zinc-500 hover:text-white transition-colors">
             <X className="w-4 h-4" />
           </button>
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-4 pt-4">
           {error && (
-            <div className="p-3 rounded-xl bg-rose-500/10 border border-rose-500/20 text-rose-300 text-xs flex items-center gap-2">
+            <div className="p-3 rounded-none bg-[#261116] border border-rose-800 text-rose-300 text-xs flex items-center gap-2">
               <AlertTriangle className="w-4 h-4 shrink-0" />
               <span>{error}</span>
             </div>
           )}
 
           {/* Reminder Direction: To Collect vs To Pay */}
-          <div className="grid grid-cols-2 gap-2 bg-[#171922] p-1 rounded-xl border border-white/5">
+          <div className="grid grid-cols-2 gap-2 bg-[#171922] p-1 rounded-none border border-[#22252f]">
             <button
               type="button"
               onClick={() => {
                 setType('receivable');
                 setFrequency('once');
               }}
-              className={`py-2 text-xs font-semibold rounded-lg flex items-center justify-center gap-1.5 transition-all ${
+              className={`py-2 text-xs font-semibold rounded-none flex items-center justify-center gap-1.5 transition-all ${
                 type === 'receivable'
-                  ? 'bg-white/10 text-white shadow-sm'
+                  ? 'bg-[#20232e] text-white'
                   : 'text-zinc-400 hover:text-zinc-200'
               }`}
             >
@@ -335,9 +335,9 @@ export const AddReminderModal: React.FC<AddReminderModalProps> = ({
                 setType('payable');
                 setFrequency('monthly');
               }}
-              className={`py-2 text-xs font-semibold rounded-lg flex items-center justify-center gap-1.5 transition-all ${
+              className={`py-2 text-xs font-semibold rounded-none flex items-center justify-center gap-1.5 transition-all ${
                 type === 'payable'
-                  ? 'bg-white/10 text-white shadow-sm'
+                  ? 'bg-[#20232e] text-white'
                   : 'text-zinc-400 hover:text-zinc-200'
               }`}
             >
@@ -357,7 +357,7 @@ export const AddReminderModal: React.FC<AddReminderModalProps> = ({
                 placeholder={type === 'payable' ? 'e.g. Asim (Junior Dev), Landlord' : 'e.g. Acme Labs'}
                 value={clientName}
                 onChange={(e) => setClientName(e.target.value)}
-                className="w-full bg-[#171922] text-white text-xs px-3.5 py-2.5 rounded-xl border border-white/10 focus:outline-none focus:border-white/30"
+                className="w-full bg-[#171922] text-white text-xs px-3.5 py-2.5 rounded-none border border-[#2c303d] focus:outline-none focus:border-[#52596e]"
                 required
               />
             </div>
@@ -370,7 +370,7 @@ export const AddReminderModal: React.FC<AddReminderModalProps> = ({
                 placeholder={type === 'payable' ? 'PAY-2026-01' : 'INV-2026-01'}
                 value={invoiceNumber}
                 onChange={(e) => setInvoiceNumber(e.target.value)}
-                className="w-full bg-[#171922] text-white text-xs font-mono px-3.5 py-2.5 rounded-xl border border-white/10 focus:outline-none focus:border-white/30"
+                className="w-full bg-[#171922] text-white text-xs font-mono px-3.5 py-2.5 rounded-none border border-[#2c303d] focus:outline-none focus:border-[#52596e]"
               />
             </div>
           </div>
@@ -384,7 +384,7 @@ export const AddReminderModal: React.FC<AddReminderModalProps> = ({
               placeholder={type === 'payable' ? 'e.g. Monthly Salary, Office Rent, Hosting' : 'e.g. Mobile App Redesign, API integration'}
               value={projectTitle}
               onChange={(e) => setProjectTitle(e.target.value)}
-              className="w-full bg-[#171922] text-white text-xs px-3.5 py-2.5 rounded-xl border border-white/10 focus:outline-none focus:border-white/30"
+              className="w-full bg-[#171922] text-white text-xs px-3.5 py-2.5 rounded-none border border-[#2c303d] focus:outline-none focus:border-[#52596e]"
               required
             />
           </div>
@@ -395,7 +395,7 @@ export const AddReminderModal: React.FC<AddReminderModalProps> = ({
             <label className="block text-[11px] font-medium text-zinc-400 mb-1.5">
               Amount Plan
             </label>
-            <div className="grid grid-cols-3 gap-1.5 bg-[#171922] p-1 rounded-xl border border-white/5">
+            <div className="grid grid-cols-3 gap-1.5 bg-[#171922] p-1 rounded-none border border-[#22252f]">
               {[
                 { id: 'fixed' as const, label: 'Fixed' },
                 { id: 'variable' as const, label: 'Variable' },
@@ -405,9 +405,9 @@ export const AddReminderModal: React.FC<AddReminderModalProps> = ({
                   key={plan.id}
                   type="button"
                   onClick={() => handlePlanSwitch(plan.id)}
-                  className={`py-2 px-2 text-[11px] font-semibold rounded-lg transition-all cursor-pointer ${
+                  className={`py-2 px-2 text-[11px] font-semibold rounded-none transition-all cursor-pointer ${
                     amountType === plan.id
-                      ? 'bg-white/10 text-white shadow-sm'
+                      ? 'bg-[#20232e] text-white'
                       : 'text-zinc-400 hover:text-zinc-200'
                   }`}
                 >
@@ -443,7 +443,7 @@ export const AddReminderModal: React.FC<AddReminderModalProps> = ({
                         placeholder="4000"
                         value={fixedAmount}
                         onChange={(e) => setFixedAmount(e.target.value)}
-                        className="w-full bg-[#171922] text-white text-sm font-mono font-bold pl-11 pr-3 py-2.5 rounded-xl border border-white/10 focus:outline-none focus:border-white/30"
+                        className="w-full bg-[#171922] text-white text-sm font-mono font-bold pl-11 pr-3 py-2.5 rounded-none border border-[#2c303d] focus:outline-none focus:border-[#52596e]"
                         required
                       />
                     </div>
@@ -465,7 +465,7 @@ export const AddReminderModal: React.FC<AddReminderModalProps> = ({
                           placeholder="0"
                           value={variableAmount}
                           onChange={(e) => setVariableAmount(e.target.value)}
-                          className="w-full bg-[#171922] text-white text-sm font-mono font-bold pl-11 pr-3 py-2.5 rounded-xl border border-white/10 focus:outline-none focus:border-white/30"
+                          className="w-full bg-[#171922] text-white text-sm font-mono font-bold pl-11 pr-3 py-2.5 rounded-none border border-[#2c303d] focus:outline-none focus:border-[#52596e]"
                         />
                       </div>
                     </div>
@@ -476,7 +476,7 @@ export const AddReminderModal: React.FC<AddReminderModalProps> = ({
                     <select
                       value={currency}
                       onChange={(e) => handleCurrencyChange(e.target.value)}
-                      className="w-full bg-[#171922] text-white text-xs font-mono font-semibold px-2.5 py-3 rounded-xl border border-white/10 focus:outline-none focus:border-white/30 cursor-pointer"
+                      className="w-full bg-[#171922] text-white text-xs font-mono font-semibold px-2.5 py-3 rounded-none border border-[#2c303d] focus:outline-none focus:border-[#52596e] cursor-pointer"
                     >
                       {SUPPORTED_CURRENCIES.map((c) => (
                         <option key={c.code} value={c.code}>
@@ -487,7 +487,7 @@ export const AddReminderModal: React.FC<AddReminderModalProps> = ({
                   </div>
                 </div>
 
-                <div className="px-3.5 py-2 rounded-xl bg-[#161821] border border-white/5 flex items-center justify-between text-[11px] font-mono">
+                <div className="px-3.5 py-2 rounded-none bg-[#161821] border border-[#22252f] flex items-center justify-between text-[11px] font-mono">
                   <span className="text-zinc-400">
                     Fixed {getCurrencySymbol(currency)}{parsedFixedInput.toLocaleString()} + Variable (asked on settlement)
                   </span>
@@ -500,7 +500,7 @@ export const AddReminderModal: React.FC<AddReminderModalProps> = ({
               </div>
             ) : amountType === 'variable' && reminderToEdit?.status !== 'collected' ? (
               <div className="grid grid-cols-3 gap-3 items-end">
-                <div className="col-span-2 bg-[#171922] border border-white/10 rounded-xl px-3.5 py-2.5">
+                <div className="col-span-2 bg-[#171922] border border-[#2c303d] rounded-none px-3.5 py-2.5">
                   <div className="text-[11px] font-semibold text-amber-400">Variable Amount Each Month</div>
                   <div className="text-[10px] text-zinc-400 mt-0.5">
                     App will ask you for the exact amount whenever you {type === 'payable' ? 'pay' : 'receive'} it.
@@ -512,7 +512,7 @@ export const AddReminderModal: React.FC<AddReminderModalProps> = ({
                   <select
                     value={currency}
                     onChange={(e) => handleCurrencyChange(e.target.value)}
-                    className="w-full bg-[#171922] text-white text-xs font-mono font-semibold px-2.5 py-3 rounded-xl border border-white/10 focus:outline-none focus:border-white/30 cursor-pointer"
+                    className="w-full bg-[#171922] text-white text-xs font-mono font-semibold px-2.5 py-3 rounded-none border border-[#2c303d] focus:outline-none focus:border-[#52596e] cursor-pointer"
                   >
                     {SUPPORTED_CURRENCIES.map((c) => (
                       <option key={c.code} value={c.code}>
@@ -542,7 +542,7 @@ export const AddReminderModal: React.FC<AddReminderModalProps> = ({
                       onChange={(e) =>
                         amountType === 'variable' ? setVariableAmount(e.target.value) : setAmount(e.target.value)
                       }
-                      className="w-full bg-[#171922] text-white text-base font-mono font-bold pl-12 pr-3 py-2.5 rounded-xl border border-white/10 focus:outline-none focus:border-white/30"
+                      className="w-full bg-[#171922] text-white text-base font-mono font-bold pl-12 pr-3 py-2.5 rounded-none border border-[#2c303d] focus:outline-none focus:border-[#52596e]"
                       required
                     />
                   </div>
@@ -553,7 +553,7 @@ export const AddReminderModal: React.FC<AddReminderModalProps> = ({
                   <select
                     value={currency}
                     onChange={(e) => handleCurrencyChange(e.target.value)}
-                    className="w-full bg-[#171922] text-white text-xs font-mono font-semibold px-2.5 py-3 rounded-xl border border-white/10 focus:outline-none focus:border-white/30 cursor-pointer"
+                    className="w-full bg-[#171922] text-white text-xs font-mono font-semibold px-2.5 py-3 rounded-none border border-[#2c303d] focus:outline-none focus:border-[#52596e] cursor-pointer"
                   >
                     {SUPPORTED_CURRENCIES.map((c) => (
                       <option key={c.code} value={c.code}>
@@ -567,7 +567,7 @@ export const AddReminderModal: React.FC<AddReminderModalProps> = ({
 
             {/* Foreign Exchange Rate & Live Conversion Banner */}
             {currency !== 'PKR' && (
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 p-3.5 rounded-xl bg-[#161821] border border-white/10 animate-in fade-in duration-150">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 p-3.5 rounded-none bg-[#161821] border border-[#2c303d] animate-in fade-in duration-150">
                 <div>
                   <label className="block text-[11px] font-medium text-zinc-400 mb-1">
                     Exchange Rate (1 {currency} &rarr; PKR)
@@ -577,7 +577,7 @@ export const AddReminderModal: React.FC<AddReminderModalProps> = ({
                     step="0.01"
                     value={exchangeRate}
                     onChange={(e) => setExchangeRate(e.target.value)}
-                    className="w-full bg-[#1b1e29] text-white text-xs font-mono font-bold px-3 py-2 rounded-lg border border-white/10 focus:outline-none focus:border-white/30"
+                    className="w-full bg-[#1b1e29] text-white text-xs font-mono font-bold px-3 py-2 rounded-none border border-[#2c303d] focus:outline-none focus:border-[#52596e]"
                     required
                   />
                 </div>
@@ -602,13 +602,13 @@ export const AddReminderModal: React.FC<AddReminderModalProps> = ({
             <label className="block text-[11px] font-medium text-zinc-400 mb-1.5">
               Payment Schedule
             </label>
-            <div className="grid grid-cols-2 gap-2 bg-[#171922] p-1 rounded-xl border border-white/5">
+            <div className="grid grid-cols-2 gap-2 bg-[#171922] p-1 rounded-none border border-[#22252f]">
               <button
                 type="button"
                 onClick={() => setFrequency('once')}
-                className={`py-2 text-xs font-semibold rounded-lg transition-all ${
+                className={`py-2 text-xs font-semibold rounded-none transition-all ${
                   frequency === 'once'
-                    ? 'bg-white/10 text-white shadow-sm'
+                    ? 'bg-[#20232e] text-white'
                     : 'text-zinc-400 hover:text-zinc-200'
                 }`}
               >
@@ -617,9 +617,9 @@ export const AddReminderModal: React.FC<AddReminderModalProps> = ({
               <button
                 type="button"
                 onClick={() => setFrequency('monthly')}
-                className={`py-2 text-xs font-semibold rounded-lg transition-all ${
+                className={`py-2 text-xs font-semibold rounded-none transition-all ${
                   frequency === 'monthly'
-                    ? 'bg-white/10 text-white shadow-sm'
+                    ? 'bg-[#20232e] text-white'
                     : 'text-zinc-400 hover:text-zinc-200'
                 }`}
               >
@@ -628,7 +628,7 @@ export const AddReminderModal: React.FC<AddReminderModalProps> = ({
             </div>
             {frequency === 'monthly' && (
               <div className="space-y-2 mt-2">
-                <div className="flex items-center justify-between p-3 rounded-xl bg-[#161821] border border-white/5 animate-in fade-in duration-150">
+                <div className="flex items-center justify-between p-3 rounded-none bg-[#161821] border border-[#22252f] animate-in fade-in duration-150">
                   <div className="flex items-center gap-2">
                     <Repeat className="w-4 h-4 text-emerald-400" />
                     <div>
@@ -650,7 +650,7 @@ export const AddReminderModal: React.FC<AddReminderModalProps> = ({
           </div>
 
           {/* Due Date & Reminder Trigger Date */}
-          <div className="grid grid-cols-2 gap-3 bg-[#171922] p-3 rounded-2xl border border-white/5">
+          <div className="grid grid-cols-2 gap-3 bg-[#171922] p-3 rounded-none border border-[#22252f]">
             <div>
               <div className="flex items-center justify-between mb-1">
                 <label className="text-[11px] font-medium text-zinc-300 flex items-center gap-1">
@@ -666,7 +666,7 @@ export const AddReminderModal: React.FC<AddReminderModalProps> = ({
               <DateInputDDMMYYYY
                 value={dueDate}
                 onChange={handleDueDateChange}
-                className="w-full bg-[#12141a] text-white text-xs px-3 py-2 rounded-xl border border-white/10 focus:outline-none focus:border-white/30"
+                className="w-full bg-[#12141a] text-white text-xs px-3 py-2 rounded-none border border-[#2c303d] focus:outline-none focus:border-[#52596e]"
                 required
               />
               <span className="text-[10px] text-zinc-500 mt-0.5 block">
@@ -689,7 +689,7 @@ export const AddReminderModal: React.FC<AddReminderModalProps> = ({
               <DateInputDDMMYYYY
                 value={reminderDate}
                 onChange={setReminderDate}
-                className="w-full bg-[#12141a] text-white text-xs px-3 py-2 rounded-xl border border-white/10 focus:outline-none focus:border-white/30"
+                className="w-full bg-[#12141a] text-white text-xs px-3 py-2 rounded-none border border-[#2c303d] focus:outline-none focus:border-[#52596e]"
                 required
               />
               <span className="text-[10px] text-zinc-500 mt-0.5 block">When app warns you to follow up</span>
@@ -707,7 +707,7 @@ export const AddReminderModal: React.FC<AddReminderModalProps> = ({
                 placeholder={type === 'payable' ? 'payee@team.com' : 'billing@client.com'}
                 value={clientEmail}
                 onChange={(e) => setClientEmail(e.target.value)}
-                className="w-full bg-[#171922] text-white text-xs px-3.5 py-2.5 rounded-xl border border-white/10 focus:outline-none focus:border-white/30"
+                className="w-full bg-[#171922] text-white text-xs px-3.5 py-2.5 rounded-none border border-[#2c303d] focus:outline-none focus:border-[#52596e]"
               />
             </div>
             <div>
@@ -719,7 +719,7 @@ export const AddReminderModal: React.FC<AddReminderModalProps> = ({
                 placeholder="+92 300 1234567"
                 value={clientPhone}
                 onChange={(e) => setClientPhone(e.target.value)}
-                className="w-full bg-[#171922] text-white text-xs px-3.5 py-2.5 rounded-xl border border-white/10 focus:outline-none focus:border-white/30"
+                className="w-full bg-[#171922] text-white text-xs px-3.5 py-2.5 rounded-none border border-[#2c303d] focus:outline-none focus:border-[#52596e]"
               />
             </div>
           </div>
@@ -732,24 +732,24 @@ export const AddReminderModal: React.FC<AddReminderModalProps> = ({
               placeholder={type === 'payable' ? 'e.g. Monthly salary for Asim, Office maintenance' : 'e.g. Net-14 payment terms, 50% deposit remaining'}
               value={notes}
               onChange={(e) => setNotes(e.target.value)}
-              className="w-full bg-[#171922] text-white text-xs px-3.5 py-2.5 rounded-xl border border-white/10 focus:outline-none focus:border-white/30"
+              className="w-full bg-[#171922] text-white text-xs px-3.5 py-2.5 rounded-none border border-[#2c303d] focus:outline-none focus:border-[#52596e]"
             />
           </div>
 
           {error && <div className="text-rose-400 text-xs font-medium">{error}</div>}
 
           {/* Footer buttons */}
-          <div className="flex items-center justify-end gap-2 pt-3 border-t border-white/5">
+          <div className="flex items-center justify-end gap-2 pt-3 border-t border-[#22252f]">
             <button
               type="button"
               onClick={onClose}
-              className="px-4 py-2 rounded-xl text-xs font-medium text-zinc-400 hover:text-white bg-white/5 hover:bg-white/10"
+              className="px-4 py-2 rounded-none text-xs font-medium text-zinc-400 hover:text-white bg-[#16181f] hover:bg-[#20232e]"
             >
               Cancel
             </button>
             <button
               type="submit"
-              className="px-5 py-2.5 rounded-xl text-xs font-semibold text-zinc-950 bg-zinc-100 hover:bg-white transition-colors shadow-sm cursor-pointer"
+              className="px-5 py-2.5 rounded-none text-xs font-semibold text-zinc-950 bg-zinc-100 hover:bg-white transition-colors cursor-pointer"
             >
               {reminderToEdit
                 ? 'Save Changes'

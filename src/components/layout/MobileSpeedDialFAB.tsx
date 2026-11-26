@@ -32,8 +32,8 @@ export const MobileSpeedDialFAB: React.FC<MobileSpeedDialFABProps> = ({
     {
       label: 'Add Expense',
       icon: ArrowDownLeft,
-      color: 'bg-[#181b23] hover:bg-[#20242f] text-rose-400 border border-white/10',
-      badgeColor: 'bg-[#181b23] text-zinc-200 border border-white/10',
+      color: 'bg-[#181b23] hover:bg-[#20242f] text-rose-400 border border-[#2c303d]',
+      badgeColor: 'bg-[#181b23] text-zinc-200 border border-[#2c303d]',
       onClick: () => {
         setIsOpen(false);
         onAddExpense();
@@ -42,8 +42,8 @@ export const MobileSpeedDialFAB: React.FC<MobileSpeedDialFABProps> = ({
     {
       label: 'Add Income',
       icon: ArrowUpRight,
-      color: 'bg-[#181b23] hover:bg-[#20242f] text-emerald-400 border border-white/10',
-      badgeColor: 'bg-[#181b23] text-zinc-200 border border-white/10',
+      color: 'bg-[#181b23] hover:bg-[#20242f] text-emerald-400 border border-[#2c303d]',
+      badgeColor: 'bg-[#181b23] text-zinc-200 border border-[#2c303d]',
       onClick: () => {
         setIsOpen(false);
         onAddIncome();
@@ -52,8 +52,8 @@ export const MobileSpeedDialFAB: React.FC<MobileSpeedDialFABProps> = ({
     ...(onAddDeposit ? [{
       label: 'Add Money (Personal / Family)',
       icon: PlusCircle,
-      color: 'bg-[#181b23] hover:bg-[#20242f] text-purple-400 border border-white/10',
-      badgeColor: 'bg-[#181b23] text-zinc-200 border border-white/10',
+      color: 'bg-[#181b23] hover:bg-[#20242f] text-purple-400 border border-[#2c303d]',
+      badgeColor: 'bg-[#181b23] text-zinc-200 border border-[#2c303d]',
       onClick: () => {
         setIsOpen(false);
         onAddDeposit();
@@ -62,8 +62,8 @@ export const MobileSpeedDialFAB: React.FC<MobileSpeedDialFABProps> = ({
     {
       label: 'Transfer Funds',
       icon: ArrowLeftRight,
-      color: 'bg-[#181b23] hover:bg-[#20242f] text-sky-400 border border-white/10',
-      badgeColor: 'bg-[#181b23] text-zinc-200 border border-white/10',
+      color: 'bg-[#181b23] hover:bg-[#20242f] text-sky-400 border border-[#2c303d]',
+      badgeColor: 'bg-[#181b23] text-zinc-200 border border-[#2c303d]',
       onClick: () => {
         setIsOpen(false);
         onTransfer();
@@ -72,8 +72,8 @@ export const MobileSpeedDialFAB: React.FC<MobileSpeedDialFABProps> = ({
     {
       label: 'Add Due Date / Invoice',
       icon: CalendarPlus,
-      color: 'bg-[#181b23] hover:bg-[#20242f] text-amber-400 border border-white/10',
-      badgeColor: 'bg-[#181b23] text-zinc-200 border border-white/10',
+      color: 'bg-[#181b23] hover:bg-[#20242f] text-amber-400 border border-[#2c303d]',
+      badgeColor: 'bg-[#181b23] text-zinc-200 border border-[#2c303d]',
       onClick: () => {
         setIsOpen(false);
         onAddReminder();
@@ -110,12 +110,12 @@ export const MobileSpeedDialFAB: React.FC<MobileSpeedDialFABProps> = ({
                   className="flex items-center gap-2.5 active:scale-95 transition-transform cursor-pointer"
                 >
                   <span
-                    className={`text-[11px] font-medium px-3 py-1.5 rounded-xl shadow-md ${act.badgeColor}`}
+                    className={`text-[11px] font-medium px-3 py-1.5 rounded-none ${act.badgeColor}`}
                   >
                     {act.label}
                   </span>
                   <div
-                    className={`w-11 h-11 rounded-2xl flex items-center justify-center shadow-md ${act.color}`}
+                    className={`w-11 h-11 rounded-none flex items-center justify-center ${act.color}`}
                   >
                     <Icon className="w-5 h-5 stroke-[2.2]" />
                   </div>
@@ -129,10 +129,10 @@ export const MobileSpeedDialFAB: React.FC<MobileSpeedDialFABProps> = ({
         <button
           type="button"
           onClick={() => setIsOpen(!isOpen)}
-          className={`w-12 h-12 rounded-2xl shadow-2xl flex items-center justify-center transition-all duration-300 active:scale-90 cursor-pointer border pointer-events-auto ${
+          className={`w-12 h-12 rounded-none flex items-center justify-center transition-all duration-300 active:scale-90 cursor-pointer border pointer-events-auto ${
             isOpen
-              ? 'bg-[#181b23] text-white border-white/20 rotate-45 scale-95 shadow-black/80'
-              : 'bg-white text-zinc-950 border-white/30 hover:bg-zinc-100 shadow-xl'
+              ? 'bg-[#181b23] text-white border-[#3f4557] rotate-45 scale-95'
+              : 'bg-white text-zinc-950 border-[#52596e] hover:bg-zinc-100'
           }`}
           title={isOpen ? 'Close menu' : 'Quick Actions'}
           aria-label="Quick Actions"

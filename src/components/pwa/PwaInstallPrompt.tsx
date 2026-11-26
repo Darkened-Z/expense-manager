@@ -60,16 +60,16 @@ export const PwaInstallPrompt: React.FC = () => {
   if (isInstalled || !showBanner) return null;
 
   return (
-    <div className="bg-[#12141a] border border-white/10 rounded-2xl p-3.5 sm:p-4 shadow-xl flex items-center justify-between gap-3 animate-in fade-in duration-300">
+    <div className="bg-[#12141a] border border-[#2c303d] rounded-none p-3.5 sm:p-4 flex items-center justify-between gap-3 animate-in fade-in duration-300">
       <div className="flex items-center gap-3">
-        <div className="w-10 h-10 rounded-xl overflow-hidden border border-white/10 shrink-0 bg-white/5 shadow-md">
+        <div className="w-10 h-10 rounded-none overflow-hidden border border-[#2c303d] shrink-0 bg-[#16181f]">
           <img src="/logo.png" alt="App Logo" className="w-full h-full object-cover" />
         </div>
         <div>
           <h4 className="text-xs sm:text-sm font-bold text-white flex items-center gap-2">
             <span>Install Expense Manager</span>
             <span className="text-[10px] text-zinc-400 font-mono flex items-center gap-1">
-              <span className="w-1.5 h-1.5 rounded-full bg-emerald-400" />
+              <span className="w-1.5 h-1.5 rounded-none bg-emerald-400" />
               Offline Ready
             </span>
           </h4>
@@ -82,7 +82,7 @@ export const PwaInstallPrompt: React.FC = () => {
       <div className="flex items-center gap-2 shrink-0">
         <button
           onClick={handleInstallClick}
-          className="bg-zinc-100 hover:bg-white text-zinc-950 font-semibold text-xs px-3.5 py-1.5 rounded-xl shadow-sm transition-all flex items-center gap-1.5"
+          className="bg-zinc-100 hover:bg-white text-zinc-950 font-semibold text-xs px-3.5 py-1.5 rounded-none transition-all flex items-center gap-1.5"
         >
           <Download className="w-3.5 h-3.5 stroke-[2.5]" />
           <span>Install</span>
@@ -90,7 +90,7 @@ export const PwaInstallPrompt: React.FC = () => {
 
         <button
           onClick={() => setShowBanner(false)}
-          className="p-1.5 text-zinc-500 hover:text-zinc-300 rounded-lg"
+          className="p-1.5 text-zinc-500 hover:text-zinc-300 rounded-none"
           title="Dismiss banner"
         >
           <X className="w-4 h-4" />

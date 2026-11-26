@@ -64,7 +64,7 @@ export const DailyPulseCard: React.FC<DailyPulseCardProps> = ({
   const activeCoord = hoveredPoint !== null ? coords[hoveredPoint] : null;
 
   return (
-    <div className="bg-[#12141a] border border-white/5 rounded-2xl p-4 sm:p-6 shadow-xl flex flex-col justify-between relative overflow-hidden">
+    <div className="bg-[#12141a] border border-[#22252f] rounded-none p-4 sm:p-6 flex flex-col justify-between relative overflow-hidden">
       <div>
         <div className="text-xs font-medium text-zinc-400">On this day</div>
         <div className="text-3xl font-extrabold text-white font-mono mt-2 tracking-tight">
@@ -72,7 +72,7 @@ export const DailyPulseCard: React.FC<DailyPulseCardProps> = ({
         </div>
 
         <div className="flex items-center gap-2 mt-2 text-xs text-zinc-400">
-          <span className={`w-2 h-2 rounded-full ${todayTotal > 0 ? 'bg-amber-400' : 'bg-zinc-600'} shrink-0`} />
+          <span className={`w-2 h-2 rounded-none ${todayTotal > 0 ? 'bg-amber-400' : 'bg-zinc-600'} shrink-0`} />
           <span>{todayTotal > 0 ? 'Active daily expenditure' : 'No expenses logged today'}</span>
         </div>
       </div>
@@ -82,7 +82,7 @@ export const DailyPulseCard: React.FC<DailyPulseCardProps> = ({
         {/* Floating Tooltip Card */}
         {activeCoord && (
           <div
-            className="absolute -top-10 bg-[#1a1d25] border border-white/10 px-2.5 py-1.5 rounded-lg shadow-xl text-[10px] pointer-events-none transition-all duration-150 transform -translate-x-1/2 z-20"
+            className="absolute -top-10 bg-[#1a1d25] border border-[#2c303d] px-2.5 py-1.5 rounded-none text-[10px] pointer-events-none transition-all duration-150 transform -translate-x-1/2 z-20"
             style={{ left: `${(activeCoord.x / width) * 100}%` }}
           >
             <div className="text-zinc-400 font-medium">Daily Spend ({formatDateDDMMYYYY(activeCoord.day)})</div>
@@ -100,7 +100,7 @@ export const DailyPulseCard: React.FC<DailyPulseCardProps> = ({
         )}
 
         {!hasData ? (
-          <div className="h-20 flex flex-col items-center justify-center text-center border-t border-dashed border-white/5 pt-2">
+          <div className="h-20 flex flex-col items-center justify-center text-center border-t border-dashed border-[#22252f] pt-2">
             <span className="text-xs text-zinc-500 font-medium">No spending activity this week</span>
             <span className="text-[10px] text-zinc-600 mt-0.5">Purchases you record will trace your daily spending pulse</span>
           </div>

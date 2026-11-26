@@ -83,7 +83,7 @@ export const MetricsBar: React.FC<MetricsBarProps> = ({
       {/* Total Balance */}
       <div
         onClick={() => onNavigateTab && onNavigateTab('wallets')}
-        className="bg-[#111215] border border-white/[0.06] hover:border-white/20 rounded-2xl p-4 shadow-sm transition-all cursor-pointer group flex flex-col justify-between min-w-0 overflow-hidden"
+        className="bg-[#111215] border border-[#242833] hover:border-[#3f4557] rounded-none p-4 transition-all cursor-pointer group flex flex-col justify-between min-w-0 overflow-hidden"
       >
         <div>
           <div className="flex items-center justify-between">
@@ -97,7 +97,7 @@ export const MetricsBar: React.FC<MetricsBarProps> = ({
             Across {wallets.length} accounts
           </div>
         </div>
-        <div className="mt-2 pt-1.5 border-t border-white/[0.03] flex items-center justify-between text-[10px] text-zinc-500 group-hover:text-zinc-300 transition-colors">
+        <div className="mt-2 pt-1.5 border-t border-[#1d2029] flex items-center justify-between text-[10px] text-zinc-500 group-hover:text-zinc-300 transition-colors">
           <span className="truncate">Manage accounts</span>
           <span className="group-hover:translate-x-0.5 transition-transform font-mono text-sky-400 shrink-0">→</span>
         </div>
@@ -106,7 +106,7 @@ export const MetricsBar: React.FC<MetricsBarProps> = ({
       {/* Income */}
       <div
         onClick={() => onNavigateTab && onNavigateTab('categories')}
-        className="bg-[#111215] border border-white/[0.06] hover:border-white/20 rounded-2xl p-4 shadow-sm transition-all cursor-pointer group flex flex-col justify-between min-w-0 overflow-hidden"
+        className="bg-[#111215] border border-[#242833] hover:border-[#3f4557] rounded-none p-4 transition-all cursor-pointer group flex flex-col justify-between min-w-0 overflow-hidden"
       >
         <div>
           <div className="flex items-center justify-between">
@@ -123,7 +123,7 @@ export const MetricsBar: React.FC<MetricsBarProps> = ({
             {transactions.filter((t) => t.type === 'income').length} earnings records
           </div>
         </div>
-        <div className="mt-2 pt-1.5 border-t border-white/[0.03] flex items-center justify-between text-[10px] text-zinc-500 group-hover:text-zinc-300 transition-colors">
+        <div className="mt-2 pt-1.5 border-t border-[#1d2029] flex items-center justify-between text-[10px] text-zinc-500 group-hover:text-zinc-300 transition-colors">
           <span className="truncate">Income sources</span>
           <span className="group-hover:translate-x-0.5 transition-transform font-mono text-emerald-400 shrink-0">→</span>
         </div>
@@ -132,7 +132,7 @@ export const MetricsBar: React.FC<MetricsBarProps> = ({
       {/* Expenses */}
       <div
         onClick={() => onNavigateTab && onNavigateTab('categories')}
-        className="bg-[#111215] border border-white/[0.06] hover:border-white/20 rounded-2xl p-4 shadow-sm transition-all cursor-pointer group flex flex-col justify-between min-w-0 overflow-hidden"
+        className="bg-[#111215] border border-[#242833] hover:border-[#3f4557] rounded-none p-4 transition-all cursor-pointer group flex flex-col justify-between min-w-0 overflow-hidden"
       >
         <div>
           <div className="flex items-center justify-between">
@@ -149,7 +149,7 @@ export const MetricsBar: React.FC<MetricsBarProps> = ({
             {transactions.filter((t) => t.type === 'expense').length} purchases
           </div>
         </div>
-        <div className="mt-2 pt-1.5 border-t border-white/[0.03] flex items-center justify-between text-[10px] text-zinc-500 group-hover:text-zinc-300 transition-colors">
+        <div className="mt-2 pt-1.5 border-t border-[#1d2029] flex items-center justify-between text-[10px] text-zinc-500 group-hover:text-zinc-300 transition-colors">
           <span className="truncate">Category budgets</span>
           <span className="group-hover:translate-x-0.5 transition-transform font-mono text-rose-400 shrink-0">→</span>
         </div>
@@ -158,7 +158,7 @@ export const MetricsBar: React.FC<MetricsBarProps> = ({
       {/* Cash Surplus (Income - Expenses) */}
       <div
         onClick={() => onNavigateTab && onNavigateTab('savings')}
-        className="bg-[#111215] border border-white/[0.06] hover:border-white/20 rounded-2xl p-4 shadow-sm transition-all cursor-pointer group flex flex-col justify-between min-w-0 overflow-hidden"
+        className="bg-[#111215] border border-[#242833] hover:border-[#3f4557] rounded-none p-4 transition-all cursor-pointer group flex flex-col justify-between min-w-0 overflow-hidden"
       >
         <div>
           <div className="flex items-center justify-between">
@@ -184,7 +184,7 @@ export const MetricsBar: React.FC<MetricsBarProps> = ({
             )}
           </div>
         </div>
-        <div className="mt-2 pt-1.5 border-t border-white/[0.03] flex items-center justify-between text-[10px] text-zinc-500 group-hover:text-zinc-300 transition-colors">
+        <div className="mt-2 pt-1.5 border-t border-[#1d2029] flex items-center justify-between text-[10px] text-zinc-500 group-hover:text-zinc-300 transition-colors">
           <span className="truncate">Savings & reserve</span>
           <span className="group-hover:translate-x-0.5 transition-transform font-mono text-amber-400 shrink-0">→</span>
         </div>
@@ -193,7 +193,7 @@ export const MetricsBar: React.FC<MetricsBarProps> = ({
       {/* Pending Receivables */}
       <div
         onClick={() => onNavigateTab && onNavigateTab('receivables')}
-        className="bg-[#111215] border border-white/[0.06] hover:border-white/20 rounded-2xl p-4 shadow-sm transition-all col-span-2 sm:col-span-1 cursor-pointer group flex flex-col justify-between min-w-0 overflow-hidden"
+        className="bg-[#111215] border border-[#242833] hover:border-[#3f4557] rounded-none p-4 transition-all col-span-2 sm:col-span-1 cursor-pointer group flex flex-col justify-between min-w-0 overflow-hidden"
       >
         <div>
           <div className="flex items-center justify-between">
@@ -207,7 +207,7 @@ export const MetricsBar: React.FC<MetricsBarProps> = ({
             {pendingCount === 0 ? '0 due as of today' : `${pendingCount} actionable`}
           </div>
         </div>
-        <div className="mt-2 pt-1.5 border-t border-white/[0.03] flex items-center justify-between text-[10px] text-zinc-500 group-hover:text-zinc-300 transition-colors">
+        <div className="mt-2 pt-1.5 border-t border-[#1d2029] flex items-center justify-between text-[10px] text-zinc-500 group-hover:text-zinc-300 transition-colors">
           <span className="truncate">Active invoices</span>
           <span className="group-hover:translate-x-0.5 transition-transform font-mono text-emerald-400 shrink-0">→</span>
         </div>

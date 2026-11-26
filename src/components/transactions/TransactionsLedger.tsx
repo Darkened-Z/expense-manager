@@ -15,7 +15,7 @@ import {
   Laptop,
   Briefcase,
   Box,
-  Zap,
+  Receipt,
   Globe,
   FileText,
   ShoppingBag,
@@ -64,7 +64,8 @@ export const TransactionsLedger: React.FC<TransactionsLedgerProps> = ({
       case 'Laptop': return Laptop;
       case 'Briefcase': return Briefcase;
       case 'Box': return Box;
-      case 'Zap': return Zap;
+      case 'Zap':
+      case 'Receipt': return Receipt;
       case 'Globe': return Globe;
       case 'FileText': return FileText;
       case 'ShoppingBag': return ShoppingBag;
@@ -94,9 +95,9 @@ export const TransactionsLedger: React.FC<TransactionsLedgerProps> = ({
   });
 
   return (
-    <div className="bg-[#12141a] border border-white/5 rounded-2xl shadow-xl overflow-hidden">
+    <div className="bg-[#12141a] border border-[#22252f] rounded-none overflow-hidden">
       {/* Table Header Controls */}
-      <div className="p-4 sm:p-5 border-b border-white/5 flex flex-col gap-3">
+      <div className="p-4 sm:p-5 border-b border-[#22252f] flex flex-col gap-3">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
             <h3 className="text-sm font-semibold text-white tracking-wide">Transaction Ledger</h3>
@@ -108,7 +109,7 @@ export const TransactionsLedger: React.FC<TransactionsLedgerProps> = ({
           {/* Export CSV button */}
           <button
             onClick={onExportCSV}
-            className="flex items-center gap-1.5 bg-[#181b23] hover:bg-[#20242f] text-zinc-300 border border-white/10 px-2.5 py-1.5 rounded-xl text-xs font-medium transition-colors"
+            className="flex items-center gap-1.5 bg-[#181b23] hover:bg-[#20242f] text-zinc-300 border border-[#2c303d] px-2.5 py-1.5 rounded-none text-xs font-medium transition-colors"
             title="Download CSV report"
           >
             <Download className="w-3.5 h-3.5 text-zinc-400" />
@@ -126,16 +127,16 @@ export const TransactionsLedger: React.FC<TransactionsLedgerProps> = ({
               placeholder="Search by title, client, notes..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full bg-[#181b23] text-xs text-zinc-200 placeholder-zinc-500 pl-8 pr-3 py-2 rounded-xl border border-white/10 focus:outline-none focus:border-white/30"
+              className="w-full bg-[#181b23] text-xs text-zinc-200 placeholder-zinc-500 pl-8 pr-3 py-2 rounded-none border border-[#2c303d] focus:outline-none focus:border-[#52596e]"
             />
           </div>
 
           <div className="flex flex-wrap sm:flex-nowrap items-center gap-2 max-w-full">
             {/* Type Filter Buttons */}
-            <div className="flex items-center bg-[#181b23] p-0.5 rounded-xl border border-white/10 text-xs overflow-x-auto max-w-full scrollbar-none shrink-0">
+            <div className="flex items-center bg-[#181b23] p-0.5 rounded-none border border-[#2c303d] text-xs overflow-x-auto max-w-full scrollbar-none shrink-0">
               <button
                 onClick={() => setSelectedType('all')}
-                className={`px-2.5 py-1.5 rounded-lg transition-colors text-center shrink-0 whitespace-nowrap ${
+                className={`px-2.5 py-1.5 rounded-none transition-colors text-center shrink-0 whitespace-nowrap ${
                   selectedType === 'all' ? 'bg-[#232733] text-white font-medium' : 'text-zinc-400 hover:text-zinc-200'
                 }`}
               >
@@ -143,32 +144,32 @@ export const TransactionsLedger: React.FC<TransactionsLedgerProps> = ({
               </button>
               <button
                 onClick={() => setSelectedType('expense')}
-                className={`px-2.5 py-1.5 rounded-lg transition-colors text-center shrink-0 whitespace-nowrap ${
-                  selectedType === 'expense' ? 'bg-white/10 text-white font-medium' : 'text-zinc-400 hover:text-zinc-200'
+                className={`px-2.5 py-1.5 rounded-none transition-colors text-center shrink-0 whitespace-nowrap ${
+                  selectedType === 'expense' ? 'bg-[#20232e] text-white font-medium' : 'text-zinc-400 hover:text-zinc-200'
                 }`}
               >
                 Spent
               </button>
               <button
                 onClick={() => setSelectedType('income')}
-                className={`px-2.5 py-1.5 rounded-lg transition-colors text-center shrink-0 whitespace-nowrap ${
-                  selectedType === 'income' ? 'bg-white/10 text-white font-medium' : 'text-zinc-400 hover:text-zinc-200'
+                className={`px-2.5 py-1.5 rounded-none transition-colors text-center shrink-0 whitespace-nowrap ${
+                  selectedType === 'income' ? 'bg-[#20232e] text-white font-medium' : 'text-zinc-400 hover:text-zinc-200'
                 }`}
               >
                 Received
               </button>
               <button
                 onClick={() => setSelectedType('deposit')}
-                className={`px-2.5 py-1.5 rounded-lg transition-colors text-center shrink-0 whitespace-nowrap ${
-                  selectedType === 'deposit' ? 'bg-purple-500/20 text-purple-300 font-medium' : 'text-zinc-400 hover:text-zinc-200'
+                className={`px-2.5 py-1.5 rounded-none transition-colors text-center shrink-0 whitespace-nowrap ${
+                  selectedType === 'deposit' ? 'bg-[#241638] text-purple-300 font-medium' : 'text-zinc-400 hover:text-zinc-200'
                 }`}
               >
                 Added
               </button>
               <button
                 onClick={() => setSelectedType('transfer')}
-                className={`px-2.5 py-1.5 rounded-lg transition-colors text-center shrink-0 whitespace-nowrap ${
-                  selectedType === 'transfer' ? 'bg-sky-500/20 text-sky-300 font-medium' : 'text-zinc-400 hover:text-zinc-200'
+                className={`px-2.5 py-1.5 rounded-none transition-colors text-center shrink-0 whitespace-nowrap ${
+                  selectedType === 'transfer' ? 'bg-[#162d42] text-sky-300 font-medium' : 'text-zinc-400 hover:text-zinc-200'
                 }`}
               >
                 Transfers
@@ -180,7 +181,7 @@ export const TransactionsLedger: React.FC<TransactionsLedgerProps> = ({
               <select
                 value={selectedCategory}
                 onChange={(e) => setSelectedCategory(e.target.value)}
-                className="bg-[#181b23] text-xs text-zinc-300 border border-white/10 px-3 py-2 rounded-xl focus:outline-none focus:border-white/30 cursor-pointer appearance-none pr-7 max-w-[130px] sm:max-w-none truncate"
+                className="bg-[#181b23] text-xs text-zinc-300 border border-[#2c303d] px-3 py-2 rounded-none focus:outline-none focus:border-[#52596e] cursor-pointer appearance-none pr-7 max-w-[130px] sm:max-w-none truncate"
               >
                 <option value="all">Categories</option>
                 {categories.map((c) => (
@@ -215,15 +216,14 @@ export const TransactionsLedger: React.FC<TransactionsLedgerProps> = ({
               <div
                 key={tx.id}
                 onClick={() => onEditTransaction && onEditTransaction(tx)}
-                className="p-3.5 hover:bg-white/[0.04] transition-colors flex items-center justify-between gap-3 cursor-pointer group"
+                className="p-3.5 hover:bg-[#171922] transition-colors flex items-center justify-between gap-3 cursor-pointer group"
               >
                 <div className="flex items-center gap-3 min-w-0">
                   {/* Category / Icon Badge */}
                   <div
-                    className="w-9 h-9 rounded-xl flex items-center justify-center shrink-0 border group-hover:scale-105 transition-transform"
+                    className="w-9 h-9 rounded-none flex items-center justify-center shrink-0 border bg-[#16181f]"
                     style={{
-                      backgroundColor: `${cat?.color || '#71717a'}18`,
-                      borderColor: `${cat?.color || '#71717a'}35`,
+                      borderColor: cat?.color || '#52525b',
                       color: cat?.color || '#a1a1aa',
                     }}
                   >
@@ -277,7 +277,7 @@ export const TransactionsLedger: React.FC<TransactionsLedgerProps> = ({
                     <div className={`font-mono font-bold text-xs ${
                       isTransfer ? 'text-sky-300' : isDeposit ? 'text-purple-300' : isExpense ? 'text-zinc-200' : 'text-emerald-400'
                     }`}>
-                      {isTransfer ? '⇄ ' : isExpense ? '-' : '+'}{currencySymbol}{formatCash(tx.amount)}
+                      {isTransfer ? '' : isExpense ? '-' : '+'}{currencySymbol}{formatCash(tx.amount)}
                     </div>
                     {tx.originalCurrency && tx.originalCurrency !== 'PKR' && tx.originalAmount ? (
                       <div className="text-[10px] font-mono text-zinc-400">
@@ -296,7 +296,7 @@ export const TransactionsLedger: React.FC<TransactionsLedgerProps> = ({
                         e.stopPropagation();
                         onEditTransaction(tx);
                       }}
-                      className="p-1.5 text-zinc-500 hover:text-white rounded-lg transition-colors cursor-pointer"
+                      className="p-1.5 text-zinc-500 hover:text-white rounded-none transition-colors cursor-pointer"
                       title="Edit transaction"
                     >
                       <Pencil className="w-3.5 h-3.5" />
@@ -308,7 +308,7 @@ export const TransactionsLedger: React.FC<TransactionsLedgerProps> = ({
                       e.stopPropagation();
                       onDeleteTransaction(tx.id);
                     }}
-                    className="p-1.5 text-zinc-600 hover:text-rose-400 rounded-lg transition-colors cursor-pointer"
+                    className="p-1.5 text-zinc-600 hover:text-rose-400 rounded-none transition-colors cursor-pointer"
                     title="Delete"
                   >
                     <Trash2 className="w-3.5 h-3.5" />
@@ -324,7 +324,7 @@ export const TransactionsLedger: React.FC<TransactionsLedgerProps> = ({
       <div className="hidden md:block overflow-x-auto">
         <table className="w-full text-left text-xs">
           <thead>
-            <tr className="border-b border-white/5 text-[11px] font-medium text-zinc-400 bg-white/[0.01]">
+            <tr className="border-b border-[#22252f] text-[11px] font-medium text-zinc-400 bg-[#12141a]">
               <th className="py-3 px-5">Amount ({currencySymbol.trim()})</th>
               <th className="py-3 px-4">Token / Wallet</th>
               <th className="py-3 px-4">Type</th>
@@ -355,12 +355,12 @@ export const TransactionsLedger: React.FC<TransactionsLedgerProps> = ({
                   <tr
                     key={tx.id}
                     onClick={() => onEditTransaction && onEditTransaction(tx)}
-                    className="hover:bg-white/[0.04] transition-colors group cursor-pointer"
+                    className="hover:bg-[#171922] transition-colors group cursor-pointer"
                   >
                     <td className="py-3.5 px-5 font-mono font-bold text-sm">
                       <div className="flex flex-col">
                         <span className={isTransfer ? 'text-sky-300' : isDeposit ? 'text-purple-300' : isExpense ? 'text-zinc-200' : 'text-emerald-400'}>
-                          {isTransfer ? '⇄ ' : isExpense ? '-' : '+'}{currencySymbol}{formatCash(tx.amount)}
+                          {isTransfer ? '' : isExpense ? '-' : '+'}{currencySymbol}{formatCash(tx.amount)}
                         </span>
                         {tx.originalCurrency && tx.originalCurrency !== 'PKR' && tx.originalAmount && (
                           <span className="text-[10px] text-zinc-400 font-normal">
@@ -376,12 +376,12 @@ export const TransactionsLedger: React.FC<TransactionsLedgerProps> = ({
                         </span>
                       ) : isDeposit ? (
                         <span className="inline-flex items-center gap-1.5 text-purple-300 font-medium text-xs">
-                          <span className="w-1.5 h-1.5 rounded-full bg-purple-400 shrink-0" />
+                          <span className="w-1.5 h-1.5 rounded-none bg-purple-400 shrink-0" />
                           Personal Inflow
                         </span>
                       ) : (
                         <span className="inline-flex items-center gap-1.5 text-zinc-400 text-xs">
-                          <span className="w-1.5 h-1.5 rounded-full bg-zinc-500 shrink-0" />
+                          <span className="w-1.5 h-1.5 rounded-none bg-zinc-500 shrink-0" />
                           {tx.token || wallet?.currency || 'PKR'}
                         </span>
                       )}
@@ -440,7 +440,7 @@ export const TransactionsLedger: React.FC<TransactionsLedgerProps> = ({
                     </td>
                     <td className="py-3.5 px-4">
                       <span className="inline-flex items-center gap-1.5 text-xs font-medium text-zinc-300">
-                        <span className="w-1.5 h-1.5 rounded-full shrink-0" style={{ backgroundColor: cat?.color || '#71717a' }} />
+                        <span className="w-1.5 h-1.5 rounded-none shrink-0" style={{ backgroundColor: cat?.color || '#71717a' }} />
                         <IconComponent className="w-3.5 h-3.5 text-zinc-400 shrink-0" />
                         <span className="truncate max-w-[140px]">{cat?.name || 'Uncategorized'}</span>
                       </span>
@@ -456,7 +456,7 @@ export const TransactionsLedger: React.FC<TransactionsLedgerProps> = ({
                               e.stopPropagation();
                               onEditTransaction(tx);
                             }}
-                            className="opacity-0 group-hover:opacity-100 p-1.5 text-zinc-400 hover:text-white hover:bg-white/10 rounded-lg transition-all cursor-pointer"
+                            className="opacity-0 group-hover:opacity-100 p-1.5 text-zinc-400 hover:text-white hover:bg-[#20232e] rounded-none transition-all cursor-pointer"
                             title="Edit transaction"
                           >
                             <Pencil className="w-3.5 h-3.5" />
@@ -467,7 +467,7 @@ export const TransactionsLedger: React.FC<TransactionsLedgerProps> = ({
                             e.stopPropagation();
                             onDeleteTransaction(tx.id);
                           }}
-                          className="opacity-0 group-hover:opacity-100 p-1.5 text-zinc-500 hover:text-rose-400 hover:bg-rose-500/10 rounded-lg transition-all cursor-pointer"
+                          className="opacity-0 group-hover:opacity-100 p-1.5 text-zinc-500 hover:text-rose-400 hover:bg-[#261116] rounded-none transition-all cursor-pointer"
                           title="Delete transaction"
                         >
                           <Trash2 className="w-3.5 h-3.5" />

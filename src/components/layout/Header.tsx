@@ -106,7 +106,7 @@ export const Header: React.FC<HeaderProps> = ({
   const { title, sub } = getPageTitle();
 
   return (
-    <header className="px-3.5 sm:px-6 lg:px-8 py-3.5 sm:py-5 border-b border-white/5 bg-[#090a0d]/90 backdrop-blur-md sticky top-0 z-30 flex flex-col gap-3 max-w-full">
+    <header className="px-3.5 sm:px-6 lg:px-8 py-3.5 sm:py-5 border-b border-[#22252f] bg-[#090a0c] sticky top-0 z-30 flex flex-col gap-3 max-w-full">
       {/* Click-outside backdrop for open dropdowns */}
       {(showWalletDropdown || showDateDropdown || showNotifications) && (
         <div
@@ -124,12 +124,12 @@ export const Header: React.FC<HeaderProps> = ({
         <div className="flex items-center gap-2.5 sm:gap-3">
           <button
             onClick={onToggleMobileMenu}
-            className="md:hidden p-2 -ml-1 text-zinc-400 hover:text-white rounded-xl bg-white/5 border border-white/5"
+            className="md:hidden p-2 -ml-1 text-zinc-400 hover:text-white rounded-none bg-[#16181f] border border-[#22252f]"
             title="Open navigation menu"
           >
             <Menu className="w-5 h-5" />
           </button>
-          <div className="md:hidden w-8 h-8 rounded-xl overflow-hidden border border-white/10 shrink-0 bg-white/5 shadow-sm">
+          <div className="md:hidden w-8 h-8 rounded-none overflow-hidden border border-[#2c303d] shrink-0 bg-[#16181f]">
             <img src="/logo.png" alt="Logo" className="w-full h-full object-cover" />
           </div>
           <div>
@@ -148,7 +148,7 @@ export const Header: React.FC<HeaderProps> = ({
                 setShowDateDropdown(false);
                 setShowNotifications(false);
               }}
-              className="flex items-center gap-1.5 bg-[#14161d] hover:bg-[#1a1d26] border border-white/10 px-2.5 sm:px-3 py-1.5 rounded-xl text-xs font-medium text-zinc-300 transition-colors"
+              className="flex items-center gap-1.5 bg-[#14161d] hover:bg-[#1a1d26] border border-[#2c303d] px-2.5 sm:px-3 py-1.5 rounded-none text-xs font-medium text-zinc-300 transition-colors"
             >
               <WalletIcon className="w-3.5 h-3.5 text-zinc-400 shrink-0" />
               <span className="font-mono text-zinc-200 max-w-[85px] sm:max-w-none truncate">
@@ -158,14 +158,14 @@ export const Header: React.FC<HeaderProps> = ({
             </button>
 
             {showWalletDropdown && (
-              <div className="absolute right-0 mt-2 w-60 bg-[#14161d] border border-white/10 rounded-xl shadow-2xl py-1 z-50 animate-in fade-in zoom-in-95 duration-100 max-h-80 overflow-y-auto">
+              <div className="absolute right-0 mt-2 w-60 bg-[#14161d] border border-[#2c303d] rounded-none py-1 z-50 animate-in fade-in zoom-in-95 duration-100 max-h-80 overflow-y-auto">
                 <button
                   onClick={() => {
                     setSelectedWalletId('all');
                     setShowWalletDropdown(false);
                   }}
-                  className={`w-full text-left px-3 py-2 text-xs flex items-center justify-between hover:bg-white/5 ${
-                    selectedWalletId === 'all' ? 'text-white font-semibold bg-white/5' : 'text-zinc-300'
+                  className={`w-full text-left px-3 py-2 text-xs flex items-center justify-between hover:bg-[#16181f] ${
+                    selectedWalletId === 'all' ? 'text-white font-semibold bg-[#16181f]' : 'text-zinc-300'
                   }`}
                 >
                   <span>All Wallets & Accounts</span>
@@ -178,8 +178,8 @@ export const Header: React.FC<HeaderProps> = ({
                       setSelectedWalletId(w.id);
                       setShowWalletDropdown(false);
                     }}
-                    className={`w-full text-left px-3 py-2 text-xs flex items-center justify-between hover:bg-white/5 ${
-                      selectedWalletId === w.id ? 'text-white font-semibold bg-white/5' : 'text-zinc-300'
+                    className={`w-full text-left px-3 py-2 text-xs flex items-center justify-between hover:bg-[#16181f] ${
+                      selectedWalletId === w.id ? 'text-white font-semibold bg-[#16181f]' : 'text-zinc-300'
                     }`}
                   >
                     <div>
@@ -203,7 +203,7 @@ export const Header: React.FC<HeaderProps> = ({
                 setShowWalletDropdown(false);
                 setShowNotifications(false);
               }}
-              className="flex items-center gap-1.5 bg-[#14161d] hover:bg-[#1a1d26] border border-white/10 px-2.5 sm:px-3 py-1.5 rounded-xl text-xs font-medium text-zinc-300 transition-colors"
+              className="flex items-center gap-1.5 bg-[#14161d] hover:bg-[#1a1d26] border border-[#2c303d] px-2.5 sm:px-3 py-1.5 rounded-none text-xs font-medium text-zinc-300 transition-colors"
             >
               <Calendar className="w-3.5 h-3.5 text-zinc-400" />
               <span>
@@ -223,7 +223,7 @@ export const Header: React.FC<HeaderProps> = ({
             </button>
 
             {showDateDropdown && (
-              <div className="absolute right-0 mt-2 w-44 bg-[#14161d] border border-white/10 rounded-xl shadow-2xl py-1 z-50 animate-in fade-in zoom-in-95 duration-100">
+              <div className="absolute right-0 mt-2 w-44 bg-[#14161d] border border-[#2c303d] rounded-none py-1 z-50 animate-in fade-in zoom-in-95 duration-100">
                 {[
                   { id: 'as_of_today', label: 'As of Today' },
                   { id: 'today', label: 'Today Only' },
@@ -238,8 +238,8 @@ export const Header: React.FC<HeaderProps> = ({
                       setDateRange(opt.id);
                       setShowDateDropdown(false);
                     }}
-                    className={`w-full text-left px-3 py-2 text-xs hover:bg-white/5 ${
-                      dateRange === opt.id ? 'text-white font-semibold bg-white/5' : 'text-zinc-300'
+                    className={`w-full text-left px-3 py-2 text-xs hover:bg-[#16181f] ${
+                      dateRange === opt.id ? 'text-white font-semibold bg-[#16181f]' : 'text-zinc-300'
                     }`}
                   >
                     {opt.label}
@@ -253,7 +253,7 @@ export const Header: React.FC<HeaderProps> = ({
           {onOpenSyncSettings && (
             <button
               onClick={onOpenSyncSettings}
-              className="flex items-center gap-1.5 bg-[#14161d] hover:bg-[#1a1d26] border border-white/10 px-2.5 py-1.5 rounded-xl text-xs font-medium transition-colors cursor-pointer"
+              className="flex items-center gap-1.5 bg-[#14161d] hover:bg-[#1a1d26] border border-[#2c303d] px-2.5 py-1.5 rounded-none text-xs font-medium transition-colors cursor-pointer"
               title={
                 cloudSyncStatus === 'synced'
                   ? 'Cloud Auto-Sync Active (Live with Supabase)'
@@ -292,20 +292,20 @@ export const Header: React.FC<HeaderProps> = ({
                 setShowWalletDropdown(false);
                 setShowDateDropdown(false);
               }}
-              className="relative p-2 rounded-xl bg-[#14161d] hover:bg-[#1a1d26] border border-white/10 text-zinc-300 hover:text-white transition-colors"
+              className="relative p-2 rounded-none bg-[#14161d] hover:bg-[#1a1d26] border border-[#2c303d] text-zinc-300 hover:text-white transition-colors"
               title="Freelance Payment Reminders"
             >
               <Bell className="w-4 h-4" />
               {totalAlerts > 0 && (
-                <span className="absolute -top-1 -right-1 min-w-[16px] h-4 px-1 bg-amber-500 text-[10px] font-bold text-black rounded-full flex items-center justify-center shadow-sm">
+                <span className="absolute -top-1 -right-1 min-w-[16px] h-4 px-1 bg-amber-500 text-[10px] font-bold text-black rounded-none flex items-center justify-center">
                   {totalAlerts}
                 </span>
               )}
             </button>
 
             {showNotifications && (
-              <div className="fixed sm:absolute right-4 sm:right-0 top-16 sm:top-auto mt-2 w-[calc(100vw-32px)] sm:w-80 max-w-sm bg-[#14161d] border border-white/10 rounded-2xl shadow-2xl p-3 z-50">
-                <div className="flex items-center justify-between pb-2 border-b border-white/5">
+              <div className="fixed sm:absolute right-4 sm:right-0 top-16 sm:top-auto mt-2 w-[calc(100vw-32px)] sm:w-80 max-w-sm bg-[#14161d] border border-[#2c303d] rounded-none p-3 z-50">
+                <div className="flex items-center justify-between pb-2 border-b border-[#22252f]">
                   <div className="flex items-center gap-2">
                     <Clock className="w-4 h-4 text-zinc-400" />
                     <span className="text-xs font-semibold text-white">Payment Reminders</span>
@@ -325,12 +325,12 @@ export const Header: React.FC<HeaderProps> = ({
                     urgentReminders.map((rem) => (
                       <div
                         key={rem.id}
-                        className={`p-2.5 rounded-xl border text-xs transition-all ${
+                        className={`p-2.5 rounded-none border text-xs transition-all ${
                           rem.status === 'overdue'
-                            ? 'bg-rose-500/10 border-rose-500/20'
+                            ? 'bg-[#261116] border-rose-800'
                             : rem.status === 'due_today'
-                            ? 'bg-white/5 border-white/10'
-                            : 'bg-zinc-900/60 border-white/5'
+                            ? 'bg-[#16181f] border-[#2c303d]'
+                            : 'bg-[#16181f] border-[#22252f]'
                         }`}
                       >
                         <div className="flex items-start justify-between">
@@ -353,7 +353,7 @@ export const Header: React.FC<HeaderProps> = ({
                             </span>
                           </div>
                         </div>
-                        <div className="mt-2 flex items-center justify-between pt-1 border-t border-white/5">
+                        <div className="mt-2 flex items-center justify-between pt-1 border-t border-[#22252f]">
                           <span className="text-[10px] text-zinc-500">Due: {formatDateDDMMYYYY(rem.dueDate)}</span>
                           <div className="flex items-center gap-1.5">
                             {rem.type !== 'payable' && (
@@ -361,7 +361,7 @@ export const Header: React.FC<HeaderProps> = ({
                                 href={getWhatsAppReminderUrl(rem, settings)}
                                 target="_blank"
                                 rel="noopener noreferrer"
-                                className="text-[10px] bg-white/5 hover:bg-white/10 text-emerald-400 font-semibold px-2 py-1 rounded-lg transition-colors flex items-center gap-1"
+                                className="text-[10px] bg-[#16181f] hover:bg-[#20232e] text-emerald-400 font-semibold px-2 py-1 rounded-none transition-colors flex items-center gap-1"
                                 title="Send WhatsApp payment reminder"
                               >
                                 <MessageSquare className="w-2.5 h-2.5" />
@@ -373,7 +373,7 @@ export const Header: React.FC<HeaderProps> = ({
                                 onCollectReminder(rem.id);
                                 setShowNotifications(false);
                               }}
-                              className="text-[10px] bg-white/10 hover:bg-white/20 text-white font-semibold px-2 py-1 rounded-lg transition-colors"
+                              className="text-[10px] bg-[#20232e] hover:bg-[#2d3240] text-white font-semibold px-2 py-1 rounded-none transition-colors"
                             >
                               {rem.amountType === 'variable' || rem.amountType === 'hybrid'
                                 ? 'Set Amount'
@@ -393,7 +393,7 @@ export const Header: React.FC<HeaderProps> = ({
                     onNavigateToReminders();
                     setShowNotifications(false);
                   }}
-                  className="w-full text-center py-1.5 text-[11px] text-zinc-400 hover:text-white font-medium transition-colors border-t border-white/5 mt-1 block"
+                  className="w-full text-center py-1.5 text-[11px] text-zinc-400 hover:text-white font-medium transition-colors border-t border-[#22252f] mt-1 block"
                 >
                   View all client receivables & reminders →
                 </button>
@@ -407,35 +407,35 @@ export const Header: React.FC<HeaderProps> = ({
       <div className="flex items-center gap-2 overflow-x-auto pb-1 no-scrollbar scrollbar-none max-w-full">
         <button
           onClick={() => onOpenAddTx('expense')}
-          className="flex-1 sm:flex-initial flex items-center justify-center gap-1.5 bg-[#14151b] hover:bg-[#1b1d26] text-zinc-300 hover:text-white border border-white/10 px-3.5 py-1.5 rounded-xl text-xs font-medium transition-colors whitespace-nowrap shadow-sm"
+          className="flex-1 sm:flex-initial flex items-center justify-center gap-1.5 bg-[#14151b] hover:bg-[#1b1d26] text-zinc-300 hover:text-white border border-[#2c303d] px-3.5 py-1.5 rounded-none text-xs font-medium transition-colors whitespace-nowrap"
           title="Add Expense"
         >
-          <span className="w-1.5 h-1.5 rounded-full bg-rose-400/80" />
+          <span className="w-1.5 h-1.5 rounded-none bg-rose-500" />
           <span>+ Expense</span>
         </button>
 
         <button
           onClick={() => onOpenAddTx('income')}
-          className="flex-1 sm:flex-initial flex items-center justify-center gap-1.5 bg-[#14151b] hover:bg-[#1b1d26] text-zinc-300 hover:text-white border border-white/10 px-3.5 py-1.5 rounded-xl text-xs font-medium transition-colors whitespace-nowrap shadow-sm"
+          className="flex-1 sm:flex-initial flex items-center justify-center gap-1.5 bg-[#14151b] hover:bg-[#1b1d26] text-zinc-300 hover:text-white border border-[#2c303d] px-3.5 py-1.5 rounded-none text-xs font-medium transition-colors whitespace-nowrap"
           title="Add Income"
         >
-          <span className="w-1.5 h-1.5 rounded-full bg-emerald-400/80" />
+          <span className="w-1.5 h-1.5 rounded-none bg-emerald-500" />
           <span>+ Income</span>
         </button>
 
         <button
           onClick={() => onOpenAddTx('deposit')}
-          className="flex-1 sm:flex-initial flex items-center justify-center gap-1.5 bg-[#14151b] hover:bg-[#1b1d26] text-zinc-300 hover:text-white border border-white/10 px-3.5 py-1.5 rounded-xl text-xs font-medium transition-colors whitespace-nowrap shadow-sm"
+          className="flex-1 sm:flex-initial flex items-center justify-center gap-1.5 bg-[#14151b] hover:bg-[#1b1d26] text-zinc-300 hover:text-white border border-[#2c303d] px-3.5 py-1.5 rounded-none text-xs font-medium transition-colors whitespace-nowrap"
           title="Add Personal Money / Family Inflow (Non-Income)"
         >
-          <span className="w-1.5 h-1.5 rounded-full bg-purple-400" />
+          <span className="w-1.5 h-1.5 rounded-none bg-purple-400" />
           <span>+ Add Money</span>
         </button>
 
         {onOpenTransfer && (
           <button
             onClick={onOpenTransfer}
-            className="flex-1 sm:flex-initial flex items-center justify-center gap-1.5 bg-[#14151b] hover:bg-[#1b1d26] text-zinc-300 hover:text-white border border-white/10 px-3.5 py-1.5 rounded-xl text-xs font-medium transition-colors whitespace-nowrap shadow-sm"
+            className="flex-1 sm:flex-initial flex items-center justify-center gap-1.5 bg-[#14151b] hover:bg-[#1b1d26] text-zinc-300 hover:text-white border border-[#2c303d] px-3.5 py-1.5 rounded-none text-xs font-medium transition-colors whitespace-nowrap"
             title="Transfer Money Between Accounts"
           >
             <ArrowLeftRight className="w-3.5 h-3.5 text-sky-400" />
@@ -445,7 +445,7 @@ export const Header: React.FC<HeaderProps> = ({
 
         <button
           onClick={onOpenAddReminder}
-          className="flex-1 sm:flex-initial flex items-center justify-center gap-1.5 bg-zinc-100 hover:bg-white text-zinc-950 font-semibold px-3.5 py-1.5 rounded-xl text-xs transition-colors whitespace-nowrap shadow-sm"
+          className="flex-1 sm:flex-initial flex items-center justify-center gap-1.5 bg-zinc-100 hover:bg-white text-zinc-950 font-semibold px-3.5 py-1.5 rounded-none text-xs transition-colors whitespace-nowrap"
           title="New Receivable / Invoice"
         >
           <Plus className="w-3.5 h-3.5 stroke-[2.5]" />

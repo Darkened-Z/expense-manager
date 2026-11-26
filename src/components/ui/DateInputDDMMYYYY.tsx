@@ -113,10 +113,10 @@ export const DateInputDDMMYYYY: React.FC<DateInputDDMMYYYYProps> = ({
         onChange={handleTextChange}
         onBlur={handleBlur}
         required={required}
-        className={`${className || 'w-full bg-[#171922] text-white text-xs px-3 py-2.5 rounded-xl border border-white/10 focus:outline-none focus:border-white/30'} pr-9 font-mono`}
+        className={`${className || 'w-full bg-[#171922] text-white text-xs px-3 py-2.5 rounded-none border border-[#2c303d] focus:outline-none focus:border-[#52596e]'} pr-9 font-mono`}
       />
       <div
-        className="absolute right-1.5 top-1/2 -translate-y-1/2 w-7 h-7 flex items-center justify-center rounded-lg hover:bg-white/5 text-zinc-400 hover:text-white transition-colors cursor-pointer"
+        className="absolute right-1.5 top-1/2 -translate-y-1/2 w-7 h-7 flex items-center justify-center rounded-none hover:bg-[#16181f] text-zinc-400 hover:text-white transition-colors cursor-pointer"
         title="Open calendar picker"
       >
         <Calendar className="w-3.5 h-3.5 pointer-events-none" />

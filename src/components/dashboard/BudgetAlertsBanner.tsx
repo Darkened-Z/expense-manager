@@ -61,17 +61,17 @@ export const BudgetAlertsBanner: React.FC<BudgetAlertsBannerProps> = ({
           <div
             key={cat.id}
             onClick={onNavigateToCategories}
-            className="p-3.5 rounded-2xl bg-rose-500/10 border border-rose-500/20 hover:border-rose-500/40 transition-all flex items-center justify-between gap-3 cursor-pointer shadow-sm group"
+            className="p-3.5 rounded-none bg-[#261116] border border-rose-800 hover:border-rose-600 transition-all flex items-center justify-between gap-3 cursor-pointer group"
           >
             <div className="flex items-center gap-2.5 min-w-0">
-              <div className="p-1.5 rounded-xl bg-rose-500/20 text-rose-300 shrink-0">
+              <div className="p-1.5 rounded-none bg-[#38161e] text-rose-300 shrink-0">
                 <AlertCircle className="w-4 h-4" />
               </div>
               <div className="min-w-0">
                 <div className="text-xs font-bold text-rose-200 truncate">
                   Monthly Budget Exceeded: <span className="text-white">{cat.name}</span>
                 </div>
-                <div className="text-[11px] text-rose-300/80 font-mono mt-0.5">
+                <div className="text-[11px] text-rose-300 font-mono mt-0.5">
                   Spent {currencySymbol}{formatCash(spent)} of {currencySymbol}{formatCash(limit)} (Over by {currencySymbol}{formatCash(overAmount)})
                 </div>
               </div>
@@ -95,17 +95,17 @@ export const BudgetAlertsBanner: React.FC<BudgetAlertsBannerProps> = ({
           <div
             key={cat.id}
             onClick={onNavigateToCategories}
-            className="p-3.5 rounded-2xl bg-amber-500/10 border border-amber-500/20 hover:border-amber-500/40 transition-all flex items-center justify-between gap-3 cursor-pointer shadow-sm group"
+            className="p-3.5 rounded-none bg-[#241c0d] border border-amber-800 hover:border-amber-600 transition-all flex items-center justify-between gap-3 cursor-pointer group"
           >
             <div className="flex items-center gap-2.5 min-w-0">
-              <div className="p-1.5 rounded-xl bg-amber-500/20 text-amber-300 shrink-0">
+              <div className="p-1.5 rounded-none bg-[#362911] text-amber-300 shrink-0">
                 <AlertTriangle className="w-4 h-4" />
               </div>
               <div className="min-w-0">
                 <div className="text-xs font-bold text-amber-200 truncate">
                   Budget Warning: <span className="text-white">{cat.name}</span> ({percent}% used)
                 </div>
-                <div className="text-[11px] text-amber-300/80 font-mono mt-0.5">
+                <div className="text-[11px] text-amber-300 font-mono mt-0.5">
                   {currencySymbol}{formatCash(remaining)} remaining before reaching monthly limit
                 </div>
               </div>

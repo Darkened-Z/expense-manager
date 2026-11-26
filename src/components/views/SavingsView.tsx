@@ -144,14 +144,14 @@ export const SavingsView: React.FC<SavingsViewProps> = ({
               setSimpleDate(new Date().toISOString().split('T')[0]);
               setShowSimpleSavingModal(true);
             }}
-            className="bg-white/10 hover:bg-white/15 text-white border border-white/10 font-semibold py-2 px-3.5 rounded-xl text-xs flex items-center justify-center gap-1.5 transition-colors cursor-pointer shadow-sm shrink-0 whitespace-nowrap"
+            className="bg-[#20232e] hover:bg-[#262a37] text-white border border-[#2c303d] font-semibold py-2 px-3.5 rounded-none text-xs flex items-center justify-center gap-1.5 transition-colors cursor-pointer shrink-0 whitespace-nowrap"
           >
             <StickyNote className="w-4 h-4 text-amber-400" />
             <span>+ Add Simple Saving</span>
           </button>
           <button
             onClick={() => setShowAddModal(true)}
-            className="bg-zinc-100 hover:bg-white text-zinc-950 font-semibold py-2 px-3.5 rounded-xl text-xs flex items-center justify-center gap-1.5 transition-colors shadow-sm cursor-pointer shrink-0 whitespace-nowrap"
+            className="bg-zinc-100 hover:bg-white text-zinc-950 font-semibold py-2 px-3.5 rounded-none text-xs flex items-center justify-center gap-1.5 transition-colors cursor-pointer shrink-0 whitespace-nowrap"
           >
             <Plus className="w-4 h-4 stroke-[2.5]" />
             <span>Create Goal</span>
@@ -162,7 +162,7 @@ export const SavingsView: React.FC<SavingsViewProps> = ({
       {/* Overview Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 max-w-full">
         {/* Card 1: Total Saved Overall */}
-        <div className="bg-[#12141a] border border-white/5 rounded-2xl p-5 shadow-xl min-w-0 overflow-hidden">
+        <div className="bg-[#12141a] border border-[#22252f] rounded-none p-5 min-w-0 overflow-hidden">
           <div className="flex items-center justify-between text-xs text-zinc-400">
             <span className="font-medium uppercase tracking-wider">Total Saved</span>
             <PiggyBank className="w-4 h-4 text-zinc-400" />
@@ -176,7 +176,7 @@ export const SavingsView: React.FC<SavingsViewProps> = ({
         </div>
 
         {/* Card 2: Simple Savings (No Goals) */}
-        <div className="bg-[#12141a] border border-white/5 rounded-2xl p-5 shadow-xl min-w-0 overflow-hidden">
+        <div className="bg-[#12141a] border border-[#22252f] rounded-none p-5 min-w-0 overflow-hidden">
           <div className="flex items-center justify-between text-xs text-zinc-400">
             <span className="font-medium uppercase tracking-wider">Simple Savings</span>
             <StickyNote className="w-4 h-4 text-amber-400" />
@@ -190,7 +190,7 @@ export const SavingsView: React.FC<SavingsViewProps> = ({
         </div>
 
         {/* Card 3: Goals Target */}
-        <div className="bg-[#12141a] border border-white/5 rounded-2xl p-5 shadow-xl min-w-0 overflow-hidden">
+        <div className="bg-[#12141a] border border-[#22252f] rounded-none p-5 min-w-0 overflow-hidden">
           <div className="flex items-center justify-between text-xs text-zinc-400">
             <span className="font-medium uppercase tracking-wider">Goal Targets</span>
             <Target className="w-4 h-4 text-zinc-400" />
@@ -205,10 +205,10 @@ export const SavingsView: React.FC<SavingsViewProps> = ({
       </div>
 
       {/* Simple Savings Notes Section */}
-      <div className="bg-[#12141a] border border-white/5 rounded-2xl p-5 sm:p-6 shadow-xl space-y-4">
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-white/5 pb-3">
+      <div className="bg-[#12141a] border border-[#22252f] rounded-none p-5 sm:p-6 space-y-4">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-[#22252f] pb-3">
           <div className="flex items-center gap-2.5">
-            <div className="p-2 rounded-xl bg-amber-400/10 border border-amber-400/20 text-amber-400">
+            <div className="p-2 rounded-none bg-[#241c0d] border border-amber-800 text-amber-400">
               <StickyNote className="w-4 h-4" />
             </div>
             <div>
@@ -226,7 +226,7 @@ export const SavingsView: React.FC<SavingsViewProps> = ({
               setSimpleDate(new Date().toISOString().split('T')[0]);
               setShowSimpleSavingModal(true);
             }}
-            className="self-start sm:self-auto text-xs text-zinc-200 hover:text-white flex items-center gap-1.5 font-medium bg-white/5 hover:bg-white/10 px-3 py-1.5 rounded-xl border border-white/5 transition-colors cursor-pointer"
+            className="self-start sm:self-auto text-xs text-zinc-200 hover:text-white flex items-center gap-1.5 font-medium bg-[#16181f] hover:bg-[#20232e] px-3 py-1.5 rounded-none border border-[#22252f] transition-colors cursor-pointer"
           >
             <Plus className="w-3.5 h-3.5" />
             <span>Add Simple Saving</span>
@@ -259,7 +259,7 @@ export const SavingsView: React.FC<SavingsViewProps> = ({
                 <div
                   key={item.id}
                   onClick={() => setSelectedSimpleSaving(item)}
-                  className="bg-[#171922] border border-white/5 hover:border-white/20 rounded-xl p-4 flex flex-col justify-between transition-all group cursor-pointer"
+                  className="bg-[#171922] border border-[#22252f] hover:border-[#3f4557] rounded-none p-4 flex flex-col justify-between transition-all group cursor-pointer"
                 >
                   <div>
                     <div className="flex items-start justify-between gap-2">
@@ -272,7 +272,7 @@ export const SavingsView: React.FC<SavingsViewProps> = ({
                             e.stopPropagation();
                             onDeleteSimpleSaving(item.id);
                           }}
-                          className="text-zinc-600 hover:text-rose-400 p-1 transition-colors rounded cursor-pointer"
+                          className="text-zinc-600 hover:text-rose-400 p-1 transition-colors rounded-none cursor-pointer"
                           title="Delete saving note"
                         >
                           <Trash2 className="w-3.5 h-3.5" />
@@ -285,7 +285,7 @@ export const SavingsView: React.FC<SavingsViewProps> = ({
                   </div>
 
                   <div>
-                    <div className="mt-4 pt-3 border-t border-white/5 flex items-baseline justify-between">
+                    <div className="mt-4 pt-3 border-t border-[#22252f] flex items-baseline justify-between">
                       <div className="text-base font-bold font-mono text-white">
                         {currencySymbol}{formatCash(item.amount)}
                       </div>
@@ -300,7 +300,7 @@ export const SavingsView: React.FC<SavingsViewProps> = ({
                       )}
                     </div>
 
-                    <div className="mt-2.5 pt-2 border-t border-white/[0.03] flex items-center justify-between text-[10px] text-zinc-500 group-hover:text-zinc-300 transition-colors">
+                    <div className="mt-2.5 pt-2 border-t border-[#1d2029] flex items-center justify-between text-[10px] text-zinc-500 group-hover:text-zinc-300 transition-colors">
                       <span>View details</span>
                       <span className="group-hover:translate-x-0.5 transition-transform font-mono text-sky-400">→</span>
                     </div>
@@ -316,7 +316,7 @@ export const SavingsView: React.FC<SavingsViewProps> = ({
       <div className="space-y-4 pt-2">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2.5">
-            <div className="p-2 rounded-xl bg-white/5 border border-white/5 text-zinc-400">
+            <div className="p-2 rounded-none bg-[#16181f] border border-[#22252f] text-zinc-400">
               <Target className="w-4 h-4" />
             </div>
             <div>
@@ -327,7 +327,7 @@ export const SavingsView: React.FC<SavingsViewProps> = ({
 
           <button
             onClick={() => setShowAddModal(true)}
-            className="text-xs text-zinc-200 hover:text-white flex items-center gap-1.5 font-medium bg-white/5 hover:bg-white/10 px-3 py-1.5 rounded-xl border border-white/5 transition-colors cursor-pointer"
+            className="text-xs text-zinc-200 hover:text-white flex items-center gap-1.5 font-medium bg-[#16181f] hover:bg-[#20232e] px-3 py-1.5 rounded-none border border-[#22252f] transition-colors cursor-pointer"
           >
             <Plus className="w-3.5 h-3.5" />
             <span>Create Goal</span>
@@ -336,8 +336,8 @@ export const SavingsView: React.FC<SavingsViewProps> = ({
 
       {/* Goals Grid or Empty State */}
       {savingsGoals.length === 0 ? (
-        <div className="bg-[#12141a] border border-white/5 rounded-2xl p-12 text-center max-w-xl mx-auto shadow-xl">
-          <div className="w-12 h-12 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center mx-auto text-zinc-400 mb-4">
+        <div className="bg-[#12141a] border border-[#22252f] rounded-none p-12 text-center max-w-xl mx-auto">
+          <div className="w-12 h-12 rounded-none bg-[#16181f] border border-[#2c303d] flex items-center justify-center mx-auto text-zinc-400 mb-4">
             <PiggyBank className="w-6 h-6 stroke-[1.75]" />
           </div>
           <h3 className="text-base font-semibold text-white">No Savings Goals Yet</h3>
@@ -346,7 +346,7 @@ export const SavingsView: React.FC<SavingsViewProps> = ({
           </p>
           <button
             onClick={() => setShowAddModal(true)}
-            className="mt-5 inline-flex items-center gap-1.5 px-4 py-2 bg-zinc-100 hover:bg-white text-zinc-950 font-semibold text-xs rounded-xl transition-colors shadow-sm"
+            className="mt-5 inline-flex items-center gap-1.5 px-4 py-2 bg-zinc-100 hover:bg-white text-zinc-950 font-semibold text-xs rounded-none transition-colors"
           >
             <Plus className="w-4 h-4 stroke-[2.5]" />
             <span>Create Your First Goal</span>
@@ -362,7 +362,7 @@ export const SavingsView: React.FC<SavingsViewProps> = ({
               <div
                 key={goal.id}
                 onClick={() => setSelectedGoalDetails(goal)}
-                className="bg-[#12141a] border border-white/5 hover:border-white/20 rounded-2xl p-5 shadow-xl flex flex-col justify-between transition-all cursor-pointer group"
+                className="bg-[#12141a] border border-[#22252f] hover:border-[#3f4557] rounded-none p-5 flex flex-col justify-between transition-all cursor-pointer group"
               >
                 <div>
                   <div className="flex items-start justify-between">
@@ -405,9 +405,9 @@ export const SavingsView: React.FC<SavingsViewProps> = ({
                       <span className="text-zinc-400">{pct.toFixed(0)}% funded</span>
                       <span className="text-zinc-500">{currencySymbol}{formatCash(remaining)} remaining</span>
                     </div>
-                    <div className="w-full h-2 bg-white/5 rounded-full overflow-hidden">
+                    <div className="w-full h-2 bg-[#16181f] rounded-none overflow-hidden">
                       <div
-                        className="h-full rounded-full transition-all duration-500"
+                        className="h-full rounded-none transition-all duration-500"
                         style={{
                           width: `${pct}%`,
                           backgroundColor: goal.color,
@@ -426,20 +426,20 @@ export const SavingsView: React.FC<SavingsViewProps> = ({
 
                 <div>
                   {/* Deposit Button */}
-                  <div className="mt-5 pt-3 border-t border-white/5">
+                  <div className="mt-5 pt-3 border-t border-[#22252f]">
                     <button
                       onClick={(e) => {
                         e.stopPropagation();
                         setDepositGoal(goal);
                       }}
-                      className="w-full bg-[#181b23] hover:bg-[#20242f] text-zinc-200 border border-white/10 hover:border-white/20 py-2 rounded-xl text-xs font-semibold flex items-center justify-center gap-1.5 transition-all cursor-pointer"
+                      className="w-full bg-[#181b23] hover:bg-[#20242f] text-zinc-200 border border-[#2c303d] hover:border-[#3f4557] py-2 rounded-none text-xs font-semibold flex items-center justify-center gap-1.5 transition-all cursor-pointer"
                     >
                       <Plus className="w-3.5 h-3.5" />
                       <span>Deposit Funds</span>
                     </button>
                   </div>
 
-                  <div className="mt-2.5 pt-2 border-t border-white/[0.03] flex items-center justify-between text-[10px] text-zinc-500 group-hover:text-zinc-300 transition-colors">
+                  <div className="mt-2.5 pt-2 border-t border-[#1d2029] flex items-center justify-between text-[10px] text-zinc-500 group-hover:text-zinc-300 transition-colors">
                     <span>View breakdown & pace</span>
                     <span className="group-hover:translate-x-0.5 transition-transform font-mono text-sky-400">→</span>
                   </div>
@@ -453,9 +453,9 @@ export const SavingsView: React.FC<SavingsViewProps> = ({
 
       {/* Deposit Modal */}
       {depositGoal && (
-        <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-          <div className="bg-[#12141a] border border-white/10 rounded-2xl w-full max-w-sm p-6 shadow-2xl animate-in fade-in zoom-in-95">
-            <h3 className="font-bold text-white text-base pb-2 border-b border-white/5">
+        <div className="fixed inset-0 bg-black/80 z-50 flex items-center justify-center p-4">
+          <div className="bg-[#12141a] border border-[#2c303d] rounded-none w-full max-w-sm p-6 animate-in fade-in zoom-in-95">
+            <h3 className="font-bold text-white text-base pb-2 border-b border-[#22252f]">
               Deposit to {depositGoal.title}
             </h3>
 
@@ -472,7 +472,7 @@ export const SavingsView: React.FC<SavingsViewProps> = ({
                     placeholder="0"
                     value={depositAmount}
                     onChange={(e) => setDepositAmount(e.target.value)}
-                    className="w-full bg-[#171922] text-white text-base font-mono font-bold pl-8 pr-3 py-2.5 rounded-xl border border-white/10 focus:outline-none focus:border-emerald-500"
+                    className="w-full bg-[#171922] text-white text-base font-mono font-bold pl-8 pr-3 py-2.5 rounded-none border border-[#2c303d] focus:outline-none focus:border-emerald-500"
                     required
                   />
                 </div>
@@ -483,7 +483,7 @@ export const SavingsView: React.FC<SavingsViewProps> = ({
                 <select
                   value={selectedWalletId}
                   onChange={(e) => setSelectedWalletId(e.target.value)}
-                  className="w-full bg-[#171922] text-white text-xs px-3 py-2.5 rounded-xl border border-white/10 focus:outline-none focus:border-emerald-500"
+                  className="w-full bg-[#171922] text-white text-xs px-3 py-2.5 rounded-none border border-[#2c303d] focus:outline-none focus:border-emerald-500"
                 >
                   {wallets.map((w) => (
                     <option key={w.id} value={w.id}>
@@ -493,17 +493,17 @@ export const SavingsView: React.FC<SavingsViewProps> = ({
                 </select>
               </div>
 
-              <div className="flex items-center justify-end gap-2 pt-3 border-t border-white/5">
+              <div className="flex items-center justify-end gap-2 pt-3 border-t border-[#22252f]">
                 <button
                   type="button"
                   onClick={() => setDepositGoal(null)}
-                  className="px-4 py-2 rounded-xl text-xs text-zinc-400 hover:text-white bg-white/5"
+                  className="px-4 py-2 rounded-none text-xs text-zinc-400 hover:text-white bg-[#16181f]"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
-                  className="px-5 py-2.5 rounded-xl text-xs font-semibold text-zinc-950 bg-zinc-100 hover:bg-white transition-colors shadow-sm"
+                  className="px-5 py-2.5 rounded-none text-xs font-semibold text-zinc-950 bg-zinc-100 hover:bg-white transition-colors"
                 >
                   Confirm Deposit
                 </button>
@@ -515,9 +515,9 @@ export const SavingsView: React.FC<SavingsViewProps> = ({
 
       {/* Add Goal Modal */}
       {showAddModal && (
-        <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-          <div className="bg-[#12141a] border border-white/10 rounded-2xl w-full max-w-md p-6 shadow-2xl animate-in fade-in zoom-in-95">
-            <h3 className="font-bold text-white text-base pb-3 border-b border-white/5">
+        <div className="fixed inset-0 bg-black/80 z-50 flex items-center justify-center p-4">
+          <div className="bg-[#12141a] border border-[#2c303d] rounded-none w-full max-w-md p-6 animate-in fade-in zoom-in-95">
+            <h3 className="font-bold text-white text-base pb-3 border-b border-[#22252f]">
               Create Savings Target
             </h3>
 
@@ -529,7 +529,7 @@ export const SavingsView: React.FC<SavingsViewProps> = ({
                   placeholder="e.g. Tax Reserve, Equipment Fund, Vacation"
                   value={title}
                   onChange={(e) => setTitle(e.target.value)}
-                  className="w-full bg-[#171922] text-white text-xs px-3.5 py-2.5 rounded-xl border border-white/10 focus:outline-none focus:border-white/30"
+                  className="w-full bg-[#171922] text-white text-xs px-3.5 py-2.5 rounded-none border border-[#2c303d] focus:outline-none focus:border-[#52596e]"
                   required
                 />
               </div>
@@ -543,7 +543,7 @@ export const SavingsView: React.FC<SavingsViewProps> = ({
                     placeholder="0"
                     value={targetAmount}
                     onChange={(e) => setTargetAmount(e.target.value)}
-                    className="w-full bg-[#171922] text-white text-xs font-mono px-3.5 py-2.5 rounded-xl border border-white/10 focus:outline-none focus:border-white/30"
+                    className="w-full bg-[#171922] text-white text-xs font-mono px-3.5 py-2.5 rounded-none border border-[#2c303d] focus:outline-none focus:border-[#52596e]"
                     required
                   />
                 </div>
@@ -555,7 +555,7 @@ export const SavingsView: React.FC<SavingsViewProps> = ({
                     placeholder="0"
                     value={currentAmount}
                     onChange={(e) => setCurrentAmount(e.target.value)}
-                    className="w-full bg-[#171922] text-white text-xs font-mono px-3.5 py-2.5 rounded-xl border border-white/10 focus:outline-none focus:border-white/30"
+                    className="w-full bg-[#171922] text-white text-xs font-mono px-3.5 py-2.5 rounded-none border border-[#2c303d] focus:outline-none focus:border-[#52596e]"
                   />
                 </div>
               </div>
@@ -566,7 +566,7 @@ export const SavingsView: React.FC<SavingsViewProps> = ({
                   <DateInputDDMMYYYY
                     value={targetDate}
                     onChange={setTargetDate}
-                    className="w-full bg-[#171922] text-white text-xs px-3.5 py-2.5 rounded-xl border border-white/10 focus:outline-none focus:border-white/30"
+                    className="w-full bg-[#171922] text-white text-xs px-3.5 py-2.5 rounded-none border border-[#2c303d] focus:outline-none focus:border-[#52596e]"
                   />
                 </div>
                 <div>
@@ -574,7 +574,7 @@ export const SavingsView: React.FC<SavingsViewProps> = ({
                   <select
                     value={category}
                     onChange={(e) => setCategory(e.target.value)}
-                    className="w-full bg-[#171922] text-white text-xs px-3 py-2.5 rounded-xl border border-white/10 focus:outline-none focus:border-white/30"
+                    className="w-full bg-[#171922] text-white text-xs px-3 py-2.5 rounded-none border border-[#2c303d] focus:outline-none focus:border-[#52596e]"
                   >
                     <option value="Safety Net">Safety Net</option>
                     <option value="Taxes">Taxes</option>
@@ -593,7 +593,7 @@ export const SavingsView: React.FC<SavingsViewProps> = ({
                       key={c}
                       type="button"
                       onClick={() => setColor(c)}
-                      className={`w-6 h-6 rounded-full border transition-all ${
+                      className={`w-6 h-6 rounded-none border transition-all ${
                         color === c ? 'scale-125 border-white' : 'border-transparent opacity-70 hover:opacity-100'
                       }`}
                       style={{ backgroundColor: c }}
@@ -602,17 +602,17 @@ export const SavingsView: React.FC<SavingsViewProps> = ({
                 </div>
               </div>
 
-              <div className="flex items-center justify-end gap-2 pt-3 border-t border-white/5">
+              <div className="flex items-center justify-end gap-2 pt-3 border-t border-[#22252f]">
                 <button
                   type="button"
                   onClick={() => setShowAddModal(false)}
-                  className="px-4 py-2 rounded-xl text-xs text-zinc-400 hover:text-white bg-white/5"
+                  className="px-4 py-2 rounded-none text-xs text-zinc-400 hover:text-white bg-[#16181f]"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
-                  className="px-5 py-2.5 rounded-xl text-xs font-semibold text-zinc-950 bg-zinc-100 hover:bg-white transition-colors shadow-sm"
+                  className="px-5 py-2.5 rounded-none text-xs font-semibold text-zinc-950 bg-zinc-100 hover:bg-white transition-colors"
                 >
                   Create Goal
                 </button>
@@ -624,23 +624,23 @@ export const SavingsView: React.FC<SavingsViewProps> = ({
 
       {/* Simple Saving Modal */}
       {showSimpleSavingModal && (
-        <div className="fixed inset-0 bg-black/80 backdrop-blur-md z-50 flex items-center justify-center p-3 sm:p-4">
-          <div className="bg-[#12141a] border border-white/10 rounded-2xl sm:rounded-3xl w-full max-w-md p-5 sm:p-6 shadow-2xl animate-in fade-in zoom-in-95">
-            <div className="flex items-center justify-between pb-3 border-b border-white/5">
+        <div className="fixed inset-0 bg-black/80 z-50 flex items-center justify-center p-3 sm:p-4">
+          <div className="bg-[#12141a] border border-[#2c303d] rounded-none sm:rounded-none w-full max-w-md p-5 sm:p-6 animate-in fade-in zoom-in-95">
+            <div className="flex items-center justify-between pb-3 border-b border-[#22252f]">
               <div>
                 <h3 className="font-bold text-white text-base">Record Simple Saving</h3>
                 <p className="text-xs text-zinc-400 mt-0.5">Quickly save an amount with a simple note — not tied to any goal.</p>
               </div>
               <button
                 onClick={() => setShowSimpleSavingModal(false)}
-                className="p-1 rounded-lg text-zinc-500 hover:text-white transition-colors cursor-pointer"
+                className="p-1 rounded-none text-zinc-500 hover:text-white transition-colors cursor-pointer"
               >
                 <X className="w-4 h-4" />
               </button>
             </div>
 
             {simpleError && (
-              <div className="mt-3 p-2.5 rounded-xl bg-rose-500/10 border border-rose-500/20 text-rose-300 text-xs">
+              <div className="mt-3 p-2.5 rounded-none bg-[#261116] border border-rose-800 text-rose-300 text-xs">
                 {simpleError}
               </div>
             )}
@@ -660,7 +660,7 @@ export const SavingsView: React.FC<SavingsViewProps> = ({
                     placeholder="0"
                     value={simpleAmount}
                     onChange={(e) => setSimpleAmount(e.target.value)}
-                    className="w-full bg-[#171922] text-white text-base font-mono font-bold pl-12 pr-3 py-2.5 rounded-xl border border-white/10 focus:outline-none focus:border-white/30"
+                    className="w-full bg-[#171922] text-white text-base font-mono font-bold pl-12 pr-3 py-2.5 rounded-none border border-[#2c303d] focus:outline-none focus:border-[#52596e]"
                     required
                     autoFocus
                   />
@@ -676,7 +676,7 @@ export const SavingsView: React.FC<SavingsViewProps> = ({
                   placeholder="e.g. Stashed in locker, saved from project bonus, emergency cash"
                   value={simpleNote}
                   onChange={(e) => setSimpleNote(e.target.value)}
-                  className="w-full bg-[#171922] text-white text-xs px-3.5 py-2.5 rounded-xl border border-white/10 focus:outline-none focus:border-white/30"
+                  className="w-full bg-[#171922] text-white text-xs px-3.5 py-2.5 rounded-none border border-[#2c303d] focus:outline-none focus:border-[#52596e]"
                   required
                 />
               </div>
@@ -689,7 +689,7 @@ export const SavingsView: React.FC<SavingsViewProps> = ({
                   <select
                     value={simpleWalletId}
                     onChange={(e) => setSimpleWalletId(e.target.value)}
-                    className="w-full bg-[#171922] text-white text-xs px-3 py-2.5 rounded-xl border border-white/10 focus:outline-none focus:border-white/30"
+                    className="w-full bg-[#171922] text-white text-xs px-3 py-2.5 rounded-none border border-[#2c303d] focus:outline-none focus:border-[#52596e]"
                   >
                     <option value="">None / Physical Cash Aside</option>
                     {wallets.map((w) => (
@@ -705,22 +705,22 @@ export const SavingsView: React.FC<SavingsViewProps> = ({
                   <DateInputDDMMYYYY
                     value={simpleDate}
                     onChange={setSimpleDate}
-                    className="w-full bg-[#171922] text-white text-xs px-3 py-2.5 rounded-xl border border-white/10 focus:outline-none focus:border-white/30"
+                    className="w-full bg-[#171922] text-white text-xs px-3 py-2.5 rounded-none border border-[#2c303d] focus:outline-none focus:border-[#52596e]"
                   />
                 </div>
               </div>
 
-              <div className="flex items-center justify-end gap-2 pt-3 border-t border-white/5">
+              <div className="flex items-center justify-end gap-2 pt-3 border-t border-[#22252f]">
                 <button
                   type="button"
                   onClick={() => setShowSimpleSavingModal(false)}
-                  className="px-4 py-2 rounded-xl text-xs text-zinc-400 hover:text-white bg-white/5 transition-colors cursor-pointer"
+                  className="px-4 py-2 rounded-none text-xs text-zinc-400 hover:text-white bg-[#16181f] transition-colors cursor-pointer"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
-                  className="px-5 py-2.5 rounded-xl text-xs font-semibold text-zinc-950 bg-zinc-100 hover:bg-white transition-colors shadow-sm cursor-pointer"
+                  className="px-5 py-2.5 rounded-none text-xs font-semibold text-zinc-950 bg-zinc-100 hover:bg-white transition-colors cursor-pointer"
                 >
                   Save Simple Saving
                 </button>
@@ -753,16 +753,15 @@ export const SavingsView: React.FC<SavingsViewProps> = ({
         );
 
         return (
-          <div className="fixed inset-0 bg-black/85 backdrop-blur-md z-50 flex items-center justify-center p-3 sm:p-4">
-            <div className="bg-[#12141a] border border-white/10 rounded-3xl w-full max-w-xl max-h-[90vh] flex flex-col shadow-2xl animate-in fade-in zoom-in-95 overflow-hidden">
+          <div className="fixed inset-0 bg-black/85 z-50 flex items-center justify-center p-3 sm:p-4">
+            <div className="bg-[#12141a] border border-[#2c303d] rounded-none w-full max-w-xl max-h-[90vh] flex flex-col animate-in fade-in zoom-in-95 overflow-hidden">
               {/* Header */}
-              <div className="p-5 sm:p-6 border-b border-white/10 flex items-start justify-between bg-white/[0.02]">
+              <div className="p-5 sm:p-6 border-b border-[#2c303d] flex items-start justify-between bg-[#14161c]">
                 <div className="flex items-center gap-3.5">
                   <div
-                    className="p-3.5 rounded-2xl border"
+                    className="p-3.5 rounded-none border bg-[#16181f]"
                     style={{
-                      backgroundColor: `${selectedGoalDetails.color}15`,
-                      borderColor: `${selectedGoalDetails.color}35`,
+                      borderColor: selectedGoalDetails.color,
                       color: selectedGoalDetails.color,
                     }}
                   >
@@ -787,15 +786,15 @@ export const SavingsView: React.FC<SavingsViewProps> = ({
                 <button
                   type="button"
                   onClick={() => setSelectedGoalDetails(null)}
-                  className="p-2 text-zinc-400 hover:text-white rounded-xl bg-white/5 hover:bg-white/10 transition-colors cursor-pointer"
+                  className="p-2 text-zinc-400 hover:text-white rounded-none bg-[#16181f] hover:bg-[#20232e] transition-colors cursor-pointer"
                 >
                   <X className="w-4 h-4" />
                 </button>
               </div>
 
               {/* Progress & Financial Overview */}
-              <div className="p-5 sm:p-6 border-b border-white/10 grid grid-cols-3 gap-3 bg-[#0d0f14]/50">
-                <div className="bg-[#171922] p-3.5 rounded-2xl border border-white/5">
+              <div className="p-5 sm:p-6 border-b border-[#2c303d] grid grid-cols-3 gap-3 bg-[#0d0f14]/50">
+                <div className="bg-[#171922] p-3.5 rounded-none border border-[#22252f]">
                   <span className="text-[10px] font-medium text-zinc-400 uppercase tracking-wider block">Current Saved</span>
                   <div className="text-lg sm:text-xl font-bold font-mono text-white mt-1">
                     {currencySymbol}{formatCash(selectedGoalDetails.currentAmount)}
@@ -805,14 +804,14 @@ export const SavingsView: React.FC<SavingsViewProps> = ({
                   </span>
                 </div>
 
-                <div className="bg-[#171922] p-3.5 rounded-2xl border border-white/5">
+                <div className="bg-[#171922] p-3.5 rounded-none border border-[#22252f]">
                   <span className="text-[10px] font-medium text-zinc-400 uppercase tracking-wider block">Target Goal</span>
                   <div className="text-lg sm:text-xl font-bold font-mono text-zinc-200 mt-1">
                     {currencySymbol}{formatCash(selectedGoalDetails.targetAmount)}
                   </div>
                 </div>
 
-                <div className="bg-[#171922] p-3.5 rounded-2xl border border-white/5">
+                <div className="bg-[#171922] p-3.5 rounded-none border border-[#22252f]">
                   <span className="text-[10px] font-medium text-zinc-400 uppercase tracking-wider block">Remaining</span>
                   <div className="text-lg sm:text-xl font-bold font-mono text-amber-300 mt-1">
                     {currencySymbol}{formatCash(remaining)}
@@ -821,15 +820,15 @@ export const SavingsView: React.FC<SavingsViewProps> = ({
               </div>
 
               {/* Detailed Progress Bar & Pace Banner */}
-              <div className="p-5 sm:p-6 border-b border-white/10 space-y-4">
+              <div className="p-5 sm:p-6 border-b border-[#2c303d] space-y-4">
                 <div>
                   <div className="flex items-center justify-between text-xs mb-1.5 font-mono">
                     <span className="text-zinc-400">{pct.toFixed(1)}% of goal reached</span>
                     <span className="text-zinc-300 font-semibold">{currencySymbol}{formatCash(remaining)} to go</span>
                   </div>
-                  <div className="w-full h-3 bg-white/5 rounded-full overflow-hidden p-0.5 border border-white/5">
+                  <div className="w-full h-3 bg-[#16181f] rounded-none overflow-hidden p-0.5 border border-[#22252f]">
                     <div
-                      className="h-full rounded-full transition-all duration-500 shadow-sm"
+                      className="h-full rounded-none transition-all duration-500"
                       style={{
                         width: `${pct}%`,
                         backgroundColor: selectedGoalDetails.color,
@@ -839,7 +838,7 @@ export const SavingsView: React.FC<SavingsViewProps> = ({
                 </div>
 
                 {monthlyPace !== null && (
-                  <div className="p-3.5 rounded-2xl bg-sky-500/10 border border-sky-500/20 flex items-center justify-between">
+                  <div className="p-3.5 rounded-none bg-[#10202e] border border-sky-800 flex items-center justify-between">
                     <div>
                       <div className="text-xs font-semibold text-sky-300 flex items-center gap-1.5">
                         <TrendingUp className="w-4 h-4 text-sky-400" />
@@ -864,7 +863,7 @@ export const SavingsView: React.FC<SavingsViewProps> = ({
                     </div>
                     <div className="space-y-1.5 max-h-32 overflow-y-auto">
                       {linkedTxs.map((tx) => (
-                        <div key={tx.id} className="p-2.5 bg-[#171922] border border-white/5 rounded-xl flex items-center justify-between text-xs">
+                        <div key={tx.id} className="p-2.5 bg-[#171922] border border-[#22252f] rounded-none flex items-center justify-between text-xs">
                           <div>
                             <div className="font-semibold text-white">{tx.title}</div>
                             <div className="text-[10px] text-zinc-500 font-mono">{formatDateDDMMYYYY(tx.date)}</div>
@@ -880,7 +879,7 @@ export const SavingsView: React.FC<SavingsViewProps> = ({
               </div>
 
               {/* Modal Footer / Actions */}
-              <div className="p-4 border-t border-white/5 bg-[#0d0f14]/50 flex items-center justify-between gap-2">
+              <div className="p-4 border-t border-[#22252f] bg-[#0d0f14]/50 flex items-center justify-between gap-2">
                 <button
                   type="button"
                   onClick={() => {
@@ -888,7 +887,7 @@ export const SavingsView: React.FC<SavingsViewProps> = ({
                     setSelectedGoalDetails(null);
                     onDeleteSavingsGoal(g.id);
                   }}
-                  className="px-3.5 py-2 rounded-xl text-xs font-semibold text-rose-400 hover:text-rose-300 hover:bg-rose-500/10 transition-colors flex items-center gap-1.5 cursor-pointer"
+                  className="px-3.5 py-2 rounded-none text-xs font-semibold text-rose-400 hover:text-rose-300 hover:bg-[#261116] transition-colors flex items-center gap-1.5 cursor-pointer"
                 >
                   <Trash2 className="w-3.5 h-3.5" />
                   <span>Delete Goal</span>
@@ -902,7 +901,7 @@ export const SavingsView: React.FC<SavingsViewProps> = ({
                       setSelectedGoalDetails(null);
                       setDepositGoal(g);
                     }}
-                    className="px-4 py-2 rounded-xl text-xs font-semibold text-zinc-950 bg-white hover:bg-zinc-200 transition-colors flex items-center gap-1.5 cursor-pointer shadow-sm"
+                    className="px-4 py-2 rounded-none text-xs font-semibold text-zinc-950 bg-white hover:bg-zinc-200 transition-colors flex items-center gap-1.5 cursor-pointer"
                   >
                     <Plus className="w-3.5 h-3.5" />
                     <span>Deposit Funds</span>
@@ -910,7 +909,7 @@ export const SavingsView: React.FC<SavingsViewProps> = ({
                   <button
                     type="button"
                     onClick={() => setSelectedGoalDetails(null)}
-                    className="px-4 py-2 rounded-xl text-xs font-semibold text-zinc-400 hover:text-white bg-white/5 hover:bg-white/10 transition-colors cursor-pointer"
+                    className="px-4 py-2 rounded-none text-xs font-semibold text-zinc-400 hover:text-white bg-[#16181f] hover:bg-[#20232e] transition-colors cursor-pointer"
                   >
                     Close
                   </button>
@@ -926,11 +925,11 @@ export const SavingsView: React.FC<SavingsViewProps> = ({
         const wal = wallets.find((w) => w.id === selectedSimpleSaving.walletId);
 
         return (
-          <div className="fixed inset-0 bg-black/85 backdrop-blur-md z-50 flex items-center justify-center p-3 sm:p-4">
-            <div className="bg-[#12141a] border border-white/10 rounded-3xl w-full max-w-md p-6 shadow-2xl animate-in fade-in zoom-in-95">
-              <div className="flex items-start justify-between pb-4 border-b border-white/10">
+          <div className="fixed inset-0 bg-black/85 z-50 flex items-center justify-center p-3 sm:p-4">
+            <div className="bg-[#12141a] border border-[#2c303d] rounded-none w-full max-w-md p-6 animate-in fade-in zoom-in-95">
+              <div className="flex items-start justify-between pb-4 border-b border-[#2c303d]">
                 <div className="flex items-center gap-3">
-                  <div className="p-3 rounded-2xl bg-amber-400/10 border border-amber-400/20 text-amber-400">
+                  <div className="p-3 rounded-none bg-[#241c0d] border border-amber-800 text-amber-400">
                     <StickyNote className="w-5 h-5" />
                   </div>
                   <div>
@@ -944,14 +943,14 @@ export const SavingsView: React.FC<SavingsViewProps> = ({
                 <button
                   type="button"
                   onClick={() => setSelectedSimpleSaving(null)}
-                  className="p-1.5 text-zinc-400 hover:text-white rounded-lg bg-white/5 transition-colors cursor-pointer"
+                  className="p-1.5 text-zinc-400 hover:text-white rounded-none bg-[#16181f] transition-colors cursor-pointer"
                 >
                   <X className="w-4 h-4" />
                 </button>
               </div>
 
               <div className="my-5 space-y-4">
-                <div className="bg-[#171922] p-4 rounded-2xl border border-white/5 text-center">
+                <div className="bg-[#171922] p-4 rounded-none border border-[#22252f] text-center">
                   <div className="text-[11px] font-mono uppercase tracking-wider text-zinc-400">
                     Amount Stashed
                   </div>
@@ -963,7 +962,7 @@ export const SavingsView: React.FC<SavingsViewProps> = ({
                   </div>
                 </div>
 
-                <div className="p-3.5 bg-[#171922] border border-white/5 rounded-2xl">
+                <div className="p-3.5 bg-[#171922] border border-[#22252f] rounded-none">
                   <div className="text-[11px] font-medium text-zinc-400 mb-1">Note / Description</div>
                   <p className="text-sm text-zinc-200 leading-relaxed break-words font-medium">
                     {selectedSimpleSaving.note}
@@ -971,7 +970,7 @@ export const SavingsView: React.FC<SavingsViewProps> = ({
                 </div>
               </div>
 
-              <div className="pt-4 border-t border-white/5 flex items-center justify-between">
+              <div className="pt-4 border-t border-[#22252f] flex items-center justify-between">
                 {onDeleteSimpleSaving && (
                   <button
                     type="button"
@@ -979,7 +978,7 @@ export const SavingsView: React.FC<SavingsViewProps> = ({
                       onDeleteSimpleSaving(selectedSimpleSaving.id);
                       setSelectedSimpleSaving(null);
                     }}
-                    className="px-3.5 py-2 rounded-xl text-xs font-semibold text-rose-400 hover:text-rose-300 hover:bg-rose-500/10 transition-colors flex items-center gap-1.5 cursor-pointer"
+                    className="px-3.5 py-2 rounded-none text-xs font-semibold text-rose-400 hover:text-rose-300 hover:bg-[#261116] transition-colors flex items-center gap-1.5 cursor-pointer"
                   >
                     <Trash2 className="w-3.5 h-3.5" />
                     <span>Delete</span>
@@ -988,7 +987,7 @@ export const SavingsView: React.FC<SavingsViewProps> = ({
                 <button
                   type="button"
                   onClick={() => setSelectedSimpleSaving(null)}
-                  className="ml-auto px-5 py-2 rounded-xl text-xs font-semibold text-white bg-white/10 hover:bg-white/15 transition-colors cursor-pointer"
+                  className="ml-auto px-5 py-2 rounded-none text-xs font-semibold text-white bg-[#20232e] hover:bg-[#262a37] transition-colors cursor-pointer"
                 >
                   Done
                 </button>

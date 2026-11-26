@@ -31,17 +31,17 @@ export const ReceiptLightboxModal: React.FC<ReceiptLightboxModalProps> = ({
 
   return (
     <div
-      className="fixed inset-0 bg-black/90 backdrop-blur-md z-50 flex items-center justify-center p-3 sm:p-6 animate-in fade-in"
+      className="fixed inset-0 bg-black/90 z-50 flex items-center justify-center p-3 sm:p-6 animate-in fade-in"
       onClick={onClose}
     >
       <div
-        className="bg-[#12141a] border border-white/10 rounded-2xl sm:rounded-3xl max-w-2xl w-full overflow-hidden shadow-2xl flex flex-col max-h-[90vh]"
+        className="bg-[#12141a] border border-[#2c303d] rounded-none sm:rounded-none max-w-2xl w-full overflow-hidden flex flex-col max-h-[90vh]"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Header */}
-        <div className="flex items-center justify-between p-4 border-b border-white/5">
+        <div className="flex items-center justify-between p-4 border-b border-[#22252f]">
           <div className="flex items-center gap-2.5">
-            <div className="p-2 rounded-xl bg-white/5 text-zinc-300 border border-white/5">
+            <div className="p-2 rounded-none bg-[#16181f] text-zinc-300 border border-[#22252f]">
               <Receipt className="w-4 h-4 text-emerald-400" />
             </div>
             <div>
@@ -55,14 +55,14 @@ export const ReceiptLightboxModal: React.FC<ReceiptLightboxModalProps> = ({
           <div className="flex items-center gap-2">
             <button
               onClick={handleDownload}
-              className="p-2 text-zinc-400 hover:text-white rounded-xl bg-white/5 hover:bg-white/10 border border-white/5 transition-colors cursor-pointer"
+              className="p-2 text-zinc-400 hover:text-white rounded-none bg-[#16181f] hover:bg-[#20232e] border border-[#22252f] transition-colors cursor-pointer"
               title="Download Receipt"
             >
               <Download className="w-4 h-4" />
             </button>
             <button
               onClick={onClose}
-              className="p-2 text-zinc-400 hover:text-white rounded-xl bg-white/5 hover:bg-white/10 border border-white/5 transition-colors cursor-pointer"
+              className="p-2 text-zinc-400 hover:text-white rounded-none bg-[#16181f] hover:bg-[#20232e] border border-[#22252f] transition-colors cursor-pointer"
             >
               <X className="w-4 h-4" />
             </button>
@@ -74,7 +74,7 @@ export const ReceiptLightboxModal: React.FC<ReceiptLightboxModalProps> = ({
           <img
             src={transaction.attachmentUrl}
             alt={`Receipt for ${transaction.title}`}
-            className="max-h-[70vh] w-auto max-w-full rounded-xl object-contain shadow-lg border border-white/5"
+            className="max-h-[70vh] w-auto max-w-full rounded-none object-contain border border-[#22252f]"
           />
         </div>
       </div>

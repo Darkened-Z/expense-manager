@@ -119,7 +119,7 @@ export const WalletsView: React.FC<WalletsViewProps> = ({
   return (
     <div className="space-y-6">
       {/* Overview Banner */}
-      <div className="bg-[#12141a] border border-white/5 rounded-2xl p-4 sm:p-6 shadow-xl flex flex-col sm:flex-row sm:items-center justify-between gap-4 max-w-full overflow-hidden">
+      <div className="bg-[#12141a] border border-[#22252f] rounded-none p-4 sm:p-6 flex flex-col sm:flex-row sm:items-center justify-between gap-4 max-w-full overflow-hidden">
         <div>
           <div className="text-xs text-zinc-400 font-medium">Total Liquidity & Balance</div>
           <div className="text-3xl font-extrabold text-white font-mono mt-1">
@@ -132,7 +132,7 @@ export const WalletsView: React.FC<WalletsViewProps> = ({
           {onOpenTransfer && (
             <button
               onClick={onOpenTransfer}
-              className="bg-[#181b23] hover:bg-[#20242f] text-zinc-200 border border-white/10 font-semibold text-xs px-3.5 py-2.5 rounded-xl flex items-center gap-1.5 transition-colors shadow-sm shrink-0 whitespace-nowrap cursor-pointer"
+              className="bg-[#181b23] hover:bg-[#20242f] text-zinc-200 border border-[#2c303d] font-semibold text-xs px-3.5 py-2.5 rounded-none flex items-center gap-1.5 transition-colors shrink-0 whitespace-nowrap cursor-pointer"
               title="Transfer funds between accounts"
             >
               <ArrowLeftRight className="w-3.5 h-3.5 text-sky-400" />
@@ -142,7 +142,7 @@ export const WalletsView: React.FC<WalletsViewProps> = ({
 
           <button
             onClick={() => setShowAddModal(true)}
-            className="bg-zinc-100 hover:bg-white text-zinc-950 font-semibold text-xs px-4 py-2.5 rounded-xl flex items-center gap-1.5 transition-colors shadow-sm shrink-0 whitespace-nowrap cursor-pointer"
+            className="bg-zinc-100 hover:bg-white text-zinc-950 font-semibold text-xs px-4 py-2.5 rounded-none flex items-center gap-1.5 transition-colors shrink-0 whitespace-nowrap cursor-pointer"
           >
             <Plus className="w-4 h-4 stroke-[2.5]" />
             <span>Add Account / Wallet</span>
@@ -163,12 +163,12 @@ export const WalletsView: React.FC<WalletsViewProps> = ({
             <div
               key={w.id}
               onClick={() => setSelectedWalletDetails(w)}
-              className="bg-[#12141a] border border-white/5 hover:border-white/20 rounded-2xl p-5 shadow-xl transition-all cursor-pointer group flex flex-col justify-between min-w-0 overflow-hidden"
+              className="bg-[#12141a] border border-[#22252f] hover:border-[#3f4557] rounded-none p-5 transition-all cursor-pointer group flex flex-col justify-between min-w-0 overflow-hidden"
             >
               <div>
                 <div className="flex items-start justify-between">
                   <div className="flex items-center gap-3">
-                    <div className="p-3 rounded-2xl bg-white/5 border border-white/5 text-zinc-300 group-hover:border-white/15 transition-colors">
+                    <div className="p-3 rounded-none bg-[#16181f] border border-[#22252f] text-zinc-300 group-hover:border-[#353a4a] transition-colors">
                       <Icon className="w-5 h-5" />
                     </div>
                     <div>
@@ -182,7 +182,7 @@ export const WalletsView: React.FC<WalletsViewProps> = ({
                   <div className="flex items-center gap-1.5" onClick={(e) => e.stopPropagation()}>
                     {Math.round(w.balance) === 0 && (
                       <span className="text-[10px] font-mono font-medium text-emerald-400 flex items-center gap-1">
-                        <span className="w-1.5 h-1.5 rounded-full bg-emerald-400" />
+                        <span className="w-1.5 h-1.5 rounded-none bg-emerald-400" />
                         Empty
                       </span>
                     )}
@@ -196,7 +196,7 @@ export const WalletsView: React.FC<WalletsViewProps> = ({
                           e.stopPropagation();
                           handleOpenEdit(w);
                         }}
-                        className="p-1.5 text-zinc-500 hover:text-sky-400 hover:bg-sky-500/10 rounded-lg transition-colors cursor-pointer"
+                        className="p-1.5 text-zinc-500 hover:text-sky-400 hover:bg-[#10202e] rounded-none transition-colors cursor-pointer"
                         title={`Edit ${w.name} Info`}
                       >
                         <Pencil className="w-3.5 h-3.5" />
@@ -210,7 +210,7 @@ export const WalletsView: React.FC<WalletsViewProps> = ({
                           setDeleteError(null);
                           setWalletToDelete(w);
                         }}
-                        className="p-1.5 text-zinc-500 hover:text-rose-400 hover:bg-rose-500/10 rounded-lg transition-colors -mr-1 cursor-pointer"
+                        className="p-1.5 text-zinc-500 hover:text-rose-400 hover:bg-[#261116] rounded-none transition-colors -mr-1 cursor-pointer"
                         title={Math.round(w.balance) !== 0 ? `Cannot delete ${w.name}: balance is not Rs. 0` : `Remove ${w.name}`}
                       >
                         <Trash2 className="w-3.5 h-3.5" />
@@ -219,7 +219,7 @@ export const WalletsView: React.FC<WalletsViewProps> = ({
                   </div>
                 </div>
 
-                <div className="mt-6 pt-4 border-t border-white/5 flex items-baseline justify-between">
+                <div className="mt-6 pt-4 border-t border-[#22252f] flex items-baseline justify-between">
                   <div>
                     <div className="text-[11px] text-zinc-400">Current Balance</div>
                     <div className="text-2xl font-bold font-mono text-white mt-0.5">
@@ -234,7 +234,7 @@ export const WalletsView: React.FC<WalletsViewProps> = ({
                 </div>
               </div>
 
-              <div className="mt-3 pt-2.5 border-t border-white/[0.03] flex items-center justify-between text-[11px] text-zinc-500 group-hover:text-zinc-300 transition-colors">
+              <div className="mt-3 pt-2.5 border-t border-[#1d2029] flex items-center justify-between text-[11px] text-zinc-500 group-hover:text-zinc-300 transition-colors">
                 <span>View full transaction history</span>
                 <span className="group-hover:translate-x-0.5 transition-transform font-mono text-sky-400">→</span>
               </div>
@@ -245,9 +245,9 @@ export const WalletsView: React.FC<WalletsViewProps> = ({
 
       {/* Add Wallet Modal */}
       {showAddModal && (
-        <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-          <div className="bg-[#12141a] border border-white/10 rounded-3xl w-full max-w-md p-6 shadow-2xl animate-in fade-in zoom-in-95">
-            <h3 className="font-bold text-white text-base pb-3 border-b border-white/5">
+        <div className="fixed inset-0 bg-black/80 z-50 flex items-center justify-center p-4">
+          <div className="bg-[#12141a] border border-[#2c303d] rounded-none w-full max-w-md p-6 animate-in fade-in zoom-in-95">
+            <h3 className="font-bold text-white text-base pb-3 border-b border-[#22252f]">
               Add New Account / Wallet
             </h3>
 
@@ -259,7 +259,7 @@ export const WalletsView: React.FC<WalletsViewProps> = ({
                   placeholder="e.g. Meezan Bank, HBL, SadaPay, Cash"
                   value={walletName}
                   onChange={(e) => setWalletName(e.target.value)}
-                  className="w-full bg-[#171922] text-white text-xs px-3.5 py-2.5 rounded-xl border border-white/10 focus:outline-none focus:border-white/30"
+                  className="w-full bg-[#171922] text-white text-xs px-3.5 py-2.5 rounded-none border border-[#2c303d] focus:outline-none focus:border-[#52596e]"
                   required
                 />
               </div>
@@ -270,7 +270,7 @@ export const WalletsView: React.FC<WalletsViewProps> = ({
                   <select
                     value={walletType}
                     onChange={(e) => setWalletType(e.target.value as any)}
-                    className="w-full bg-[#171922] text-white text-xs px-3 py-2.5 rounded-xl border border-white/10 focus:outline-none focus:border-white/30"
+                    className="w-full bg-[#171922] text-white text-xs px-3 py-2.5 rounded-none border border-[#2c303d] focus:outline-none focus:border-[#52596e]"
                   >
                     <option value="bank">Bank Account</option>
                     <option value="cash">Cash / Physical</option>
@@ -286,7 +286,7 @@ export const WalletsView: React.FC<WalletsViewProps> = ({
                     value="PKR (Rs.)"
                     disabled
                     readOnly
-                    className="w-full bg-[#171922] text-zinc-400 text-xs font-mono uppercase px-3 py-2.5 rounded-xl border border-white/10 cursor-not-allowed"
+                    className="w-full bg-[#171922] text-zinc-400 text-xs font-mono uppercase px-3 py-2.5 rounded-none border border-[#2c303d] cursor-not-allowed"
                   />
                 </div>
               </div>
@@ -300,7 +300,7 @@ export const WalletsView: React.FC<WalletsViewProps> = ({
                     placeholder="0"
                     value={initialBalance}
                     onChange={(e) => setInitialBalance(e.target.value)}
-                    className="w-full bg-[#171922] text-white text-xs font-mono px-3 py-2.5 rounded-xl border border-white/10 focus:outline-none focus:border-white/30"
+                    className="w-full bg-[#171922] text-white text-xs font-mono px-3 py-2.5 rounded-none border border-[#2c303d] focus:outline-none focus:border-[#52596e]"
                   />
                 </div>
                 <div>
@@ -310,22 +310,22 @@ export const WalletsView: React.FC<WalletsViewProps> = ({
                     placeholder="•••• 1234 or 0x..."
                     value={accountNumber}
                     onChange={(e) => setAccountNumber(e.target.value)}
-                    className="w-full bg-[#171922] text-white text-xs font-mono px-3 py-2.5 rounded-xl border border-white/10 focus:outline-none focus:border-white/30"
+                    className="w-full bg-[#171922] text-white text-xs font-mono px-3 py-2.5 rounded-none border border-[#2c303d] focus:outline-none focus:border-[#52596e]"
                   />
                 </div>
               </div>
 
-              <div className="flex items-center justify-end gap-2 pt-3 border-t border-white/5">
+              <div className="flex items-center justify-end gap-2 pt-3 border-t border-[#22252f]">
                 <button
                   type="button"
                   onClick={() => setShowAddModal(false)}
-                  className="px-4 py-2 rounded-xl text-xs text-zinc-400 hover:text-white bg-white/5"
+                  className="px-4 py-2 rounded-none text-xs text-zinc-400 hover:text-white bg-[#16181f]"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
-                  className="px-5 py-2.5 rounded-xl text-xs font-semibold text-zinc-950 bg-zinc-100 hover:bg-white transition-colors shadow-sm"
+                  className="px-5 py-2.5 rounded-none text-xs font-semibold text-zinc-950 bg-zinc-100 hover:bg-white transition-colors"
                 >
                   Create Account
                 </button>
@@ -337,11 +337,11 @@ export const WalletsView: React.FC<WalletsViewProps> = ({
 
       {/* Edit Account / Wallet Modal */}
       {editingWallet && (
-        <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-          <div className="bg-[#12141a] border border-white/10 rounded-3xl w-full max-w-md p-6 shadow-2xl animate-in fade-in zoom-in-95">
-            <div className="flex items-center justify-between pb-3 border-b border-white/5">
+        <div className="fixed inset-0 bg-black/80 z-50 flex items-center justify-center p-4">
+          <div className="bg-[#12141a] border border-[#2c303d] rounded-none w-full max-w-md p-6 animate-in fade-in zoom-in-95">
+            <div className="flex items-center justify-between pb-3 border-b border-[#22252f]">
               <div className="flex items-center gap-2.5">
-                <div className="p-2 rounded-xl bg-sky-500/10 border border-sky-500/20 text-sky-400">
+                <div className="p-2 rounded-none bg-[#10202e] border border-sky-800 text-sky-400">
                   <Pencil className="w-4 h-4" />
                 </div>
                 <div>
@@ -366,7 +366,7 @@ export const WalletsView: React.FC<WalletsViewProps> = ({
                   placeholder="e.g. Meezan Bank, HBL, SadaPay, Cash"
                   value={editName}
                   onChange={(e) => setEditName(e.target.value)}
-                  className="w-full bg-[#171922] text-white text-xs px-3.5 py-2.5 rounded-xl border border-white/10 focus:outline-none focus:border-white/30"
+                  className="w-full bg-[#171922] text-white text-xs px-3.5 py-2.5 rounded-none border border-[#2c303d] focus:outline-none focus:border-[#52596e]"
                   required
                 />
               </div>
@@ -377,7 +377,7 @@ export const WalletsView: React.FC<WalletsViewProps> = ({
                   <select
                     value={editType}
                     onChange={(e) => setEditType(e.target.value as any)}
-                    className="w-full bg-[#171922] text-white text-xs px-3 py-2.5 rounded-xl border border-white/10 focus:outline-none focus:border-white/30"
+                    className="w-full bg-[#171922] text-white text-xs px-3 py-2.5 rounded-none border border-[#2c303d] focus:outline-none focus:border-[#52596e]"
                   >
                     <option value="bank">Bank Account</option>
                     <option value="cash">Cash / Physical</option>
@@ -393,7 +393,7 @@ export const WalletsView: React.FC<WalletsViewProps> = ({
                     value={editingWallet.currency}
                     disabled
                     readOnly
-                    className="w-full bg-[#171922] text-zinc-400 text-xs font-mono uppercase px-3 py-2.5 rounded-xl border border-white/10 cursor-not-allowed"
+                    className="w-full bg-[#171922] text-zinc-400 text-xs font-mono uppercase px-3 py-2.5 rounded-none border border-[#2c303d] cursor-not-allowed"
                   />
                 </div>
               </div>
@@ -407,7 +407,7 @@ export const WalletsView: React.FC<WalletsViewProps> = ({
                     placeholder="0"
                     value={editBalance}
                     onChange={(e) => setEditBalance(e.target.value)}
-                    className="w-full bg-[#171922] text-white text-xs font-mono px-3 py-2.5 rounded-xl border border-white/10 focus:outline-none focus:border-white/30"
+                    className="w-full bg-[#171922] text-white text-xs font-mono px-3 py-2.5 rounded-none border border-[#2c303d] focus:outline-none focus:border-[#52596e]"
                   />
                 </div>
                 <div>
@@ -417,22 +417,22 @@ export const WalletsView: React.FC<WalletsViewProps> = ({
                     placeholder="•••• 1234 or Primary"
                     value={editAccountNumber}
                     onChange={(e) => setEditAccountNumber(e.target.value)}
-                    className="w-full bg-[#171922] text-white text-xs font-mono px-3 py-2.5 rounded-xl border border-white/10 focus:outline-none focus:border-white/30"
+                    className="w-full bg-[#171922] text-white text-xs font-mono px-3 py-2.5 rounded-none border border-[#2c303d] focus:outline-none focus:border-[#52596e]"
                   />
                 </div>
               </div>
 
-              <div className="flex items-center justify-end gap-2 pt-3 border-t border-white/5">
+              <div className="flex items-center justify-end gap-2 pt-3 border-t border-[#22252f]">
                 <button
                   type="button"
                   onClick={() => setEditingWallet(null)}
-                  className="px-4 py-2 rounded-xl text-xs text-zinc-400 hover:text-white bg-white/5"
+                  className="px-4 py-2 rounded-none text-xs text-zinc-400 hover:text-white bg-[#16181f]"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
-                  className="px-5 py-2.5 rounded-xl text-xs font-semibold text-zinc-950 bg-zinc-100 hover:bg-white transition-colors shadow-sm"
+                  className="px-5 py-2.5 rounded-none text-xs font-semibold text-zinc-950 bg-zinc-100 hover:bg-white transition-colors"
                 >
                   Save Changes
                 </button>
@@ -444,25 +444,25 @@ export const WalletsView: React.FC<WalletsViewProps> = ({
 
       {/* Remove Account / Zero-Balance Guard Modal */}
       {walletToDelete && (
-        <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-          <div className="bg-[#12141a] border border-white/10 rounded-3xl w-full max-w-md p-6 shadow-2xl animate-in fade-in zoom-in-95">
+        <div className="fixed inset-0 bg-black/80 z-50 flex items-center justify-center p-4">
+          <div className="bg-[#12141a] border border-[#2c303d] rounded-none w-full max-w-md p-6 animate-in fade-in zoom-in-95">
             {wallets.length <= 1 ? (
               // CASE 1: Cannot delete last remaining wallet
               <div className="text-center">
-                <div className="w-12 h-12 rounded-2xl bg-amber-500/10 border border-amber-500/20 text-amber-400 flex items-center justify-center mx-auto mb-3">
+                <div className="w-12 h-12 rounded-none bg-[#241c0d] border border-amber-800 text-amber-400 flex items-center justify-center mx-auto mb-3">
                   <AlertCircle className="w-6 h-6" />
                 </div>
                 <h3 className="font-bold text-white text-base">Cannot Remove Only Account</h3>
                 <p className="text-xs text-zinc-400 mt-2 leading-relaxed">
                   You must maintain at least one active bank or wallet in your portfolio. To remove &quot;{walletToDelete.name}&quot;, please create another account first.
                 </p>
-                <div className="mt-6 pt-4 border-t border-white/5 flex justify-end">
+                <div className="mt-6 pt-4 border-t border-[#22252f] flex justify-end">
                   <button
                     onClick={() => {
                       setWalletToDelete(null);
                       setDeleteError(null);
                     }}
-                    className="w-full px-4 py-2.5 rounded-xl text-xs font-semibold text-white bg-white/10 hover:bg-white/15 transition-colors"
+                    className="w-full px-4 py-2.5 rounded-none text-xs font-semibold text-white bg-[#20232e] hover:bg-[#262a37] transition-colors"
                   >
                     Understood
                   </button>
@@ -471,9 +471,9 @@ export const WalletsView: React.FC<WalletsViewProps> = ({
             ) : Math.round(walletToDelete.balance) !== 0 ? (
               // CASE 2: Cannot delete non-empty wallet
               <div>
-                <div className="flex items-start justify-between pb-3 border-b border-white/5">
+                <div className="flex items-start justify-between pb-3 border-b border-[#22252f]">
                   <div className="flex items-center gap-2.5 text-amber-400">
-                    <div className="p-2 rounded-xl bg-amber-500/10 border border-amber-500/20">
+                    <div className="p-2 rounded-none bg-[#241c0d] border border-amber-800">
                       <AlertTriangle className="w-5 h-5" />
                     </div>
                     <div>
@@ -493,8 +493,8 @@ export const WalletsView: React.FC<WalletsViewProps> = ({
                 </div>
 
                 <div className="my-4 space-y-3">
-                  <div className="bg-amber-500/10 border border-amber-500/20 rounded-2xl p-4 text-center">
-                    <div className="text-[11px] font-medium text-amber-300/80 font-mono uppercase tracking-wider">
+                  <div className="bg-[#241c0d] border border-amber-800 rounded-none p-4 text-center">
+                    <div className="text-[11px] font-medium text-amber-300 font-mono uppercase tracking-wider">
                       Current Active Balance
                     </div>
                     <div className="text-2xl font-bold font-mono text-amber-300 mt-1">
@@ -505,18 +505,18 @@ export const WalletsView: React.FC<WalletsViewProps> = ({
                     </div>
                   </div>
 
-                  <p className="text-xs text-zinc-300 leading-relaxed bg-[#171922] p-3 rounded-xl border border-white/5">
+                  <p className="text-xs text-zinc-300 leading-relaxed bg-[#171922] p-3 rounded-none border border-[#22252f]">
                     To prevent accidental loss of funds and ledger discrepancies, you cannot delete a bank or wallet that contains money. Please transfer or withdraw the remaining balance to another account first.
                   </p>
                 </div>
 
                 {deleteError && (
-                  <div className="mb-4 p-3 rounded-xl bg-rose-500/10 border border-rose-500/20 text-rose-300 text-xs">
+                  <div className="mb-4 p-3 rounded-none bg-[#261116] border border-rose-800 text-rose-300 text-xs">
                     {deleteError}
                   </div>
                 )}
 
-                <div className="pt-3 border-t border-white/5 flex flex-col sm:flex-row items-center gap-2">
+                <div className="pt-3 border-t border-[#22252f] flex flex-col sm:flex-row items-center gap-2">
                   {onOpenTransfer && (
                     <button
                       type="button"
@@ -525,7 +525,7 @@ export const WalletsView: React.FC<WalletsViewProps> = ({
                         setDeleteError(null);
                         onOpenTransfer();
                       }}
-                      className="w-full sm:flex-1 py-2.5 px-3.5 bg-sky-500/15 hover:bg-sky-500/25 text-sky-300 border border-sky-500/30 font-semibold text-xs rounded-xl flex items-center justify-center gap-2 transition-colors"
+                      className="w-full sm:flex-1 py-2.5 px-3.5 bg-[#132638] hover:bg-[#1a3650] text-sky-300 border border-sky-700 font-semibold text-xs rounded-none flex items-center justify-center gap-2 transition-colors"
                     >
                       <ArrowLeftRight className="w-3.5 h-3.5 text-sky-400" />
                       <span>Transfer Funds Now</span>
@@ -537,7 +537,7 @@ export const WalletsView: React.FC<WalletsViewProps> = ({
                       setWalletToDelete(null);
                       setDeleteError(null);
                     }}
-                    className="w-full sm:w-auto px-4 py-2.5 rounded-xl text-xs font-semibold text-zinc-400 hover:text-white bg-white/5 hover:bg-white/10 transition-colors"
+                    className="w-full sm:w-auto px-4 py-2.5 rounded-none text-xs font-semibold text-zinc-400 hover:text-white bg-[#16181f] hover:bg-[#20232e] transition-colors"
                   >
                     Cancel
                   </button>
@@ -547,7 +547,7 @@ export const WalletsView: React.FC<WalletsViewProps> = ({
               // CASE 3: Empty wallet (Rs. 0) -> Confirm deletion
               <div>
                 <div className="text-center">
-                  <div className="w-12 h-12 rounded-2xl bg-rose-500/10 border border-rose-500/20 text-rose-400 flex items-center justify-center mx-auto mb-3">
+                  <div className="w-12 h-12 rounded-none bg-[#261116] border border-rose-800 text-rose-400 flex items-center justify-center mx-auto mb-3">
                     <Trash2 className="w-6 h-6" />
                   </div>
                   <h3 className="font-bold text-white text-base">Remove {walletToDelete.name}?</h3>
@@ -563,19 +563,19 @@ export const WalletsView: React.FC<WalletsViewProps> = ({
                 </div>
 
                 {deleteError && (
-                  <div className="mt-4 p-3 rounded-xl bg-rose-500/10 border border-rose-500/20 text-rose-300 text-xs">
+                  <div className="mt-4 p-3 rounded-none bg-[#261116] border border-rose-800 text-rose-300 text-xs">
                     {deleteError}
                   </div>
                 )}
 
-                <div className="mt-6 pt-4 border-t border-white/5 flex items-center justify-end gap-2">
+                <div className="mt-6 pt-4 border-t border-[#22252f] flex items-center justify-end gap-2">
                   <button
                     type="button"
                     onClick={() => {
                       setWalletToDelete(null);
                       setDeleteError(null);
                     }}
-                    className="px-4 py-2.5 rounded-xl text-xs font-semibold text-zinc-400 hover:text-white bg-white/5 hover:bg-white/10 transition-colors"
+                    className="px-4 py-2.5 rounded-none text-xs font-semibold text-zinc-400 hover:text-white bg-[#16181f] hover:bg-[#20232e] transition-colors"
                   >
                     Cancel
                   </button>
@@ -592,7 +592,7 @@ export const WalletsView: React.FC<WalletsViewProps> = ({
                       setWalletToDelete(null);
                       setDeleteError(null);
                     }}
-                    className="px-5 py-2.5 rounded-xl text-xs font-semibold text-white bg-rose-600 hover:bg-rose-500 transition-colors shadow-lg shadow-rose-900/30 flex items-center gap-1.5"
+                    className="px-5 py-2.5 rounded-none text-xs font-semibold text-white bg-rose-600 hover:bg-rose-500 transition-colors flex items-center gap-1.5"
                   >
                     <Trash2 className="w-3.5 h-3.5" />
                     <span>Yes, Remove Account</span>
@@ -627,12 +627,12 @@ export const WalletsView: React.FC<WalletsViewProps> = ({
         const Icon = getWalletIcon(selectedWalletDetails.type);
 
         return (
-          <div className="fixed inset-0 bg-black/85 backdrop-blur-md z-50 flex items-center justify-center p-3 sm:p-4">
-            <div className="bg-[#12141a] border border-white/10 rounded-3xl w-full max-w-2xl max-h-[90vh] flex flex-col shadow-2xl animate-in fade-in zoom-in-95 overflow-hidden">
+          <div className="fixed inset-0 bg-black/85 z-50 flex items-center justify-center p-3 sm:p-4">
+            <div className="bg-[#12141a] border border-[#2c303d] rounded-none w-full max-w-2xl max-h-[90vh] flex flex-col animate-in fade-in zoom-in-95 overflow-hidden">
               {/* Header */}
-              <div className="p-5 sm:p-6 border-b border-white/10 flex items-start justify-between bg-white/[0.02]">
+              <div className="p-5 sm:p-6 border-b border-[#2c303d] flex items-start justify-between bg-[#14161c]">
                 <div className="flex items-center gap-3.5">
-                  <div className="p-3.5 rounded-2xl bg-white/5 border border-white/10 text-white">
+                  <div className="p-3.5 rounded-none bg-[#16181f] border border-[#2c303d] text-white">
                     <Icon className="w-6 h-6" />
                   </div>
                   <div>
@@ -651,22 +651,22 @@ export const WalletsView: React.FC<WalletsViewProps> = ({
                 <button
                   type="button"
                   onClick={() => setSelectedWalletDetails(null)}
-                  className="p-2 text-zinc-400 hover:text-white rounded-xl bg-white/5 hover:bg-white/10 transition-colors"
+                  className="p-2 text-zinc-400 hover:text-white rounded-none bg-[#16181f] hover:bg-[#20232e] transition-colors"
                 >
                   <X className="w-4 h-4" />
                 </button>
               </div>
 
               {/* Account Financial Overview Grid */}
-              <div className="p-5 sm:p-6 border-b border-white/10 grid grid-cols-3 gap-3 bg-[#0d0f14]/50">
-                <div className="bg-[#171922] p-3.5 rounded-2xl border border-white/5">
+              <div className="p-5 sm:p-6 border-b border-[#2c303d] grid grid-cols-3 gap-3 bg-[#0d0f14]/50">
+                <div className="bg-[#171922] p-3.5 rounded-none border border-[#22252f]">
                   <span className="text-[10px] font-medium text-zinc-400 uppercase tracking-wider block">Current Balance</span>
                   <div className="text-lg sm:text-xl font-bold font-mono text-white mt-1">
                     {selectedWalletDetails.symbol}{formatCash(selectedWalletDetails.balance)}
                   </div>
                 </div>
 
-                <div className="bg-[#171922] p-3.5 rounded-2xl border border-white/5">
+                <div className="bg-[#171922] p-3.5 rounded-none border border-[#22252f]">
                   <div className="flex items-center gap-1 text-[10px] font-medium text-emerald-400 uppercase tracking-wider">
                     <ArrowDownLeft className="w-3 h-3" /> Total Inflow
                   </div>
@@ -675,7 +675,7 @@ export const WalletsView: React.FC<WalletsViewProps> = ({
                   </div>
                 </div>
 
-                <div className="bg-[#171922] p-3.5 rounded-2xl border border-white/5">
+                <div className="bg-[#171922] p-3.5 rounded-none border border-[#22252f]">
                   <div className="flex items-center gap-1 text-[10px] font-medium text-rose-400 uppercase tracking-wider">
                     <ArrowUpRight className="w-3 h-3" /> Total Outflow
                   </div>
@@ -686,7 +686,7 @@ export const WalletsView: React.FC<WalletsViewProps> = ({
               </div>
 
               {/* Quick Actions Bar */}
-              <div className="px-5 py-3 border-b border-white/5 flex items-center justify-between gap-2 bg-[#12141a]">
+              <div className="px-5 py-3 border-b border-[#22252f] flex items-center justify-between gap-2 bg-[#12141a]">
                 <div className="text-xs text-zinc-400 font-medium">
                   Transaction History <span className="font-mono text-zinc-500">({accountTxs.length})</span>
                 </div>
@@ -699,7 +699,7 @@ export const WalletsView: React.FC<WalletsViewProps> = ({
                         setSelectedWalletDetails(null);
                         onOpenTransfer();
                       }}
-                      className="px-3 py-1.5 text-xs rounded-xl bg-sky-500/15 hover:bg-sky-500/25 text-sky-300 border border-sky-500/30 flex items-center gap-1.5 transition-colors font-medium"
+                      className="px-3 py-1.5 text-xs rounded-none bg-[#132638] hover:bg-[#1a3650] text-sky-300 border border-sky-700 flex items-center gap-1.5 transition-colors font-medium"
                     >
                       <ArrowLeftRight className="w-3 h-3" />
                       <span>Transfer</span>
@@ -713,7 +713,7 @@ export const WalletsView: React.FC<WalletsViewProps> = ({
                         setSelectedWalletDetails(null);
                         handleOpenEdit(w);
                       }}
-                      className="px-3 py-1.5 text-xs rounded-xl bg-white/5 hover:bg-white/10 text-zinc-300 border border-white/10 flex items-center gap-1.5 transition-colors font-medium"
+                      className="px-3 py-1.5 text-xs rounded-none bg-[#16181f] hover:bg-[#20232e] text-zinc-300 border border-[#2c303d] flex items-center gap-1.5 transition-colors font-medium"
                     >
                       <Pencil className="w-3 h-3" />
                       <span>Edit Info</span>
@@ -739,14 +739,14 @@ export const WalletsView: React.FC<WalletsViewProps> = ({
                     return (
                       <div
                         key={tx.id}
-                        className="p-3 bg-[#171922] hover:bg-[#1a1e29] border border-white/5 rounded-2xl flex items-center justify-between gap-3 transition-colors"
+                        className="p-3 bg-[#171922] hover:bg-[#1a1e29] border border-[#22252f] rounded-none flex items-center justify-between gap-3 transition-colors"
                       >
                         <div className="flex items-center gap-3 min-w-0">
                           <div
-                            className={`p-2 rounded-xl border flex-shrink-0 ${
+                            className={`p-2 rounded-none border flex-shrink-0 ${
                               isCredit
-                                ? 'bg-emerald-500/10 border-emerald-500/20 text-emerald-400'
-                                : 'bg-rose-500/10 border-rose-500/20 text-rose-400'
+                                ? 'bg-[#0d241b] border-emerald-800 text-emerald-400'
+                                : 'bg-[#261116] border-rose-800 text-rose-400'
                             }`}
                           >
                             {isCredit ? (
@@ -792,11 +792,11 @@ export const WalletsView: React.FC<WalletsViewProps> = ({
               </div>
 
               {/* Modal Footer */}
-              <div className="p-4 border-t border-white/5 bg-[#0d0f14]/50 flex justify-end">
+              <div className="p-4 border-t border-[#22252f] bg-[#0d0f14]/50 flex justify-end">
                 <button
                   type="button"
                   onClick={() => setSelectedWalletDetails(null)}
-                  className="px-5 py-2 rounded-xl text-xs font-semibold text-white bg-white/10 hover:bg-white/15 transition-colors"
+                  className="px-5 py-2 rounded-none text-xs font-semibold text-white bg-[#20232e] hover:bg-[#262a37] transition-colors"
                 >
                   Done
                 </button>

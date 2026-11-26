@@ -9,7 +9,7 @@ import {
   Laptop,
   Briefcase,
   Box,
-  Zap,
+  Receipt,
   Globe,
   FileText,
   ShoppingBag,
@@ -64,7 +64,8 @@ export const CategoriesView: React.FC<CategoriesViewProps> = ({
       case 'Laptop': return Laptop;
       case 'Briefcase': return Briefcase;
       case 'Box': return Box;
-      case 'Zap': return Zap;
+      case 'Zap':
+      case 'Receipt': return Receipt;
       case 'Globe': return Globe;
       case 'FileText': return FileText;
       case 'ShoppingBag': return ShoppingBag;
@@ -135,7 +136,7 @@ export const CategoriesView: React.FC<CategoriesViewProps> = ({
   return (
     <div className="space-y-6">
       {/* Top Banner & Tab Switcher */}
-      <div className="bg-[#12141a] border border-white/5 rounded-2xl p-4 sm:p-6 shadow-xl flex flex-col sm:flex-row sm:items-center justify-between gap-4 max-w-full overflow-hidden">
+      <div className="bg-[#12141a] border border-[#22252f] rounded-none p-4 sm:p-6 flex flex-col sm:flex-row sm:items-center justify-between gap-4 max-w-full overflow-hidden">
         <div>
           <h2 className="text-base font-bold text-white tracking-wide">
             {activeTab === 'expense' ? 'Expense Categories & Budgets' : 'Income Sources'}
@@ -149,19 +150,19 @@ export const CategoriesView: React.FC<CategoriesViewProps> = ({
 
         <div className="flex flex-wrap sm:flex-nowrap items-center gap-2 max-w-full">
           {/* Tabs */}
-          <div className="flex items-center bg-[#181b23] p-1 rounded-xl border border-white/10 text-xs overflow-x-auto max-w-full scrollbar-none shrink-0">
+          <div className="flex items-center bg-[#181b23] p-1 rounded-none border border-[#2c303d] text-xs overflow-x-auto max-w-full scrollbar-none shrink-0">
             <button
               onClick={() => setActiveTab('expense')}
-              className={`px-3 py-1.5 rounded-lg transition-colors font-medium shrink-0 whitespace-nowrap ${
-                activeTab === 'expense' ? 'bg-white/10 text-white' : 'text-zinc-400 hover:text-zinc-200'
+              className={`px-3 py-1.5 rounded-none transition-colors font-medium shrink-0 whitespace-nowrap ${
+                activeTab === 'expense' ? 'bg-[#20232e] text-white' : 'text-zinc-400 hover:text-zinc-200'
               }`}
             >
               Expense Categories
             </button>
             <button
               onClick={() => setActiveTab('income')}
-              className={`px-3 py-1.5 rounded-lg transition-colors font-medium shrink-0 whitespace-nowrap ${
-                activeTab === 'income' ? 'bg-white/10 text-white' : 'text-zinc-400 hover:text-zinc-200'
+              className={`px-3 py-1.5 rounded-none transition-colors font-medium shrink-0 whitespace-nowrap ${
+                activeTab === 'income' ? 'bg-[#20232e] text-white' : 'text-zinc-400 hover:text-zinc-200'
               }`}
             >
               Income Sources
@@ -170,7 +171,7 @@ export const CategoriesView: React.FC<CategoriesViewProps> = ({
 
           <button
             onClick={() => setShowAddModal(true)}
-            className="bg-zinc-100 hover:bg-white text-zinc-950 font-semibold text-xs px-3.5 py-2 rounded-xl flex items-center gap-1.5 transition-colors shadow-sm shrink-0 whitespace-nowrap cursor-pointer"
+            className="bg-zinc-100 hover:bg-white text-zinc-950 font-semibold text-xs px-3.5 py-2 rounded-none flex items-center gap-1.5 transition-colors shrink-0 whitespace-nowrap cursor-pointer"
           >
             <Plus className="w-4 h-4 stroke-[2.5]" />
             <span>New {activeTab === 'expense' ? 'Category' : 'Source'}</span>
@@ -180,8 +181,8 @@ export const CategoriesView: React.FC<CategoriesViewProps> = ({
 
       {/* Grid or Empty State */}
       {displayedList.length === 0 ? (
-        <div className="bg-[#12141a] border border-white/5 rounded-2xl p-12 text-center max-w-lg mx-auto shadow-xl">
-          <div className="w-12 h-12 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center mx-auto text-zinc-400 mb-3">
+        <div className="bg-[#12141a] border border-[#22252f] rounded-none p-12 text-center max-w-lg mx-auto">
+          <div className="w-12 h-12 rounded-none bg-[#16181f] border border-[#2c303d] flex items-center justify-center mx-auto text-zinc-400 mb-3">
             <Tag className="w-6 h-6 stroke-[1.75]" />
           </div>
           <h4 className="text-sm font-semibold text-white">
@@ -192,7 +193,7 @@ export const CategoriesView: React.FC<CategoriesViewProps> = ({
           </p>
           <button
             onClick={() => setShowAddModal(true)}
-            className="mt-4 inline-flex items-center gap-1.5 px-4 py-2 bg-zinc-100 hover:bg-white text-zinc-950 font-semibold text-xs rounded-xl transition-colors shadow-sm"
+            className="mt-4 inline-flex items-center gap-1.5 px-4 py-2 bg-zinc-100 hover:bg-white text-zinc-950 font-semibold text-xs rounded-none transition-colors"
           >
             <Plus className="w-4 h-4 stroke-[2.5]" />
             <span>Create New {activeTab === 'expense' ? 'Category' : 'Source'}</span>
@@ -213,16 +214,15 @@ export const CategoriesView: React.FC<CategoriesViewProps> = ({
               <div
                 key={cat.id}
                 onClick={() => setSelectedCategoryDetails(cat)}
-                className="bg-[#12141a] border border-white/5 hover:border-white/20 rounded-2xl p-5 shadow-xl transition-all flex flex-col justify-between cursor-pointer group min-w-0 overflow-hidden"
+                className="bg-[#12141a] border border-[#22252f] hover:border-[#3f4557] rounded-none p-5 transition-all flex flex-col justify-between cursor-pointer group min-w-0 overflow-hidden"
               >
                 <div>
                   <div className="flex items-start justify-between gap-2">
                     <div className="flex items-center gap-3 min-w-0">
                       <div
-                        className="p-3 rounded-2xl border transition-colors shrink-0 group-hover:scale-105"
+                        className="p-3 rounded-none border bg-[#16181f] shrink-0"
                         style={{
-                          backgroundColor: `${cat.color}15`,
-                          borderColor: `${cat.color}35`,
+                          borderColor: cat.color,
                           color: cat.color,
                         }}
                       >
@@ -255,7 +255,7 @@ export const CategoriesView: React.FC<CategoriesViewProps> = ({
                             onDeleteCategory(cat.id);
                           }
                         }}
-                        className="p-1.5 text-zinc-600 hover:text-rose-400 hover:bg-rose-500/10 rounded-lg transition-colors -mr-1 cursor-pointer"
+                        className="p-1.5 text-zinc-600 hover:text-rose-400 hover:bg-[#261116] rounded-none transition-colors -mr-1 cursor-pointer"
                         title={`Delete ${cat.name}`}
                       >
                         <Trash2 className="w-3.5 h-3.5" />
@@ -266,7 +266,7 @@ export const CategoriesView: React.FC<CategoriesViewProps> = ({
 
                 {/* Monthly Budget Cap Section for Expenses */}
                 {cat.type === 'expense' && (
-                  <div className="mt-5 pt-3 border-t border-white/5">
+                  <div className="mt-5 pt-3 border-t border-[#22252f]">
                     {limit > 0 ? (
                       <div>
                         <div className="flex items-center justify-between text-[11px] mb-1.5 font-mono">
@@ -298,7 +298,7 @@ export const CategoriesView: React.FC<CategoriesViewProps> = ({
                                   setEditingBudgetCat(cat);
                                   setEditBudgetAmount(limit.toString());
                                 }}
-                                className="p-1 text-zinc-500 hover:text-white rounded transition-colors cursor-pointer"
+                                className="p-1 text-zinc-500 hover:text-white rounded-none transition-colors cursor-pointer"
                                 title="Edit monthly budget cap"
                               >
                                 <Pencil className="w-3 h-3" />
@@ -308,9 +308,9 @@ export const CategoriesView: React.FC<CategoriesViewProps> = ({
                         </div>
 
                         {/* Progress Bar */}
-                        <div className="w-full h-2 bg-white/5 rounded-full overflow-hidden">
+                        <div className="w-full h-2 bg-[#16181f] rounded-none overflow-hidden">
                           <div
-                            className={`h-full rounded-full transition-all duration-500 ${
+                            className={`h-full rounded-none transition-all duration-500 ${
                               isOverBudget
                                 ? 'bg-rose-500'
                                 : isNearBudget
@@ -341,7 +341,7 @@ export const CategoriesView: React.FC<CategoriesViewProps> = ({
                   </div>
                 )}
 
-                <div className="mt-3 pt-2.5 border-t border-white/[0.03] flex items-center justify-between text-[11px] text-zinc-500 group-hover:text-zinc-300 transition-colors">
+                <div className="mt-3 pt-2.5 border-t border-[#1d2029] flex items-center justify-between text-[11px] text-zinc-500 group-hover:text-zinc-300 transition-colors">
                   <span>View category transactions</span>
                   <span className="group-hover:translate-x-0.5 transition-transform font-mono text-sky-400">→</span>
                 </div>
@@ -353,9 +353,9 @@ export const CategoriesView: React.FC<CategoriesViewProps> = ({
 
       {/* Edit Budget Cap Modal */}
       {editingBudgetCat && (
-        <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-          <div className="bg-[#12141a] border border-white/10 rounded-2xl w-full max-w-sm p-6 shadow-2xl animate-in fade-in zoom-in-95">
-            <div className="flex items-center justify-between pb-3 border-b border-white/5">
+        <div className="fixed inset-0 bg-black/80 z-50 flex items-center justify-center p-4">
+          <div className="bg-[#12141a] border border-[#2c303d] rounded-none w-full max-w-sm p-6 animate-in fade-in zoom-in-95">
+            <div className="flex items-center justify-between pb-3 border-b border-[#22252f]">
               <h3 className="font-bold text-white text-sm">
                 Monthly Budget Cap: {editingBudgetCat.name}
               </h3>
@@ -376,7 +376,7 @@ export const CategoriesView: React.FC<CategoriesViewProps> = ({
                   placeholder="e.g. 20000 (0 to remove limit)"
                   value={editBudgetAmount}
                   onChange={(e) => setEditBudgetAmount(e.target.value)}
-                  className="w-full bg-[#171922] text-white text-sm font-mono font-bold px-3.5 py-2.5 rounded-xl border border-white/10 focus:outline-none focus:border-white/30"
+                  className="w-full bg-[#171922] text-white text-sm font-mono font-bold px-3.5 py-2.5 rounded-none border border-[#2c303d] focus:outline-none focus:border-[#52596e]"
                   autoFocus
                 />
                 <span className="text-[10px] text-zinc-500 mt-1 block">
@@ -388,13 +388,13 @@ export const CategoriesView: React.FC<CategoriesViewProps> = ({
                 <button
                   type="button"
                   onClick={() => setEditingBudgetCat(null)}
-                  className="px-3 py-1.5 rounded-xl text-xs text-zinc-400 hover:text-white"
+                  className="px-3 py-1.5 rounded-none text-xs text-zinc-400 hover:text-white"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
-                  className="px-4 py-2 rounded-xl text-xs font-semibold text-zinc-950 bg-white hover:bg-zinc-200 transition-colors shadow-sm"
+                  className="px-4 py-2 rounded-none text-xs font-semibold text-zinc-950 bg-white hover:bg-zinc-200 transition-colors"
                 >
                   Save Budget Cap
                 </button>
@@ -406,9 +406,9 @@ export const CategoriesView: React.FC<CategoriesViewProps> = ({
 
       {/* Add Modal */}
       {showAddModal && (
-        <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-          <div className="bg-[#12141a] border border-white/10 rounded-2xl w-full max-w-md p-6 shadow-2xl animate-in fade-in zoom-in-95">
-            <h3 className="font-bold text-white text-base pb-3 border-b border-white/5">
+        <div className="fixed inset-0 bg-black/80 z-50 flex items-center justify-center p-4">
+          <div className="bg-[#12141a] border border-[#2c303d] rounded-none w-full max-w-md p-6 animate-in fade-in zoom-in-95">
+            <h3 className="font-bold text-white text-base pb-3 border-b border-[#22252f]">
               Add New {activeTab === 'expense' ? 'Expense Category' : 'Income Source'}
             </h3>
 
@@ -422,7 +422,7 @@ export const CategoriesView: React.FC<CategoriesViewProps> = ({
                   placeholder={activeTab === 'expense' ? 'e.g. Groceries & Dining, Fuel, Utilities' : 'e.g. Retainer, Royalty, Salary'}
                   value={name}
                   onChange={(e) => setName(e.target.value)}
-                  className="w-full bg-[#171922] text-white text-xs px-3.5 py-2.5 rounded-xl border border-white/10 focus:outline-none focus:border-white/30"
+                  className="w-full bg-[#171922] text-white text-xs px-3.5 py-2.5 rounded-none border border-[#2c303d] focus:outline-none focus:border-[#52596e]"
                   required
                 />
               </div>
@@ -435,7 +435,7 @@ export const CategoriesView: React.FC<CategoriesViewProps> = ({
                       key={c}
                       type="button"
                       onClick={() => setColor(c)}
-                      className={`w-6 h-6 rounded-full border transition-all ${
+                      className={`w-6 h-6 rounded-none border transition-all ${
                         color === c ? 'scale-125 border-white' : 'border-transparent opacity-70 hover:opacity-100'
                       }`}
                       style={{ backgroundColor: c }}
@@ -453,22 +453,22 @@ export const CategoriesView: React.FC<CategoriesViewProps> = ({
                     placeholder="e.g. 25000"
                     value={budgetLimit}
                     onChange={(e) => setBudgetLimit(e.target.value)}
-                    className="w-full bg-[#171922] text-white text-xs font-mono px-3.5 py-2.5 rounded-xl border border-white/10 focus:outline-none focus:border-white/30"
+                    className="w-full bg-[#171922] text-white text-xs font-mono px-3.5 py-2.5 rounded-none border border-[#2c303d] focus:outline-none focus:border-[#52596e]"
                   />
                 </div>
               )}
 
-              <div className="flex items-center justify-end gap-2 pt-3 border-t border-white/5">
+              <div className="flex items-center justify-end gap-2 pt-3 border-t border-[#22252f]">
                 <button
                   type="button"
                   onClick={() => setShowAddModal(false)}
-                  className="px-4 py-2 rounded-xl text-xs text-zinc-400 hover:text-white bg-white/5"
+                  className="px-4 py-2 rounded-none text-xs text-zinc-400 hover:text-white bg-[#16181f]"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
-                  className="px-5 py-2.5 rounded-xl text-xs font-semibold text-zinc-950 bg-zinc-100 hover:bg-white transition-colors shadow-sm"
+                  className="px-5 py-2.5 rounded-none text-xs font-semibold text-zinc-950 bg-zinc-100 hover:bg-white transition-colors"
                 >
                   Save {activeTab === 'expense' ? 'Category' : 'Source'}
                 </button>
@@ -490,16 +490,15 @@ export const CategoriesView: React.FC<CategoriesViewProps> = ({
         const Icon = getCategoryIcon(selectedCategoryDetails.icon);
 
         return (
-          <div className="fixed inset-0 bg-black/85 backdrop-blur-md z-50 flex items-center justify-center p-3 sm:p-4">
-            <div className="bg-[#12141a] border border-white/10 rounded-3xl w-full max-w-2xl max-h-[90vh] flex flex-col shadow-2xl animate-in fade-in zoom-in-95 overflow-hidden">
+          <div className="fixed inset-0 bg-black/85 z-50 flex items-center justify-center p-3 sm:p-4">
+            <div className="bg-[#12141a] border border-[#2c303d] rounded-none w-full max-w-2xl max-h-[90vh] flex flex-col animate-in fade-in zoom-in-95 overflow-hidden">
               {/* Header */}
-              <div className="p-5 sm:p-6 border-b border-white/10 flex items-start justify-between bg-white/[0.02]">
+              <div className="p-5 sm:p-6 border-b border-[#2c303d] flex items-start justify-between bg-[#14161c]">
                 <div className="flex items-center gap-3.5">
                   <div
-                    className="p-3.5 rounded-2xl border"
+                    className="p-3.5 rounded-none border bg-[#16181f]"
                     style={{
-                      backgroundColor: `${selectedCategoryDetails.color}15`,
-                      borderColor: `${selectedCategoryDetails.color}35`,
+                      borderColor: selectedCategoryDetails.color,
                       color: selectedCategoryDetails.color,
                     }}
                   >
@@ -521,24 +520,24 @@ export const CategoriesView: React.FC<CategoriesViewProps> = ({
                 <button
                   type="button"
                   onClick={() => setSelectedCategoryDetails(null)}
-                  className="p-2 text-zinc-400 hover:text-white rounded-xl bg-white/5 hover:bg-white/10 transition-colors"
+                  className="p-2 text-zinc-400 hover:text-white rounded-none bg-[#16181f] hover:bg-[#20232e] transition-colors"
                 >
                   <X className="w-4 h-4" />
                 </button>
               </div>
 
               {/* Financial Metrics */}
-              <div className="p-5 sm:p-6 border-b border-white/10 grid grid-cols-3 gap-3 bg-[#0d0f14]/50">
+              <div className="p-5 sm:p-6 border-b border-[#2c303d] grid grid-cols-3 gap-3 bg-[#0d0f14]/50">
                 {selectedCategoryDetails.type === 'expense' ? (
                   <>
-                    <div className="bg-[#171922] p-3.5 rounded-2xl border border-white/5">
+                    <div className="bg-[#171922] p-3.5 rounded-none border border-[#22252f]">
                       <span className="text-[10px] font-medium text-zinc-400 uppercase tracking-wider block">Spent This Month</span>
                       <div className="text-lg sm:text-xl font-bold font-mono text-white mt-1">
                         {currencySymbol}{formatCash(monthlySpent)}
                       </div>
                     </div>
 
-                    <div className="bg-[#171922] p-3.5 rounded-2xl border border-white/5">
+                    <div className="bg-[#171922] p-3.5 rounded-none border border-[#22252f]">
                       <span className="text-[10px] font-medium text-zinc-400 uppercase tracking-wider block">Monthly Budget Cap</span>
                       <div className="text-lg sm:text-xl font-bold font-mono text-zinc-200 mt-1">
                         {limit > 0 ? `${currencySymbol}${formatCash(limit)}` : 'None'}
@@ -552,7 +551,7 @@ export const CategoriesView: React.FC<CategoriesViewProps> = ({
                       )}
                     </div>
 
-                    <div className="bg-[#171922] p-3.5 rounded-2xl border border-white/5">
+                    <div className="bg-[#171922] p-3.5 rounded-none border border-[#22252f]">
                       <span className="text-[10px] font-medium text-zinc-400 uppercase tracking-wider block">All-Time Outflow</span>
                       <div className="text-lg sm:text-xl font-bold font-mono text-rose-400 mt-1">
                         {currencySymbol}{formatCash(allTimeTotal)}
@@ -561,21 +560,21 @@ export const CategoriesView: React.FC<CategoriesViewProps> = ({
                   </>
                 ) : (
                   <>
-                    <div className="bg-[#171922] p-3.5 rounded-2xl border border-white/5">
+                    <div className="bg-[#171922] p-3.5 rounded-none border border-[#22252f]">
                       <span className="text-[10px] font-medium text-zinc-400 uppercase tracking-wider block">Total Revenue</span>
                       <div className="text-lg sm:text-xl font-bold font-mono text-emerald-400 mt-1">
                         +{currencySymbol}{formatCash(allTimeTotal)}
                       </div>
                     </div>
 
-                    <div className="bg-[#171922] p-3.5 rounded-2xl border border-white/5">
+                    <div className="bg-[#171922] p-3.5 rounded-none border border-[#22252f]">
                       <span className="text-[10px] font-medium text-zinc-400 uppercase tracking-wider block">Total Records</span>
                       <div className="text-lg sm:text-xl font-bold font-mono text-white mt-1">
                         {catTxs.length}
                       </div>
                     </div>
 
-                    <div className="bg-[#171922] p-3.5 rounded-2xl border border-white/5">
+                    <div className="bg-[#171922] p-3.5 rounded-none border border-[#22252f]">
                       <span className="text-[10px] font-medium text-zinc-400 uppercase tracking-wider block">Average Payout</span>
                       <div className="text-lg sm:text-xl font-bold font-mono text-sky-400 mt-1">
                         {catTxs.length > 0
@@ -588,7 +587,7 @@ export const CategoriesView: React.FC<CategoriesViewProps> = ({
               </div>
 
               {/* Action Bar */}
-              <div className="px-5 py-3 border-b border-white/5 flex items-center justify-between gap-2 bg-[#12141a]">
+              <div className="px-5 py-3 border-b border-[#22252f] flex items-center justify-between gap-2 bg-[#12141a]">
                 <div className="text-xs text-zinc-400 font-medium">
                   Associated Transactions <span className="font-mono text-zinc-500">({catTxs.length})</span>
                 </div>
@@ -601,7 +600,7 @@ export const CategoriesView: React.FC<CategoriesViewProps> = ({
                       setEditingBudgetCat(c);
                       setEditBudgetAmount((c.budgetLimit || 0) > 0 ? (c.budgetLimit || 0).toString() : '');
                     }}
-                    className="px-3 py-1.5 text-xs rounded-xl bg-white/5 hover:bg-white/10 text-zinc-300 border border-white/10 flex items-center gap-1.5 transition-colors font-medium"
+                    className="px-3 py-1.5 text-xs rounded-none bg-[#16181f] hover:bg-[#20232e] text-zinc-300 border border-[#2c303d] flex items-center gap-1.5 transition-colors font-medium"
                   >
                     <Pencil className="w-3 h-3" />
                     <span>{limit > 0 ? 'Edit Budget Cap' : 'Set Budget Cap'}</span>
@@ -623,14 +622,14 @@ export const CategoriesView: React.FC<CategoriesViewProps> = ({
                     return (
                       <div
                         key={tx.id}
-                        className="p-3 bg-[#171922] hover:bg-[#1a1e29] border border-white/5 rounded-2xl flex items-center justify-between gap-3 transition-colors"
+                        className="p-3 bg-[#171922] hover:bg-[#1a1e29] border border-[#22252f] rounded-none flex items-center justify-between gap-3 transition-colors"
                       >
                         <div className="flex items-center gap-3 min-w-0">
                           <div
-                            className={`p-2 rounded-xl border flex-shrink-0 ${
+                            className={`p-2 rounded-none border flex-shrink-0 ${
                               isCredit
-                                ? 'bg-emerald-500/10 border-emerald-500/20 text-emerald-400'
-                                : 'bg-rose-500/10 border-rose-500/20 text-rose-400'
+                                ? 'bg-[#0d241b] border-emerald-800 text-emerald-400'
+                                : 'bg-[#261116] border-rose-800 text-rose-400'
                             }`}
                           >
                             {isCredit ? (
@@ -680,11 +679,11 @@ export const CategoriesView: React.FC<CategoriesViewProps> = ({
               </div>
 
               {/* Modal Footer */}
-              <div className="p-4 border-t border-white/5 bg-[#0d0f14]/50 flex justify-end">
+              <div className="p-4 border-t border-[#22252f] bg-[#0d0f14]/50 flex justify-end">
                 <button
                   type="button"
                   onClick={() => setSelectedCategoryDetails(null)}
-                  className="px-5 py-2 rounded-xl text-xs font-semibold text-white bg-white/10 hover:bg-white/15 transition-colors"
+                  className="px-5 py-2 rounded-none text-xs font-semibold text-white bg-[#20232e] hover:bg-[#262a37] transition-colors"
                 >
                   Done
                 </button>

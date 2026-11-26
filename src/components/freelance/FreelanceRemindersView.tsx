@@ -357,7 +357,7 @@ export const FreelanceRemindersView: React.FC<FreelanceRemindersViewProps> = ({
         </div>
         <button
           onClick={onOpenAddModal}
-          className="bg-zinc-100 hover:bg-white text-zinc-950 font-semibold py-2 px-3.5 rounded-xl text-xs flex items-center justify-center gap-1.5 transition-colors shadow-sm cursor-pointer self-start sm:self-auto"
+          className="bg-zinc-100 hover:bg-white text-zinc-950 font-semibold py-2 px-3.5 rounded-none text-xs flex items-center justify-center gap-1.5 transition-colors cursor-pointer self-start sm:self-auto"
         >
           <Plus className="w-4 h-4 stroke-[2.5]" />
           <span>{isPayablesMode ? 'Add Payable Due Date' : 'Add Receivable Due Date'}</span>
@@ -367,7 +367,7 @@ export const FreelanceRemindersView: React.FC<FreelanceRemindersViewProps> = ({
       {/* Top Banner Metric Cards (4 Cards) */}
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4 max-w-full">
         {/* Card 1: Total Remaining */}
-        <div className="bg-[#12141a] border border-white/5 rounded-2xl p-4 sm:p-5 shadow-xl relative overflow-hidden min-w-0">
+        <div className="bg-[#12141a] border border-[#22252f] rounded-none p-4 sm:p-5 relative overflow-hidden min-w-0">
           <div className="text-xs text-zinc-400 font-medium truncate">
             {isPayablesMode ? 'Total Remaining (This Month)' : 'Total Remaining (This Month)'}
           </div>
@@ -380,7 +380,7 @@ export const FreelanceRemindersView: React.FC<FreelanceRemindersViewProps> = ({
         </div>
 
         {/* Card 2: Cash Collected / Cash Paid (Second in the row) */}
-        <div className="bg-[#12141a] border border-white/5 rounded-2xl p-4 sm:p-5 shadow-xl relative overflow-hidden min-w-0">
+        <div className="bg-[#12141a] border border-[#22252f] rounded-none p-4 sm:p-5 relative overflow-hidden min-w-0">
           <div className="text-xs text-zinc-400 font-medium truncate">
             {isPayablesMode ? 'Cash Paid' : 'Cash Collected'}
           </div>
@@ -393,13 +393,13 @@ export const FreelanceRemindersView: React.FC<FreelanceRemindersViewProps> = ({
         </div>
 
         {/* Card 3: Action Required */}
-        <div className="bg-[#12141a] border border-white/5 rounded-2xl p-4 sm:p-5 shadow-xl relative overflow-hidden min-w-0">
+        <div className="bg-[#12141a] border border-[#22252f] rounded-none p-4 sm:p-5 relative overflow-hidden min-w-0">
           <div className="text-xs text-zinc-400 font-medium truncate">Action Required</div>
           <div className="text-xl sm:text-2xl font-bold text-white font-mono mt-1 flex items-center gap-2 truncate">
             <span>{urgentCount}</span>
             {urgentCount > 0 && (
               <span className="text-xs font-medium text-rose-400 shrink-0 flex items-center gap-1.5">
-                <span className="w-1.5 h-1.5 rounded-full bg-rose-400 animate-pulse" />
+                <span className="w-1.5 h-1.5 rounded-none bg-rose-400 animate-pulse" />
                 {overdueList.length} Overdue
               </span>
             )}
@@ -410,7 +410,7 @@ export const FreelanceRemindersView: React.FC<FreelanceRemindersViewProps> = ({
         </div>
 
         {/* Card 4: Total Records */}
-        <div className="bg-[#12141a] border border-white/5 rounded-2xl p-4 sm:p-5 shadow-xl relative overflow-hidden min-w-0">
+        <div className="bg-[#12141a] border border-[#22252f] rounded-none p-4 sm:p-5 relative overflow-hidden min-w-0">
           <div className="text-xs text-zinc-400 font-medium truncate">
             {isPayablesMode ? 'This Month Due' : 'This Month Due'}
           </div>
@@ -424,7 +424,7 @@ export const FreelanceRemindersView: React.FC<FreelanceRemindersViewProps> = ({
       </div>
 
       {/* Settlement Breakdown Bar (Total vs Given/Taken vs Left with Amount & Percentage) */}
-      <div className="bg-[#12141a] border border-white/5 rounded-2xl p-4 sm:p-5 shadow-xl space-y-4">
+      <div className="bg-[#12141a] border border-[#22252f] rounded-none p-4 sm:p-5 space-y-4">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5">
           <div>
             <h3 className="text-xs sm:text-sm font-bold text-white flex items-center gap-2">
@@ -447,12 +447,12 @@ export const FreelanceRemindersView: React.FC<FreelanceRemindersViewProps> = ({
           </div>
 
           {/* Scope Toggle: Overall vs This Month */}
-          <div className="inline-flex items-center gap-1 bg-[#181b23] p-1 rounded-xl border border-white/10 text-[11px] self-start sm:self-auto">
+          <div className="inline-flex items-center gap-1 bg-[#181b23] p-1 rounded-none border border-[#2c303d] text-[11px] self-start sm:self-auto">
             <button
               type="button"
               onClick={() => setProgressScope('overall')}
-              className={`px-2.5 py-1 rounded-lg transition-colors cursor-pointer ${
-                progressScope === 'overall' ? 'bg-white/10 text-white font-semibold' : 'text-zinc-400 hover:text-zinc-200'
+              className={`px-2.5 py-1 rounded-none transition-colors cursor-pointer ${
+                progressScope === 'overall' ? 'bg-[#20232e] text-white font-semibold' : 'text-zinc-400 hover:text-zinc-200'
               }`}
             >
               Overall
@@ -460,8 +460,8 @@ export const FreelanceRemindersView: React.FC<FreelanceRemindersViewProps> = ({
             <button
               type="button"
               onClick={() => setProgressScope('this_month')}
-              className={`px-2.5 py-1 rounded-lg transition-colors cursor-pointer ${
-                progressScope === 'this_month' ? 'bg-white/10 text-white font-semibold' : 'text-zinc-400 hover:text-zinc-200'
+              className={`px-2.5 py-1 rounded-none transition-colors cursor-pointer ${
+                progressScope === 'this_month' ? 'bg-[#20232e] text-white font-semibold' : 'text-zinc-400 hover:text-zinc-200'
               }`}
             >
               This Month
@@ -471,9 +471,9 @@ export const FreelanceRemindersView: React.FC<FreelanceRemindersViewProps> = ({
 
         {/* Summary Figures Row */}
         <div className="grid grid-cols-3 gap-2.5 sm:gap-4">
-          <div className="bg-[#161821] border border-white/5 rounded-xl p-3 min-w-0">
+          <div className="bg-[#161821] border border-[#22252f] rounded-none p-3 min-w-0">
             <div className="flex items-center gap-1.5 text-[11px] text-zinc-400 font-medium">
-              <span className="w-2 h-2 rounded-full bg-emerald-400 shrink-0" />
+              <span className="w-2 h-2 rounded-none bg-emerald-400 shrink-0" />
               <span className="truncate">{isPayablesMode ? 'Given (Paid)' : 'Taken (Collected)'}</span>
             </div>
             <div className="mt-1 flex items-baseline justify-between gap-1 flex-wrap">
@@ -486,9 +486,9 @@ export const FreelanceRemindersView: React.FC<FreelanceRemindersViewProps> = ({
             </div>
           </div>
 
-          <div className="bg-[#161821] border border-white/5 rounded-xl p-3 min-w-0">
+          <div className="bg-[#161821] border border-[#22252f] rounded-none p-3 min-w-0">
             <div className="flex items-center gap-1.5 text-[11px] text-zinc-400 font-medium">
-              <span className={`w-2 h-2 rounded-full shrink-0 ${isPayablesMode ? 'bg-rose-400' : 'bg-amber-400'}`} />
+              <span className={`w-2 h-2 rounded-none shrink-0 ${isPayablesMode ? 'bg-rose-400' : 'bg-amber-400'}`} />
               <span className="truncate">Left (Remaining)</span>
             </div>
             <div className="mt-1 flex items-baseline justify-between gap-1 flex-wrap">
@@ -501,9 +501,9 @@ export const FreelanceRemindersView: React.FC<FreelanceRemindersViewProps> = ({
             </div>
           </div>
 
-          <div className="bg-[#161821] border border-white/5 rounded-xl p-3 min-w-0">
+          <div className="bg-[#161821] border border-[#22252f] rounded-none p-3 min-w-0">
             <div className="flex items-center gap-1.5 text-[11px] text-zinc-400 font-medium">
-              <span className="w-2 h-2 rounded-full bg-zinc-300 shrink-0" />
+              <span className="w-2 h-2 rounded-none bg-zinc-300 shrink-0" />
               <span className="truncate">Total</span>
             </div>
             <div className="mt-1 flex items-baseline justify-between gap-1 flex-wrap">
@@ -519,7 +519,7 @@ export const FreelanceRemindersView: React.FC<FreelanceRemindersViewProps> = ({
 
         {/* Visual Split Bar Showing Amount & Percentage */}
         <div className="space-y-1.5">
-          <div className="w-full h-8 rounded-xl bg-[#181b23] border border-white/10 overflow-hidden flex font-mono text-[11px] font-semibold">
+          <div className="w-full h-8 rounded-none bg-[#181b23] border border-[#2c303d] overflow-hidden flex font-mono text-[11px] font-semibold">
             {progressTotal === 0 ? (
               <div className="w-full h-full flex items-center justify-center text-zinc-500">
                 No amounts recorded yet (0%)
@@ -528,7 +528,7 @@ export const FreelanceRemindersView: React.FC<FreelanceRemindersViewProps> = ({
               <>
                 {progressSettledPct > 0 && (
                   <div
-                    className="h-full bg-emerald-500/80 text-zinc-950 flex items-center justify-center px-2 transition-all duration-500 overflow-hidden whitespace-nowrap"
+                    className="h-full bg-emerald-600 text-zinc-950 flex items-center justify-center px-2 transition-all duration-500 overflow-hidden whitespace-nowrap"
                     style={{ width: `${progressSettledPct}%` }}
                     title={`${isPayablesMode ? 'Given' : 'Taken'}: ${currencySymbol}${formatCash(progressGivenOrTaken)} (${progressSettledPct.toFixed(1)}%)`}
                   >
@@ -542,7 +542,7 @@ export const FreelanceRemindersView: React.FC<FreelanceRemindersViewProps> = ({
                 {progressLeftPct > 0 && (
                   <div
                     className={`h-full flex items-center justify-center px-2 transition-all duration-500 overflow-hidden whitespace-nowrap ${
-                      isPayablesMode ? 'bg-rose-500/25 text-rose-200' : 'bg-amber-500/25 text-amber-200'
+                      isPayablesMode ? 'bg-[#421a24] text-rose-200' : 'bg-[#423215] text-amber-200'
                     }`}
                     style={{ width: `${progressLeftPct}%` }}
                     title={`Left: ${currencySymbol}${formatCash(progressLeft)} (${progressLeftPct.toFixed(1)}%)`}
@@ -561,22 +561,22 @@ export const FreelanceRemindersView: React.FC<FreelanceRemindersViewProps> = ({
       </div>
 
       {/* Main List Card */}
-      <div className="bg-[#12141a] border border-white/5 rounded-2xl shadow-xl p-3.5 sm:p-5 max-w-full overflow-hidden">
+      <div className="bg-[#12141a] border border-[#22252f] rounded-none p-3.5 sm:p-5 max-w-full overflow-hidden">
         {/* Navigation Filters */}
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-4 border-b border-white/5 gap-3 max-w-full">
-          <div className="flex items-center gap-1.5 bg-[#181b23] p-1 rounded-xl border border-white/10 text-xs overflow-x-auto max-w-full pb-1 sm:pb-1 scrollbar-none min-w-0">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-4 border-b border-[#22252f] gap-3 max-w-full">
+          <div className="flex items-center gap-1.5 bg-[#181b23] p-1 rounded-none border border-[#2c303d] text-xs overflow-x-auto max-w-full pb-1 sm:pb-1 scrollbar-none min-w-0">
             <button
               onClick={() => setFilterTab('this_month')}
-              className={`px-3 py-1.5 rounded-lg transition-colors whitespace-nowrap cursor-pointer ${
-                filterTab === 'this_month' ? 'bg-white/10 text-white font-medium' : 'text-zinc-400 hover:text-zinc-200'
+              className={`px-3 py-1.5 rounded-none transition-colors whitespace-nowrap cursor-pointer ${
+                filterTab === 'this_month' ? 'bg-[#20232e] text-white font-medium' : 'text-zinc-400 hover:text-zinc-200'
               }`}
             >
               {isPayablesMode ? `To Pay (This Month) (${thisMonthActive.length})` : `To Collect (This Month) (${thisMonthActive.length})`}
             </button>
             <button
               onClick={() => setFilterTab('urgent')}
-              className={`px-3 py-1.5 rounded-lg transition-colors flex items-center gap-1.5 whitespace-nowrap cursor-pointer ${
-                filterTab === 'urgent' ? 'bg-rose-500/20 text-rose-300 font-medium' : 'text-zinc-400 hover:text-zinc-200'
+              className={`px-3 py-1.5 rounded-none transition-colors flex items-center gap-1.5 whitespace-nowrap cursor-pointer ${
+                filterTab === 'urgent' ? 'bg-[#38161e] text-rose-300 font-medium' : 'text-zinc-400 hover:text-zinc-200'
               }`}
             >
               <span>Needs Attention</span>
@@ -588,8 +588,8 @@ export const FreelanceRemindersView: React.FC<FreelanceRemindersViewProps> = ({
             </button>
             <button
               onClick={() => setFilterTab('upcoming')}
-              className={`px-3 py-1.5 rounded-lg transition-colors flex items-center gap-1.5 whitespace-nowrap cursor-pointer ${
-                filterTab === 'upcoming' ? 'bg-white/10 text-white font-medium' : 'text-zinc-400 hover:text-zinc-200'
+              className={`px-3 py-1.5 rounded-none transition-colors flex items-center gap-1.5 whitespace-nowrap cursor-pointer ${
+                filterTab === 'upcoming' ? 'bg-[#20232e] text-white font-medium' : 'text-zinc-400 hover:text-zinc-200'
               }`}
             >
               <span>Upcoming Months</span>
@@ -601,16 +601,16 @@ export const FreelanceRemindersView: React.FC<FreelanceRemindersViewProps> = ({
             </button>
             <button
               onClick={() => setFilterTab('collected')}
-              className={`px-3 py-1.5 rounded-lg transition-colors whitespace-nowrap cursor-pointer ${
-                filterTab === 'collected' ? 'bg-white/10 text-white font-medium' : 'text-zinc-400 hover:text-zinc-200'
+              className={`px-3 py-1.5 rounded-none transition-colors whitespace-nowrap cursor-pointer ${
+                filterTab === 'collected' ? 'bg-[#20232e] text-white font-medium' : 'text-zinc-400 hover:text-zinc-200'
               }`}
             >
               {isPayablesMode ? `Paid (${settledCount})` : `Collected (${settledCount})`}
             </button>
             <button
               onClick={() => setFilterTab('all')}
-              className={`px-3 py-1.5 rounded-lg transition-colors whitespace-nowrap cursor-pointer ${
-                filterTab === 'all' ? 'bg-white/10 text-white font-medium' : 'text-zinc-400 hover:text-zinc-200'
+              className={`px-3 py-1.5 rounded-none transition-colors whitespace-nowrap cursor-pointer ${
+                filterTab === 'all' ? 'bg-[#20232e] text-white font-medium' : 'text-zinc-400 hover:text-zinc-200'
               }`}
             >
               All ({baseReminders.length})
@@ -620,7 +620,7 @@ export const FreelanceRemindersView: React.FC<FreelanceRemindersViewProps> = ({
           <div className="flex items-center gap-2.5">
             <button
               onClick={onOpenAddModal}
-              className="sm:hidden bg-zinc-100 hover:bg-white text-zinc-950 font-semibold py-1.5 px-3 rounded-lg text-xs flex items-center justify-center gap-1 transition-colors shadow-sm cursor-pointer whitespace-nowrap"
+              className="sm:hidden bg-zinc-100 hover:bg-white text-zinc-950 font-semibold py-1.5 px-3 rounded-none text-xs flex items-center justify-center gap-1 transition-colors cursor-pointer whitespace-nowrap"
             >
               <Plus className="w-3.5 h-3.5 stroke-[2.5]" />
               <span>{isPayablesMode ? 'Add Payable' : 'Add Receivable'}</span>
@@ -635,7 +635,7 @@ export const FreelanceRemindersView: React.FC<FreelanceRemindersViewProps> = ({
         <div className="pt-4 space-y-3">
           {filteredList.length === 0 ? (
             <div className="py-16 text-center text-zinc-500 text-xs">
-              <CheckCircle2 className="w-8 h-8 mx-auto text-emerald-500/80 mb-2" />
+              <CheckCircle2 className="w-8 h-8 mx-auto text-emerald-400 mb-2" />
               {isPayablesMode
                 ? "No payable records in this view. You're completely up to date!"
                 : "No receivable records in this view. You're completely up to date!"}
@@ -649,14 +649,14 @@ export const FreelanceRemindersView: React.FC<FreelanceRemindersViewProps> = ({
                 <div
                   key={rem.id}
                   onClick={() => setSelectedReminderDetails(rem)}
-                  className={`p-4 rounded-xl border transition-all cursor-pointer group ${
+                  className={`p-4 rounded-none border transition-all cursor-pointer group ${
                     rem.status === 'overdue'
-                      ? 'bg-rose-950/15 border-rose-500/30 hover:border-rose-500/50'
+                      ? 'bg-[#210f13] border-rose-700 hover:border-rose-600'
                       : rem.status === 'due_today'
-                      ? 'bg-[#181a24] border-white/20 hover:border-white/30'
+                      ? 'bg-[#181a24] border-[#3f4557] hover:border-[#52596e]'
                       : isCollected
-                      ? 'bg-emerald-950/10 border-white/5 opacity-75 hover:border-white/20'
-                      : 'bg-[#161821] border-white/5 hover:border-white/20'
+                      ? 'bg-[#0b1f17] border-[#22252f] opacity-75 hover:border-[#3f4557]'
+                      : 'bg-[#161821] border-[#22252f] hover:border-[#3f4557]'
                   }`}
                 >
                   <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
@@ -682,7 +682,7 @@ export const FreelanceRemindersView: React.FC<FreelanceRemindersViewProps> = ({
                         )}
                         {rem.status === 'ended' ? (
                           <span className="text-[10px] font-mono text-zinc-400 font-semibold flex items-center gap-1">
-                            <span className="w-1.5 h-1.5 rounded-full bg-zinc-500" />
+                            <span className="w-1.5 h-1.5 rounded-none bg-zinc-500" />
                             Contract Ended
                           </span>
                         ) : rem.frequency === 'monthly' ? (
@@ -714,7 +714,7 @@ export const FreelanceRemindersView: React.FC<FreelanceRemindersViewProps> = ({
                               : 'text-zinc-300'
                           }`}
                         >
-                          <span className={`w-1.5 h-1.5 rounded-full ${
+                          <span className={`w-1.5 h-1.5 rounded-none ${
                             dueInfo.color === 'rose'
                               ? 'bg-rose-400'
                               : dueInfo.color === 'emerald'
@@ -760,13 +760,13 @@ export const FreelanceRemindersView: React.FC<FreelanceRemindersViewProps> = ({
                             : `${currencySymbol}${formatCash(rem.amount)}`}
                         </div>
                         {rem.amountType === 'hybrid' ? (
-                          <div className="text-[10px] text-sky-300/90 font-mono">
+                          <div className="text-[10px] text-sky-300 font-mono">
                             {(rem.variableAmount || 0) > 0
                               ? `Fixed ${currencySymbol}${formatCash(rem.fixedAmount || 0)} + Var ${currencySymbol}${formatCash(rem.variableAmount || 0)}`
                               : 'Fixed base + Variable asked when settling'}
                           </div>
                         ) : rem.amountType === 'variable' ? (
-                          <div className="text-[10px] text-amber-300/90 font-mono">
+                          <div className="text-[10px] text-amber-300 font-mono">
                             {rem.amount > 0
                               ? `Variable • ${rem.token || rem.currency || 'PKR'}`
                               : 'Amount asked when settling'}
@@ -792,7 +792,7 @@ export const FreelanceRemindersView: React.FC<FreelanceRemindersViewProps> = ({
                                 e.stopPropagation();
                                 openCollectModal(rem);
                               }}
-                              className="bg-zinc-100 hover:bg-white text-zinc-950 font-semibold text-xs px-3 py-2 rounded-xl flex items-center gap-1.5 transition-colors shadow-sm cursor-pointer"
+                              className="bg-zinc-100 hover:bg-white text-zinc-950 font-semibold text-xs px-3 py-2 rounded-none flex items-center gap-1.5 transition-colors cursor-pointer"
                             >
                               <CheckCircle2 className="w-3.5 h-3.5 stroke-[2.5]" />
                               <span>{rem.type === 'payable' ? 'Mark as Paid' : 'Collect Payment'}</span>
@@ -805,7 +805,7 @@ export const FreelanceRemindersView: React.FC<FreelanceRemindersViewProps> = ({
                                 target="_blank"
                                 rel="noopener noreferrer"
                                 onClick={(e) => e.stopPropagation()}
-                                className="bg-emerald-500/15 hover:bg-emerald-500/25 border border-emerald-500/30 text-emerald-400 text-xs px-2.5 py-2 rounded-xl flex items-center gap-1.5 transition-colors cursor-pointer"
+                                className="bg-[#0f2b20] hover:bg-[#163d2e] border border-emerald-700 text-emerald-400 text-xs px-2.5 py-2 rounded-none flex items-center gap-1.5 transition-colors cursor-pointer"
                                 title="Send WhatsApp payment reminder"
                               >
                                 <MessageSquare className="w-3.5 h-3.5" />
@@ -819,7 +819,7 @@ export const FreelanceRemindersView: React.FC<FreelanceRemindersViewProps> = ({
                                 e.stopPropagation();
                                 handleCopyReminderText(rem);
                               }}
-                              className="bg-[#202430] hover:bg-[#282d3c] text-zinc-200 text-xs px-2.5 py-2 rounded-xl flex items-center gap-1 border border-white/10 transition-colors cursor-pointer"
+                              className="bg-[#202430] hover:bg-[#282d3c] text-zinc-200 text-xs px-2.5 py-2 rounded-none flex items-center gap-1 border border-[#2c303d] transition-colors cursor-pointer"
                               title={rem.type === 'payable' ? "Copy expense reminder details" : "Copy professional reminder message to clipboard"}
                             >
                               {copiedId === rem.id ? (
@@ -841,7 +841,7 @@ export const FreelanceRemindersView: React.FC<FreelanceRemindersViewProps> = ({
                                 e.stopPropagation();
                                 handleDownloadICS(rem);
                               }}
-                              className="p-2 text-zinc-400 hover:text-white bg-[#202430] hover:bg-[#282d3c] border border-white/10 rounded-xl transition-colors cursor-pointer"
+                              className="p-2 text-zinc-400 hover:text-white bg-[#202430] hover:bg-[#282d3c] border border-[#2c303d] rounded-none transition-colors cursor-pointer"
                               title="Add reminder to Google / Apple Calendar (.ics)"
                             >
                               <Download className="w-3.5 h-3.5" />
@@ -860,7 +860,7 @@ export const FreelanceRemindersView: React.FC<FreelanceRemindersViewProps> = ({
                             e.stopPropagation();
                             onEditReminder(rem);
                           }}
-                          className="p-2 text-zinc-400 hover:text-white hover:bg-white/10 rounded-xl transition-colors cursor-pointer"
+                          className="p-2 text-zinc-400 hover:text-white hover:bg-[#20232e] rounded-none transition-colors cursor-pointer"
                           title={rem.type === 'payable' ? "Edit payable obligation & schedule" : "Edit invoice & schedule"}
                         >
                           <Pencil className="w-3.5 h-3.5" />
@@ -872,7 +872,7 @@ export const FreelanceRemindersView: React.FC<FreelanceRemindersViewProps> = ({
                             e.stopPropagation();
                             setReminderToDelete(rem);
                           }}
-                          className="p-2 text-zinc-500 hover:text-rose-400 hover:bg-rose-500/10 rounded-xl transition-colors cursor-pointer"
+                          className="p-2 text-zinc-500 hover:text-rose-400 hover:bg-[#261116] rounded-none transition-colors cursor-pointer"
                           title={rem.frequency === 'monthly' ? "End contract or delete obligation" : "Delete obligation"}
                         >
                           <Trash2 className="w-3.5 h-3.5" />
@@ -881,7 +881,7 @@ export const FreelanceRemindersView: React.FC<FreelanceRemindersViewProps> = ({
                     </div>
                   </div>
 
-                  <div className="mt-3 pt-2.5 border-t border-white/[0.03] flex items-center justify-between text-[11px] text-zinc-500 group-hover:text-zinc-300 transition-colors">
+                  <div className="mt-3 pt-2.5 border-t border-[#1d2029] flex items-center justify-between text-[11px] text-zinc-500 group-hover:text-zinc-300 transition-colors">
                     <span>View contract & settlement history</span>
                     <span className="group-hover:translate-x-0.5 transition-transform font-mono text-sky-400">→</span>
                   </div>
@@ -899,9 +899,9 @@ export const FreelanceRemindersView: React.FC<FreelanceRemindersViewProps> = ({
         const displaySym = settleBreakdown.isForeign ? getCurrencySymbol(settleBreakdown.displayCurr) : currencySymbol;
 
         return (
-          <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-            <div className="bg-[#14161d] border border-white/10 rounded-2xl w-full max-w-md p-6 shadow-2xl animate-in fade-in zoom-in-95">
-              <div className="flex items-center justify-between pb-3 border-b border-white/5">
+          <div className="fixed inset-0 bg-black/80 z-50 flex items-center justify-center p-4">
+            <div className="bg-[#14161d] border border-[#2c303d] rounded-none w-full max-w-md p-6 animate-in fade-in zoom-in-95">
+              <div className="flex items-center justify-between pb-3 border-b border-[#22252f]">
                 <div className="flex items-center gap-2 text-emerald-400">
                   <CheckCircle2 className="w-5 h-5" />
                   <h3 className="font-bold text-white text-base">
@@ -918,13 +918,13 @@ export const FreelanceRemindersView: React.FC<FreelanceRemindersViewProps> = ({
 
               <div className="py-4 space-y-4">
                 {settleError && (
-                  <div className="p-2.5 rounded-xl bg-rose-500/10 border border-rose-500/20 text-rose-300 text-xs flex items-center gap-2">
+                  <div className="p-2.5 rounded-none bg-[#261116] border border-rose-800 text-rose-300 text-xs flex items-center gap-2">
                     <AlertTriangle className="w-4 h-4 shrink-0" />
                     <span>{settleError}</span>
                   </div>
                 )}
 
-                <div className="bg-[#1c1f28] p-3.5 rounded-xl border border-white/5 space-y-2">
+                <div className="bg-[#1c1f28] p-3.5 rounded-none border border-[#22252f] space-y-2">
                   <div className="flex items-start justify-between gap-2">
                     <div>
                       <div className="text-xs text-zinc-400">
@@ -941,7 +941,7 @@ export const FreelanceRemindersView: React.FC<FreelanceRemindersViewProps> = ({
                   </div>
 
                   {isVariableOrHybrid ? (
-                    <div className="pt-2.5 border-t border-white/5 space-y-2.5">
+                    <div className="pt-2.5 border-t border-[#22252f] space-y-2.5">
                       {settleBreakdown.planType === 'hybrid' && (
                         <div className="flex items-center justify-between text-xs font-mono">
                           <span className="text-zinc-400">Fixed Base Amount:</span>
@@ -971,13 +971,13 @@ export const FreelanceRemindersView: React.FC<FreelanceRemindersViewProps> = ({
                               setSettleVariableInput(e.target.value);
                               setSettleError(null);
                             }}
-                            className="w-full bg-[#12141a] text-white text-sm font-mono font-bold pl-11 pr-3 py-2 rounded-xl border border-white/15 focus:outline-none focus:border-white/40"
+                            className="w-full bg-[#12141a] text-white text-sm font-mono font-bold pl-11 pr-3 py-2 rounded-none border border-[#353a4a] focus:outline-none focus:border-[#67708a]"
                             autoFocus
                           />
                         </div>
                       </div>
 
-                      <div className="flex items-center justify-between pt-1.5 border-t border-white/5">
+                      <div className="flex items-center justify-between pt-1.5 border-t border-[#22252f]">
                         <span className="text-xs text-zinc-300 font-medium">Total to Settle:</span>
                         <div className="text-right font-mono">
                           <div className="text-base font-bold text-white">
@@ -1005,7 +1005,7 @@ export const FreelanceRemindersView: React.FC<FreelanceRemindersViewProps> = ({
                   <select
                     value={targetWalletId}
                     onChange={(e) => setTargetWalletId(e.target.value)}
-                    className="w-full bg-[#181b23] border border-white/10 rounded-xl px-3 py-2 text-xs text-zinc-200 focus:outline-none focus:border-white/30"
+                    className="w-full bg-[#181b23] border border-[#2c303d] rounded-none px-3 py-2 text-xs text-zinc-200 focus:outline-none focus:border-[#52596e]"
                   >
                     {wallets.map((w) => (
                       <option key={w.id} value={w.id}>
@@ -1021,16 +1021,16 @@ export const FreelanceRemindersView: React.FC<FreelanceRemindersViewProps> = ({
                 </div>
               </div>
 
-              <div className="flex items-center justify-end gap-2 pt-3 border-t border-white/5">
+              <div className="flex items-center justify-end gap-2 pt-3 border-t border-[#22252f]">
                 <button
                   onClick={() => setCollectingReminder(null)}
-                  className="px-4 py-2 rounded-xl text-xs font-medium text-zinc-400 hover:text-white bg-white/5 hover:bg-white/10 cursor-pointer"
+                  className="px-4 py-2 rounded-none text-xs font-medium text-zinc-400 hover:text-white bg-[#16181f] hover:bg-[#20232e] cursor-pointer"
                 >
                   Cancel
                 </button>
                 <button
                   onClick={handleConfirmCollect}
-                  className="px-5 py-2.5 rounded-xl text-xs font-semibold text-zinc-950 bg-zinc-100 hover:bg-white transition-colors shadow-sm cursor-pointer"
+                  className="px-5 py-2.5 rounded-none text-xs font-semibold text-zinc-950 bg-zinc-100 hover:bg-white transition-colors cursor-pointer"
                 >
                   {collectingReminder.type === 'payable' ? 'Confirm Payment' : 'Confirm Collection'}
                 </button>
@@ -1051,11 +1051,11 @@ export const FreelanceRemindersView: React.FC<FreelanceRemindersViewProps> = ({
         const historyTotal = linkedHistory.reduce((sum, t) => sum + t.amount, 0);
 
         return (
-          <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-            <div className="bg-[#12141a] border border-white/10 rounded-3xl w-full max-w-md p-6 shadow-2xl animate-in fade-in zoom-in-95">
-              <div className="flex items-start justify-between pb-3 border-b border-white/5">
+          <div className="fixed inset-0 bg-black/80 z-50 flex items-center justify-center p-4">
+            <div className="bg-[#12141a] border border-[#2c303d] rounded-none w-full max-w-md p-6 animate-in fade-in zoom-in-95">
+              <div className="flex items-start justify-between pb-3 border-b border-[#22252f]">
                 <div className="flex items-center gap-3">
-                  <div className="p-2.5 rounded-2xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-400">
+                  <div className="p-2.5 rounded-none bg-[#0d241b] border border-emerald-800 text-emerald-400">
                     <ShieldCheck className="w-5 h-5" />
                   </div>
                   <div>
@@ -1078,7 +1078,7 @@ export const FreelanceRemindersView: React.FC<FreelanceRemindersViewProps> = ({
 
               <div className="my-4 space-y-3">
                 {/* Green Ledger Protection Guarantee */}
-                <div className="bg-emerald-500/10 border border-emerald-500/20 rounded-2xl p-4">
+                <div className="bg-[#0d241b] border border-emerald-800 rounded-none p-4">
                   <div className="flex items-center gap-2 text-emerald-300 text-xs font-bold">
                     <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
                     <span>Ledger History Is 100% Protected</span>
@@ -1087,7 +1087,7 @@ export const FreelanceRemindersView: React.FC<FreelanceRemindersViewProps> = ({
                     Ending or removing this contract will <strong>never delete your past transaction history</strong>. All historical income and expense transactions stay permanently recorded in your ledger and wallet balances.
                   </p>
                   {linkedHistory.length > 0 ? (
-                    <div className="mt-2.5 pt-2.5 border-t border-emerald-500/20 flex items-center justify-between text-[11px] font-mono">
+                    <div className="mt-2.5 pt-2.5 border-t border-emerald-800 flex items-center justify-between text-[11px] font-mono">
                       <span className="text-zinc-400">Safely preserved history:</span>
                       <span className="text-emerald-300 font-bold">{linkedHistory.length} record(s) ({currencySymbol}{formatCash(historyTotal)})</span>
                     </div>
@@ -1098,14 +1098,14 @@ export const FreelanceRemindersView: React.FC<FreelanceRemindersViewProps> = ({
                   )}
                 </div>
 
-                <p className="text-xs text-zinc-400 leading-relaxed bg-[#171922] p-3 rounded-xl border border-white/5">
+                <p className="text-xs text-zinc-400 leading-relaxed bg-[#171922] p-3 rounded-none border border-[#22252f]">
                   {reminderToDelete.frequency === 'monthly'
                     ? 'If your contract with this party has ended, click "End Contract" to cancel upcoming reminders and stop monthly auto-renewals.'
                     : 'Remove this obligation from your active schedule. Historical transaction entries stay safe in your ledger.'}
                 </p>
               </div>
 
-              <div className="pt-3 border-t border-white/5 flex flex-col gap-2">
+              <div className="pt-3 border-t border-[#22252f] flex flex-col gap-2">
                 {reminderToDelete.frequency === 'monthly' && onUpdateReminder && (
                   <button
                     type="button"
@@ -1116,7 +1116,7 @@ export const FreelanceRemindersView: React.FC<FreelanceRemindersViewProps> = ({
                       });
                       setReminderToDelete(null);
                     }}
-                    className="w-full py-2.5 px-4 bg-amber-500/15 hover:bg-amber-500/25 text-amber-300 border border-amber-500/30 font-semibold text-xs rounded-xl flex items-center justify-center gap-2 transition-colors cursor-pointer"
+                    className="w-full py-2.5 px-4 bg-[#2b2210] hover:bg-[#423215] text-amber-300 border border-amber-700 font-semibold text-xs rounded-none flex items-center justify-center gap-2 transition-colors cursor-pointer"
                   >
                     <CalendarX className="w-3.5 h-3.5 text-amber-400" />
                     <span>End Contract (Stop Future Renewals)</span>
@@ -1127,7 +1127,7 @@ export const FreelanceRemindersView: React.FC<FreelanceRemindersViewProps> = ({
                   <button
                     type="button"
                     onClick={() => setReminderToDelete(null)}
-                    className="flex-1 py-2.5 px-4 rounded-xl text-xs font-semibold text-zinc-400 hover:text-white bg-white/5 hover:bg-white/10 transition-colors"
+                    className="flex-1 py-2.5 px-4 rounded-none text-xs font-semibold text-zinc-400 hover:text-white bg-[#16181f] hover:bg-[#20232e] transition-colors"
                   >
                     Cancel
                   </button>
@@ -1137,7 +1137,7 @@ export const FreelanceRemindersView: React.FC<FreelanceRemindersViewProps> = ({
                       onDeleteReminder(reminderToDelete.id);
                       setReminderToDelete(null);
                     }}
-                    className="flex-1 py-2.5 px-4 rounded-xl text-xs font-semibold text-rose-300 hover:text-white bg-rose-500/15 hover:bg-rose-600 border border-rose-500/25 transition-colors flex items-center justify-center gap-1.5 cursor-pointer"
+                    className="flex-1 py-2.5 px-4 rounded-none text-xs font-semibold text-rose-300 hover:text-white bg-[#2e141a] hover:bg-rose-600 border border-rose-800 transition-colors flex items-center justify-center gap-1.5 cursor-pointer"
                   >
                     <Trash2 className="w-3.5 h-3.5" />
                     <span>Delete from List</span>
@@ -1161,15 +1161,15 @@ export const FreelanceRemindersView: React.FC<FreelanceRemindersViewProps> = ({
         const totalSettledAmount = settledHistory.reduce((sum, t) => sum + t.amount, 0);
 
         return (
-          <div className="fixed inset-0 bg-black/85 backdrop-blur-md z-50 flex items-center justify-center p-3 sm:p-4">
-            <div className="bg-[#12141a] border border-white/10 rounded-3xl w-full max-w-2xl max-h-[90vh] flex flex-col shadow-2xl animate-in fade-in zoom-in-95 overflow-hidden">
+          <div className="fixed inset-0 bg-black/85 z-50 flex items-center justify-center p-3 sm:p-4">
+            <div className="bg-[#12141a] border border-[#2c303d] rounded-none w-full max-w-2xl max-h-[90vh] flex flex-col animate-in fade-in zoom-in-95 overflow-hidden">
               {/* Header */}
-              <div className="p-5 sm:p-6 border-b border-white/10 flex items-start justify-between bg-white/[0.02]">
+              <div className="p-5 sm:p-6 border-b border-[#2c303d] flex items-start justify-between bg-[#14161c]">
                 <div className="flex items-center gap-3.5">
-                  <div className={`p-3.5 rounded-2xl border ${
+                  <div className={`p-3.5 rounded-none border ${
                     selectedReminderDetails.type === 'payable'
-                      ? 'bg-rose-500/10 border-rose-500/20 text-rose-400'
-                      : 'bg-emerald-500/10 border-emerald-500/20 text-emerald-400'
+                      ? 'bg-[#261116] border-rose-800 text-rose-400'
+                      : 'bg-[#0d241b] border-emerald-800 text-emerald-400'
                   }`}>
                     {selectedReminderDetails.type === 'payable' ? (
                       <ArrowDownLeft className="w-6 h-6" />
@@ -1189,7 +1189,7 @@ export const FreelanceRemindersView: React.FC<FreelanceRemindersViewProps> = ({
                       </span>
                       {selectedReminderDetails.status === 'ended' ? (
                         <span className="text-[10px] font-mono text-zinc-400 font-semibold flex items-center gap-1">
-                          <span className="w-1.5 h-1.5 rounded-full bg-zinc-500" />
+                          <span className="w-1.5 h-1.5 rounded-none bg-zinc-500" />
                           Contract Ended
                         </span>
                       ) : selectedReminderDetails.frequency === 'monthly' ? (
@@ -1213,15 +1213,15 @@ export const FreelanceRemindersView: React.FC<FreelanceRemindersViewProps> = ({
                 <button
                   type="button"
                   onClick={() => setSelectedReminderDetails(null)}
-                  className="p-2 text-zinc-400 hover:text-white rounded-xl bg-white/5 hover:bg-white/10 transition-colors"
+                  className="p-2 text-zinc-400 hover:text-white rounded-none bg-[#16181f] hover:bg-[#20232e] transition-colors"
                 >
                   <X className="w-4 h-4" />
                 </button>
               </div>
 
               {/* Obligation & Status Highlights */}
-              <div className="p-5 sm:p-6 border-b border-white/10 grid grid-cols-2 sm:grid-cols-3 gap-3 bg-[#0d0f14]/50">
-                <div className="bg-[#171922] p-3.5 rounded-2xl border border-white/5">
+              <div className="p-5 sm:p-6 border-b border-[#2c303d] grid grid-cols-2 sm:grid-cols-3 gap-3 bg-[#0d0f14]/50">
+                <div className="bg-[#171922] p-3.5 rounded-none border border-[#22252f]">
                   <span className="text-[10px] font-medium text-zinc-400 uppercase tracking-wider block">Current Obligation</span>
                   <div className="text-lg sm:text-xl font-bold font-mono text-white mt-1">
                     {selectedReminderDetails.amountType === 'variable' && selectedReminderDetails.amount === 0
@@ -1242,7 +1242,7 @@ export const FreelanceRemindersView: React.FC<FreelanceRemindersViewProps> = ({
                   ) : null}
                 </div>
 
-                <div className="bg-[#171922] p-3.5 rounded-2xl border border-white/5">
+                <div className="bg-[#171922] p-3.5 rounded-none border border-[#22252f]">
                   <span className="text-[10px] font-medium text-zinc-400 uppercase tracking-wider block">Status / Due Date</span>
                   <div className="text-sm sm:text-base font-bold font-mono text-white mt-1">
                     {formatDateDDMMYYYY(selectedReminderDetails.dueDate)}
@@ -1254,7 +1254,7 @@ export const FreelanceRemindersView: React.FC<FreelanceRemindersViewProps> = ({
                   </span>
                 </div>
 
-                <div className="bg-[#171922] p-3.5 rounded-2xl border border-white/5 col-span-2 sm:col-span-1">
+                <div className="bg-[#171922] p-3.5 rounded-none border border-[#22252f] col-span-2 sm:col-span-1">
                   <span className="text-[10px] font-medium text-zinc-400 uppercase tracking-wider block">All-Time Settled</span>
                   <div className="text-lg sm:text-xl font-bold font-mono text-emerald-400 mt-1">
                     {currencySymbol}{formatCash(totalSettledAmount)}
@@ -1267,7 +1267,7 @@ export const FreelanceRemindersView: React.FC<FreelanceRemindersViewProps> = ({
 
               {/* Client Contact & Notes (if available) */}
               {(selectedReminderDetails.clientEmail || selectedReminderDetails.clientPhone || selectedReminderDetails.notes) && (
-                <div className="px-5 py-3 border-b border-white/5 bg-[#14161f] text-xs text-zinc-400 flex flex-wrap gap-4 items-center">
+                <div className="px-5 py-3 border-b border-[#22252f] bg-[#14161f] text-xs text-zinc-400 flex flex-wrap gap-4 items-center">
                   {selectedReminderDetails.clientEmail && (
                     <span><strong>Email:</strong> {selectedReminderDetails.clientEmail}</span>
                   )}
@@ -1281,7 +1281,7 @@ export const FreelanceRemindersView: React.FC<FreelanceRemindersViewProps> = ({
               )}
 
               {/* Quick Actions Bar */}
-              <div className="px-5 py-3 border-b border-white/5 flex items-center justify-between gap-2 bg-[#12141a]">
+              <div className="px-5 py-3 border-b border-[#22252f] flex items-center justify-between gap-2 bg-[#12141a]">
                 <div className="text-xs text-zinc-400 font-medium">
                   Past Settled Transactions <span className="font-mono text-zinc-500">({settledHistory.length})</span>
                 </div>
@@ -1294,7 +1294,7 @@ export const FreelanceRemindersView: React.FC<FreelanceRemindersViewProps> = ({
                         setSelectedReminderDetails(null);
                         openCollectModal(r);
                       }}
-                      className="px-3 py-1.5 text-xs rounded-xl bg-emerald-500/15 hover:bg-emerald-500/25 text-emerald-300 border border-emerald-500/30 flex items-center gap-1.5 transition-colors font-medium cursor-pointer"
+                      className="px-3 py-1.5 text-xs rounded-none bg-[#0f2b20] hover:bg-[#163d2e] text-emerald-300 border border-emerald-700 flex items-center gap-1.5 transition-colors font-medium cursor-pointer"
                     >
                       <CheckCircle2 className="w-3.5 h-3.5" />
                       <span>{selectedReminderDetails.type === 'payable' ? 'Mark as Paid' : 'Collect Payment'}</span>
@@ -1305,7 +1305,7 @@ export const FreelanceRemindersView: React.FC<FreelanceRemindersViewProps> = ({
                       href={getWhatsAppReminderUrl(selectedReminderDetails, settings)}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="px-3 py-1.5 text-xs rounded-xl bg-emerald-500/15 hover:bg-emerald-500/25 text-emerald-400 border border-emerald-500/30 flex items-center gap-1.5 transition-colors font-medium cursor-pointer"
+                      className="px-3 py-1.5 text-xs rounded-none bg-[#0f2b20] hover:bg-[#163d2e] text-emerald-400 border border-emerald-700 flex items-center gap-1.5 transition-colors font-medium cursor-pointer"
                     >
                       <MessageSquare className="w-3.5 h-3.5" />
                       <span>WhatsApp</span>
@@ -1318,7 +1318,7 @@ export const FreelanceRemindersView: React.FC<FreelanceRemindersViewProps> = ({
                       setSelectedReminderDetails(null);
                       onEditReminder(r);
                     }}
-                    className="px-3 py-1.5 text-xs rounded-xl bg-white/5 hover:bg-white/10 text-zinc-300 border border-white/10 flex items-center gap-1.5 transition-colors font-medium cursor-pointer"
+                    className="px-3 py-1.5 text-xs rounded-none bg-[#16181f] hover:bg-[#20232e] text-zinc-300 border border-[#2c303d] flex items-center gap-1.5 transition-colors font-medium cursor-pointer"
                   >
                     <Pencil className="w-3 h-3" />
                     <span>Edit</span>
@@ -1341,14 +1341,14 @@ export const FreelanceRemindersView: React.FC<FreelanceRemindersViewProps> = ({
                     return (
                       <div
                         key={tx.id}
-                        className="p-3 bg-[#171922] hover:bg-[#1a1e29] border border-white/5 rounded-2xl flex items-center justify-between gap-3 transition-colors"
+                        className="p-3 bg-[#171922] hover:bg-[#1a1e29] border border-[#22252f] rounded-none flex items-center justify-between gap-3 transition-colors"
                       >
                         <div className="flex items-center gap-3 min-w-0">
                           <div
-                            className={`p-2 rounded-xl border flex-shrink-0 ${
+                            className={`p-2 rounded-none border flex-shrink-0 ${
                               isCredit
-                                ? 'bg-emerald-500/10 border-emerald-500/20 text-emerald-400'
-                                : 'bg-rose-500/10 border-rose-500/20 text-rose-400'
+                                ? 'bg-[#0d241b] border-emerald-800 text-emerald-400'
+                                : 'bg-[#261116] border-rose-800 text-rose-400'
                             }`}
                           >
                             {isCredit ? (
@@ -1394,11 +1394,11 @@ export const FreelanceRemindersView: React.FC<FreelanceRemindersViewProps> = ({
               </div>
 
               {/* Modal Footer */}
-              <div className="p-4 border-t border-white/5 bg-[#0d0f14]/50 flex justify-end">
+              <div className="p-4 border-t border-[#22252f] bg-[#0d0f14]/50 flex justify-end">
                 <button
                   type="button"
                   onClick={() => setSelectedReminderDetails(null)}
-                  className="px-5 py-2 rounded-xl text-xs font-semibold text-white bg-white/10 hover:bg-white/15 transition-colors cursor-pointer"
+                  className="px-5 py-2 rounded-none text-xs font-semibold text-white bg-[#20232e] hover:bg-[#262a37] transition-colors cursor-pointer"
                 >
                   Done
                 </button>

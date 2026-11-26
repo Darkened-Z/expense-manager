@@ -94,12 +94,12 @@ export const TransferModal: React.FC<TransferModalProps> = ({
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm animate-in fade-in duration-150">
-      <div className="bg-[#12141a] border border-white/10 rounded-2xl w-full max-w-md overflow-hidden shadow-2xl">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 animate-in fade-in duration-150">
+      <div className="bg-[#12141a] border border-[#2c303d] rounded-none w-full max-w-md overflow-hidden">
         {/* Header */}
-        <div className="flex items-center justify-between p-5 border-b border-white/5">
+        <div className="flex items-center justify-between p-5 border-b border-[#22252f]">
           <div className="flex items-center gap-2.5">
-            <div className="p-2 rounded-xl bg-sky-500/15 border border-sky-500/20 text-sky-400">
+            <div className="p-2 rounded-none bg-[#132638] border border-sky-800 text-sky-400">
               <ArrowLeftRight className="w-4 h-4" />
             </div>
             <div>
@@ -109,7 +109,7 @@ export const TransferModal: React.FC<TransferModalProps> = ({
           </div>
           <button
             onClick={onClose}
-            className="p-1.5 rounded-lg text-zinc-400 hover:text-white hover:bg-white/5 transition-colors"
+            className="p-1.5 rounded-none text-zinc-400 hover:text-white hover:bg-[#16181f] transition-colors"
           >
             <X className="w-4 h-4" />
           </button>
@@ -118,7 +118,7 @@ export const TransferModal: React.FC<TransferModalProps> = ({
         {/* Transfer Visual Preview */}
         {fromWallet && toWallet && (
           <div className="px-5 pt-4 pb-1">
-            <div className="flex items-center justify-between p-3 rounded-xl bg-white/[0.02] border border-white/5 text-xs">
+            <div className="flex items-center justify-between p-3 rounded-none bg-[#14161c] border border-[#22252f] text-xs">
               <div className="min-w-0">
                 <span className="text-[10px] text-zinc-500 uppercase tracking-wider block">From</span>
                 <span className="font-semibold text-zinc-200 truncate block">{fromWallet.name}</span>
@@ -126,7 +126,7 @@ export const TransferModal: React.FC<TransferModalProps> = ({
                   {currencySymbol}{formatCash(fromWallet.balance)}
                 </span>
               </div>
-              <div className="p-1.5 rounded-full bg-white/5 text-zinc-400">
+              <div className="p-1.5 rounded-none bg-[#16181f] text-zinc-400">
                 <ArrowRight className="w-3.5 h-3.5" />
               </div>
               <div className="min-w-0 text-right">
@@ -143,7 +143,7 @@ export const TransferModal: React.FC<TransferModalProps> = ({
         {/* Form Body */}
         <form onSubmit={handleSubmit} className="p-5 space-y-4">
           {error && (
-            <div className="p-3 rounded-xl bg-rose-500/10 border border-rose-500/20 text-rose-300 text-xs flex items-center gap-2">
+            <div className="p-3 rounded-none bg-[#261116] border border-rose-800 text-rose-300 text-xs flex items-center gap-2">
               <AlertCircle className="w-4 h-4 shrink-0 text-rose-400" />
               <span>{error}</span>
             </div>
@@ -156,7 +156,7 @@ export const TransferModal: React.FC<TransferModalProps> = ({
               <select
                 value={fromWalletId}
                 onChange={(e) => setFromWalletId(e.target.value)}
-                className="w-full bg-[#181b23] text-xs text-zinc-200 border border-white/10 rounded-xl px-3 py-2.5 focus:outline-none focus:border-white/30"
+                className="w-full bg-[#181b23] text-xs text-zinc-200 border border-[#2c303d] rounded-none px-3 py-2.5 focus:outline-none focus:border-[#52596e]"
               >
                 {wallets.map((w) => (
                   <option key={w.id} value={w.id}>
@@ -171,7 +171,7 @@ export const TransferModal: React.FC<TransferModalProps> = ({
               <select
                 value={toWalletId}
                 onChange={(e) => setToWalletId(e.target.value)}
-                className="w-full bg-[#181b23] text-xs text-zinc-200 border border-white/10 rounded-xl px-3 py-2.5 focus:outline-none focus:border-white/30"
+                className="w-full bg-[#181b23] text-xs text-zinc-200 border border-[#2c303d] rounded-none px-3 py-2.5 focus:outline-none focus:border-[#52596e]"
               >
                 {wallets.map((w) => (
                   <option key={w.id} value={w.id} disabled={w.id === fromWalletId}>
@@ -198,7 +198,7 @@ export const TransferModal: React.FC<TransferModalProps> = ({
                 placeholder="0"
                 value={amount}
                 onChange={(e) => setAmount(e.target.value)}
-                className="w-full bg-[#181b23] text-white font-mono text-base font-bold pl-3.5 pr-14 py-2.5 rounded-xl border border-white/10 focus:outline-none focus:border-white/30"
+                className="w-full bg-[#181b23] text-white font-mono text-base font-bold pl-3.5 pr-14 py-2.5 rounded-none border border-[#2c303d] focus:outline-none focus:border-[#52596e]"
                 autoFocus
                 required
               />
@@ -214,7 +214,7 @@ export const TransferModal: React.FC<TransferModalProps> = ({
             <DateInputDDMMYYYY
               value={date}
               onChange={setDate}
-              className="w-full bg-[#181b23] text-xs text-zinc-200 px-3.5 py-2 rounded-xl border border-white/10 focus:outline-none focus:border-white/30"
+              className="w-full bg-[#181b23] text-xs text-zinc-200 px-3.5 py-2 rounded-none border border-[#2c303d] focus:outline-none focus:border-[#52596e]"
               required
             />
           </div>
@@ -227,12 +227,12 @@ export const TransferModal: React.FC<TransferModalProps> = ({
               placeholder="e.g. ATM cash withdrawal, Raast transfer to bank"
               value={notes}
               onChange={(e) => setNotes(e.target.value)}
-              className="w-full bg-[#181b23] text-xs text-zinc-200 placeholder-zinc-500 px-3.5 py-2 rounded-xl border border-white/10 focus:outline-none focus:border-white/30"
+              className="w-full bg-[#181b23] text-xs text-zinc-200 placeholder-zinc-500 px-3.5 py-2 rounded-none border border-[#2c303d] focus:outline-none focus:border-[#52596e]"
             />
           </div>
 
           {/* Info Banner */}
-          <div className="p-3 rounded-xl bg-white/[0.03] border border-white/5 text-[11px] text-zinc-400 space-y-1">
+          <div className="p-3 rounded-none bg-[#15171e] border border-[#22252f] text-[11px] text-zinc-400 space-y-1">
             <div className="font-semibold text-zinc-300">No impact on Income or Expense totals:</div>
             <div>Transfers reallocate your cash between accounts without distorting your freelance profit or monthly spending statistics.</div>
           </div>
@@ -242,13 +242,13 @@ export const TransferModal: React.FC<TransferModalProps> = ({
             <button
               type="button"
               onClick={onClose}
-              className="px-4 py-2 rounded-xl text-xs font-medium text-zinc-400 hover:text-white bg-transparent hover:bg-white/5 transition-colors"
+              className="px-4 py-2 rounded-none text-xs font-medium text-zinc-400 hover:text-white bg-transparent hover:bg-[#16181f] transition-colors"
             >
               Cancel
             </button>
             <button
               type="submit"
-              className="px-5 py-2 rounded-xl text-xs font-semibold text-zinc-950 bg-white hover:bg-zinc-200 transition-colors shadow-sm flex items-center gap-1.5"
+              className="px-5 py-2 rounded-none text-xs font-semibold text-zinc-950 bg-white hover:bg-zinc-200 transition-colors flex items-center gap-1.5"
             >
               <ArrowLeftRight className="w-3.5 h-3.5" />
               <span>Confirm Transfer</span>

@@ -46,10 +46,17 @@ body {
 }
 ::-webkit-scrollbar-thumb {
   background: #202229;
-  border-radius: 9999px;
+  border-radius: 0px;
 }
 ::-webkit-scrollbar-thumb:hover {
   background: #2e323c;
+}
+
+/* Enforce strict 0px radius UI across all elements */
+*,
+*::before,
+*::after {
+  border-radius: 0px !important;
 }
 
 /* Hide Next.js dev toast / route announcer that blocks the mobile bottom nav */

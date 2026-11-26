@@ -44,7 +44,7 @@ export const TransactionOverviewChart: React.FC<TransactionOverviewChartProps> =
   const maxValue = Math.max(...monthlyData.map((d) => d.value), 100);
 
   return (
-    <div className="bg-[#12141a] border border-white/5 rounded-2xl p-4 sm:p-6 shadow-xl flex flex-col justify-between max-w-full overflow-hidden">
+    <div className="bg-[#12141a] border border-[#22252f] rounded-none p-4 sm:p-6 flex flex-col justify-between max-w-full overflow-hidden">
       {/* Header Controls */}
       <div className="flex items-center justify-between mb-4 sm:mb-6">
         <div>
@@ -57,7 +57,7 @@ export const TransactionOverviewChart: React.FC<TransactionOverviewChartProps> =
           <div className="relative">
             <button
               onClick={() => setShowTypeDropdown(!showTypeDropdown)}
-              className="flex items-center gap-1.5 bg-[#181b23] hover:bg-[#1f232e] border border-white/10 px-2.5 py-1 rounded-lg text-xs font-medium text-zinc-300 transition-colors"
+              className="flex items-center gap-1.5 bg-[#181b23] hover:bg-[#1f232e] border border-[#2c303d] px-2.5 py-1 rounded-none text-xs font-medium text-zinc-300 transition-colors"
             >
               <span className="text-white font-medium">
                 {chartType === 'expense' ? 'Expenses' : chartType === 'income' ? 'Income' : 'Added Money'}
@@ -66,13 +66,13 @@ export const TransactionOverviewChart: React.FC<TransactionOverviewChartProps> =
             </button>
 
             {showTypeDropdown && (
-              <div className="absolute right-0 mt-1.5 w-32 bg-[#181b23] border border-white/10 rounded-xl shadow-xl py-1 z-20">
+              <div className="absolute right-0 mt-1.5 w-32 bg-[#181b23] border border-[#2c303d] rounded-none py-1 z-20">
                 <button
                   onClick={() => {
                     setChartType('expense');
                     setShowTypeDropdown(false);
                   }}
-                  className={`w-full text-left px-3 py-1.5 text-xs ${chartType === 'expense' ? 'text-white font-semibold bg-white/5' : 'text-zinc-300'}`}
+                  className={`w-full text-left px-3 py-1.5 text-xs ${chartType === 'expense' ? 'text-white font-semibold bg-[#16181f]' : 'text-zinc-300'}`}
                 >
                   Expenses
                 </button>
@@ -81,7 +81,7 @@ export const TransactionOverviewChart: React.FC<TransactionOverviewChartProps> =
                     setChartType('income');
                     setShowTypeDropdown(false);
                   }}
-                  className={`w-full text-left px-3 py-1.5 text-xs ${chartType === 'income' ? 'text-white font-semibold bg-white/5' : 'text-zinc-300'}`}
+                  className={`w-full text-left px-3 py-1.5 text-xs ${chartType === 'income' ? 'text-white font-semibold bg-[#16181f]' : 'text-zinc-300'}`}
                 >
                   Income
                 </button>
@@ -90,7 +90,7 @@ export const TransactionOverviewChart: React.FC<TransactionOverviewChartProps> =
                     setChartType('deposit');
                     setShowTypeDropdown(false);
                   }}
-                  className={`w-full text-left px-3 py-1.5 text-xs ${chartType === 'deposit' ? 'text-white font-semibold bg-white/5' : 'text-zinc-300'}`}
+                  className={`w-full text-left px-3 py-1.5 text-xs ${chartType === 'deposit' ? 'text-white font-semibold bg-[#16181f]' : 'text-zinc-300'}`}
                 >
                   Added Money
                 </button>
@@ -115,7 +115,7 @@ export const TransactionOverviewChart: React.FC<TransactionOverviewChartProps> =
           {/* Tooltip */}
           {hoveredIndex !== null && (
             <div
-              className="absolute -top-3 bg-zinc-900 border border-white/15 px-2.5 py-1 rounded-lg text-xs shadow-2xl pointer-events-none transform -translate-x-1/2 z-20"
+              className="absolute -top-3 bg-zinc-900 border border-[#353a4a] px-2.5 py-1 rounded-none text-xs pointer-events-none transform -translate-x-1/2 z-20"
               style={{
                 left: `${(hoveredIndex / 11) * 90 + 5}%`,
               }}
@@ -139,16 +139,16 @@ export const TransactionOverviewChart: React.FC<TransactionOverviewChartProps> =
                 onMouseLeave={() => setHoveredIndex(null)}
               >
                 {/* Bar */}
-                <div className="w-full max-w-[18px] bg-white/5 rounded-t-lg relative flex items-end justify-center overflow-hidden h-full">
+                <div className="w-full max-w-[18px] bg-[#16181f] rounded-none relative flex items-end justify-center overflow-hidden h-full">
                   <div
-                    className={`w-full rounded-t-lg transition-all duration-300 ${
+                    className={`w-full rounded-none transition-all duration-300 ${
                       chartType === 'expense'
                         ? isSelected
                           ? 'bg-rose-400'
-                          : 'bg-rose-500/80 group-hover:bg-rose-400'
+                          : 'bg-rose-600 group-hover:bg-rose-400'
                         : isSelected
                         ? 'bg-emerald-400'
-                        : 'bg-emerald-500/80 group-hover:bg-emerald-400'
+                        : 'bg-emerald-600 group-hover:bg-emerald-400'
                     }`}
                     style={{ height: `${heightPercent}%` }}
                   />

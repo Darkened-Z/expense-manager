@@ -144,18 +144,18 @@ export const PasscodeLockModal: React.FC<PasscodeLockModalProps> = ({
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 bg-black/90 backdrop-blur-xl z-50 flex items-center justify-center p-4">
+    <div className="fixed inset-0 bg-black/90 z-50 flex items-center justify-center p-4">
       <div
-        className={`bg-[#12141a] border border-white/10 rounded-3xl w-full max-w-sm p-8 shadow-2xl text-center transition-all ${
+        className={`bg-[#12141a] border border-[#2c303d] rounded-none w-full max-w-sm p-8 text-center transition-all ${
           shake ? 'animate-shake' : ''
         }`}
       >
         {/* Logo Badge with Lock Indicator */}
         <div className="relative w-16 h-16 mx-auto mb-4">
-          <div className="w-16 h-16 rounded-2xl overflow-hidden border border-white/15 shadow-xl bg-white/5">
+          <div className="w-16 h-16 rounded-none overflow-hidden border border-[#353a4a] bg-[#16181f]">
             <img src="/logo.png" alt="Expense Manager" className="w-full h-full object-cover" />
           </div>
-          <div className="absolute -bottom-1 -right-1 w-6 h-6 rounded-lg bg-zinc-900 border border-white/20 flex items-center justify-center text-zinc-200 shadow-md">
+          <div className="absolute -bottom-1 -right-1 w-6 h-6 rounded-none bg-zinc-900 border border-[#3f4557] flex items-center justify-center text-zinc-200">
             {step === 'enter' ? <Lock className="w-3.5 h-3.5" /> : <KeyRound className="w-3.5 h-3.5" />}
           </div>
         </div>
@@ -183,10 +183,10 @@ export const PasscodeLockModal: React.FC<PasscodeLockModalProps> = ({
             return (
               <div
                 key={idx}
-                className={`w-4 h-4 rounded-full transition-all duration-200 ${
+                className={`w-4 h-4 rounded-none transition-all duration-200 ${
                   isFilled
-                    ? 'bg-white scale-110 shadow-sm'
-                    : 'bg-zinc-800 border border-white/10'
+                    ? 'bg-white scale-110'
+                    : 'bg-zinc-800 border border-[#2c303d]'
                 }`}
               />
             );
@@ -208,7 +208,7 @@ export const PasscodeLockModal: React.FC<PasscodeLockModalProps> = ({
               key={digit}
               type="button"
               onClick={() => handleKeyPress(digit)}
-              className="w-16 h-16 rounded-2xl bg-[#181a22] hover:bg-[#222530] active:scale-95 text-lg font-semibold text-zinc-100 font-mono border border-white/5 transition-all flex items-center justify-center cursor-pointer shadow-sm"
+              className="w-16 h-16 rounded-none bg-[#181a22] hover:bg-[#222530] active:scale-95 text-lg font-semibold text-zinc-100 font-mono border border-[#22252f] transition-all flex items-center justify-center cursor-pointer"
             >
               {digit}
             </button>
@@ -221,7 +221,7 @@ export const PasscodeLockModal: React.FC<PasscodeLockModalProps> = ({
               onClick={triggerBiometricAuth}
               title="Unlock with Biometrics (Touch ID / Face ID)"
               disabled={isBiometricChecking}
-              className="w-16 h-16 rounded-2xl bg-emerald-500/15 hover:bg-emerald-500/25 active:scale-95 text-emerald-400 border border-emerald-500/30 flex items-center justify-center cursor-pointer shadow-sm transition-all"
+              className="w-16 h-16 rounded-none bg-[#0f2b20] hover:bg-[#163d2e] active:scale-95 text-emerald-400 border border-emerald-700 flex items-center justify-center cursor-pointer transition-all"
             >
               {isBiometricChecking ? (
                 <RefreshCw className="w-5 h-5 animate-spin" />
@@ -233,7 +233,7 @@ export const PasscodeLockModal: React.FC<PasscodeLockModalProps> = ({
             <button
               type="button"
               onClick={handleClear}
-              className="w-16 h-16 rounded-2xl bg-[#14161d] hover:bg-[#1a1d25] text-xs font-medium text-zinc-400 border border-white/5 flex items-center justify-center cursor-pointer"
+              className="w-16 h-16 rounded-none bg-[#14161d] hover:bg-[#1a1d25] text-xs font-medium text-zinc-400 border border-[#22252f] flex items-center justify-center cursor-pointer"
             >
               Clear
             </button>
@@ -242,7 +242,7 @@ export const PasscodeLockModal: React.FC<PasscodeLockModalProps> = ({
           <button
             type="button"
             onClick={() => handleKeyPress('0')}
-            className="w-16 h-16 rounded-2xl bg-[#181a22] hover:bg-[#222530] active:scale-95 text-lg font-semibold text-zinc-100 font-mono border border-white/5 flex items-center justify-center cursor-pointer shadow-sm"
+            className="w-16 h-16 rounded-none bg-[#181a22] hover:bg-[#222530] active:scale-95 text-lg font-semibold text-zinc-100 font-mono border border-[#22252f] flex items-center justify-center cursor-pointer"
           >
             0
           </button>
@@ -250,7 +250,7 @@ export const PasscodeLockModal: React.FC<PasscodeLockModalProps> = ({
           <button
             type="button"
             onClick={handleDelete}
-            className="w-16 h-16 rounded-2xl bg-[#14161d] hover:bg-[#1a1d25] text-xs font-medium text-zinc-400 border border-white/5 flex items-center justify-center cursor-pointer"
+            className="w-16 h-16 rounded-none bg-[#14161d] hover:bg-[#1a1d25] text-xs font-medium text-zinc-400 border border-[#22252f] flex items-center justify-center cursor-pointer"
           >
             Del
           </button>
@@ -262,7 +262,7 @@ export const PasscodeLockModal: React.FC<PasscodeLockModalProps> = ({
             type="button"
             onClick={triggerBiometricAuth}
             disabled={isBiometricChecking}
-            className="mt-5 w-full flex items-center justify-center gap-2 py-3 px-4 rounded-2xl bg-emerald-500/10 hover:bg-emerald-500/20 border border-emerald-500/25 text-emerald-400 text-xs font-semibold transition-all active:scale-98 cursor-pointer shadow-sm"
+            className="mt-5 w-full flex items-center justify-center gap-2 py-3 px-4 rounded-none bg-[#0d241b] hover:bg-[#123326] border border-emerald-700 text-emerald-400 text-xs font-semibold transition-all active:scale-98 cursor-pointer"
           >
             {isBiometricChecking ? (
               <RefreshCw className="w-4 h-4 animate-spin" />

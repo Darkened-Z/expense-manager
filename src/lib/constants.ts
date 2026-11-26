@@ -7,7 +7,7 @@ export const DEFAULT_CATEGORIES: Category[] = [
   { id: 'cat-hardware', name: 'Tech & Hardware', icon: 'Laptop', color: '#3b82f6', type: 'expense', budgetLimit: 0 },
   { id: 'cat-food', name: 'Groceries & Dining', icon: 'Coffee', color: '#f59e0b', type: 'expense', budgetLimit: 0 },
   { id: 'cat-travel', name: 'Transport & Travel', icon: 'Car', color: '#06b6d4', type: 'expense', budgetLimit: 0 },
-  { id: 'cat-utilities', name: 'Utilities & Bills', icon: 'Zap', color: '#6366f1', type: 'expense', budgetLimit: 0 },
+  { id: 'cat-utilities', name: 'Utilities & Bills', icon: 'Receipt', color: '#6366f1', type: 'expense', budgetLimit: 0 },
   { id: 'cat-marketing', name: 'Marketing & Domains', icon: 'Globe', color: '#ec4899', type: 'expense', budgetLimit: 0 },
   { id: 'cat-taxes', name: 'Taxes & Accounting', icon: 'FileText', color: '#ef4444', type: 'expense', budgetLimit: 0 },
   { id: 'cat-misc', name: 'Miscellaneous', icon: 'ShoppingBag', color: '#64748b', type: 'expense', budgetLimit: 0 },
@@ -16,7 +16,7 @@ export const DEFAULT_CATEGORIES: Category[] = [
   // Income Sources
   { id: 'inc-freelance', name: 'Client Project Work', icon: 'Briefcase', color: '#10b981', type: 'income' },
   { id: 'inc-retainer', name: 'Monthly Client Retainer', icon: 'Repeat', color: '#14b8a6', type: 'income' },
-  { id: 'inc-consulting', name: 'Consulting & Advisory', icon: 'Sparkles', color: '#8b5cf6', type: 'income' },
+  { id: 'inc-consulting', name: 'Consulting & Advisory', icon: 'Briefcase', color: '#8b5cf6', type: 'income' },
   { id: 'inc-salary', name: 'Salary & Direct Deposit', icon: 'DollarSign', color: '#22c55e', type: 'income' },
   { id: 'inc-investments', name: 'Investments & Dividends', icon: 'TrendingUp', color: '#0ea5e9', type: 'income' },
   { id: 'inc-sidehustle', name: 'Digital Products & Sales', icon: 'Box', color: '#ea580c', type: 'income' },

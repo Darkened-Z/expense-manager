@@ -8,10 +8,10 @@ import {
   ShieldCheck,
   AlertTriangle,
   ArrowRight,
-  Flame,
+  Activity,
   Wallet as WalletIcon,
   Clock,
-  Sparkles,
+  CheckCircle2,
 } from 'lucide-react';
 import { Wallet, Transaction, PaymentReminder } from '@/types';
 import { calculateRunwayForecast } from '@/lib/forecast';
@@ -59,7 +59,7 @@ export const CashflowRunwaySection: React.FC<CashflowRunwaySectionProps> = ({
       default:
         return (
           <span className="inline-flex items-center gap-1.5 text-xs font-semibold text-emerald-400">
-            <Sparkles className="w-3.5 h-3.5" />
+            <CheckCircle2 className="w-3.5 h-3.5" />
             <span>Abundant Runway (90+ Days)</span>
           </span>
         );
@@ -73,18 +73,18 @@ export const CashflowRunwaySection: React.FC<CashflowRunwaySectionProps> = ({
   ];
 
   return (
-    <div className="bg-[#12141a] border border-white/5 rounded-2xl p-4 sm:p-6 shadow-xl space-y-6 max-w-full overflow-hidden">
+    <div className="bg-[#12141a] border border-[#22252f] rounded-none p-4 sm:p-6 space-y-6 max-w-full overflow-hidden">
       {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-white/5 pb-4">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-[#22252f] pb-4">
         <div className="flex items-center gap-3">
-          <div className="p-2.5 rounded-xl bg-white/5 text-zinc-300 border border-white/5 shrink-0">
+          <div className="p-2.5 rounded-none bg-[#16181f] text-zinc-300 border border-[#22252f] shrink-0">
             <Calendar className="w-5 h-5 text-emerald-400" />
           </div>
           <div>
             <div className="flex items-center gap-2 flex-wrap">
               <h3 className="font-bold text-white text-base">Cashflow Forecast & Runway</h3>
               <span className="text-[10px] text-zinc-400 font-mono font-medium flex items-center gap-1">
-                <span className="w-1.5 h-1.5 rounded-full bg-emerald-400" />
+                <span className="w-1.5 h-1.5 rounded-none bg-emerald-400" />
                 Predictive
               </span>
             </div>
@@ -101,7 +101,7 @@ export const CashflowRunwaySection: React.FC<CashflowRunwaySectionProps> = ({
 
       {/* Burn Rate & Cash Summary Bar */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 max-w-full">
-        <div className="p-3.5 rounded-xl bg-[#161821] border border-white/5 min-w-0 overflow-hidden">
+        <div className="p-3.5 rounded-none bg-[#161821] border border-[#22252f] min-w-0 overflow-hidden">
           <div className="text-[11px] text-zinc-400 flex items-center gap-1.5 truncate">
             <WalletIcon className="w-3.5 h-3.5 text-zinc-400 shrink-0" />
             <span className="truncate">Current Liquidity</span>
@@ -111,9 +111,9 @@ export const CashflowRunwaySection: React.FC<CashflowRunwaySectionProps> = ({
           </div>
         </div>
 
-        <div className="p-3.5 rounded-xl bg-[#161821] border border-white/5 min-w-0 overflow-hidden">
+        <div className="p-3.5 rounded-none bg-[#161821] border border-[#22252f] min-w-0 overflow-hidden">
           <div className="text-[11px] text-zinc-400 flex items-center gap-1.5 truncate">
-            <Flame className="w-3.5 h-3.5 text-amber-400 shrink-0" />
+            <Activity className="w-3.5 h-3.5 text-amber-400 shrink-0" />
             <span className="truncate">Daily Burn Rate</span>
           </div>
           <div className="text-base sm:text-lg font-mono font-bold text-amber-400 mt-1 truncate">
@@ -122,7 +122,7 @@ export const CashflowRunwaySection: React.FC<CashflowRunwaySectionProps> = ({
           </div>
         </div>
 
-        <div className="p-3.5 rounded-xl bg-[#161821] border border-white/5 min-w-0 overflow-hidden">
+        <div className="p-3.5 rounded-none bg-[#161821] border border-[#22252f] min-w-0 overflow-hidden">
           <div className="text-[11px] text-zinc-400 flex items-center gap-1.5 truncate">
             <Clock className="w-3.5 h-3.5 text-zinc-400 shrink-0" />
             <span className="truncate">Estimated Runway</span>
@@ -132,7 +132,7 @@ export const CashflowRunwaySection: React.FC<CashflowRunwaySectionProps> = ({
           </div>
         </div>
 
-        <div className="p-3.5 rounded-xl bg-[#161821] border border-white/5 min-w-0 overflow-hidden">
+        <div className="p-3.5 rounded-none bg-[#161821] border border-[#22252f] min-w-0 overflow-hidden">
           <div className="text-[11px] text-zinc-400 flex items-center gap-1.5 truncate">
             <TrendingUp className="w-3.5 h-3.5 text-emerald-400 shrink-0" />
             <span className="truncate">Adjusted Runway</span>
@@ -150,7 +150,7 @@ export const CashflowRunwaySection: React.FC<CashflowRunwaySectionProps> = ({
           return (
             <div
               key={p.days}
-              className="p-4 rounded-2xl bg-[#161821] border border-white/5 flex flex-col justify-between space-y-4 hover:border-white/10 transition-colors"
+              className="p-4 rounded-none bg-[#161821] border border-[#22252f] flex flex-col justify-between space-y-4 hover:border-[#2c303d] transition-colors"
             >
               <div>
                 <div className="flex items-center justify-between">
@@ -175,7 +175,7 @@ export const CashflowRunwaySection: React.FC<CashflowRunwaySectionProps> = ({
               </div>
 
               {/* Waterfall items */}
-              <div className="space-y-1.5 pt-3 border-t border-white/5 text-xs">
+              <div className="space-y-1.5 pt-3 border-t border-[#22252f] text-xs">
                 <div className="flex items-center justify-between text-zinc-400">
                   <span className="flex items-center gap-1 text-[11px]">
                     <TrendingUp className="w-3 h-3 text-emerald-400" />
@@ -198,7 +198,7 @@ export const CashflowRunwaySection: React.FC<CashflowRunwaySectionProps> = ({
 
                 <div className="flex items-center justify-between text-zinc-400">
                   <span className="flex items-center gap-1 text-[11px]">
-                    <Flame className="w-3 h-3 text-amber-400" />
+                    <Activity className="w-3 h-3 text-amber-400" />
                     <span>Est. Living & Op Burn</span>
                   </span>
                   <span className="font-mono text-amber-400">
@@ -206,7 +206,7 @@ export const CashflowRunwaySection: React.FC<CashflowRunwaySectionProps> = ({
                   </span>
                 </div>
 
-                <div className="flex items-center justify-between pt-1 border-t border-white/5 font-semibold text-xs">
+                <div className="flex items-center justify-between pt-1 border-t border-[#22252f] font-semibold text-xs">
                   <span className="text-zinc-300">Net Delta vs Today</span>
                   <span
                     className={`font-mono ${

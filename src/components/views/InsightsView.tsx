@@ -1,7 +1,7 @@
 'use client';
 
 import React from 'react';
-import { Sparkles, TrendingUp, TrendingDown, Target, ShieldCheck, DollarSign, PieChart, Users } from 'lucide-react';
+import { TrendingUp, TrendingDown, Target, ShieldCheck, DollarSign, PieChart, Users } from 'lucide-react';
 import { Transaction, PaymentReminder, Category, Wallet } from '@/types';
 import { formatCash, formatCurrency } from '@/lib/formatters';
 import { CashflowRunwaySection } from '@/components/dashboard/CashflowRunwaySection';
@@ -97,7 +97,7 @@ export const InsightsView: React.FC<InsightsViewProps> = ({
     <div className="space-y-6">
       {/* Top Health Metrics */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <div className="bg-[#12141a] border border-white/5 rounded-2xl p-5 shadow-xl">
+        <div className="bg-[#12141a] border border-[#22252f] rounded-none p-5">
           <div className="flex items-center justify-between text-xs text-zinc-400">
             <span>Net Freelance Profit</span>
             <TrendingUp className="w-4 h-4 text-zinc-400" />
@@ -110,7 +110,7 @@ export const InsightsView: React.FC<InsightsViewProps> = ({
           </div>
         </div>
 
-        <div className="bg-[#12141a] border border-white/5 rounded-2xl p-5 shadow-xl">
+        <div className="bg-[#12141a] border border-[#22252f] rounded-none p-5">
           <div className="flex items-center justify-between text-xs text-zinc-400">
             <span>Average Expense per Transaction</span>
             <TrendingDown className="w-4 h-4 text-zinc-400" />
@@ -123,7 +123,7 @@ export const InsightsView: React.FC<InsightsViewProps> = ({
           </div>
         </div>
 
-        <div className="bg-[#12141a] border border-white/5 rounded-2xl p-5 shadow-xl">
+        <div className="bg-[#12141a] border border-[#22252f] rounded-none p-5">
           <div className="flex items-center justify-between text-xs text-zinc-400">
             <span>Financial Runway Score</span>
             <ShieldCheck className="w-4 h-4 text-zinc-400" />
@@ -145,8 +145,8 @@ export const InsightsView: React.FC<InsightsViewProps> = ({
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Category Breakdown */}
-        <div className="bg-[#12141a] border border-white/5 rounded-2xl p-6 shadow-xl space-y-4">
-          <div className="flex items-center justify-between border-b border-white/5 pb-3">
+        <div className="bg-[#12141a] border border-[#22252f] rounded-none p-6 space-y-4">
+          <div className="flex items-center justify-between border-b border-[#22252f] pb-3">
             <h3 className="text-sm font-bold text-white flex items-center gap-2">
               <PieChart className="w-4 h-4 text-zinc-400" />
               <span>Spending Breakdown by Category</span>
@@ -169,9 +169,9 @@ export const InsightsView: React.FC<InsightsViewProps> = ({
                       <span className="text-zinc-500 font-normal">({cat.percentage.toFixed(1)}%)</span>
                     </span>
                   </div>
-                  <div className="w-full h-1.5 bg-white/5 rounded-full overflow-hidden">
+                  <div className="w-full h-1.5 bg-[#16181f] rounded-none overflow-hidden">
                     <div
-                      className="h-full rounded-full transition-all duration-300"
+                      className="h-full rounded-none transition-all duration-300"
                       style={{
                         width: `${cat.percentage}%`,
                         backgroundColor: cat.color,
@@ -185,8 +185,8 @@ export const InsightsView: React.FC<InsightsViewProps> = ({
         </div>
 
         {/* Top Clients by Revenue */}
-        <div className="bg-[#12141a] border border-white/5 rounded-2xl p-6 shadow-xl space-y-4">
-          <div className="flex items-center justify-between border-b border-white/5 pb-3">
+        <div className="bg-[#12141a] border border-[#22252f] rounded-none p-6 space-y-4">
+          <div className="flex items-center justify-between border-b border-[#22252f] pb-3">
             <h3 className="text-sm font-bold text-white flex items-center gap-2">
               <Users className="w-4 h-4 text-zinc-400" />
               <span>Top Freelance Clients by Revenue</span>
@@ -205,10 +205,10 @@ export const InsightsView: React.FC<InsightsViewProps> = ({
               sortedClients.map((c, i) => (
                 <div
                   key={c.client}
-                  className="p-3 rounded-xl bg-[#161821] border border-white/5 flex items-center justify-between text-xs"
+                  className="p-3 rounded-none bg-[#161821] border border-[#22252f] flex items-center justify-between text-xs"
                 >
                   <div className="flex items-center gap-2.5">
-                    <span className="w-5 h-5 rounded-full bg-white/5 font-mono text-[10px] text-zinc-400 flex items-center justify-center font-bold">
+                    <span className="w-5 h-5 rounded-none bg-[#16181f] font-mono text-[10px] text-zinc-400 flex items-center justify-center font-bold">
                       #{i + 1}
                     </span>
                     <span className="font-semibold text-white">{c.client}</span>

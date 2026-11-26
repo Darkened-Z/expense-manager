@@ -25,10 +25,11 @@ import {
   Database,
   ExternalLink,
   Code,
-  Sparkles,
   CheckCircle2,
   Fingerprint,
   ScanFace,
+  ChevronUp,
+  ChevronDown,
 } from 'lucide-react';
 import { AppSettings } from '@/types';
 import { StorageService } from '@/lib/storage';
@@ -338,10 +339,10 @@ create policy "Allow anon access" on expense_sync
   return (
     <div className="space-y-6 max-w-4xl">
       {/* Security & Passcode Section */}
-      <div className="bg-[#12141a] border border-white/5 rounded-2xl p-6 shadow-xl space-y-5">
-        <div className="flex items-center justify-between border-b border-white/5 pb-4">
+      <div className="bg-[#12141a] border border-[#22252f] rounded-none p-6 space-y-5">
+        <div className="flex items-center justify-between border-b border-[#22252f] pb-4">
           <div className="flex items-center gap-3">
-            <div className="p-2.5 rounded-xl bg-white/5 text-zinc-300 border border-white/5">
+            <div className="p-2.5 rounded-none bg-[#16181f] text-zinc-300 border border-[#22252f]">
               <Shield className="w-5 h-5" />
             </div>
             <div>
@@ -353,9 +354,9 @@ create policy "Allow anon access" on expense_sync
           </div>
 
           <span
-            className={`text-xs px-2.5 py-1 rounded-full font-semibold ${
+            className={`text-xs px-2.5 py-1 rounded-none font-semibold ${
               settings.isLockEnabled && settings.passcodeHash
-                ? 'bg-emerald-500/15 text-emerald-300 border border-emerald-500/20'
+                ? 'bg-[#0f2b20] text-emerald-300 border border-emerald-800'
                 : 'bg-zinc-800 text-zinc-400'
             }`}
           >
@@ -376,7 +377,7 @@ create policy "Allow anon access" on expense_sync
           <div className="flex items-center gap-2">
             <button
               onClick={onOpenSetPasscode}
-              className="bg-zinc-100 hover:bg-white text-zinc-950 font-semibold text-xs px-4 py-2 rounded-xl flex items-center gap-1.5 transition-colors shadow-sm"
+              className="bg-zinc-100 hover:bg-white text-zinc-950 font-semibold text-xs px-4 py-2 rounded-none flex items-center gap-1.5 transition-colors"
             >
               <KeyRound className="w-3.5 h-3.5" />
               <span>{settings.passcodeHash ? 'Change Passcode' : 'Set New Passcode'}</span>
@@ -389,10 +390,10 @@ create policy "Allow anon access" on expense_sync
                     isLockEnabled: !settings.isLockEnabled,
                   })
                 }
-                className={`text-xs px-3 py-2 rounded-xl border transition-colors ${
+                className={`text-xs px-3 py-2 rounded-none border transition-colors ${
                   settings.isLockEnabled
-                    ? 'bg-rose-500/15 text-rose-300 border-rose-500/20 hover:bg-rose-500/25'
-                    : 'bg-emerald-500/15 text-emerald-300 border-emerald-500/20 hover:bg-emerald-500/25'
+                    ? 'bg-[#2e141a] text-rose-300 border-rose-800 hover:bg-[#421a24]'
+                    : 'bg-[#0f2b20] text-emerald-300 border-emerald-800 hover:bg-[#163d2e]'
                 }`}
               >
                 {settings.isLockEnabled ? 'Disable Lock' : 'Enable Lock'}
@@ -403,7 +404,7 @@ create policy "Allow anon access" on expense_sync
 
         {/* Auto lock timeout */}
         {settings.isLockEnabled && (
-          <div className="pt-4 border-t border-white/5 flex items-center justify-between">
+          <div className="pt-4 border-t border-[#22252f] flex items-center justify-between">
             <div>
               <div className="text-xs font-semibold text-zinc-200">Auto-lock Inactivity Timer</div>
               <div className="text-[11px] text-zinc-500">Lock session automatically after idle minutes</div>
@@ -411,7 +412,7 @@ create policy "Allow anon access" on expense_sync
             <select
               value={settings.autoLockMinutes}
               onChange={(e) => onUpdateSettings({ autoLockMinutes: parseInt(e.target.value) })}
-              className="bg-[#181b23] border border-white/10 rounded-xl px-3 py-1.5 text-xs text-zinc-300"
+              className="bg-[#181b23] border border-[#2c303d] rounded-none px-3 py-1.5 text-xs text-zinc-300"
             >
               <option value={0}>Immediately on Tab Close</option>
               <option value={5}>After 5 Minutes</option>
@@ -422,10 +423,10 @@ create policy "Allow anon access" on expense_sync
         )}
 
         {/* Biometrics (Fingerprint / Face ID / Windows Hello) Section */}
-        <div className="pt-4 border-t border-white/5 space-y-3">
+        <div className="pt-4 border-t border-[#22252f] space-y-3">
           <div className="flex items-center justify-between gap-4">
             <div className="flex items-center gap-2.5">
-              <div className="p-2 rounded-xl bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
+              <div className="p-2 rounded-none bg-[#0d241b] text-emerald-400 border border-emerald-800">
                 <Fingerprint className="w-5 h-5" />
               </div>
               <div>
@@ -433,7 +434,7 @@ create policy "Allow anon access" on expense_sync
                   <span>Biometric Unlock (Touch ID / Face ID / Windows Hello)</span>
                   {biometricsAvailable ? (
                     <span className="text-[10px] text-emerald-400 font-medium flex items-center gap-1">
-                      <span className="w-1.5 h-1.5 rounded-full bg-emerald-400" />
+                      <span className="w-1.5 h-1.5 rounded-none bg-emerald-400" />
                       Sensor Ready
                     </span>
                   ) : (
@@ -456,16 +457,16 @@ create policy "Allow anon access" on expense_sync
                 onChange={(e) => handleToggleBiometrics(e.target.checked)}
                 className="sr-only peer"
               />
-              <div className="w-11 h-6 bg-zinc-800 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-zinc-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-emerald-500 disabled:opacity-40"></div>
+              <div className="w-11 h-6 bg-zinc-800 peer-focus:outline-none rounded-none peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-zinc-300 after:border after:rounded-none after:h-5 after:w-5 after:transition-all peer-checked:bg-emerald-500 disabled:opacity-40"></div>
             </label>
           </div>
 
           {biometricMsg && (
             <div
-              className={`text-xs px-3.5 py-2.5 rounded-xl border flex items-center gap-2 ${
+              className={`text-xs px-3.5 py-2.5 rounded-none border flex items-center gap-2 ${
                 biometricMsg.type === 'success'
-                  ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20'
-                  : 'bg-rose-500/10 text-rose-400 border-rose-500/20'
+                  ? 'bg-[#0d241b] text-emerald-400 border-emerald-800'
+                  : 'bg-[#261116] text-rose-400 border-rose-800'
               }`}
             >
               <span>{biometricMsg.text}</span>
@@ -475,9 +476,9 @@ create policy "Allow anon access" on expense_sync
       </div>
 
       {/* User & Currency Profile */}
-      <div className="bg-[#12141a] border border-white/5 rounded-2xl p-6 shadow-xl space-y-4">
-        <div className="flex items-center gap-3 border-b border-white/5 pb-4">
-          <div className="p-2.5 rounded-xl bg-white/5 text-zinc-300 border border-white/5">
+      <div className="bg-[#12141a] border border-[#22252f] rounded-none p-6 space-y-4">
+        <div className="flex items-center gap-3 border-b border-[#22252f] pb-4">
+          <div className="p-2.5 rounded-none bg-[#16181f] text-zinc-300 border border-[#22252f]">
             <User className="w-5 h-5" />
           </div>
           <div>
@@ -494,7 +495,7 @@ create policy "Allow anon access" on expense_sync
                 type="text"
                 value={userName}
                 onChange={(e) => setUserName(e.target.value)}
-                className="w-full bg-[#171922] text-white text-xs px-3.5 py-2.5 rounded-xl border border-white/10 focus:outline-none focus:border-white/30"
+                className="w-full bg-[#171922] text-white text-xs px-3.5 py-2.5 rounded-none border border-[#2c303d] focus:outline-none focus:border-[#52596e]"
               />
             </div>
 
@@ -504,7 +505,7 @@ create policy "Allow anon access" on expense_sync
                 type="email"
                 value={userEmail}
                 onChange={(e) => setUserEmail(e.target.value)}
-                className="w-full bg-[#171922] text-white text-xs px-3.5 py-2.5 rounded-xl border border-white/10 focus:outline-none focus:border-white/30"
+                className="w-full bg-[#171922] text-white text-xs px-3.5 py-2.5 rounded-none border border-[#2c303d] focus:outline-none focus:border-[#52596e]"
               />
             </div>
           </div>
@@ -516,7 +517,7 @@ create policy "Allow anon access" on expense_sync
                 type="text"
                 value={currencySymbol}
                 onChange={(e) => setCurrencySymbol(e.target.value)}
-                className="w-full bg-[#171922] text-white text-xs font-mono px-3.5 py-2.5 rounded-xl border border-white/10 focus:outline-none focus:border-white/30"
+                className="w-full bg-[#171922] text-white text-xs font-mono px-3.5 py-2.5 rounded-none border border-[#2c303d] focus:outline-none focus:border-[#52596e]"
               />
             </div>
 
@@ -526,7 +527,7 @@ create policy "Allow anon access" on expense_sync
                 type="text"
                 value={currencyCode}
                 onChange={(e) => setCurrencyCode(e.target.value)}
-                className="w-full bg-[#171922] text-white text-xs font-mono uppercase px-3.5 py-2.5 rounded-xl border border-white/10 focus:outline-none focus:border-white/30"
+                className="w-full bg-[#171922] text-white text-xs font-mono uppercase px-3.5 py-2.5 rounded-none border border-[#2c303d] focus:outline-none focus:border-[#52596e]"
               />
             </div>
           </div>
@@ -540,7 +541,7 @@ create policy "Allow anon access" on expense_sync
               placeholder="e.g. Meezan Bank • IBAN: PK36MEZN00... • Raast ID: 03001234567 • Title: Muhammad Z"
               value={bankPayoutDetails}
               onChange={(e) => setBankPayoutDetails(e.target.value)}
-              className="w-full bg-[#171922] text-white text-xs px-3.5 py-2.5 rounded-xl border border-white/10 focus:outline-none focus:border-white/30"
+              className="w-full bg-[#171922] text-white text-xs px-3.5 py-2.5 rounded-none border border-[#2c303d] focus:outline-none focus:border-[#52596e]"
             />
             <span className="text-[10px] text-zinc-500 mt-0.5 block">
               These details are automatically attached when you click &quot;WhatsApp&quot; on any pending client invoice.
@@ -556,7 +557,7 @@ create policy "Allow anon access" on expense_sync
             )}
             <button
               type="submit"
-              className="bg-white/10 hover:bg-white/20 text-white font-semibold text-xs px-4 py-2 rounded-xl transition-colors"
+              className="bg-[#20232e] hover:bg-[#2d3240] text-white font-semibold text-xs px-4 py-2 rounded-none transition-colors"
             >
               Save Profile
             </button>
@@ -565,9 +566,9 @@ create policy "Allow anon access" on expense_sync
       </div>
 
       {/* Notifications & Audio Alerts */}
-      <div className="bg-[#12141a] border border-white/5 rounded-2xl p-6 shadow-xl space-y-4">
-        <div className="flex items-center gap-3 border-b border-white/5 pb-4">
-          <div className="p-2.5 rounded-xl bg-white/5 text-zinc-300 border border-white/5">
+      <div className="bg-[#12141a] border border-[#22252f] rounded-none p-6 space-y-4">
+        <div className="flex items-center gap-3 border-b border-[#22252f] pb-4">
+          <div className="p-2.5 rounded-none bg-[#16181f] text-zinc-300 border border-[#22252f]">
             <Bell className="w-5 h-5" />
           </div>
           <div>
@@ -598,7 +599,7 @@ create policy "Allow anon access" on expense_sync
                     }
                   }
                 }}
-                className="text-[11px] bg-white/5 hover:bg-white/10 text-zinc-300 hover:text-white font-medium px-2.5 py-1 rounded-lg border border-white/10 transition-colors"
+                className="text-[11px] bg-[#16181f] hover:bg-[#20232e] text-zinc-300 hover:text-white font-medium px-2.5 py-1 rounded-none border border-[#2c303d] transition-colors"
               >
                 Send Test Alert
               </button>
@@ -616,7 +617,7 @@ create policy "Allow anon access" on expense_sync
             </div>
           </div>
 
-          <div className="flex items-center justify-between pt-3 border-t border-white/5">
+          <div className="flex items-center justify-between pt-3 border-t border-[#22252f]">
             <div>
               <div className="text-xs font-semibold text-zinc-200">Audio Chimes</div>
               <div className="text-[11px] text-zinc-500">Play pleasant sound upon successfully collecting a client payment</div>
@@ -632,9 +633,9 @@ create policy "Allow anon access" on expense_sync
       </div>
 
       {/* PWA & Mobile Installation Section */}
-      <div className="bg-[#12141a] border border-white/5 rounded-2xl p-6 shadow-xl space-y-4">
-        <div className="flex items-center gap-3 border-b border-white/5 pb-4">
-          <div className="p-2.5 rounded-xl bg-white/5 text-zinc-300 border border-white/5">
+      <div className="bg-[#12141a] border border-[#22252f] rounded-none p-6 space-y-4">
+        <div className="flex items-center gap-3 border-b border-[#22252f] pb-4">
+          <div className="p-2.5 rounded-none bg-[#16181f] text-zinc-300 border border-[#22252f]">
             <Download className="w-5 h-5" />
           </div>
           <div>
@@ -644,13 +645,13 @@ create policy "Allow anon access" on expense_sync
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1 text-xs text-zinc-300">
-          <div className="p-3.5 rounded-xl bg-[#161821] border border-white/5 space-y-1">
+          <div className="p-3.5 rounded-none bg-[#161821] border border-[#22252f] space-y-1">
             <div className="font-semibold text-white">Desktop (PC / Mac)</div>
             <p className="text-[11px] text-zinc-400">
               Click the Install icon in your browser URL bar (Chrome/Edge) to pin to your Windows taskbar or Mac Dock with standalone window mode.
             </p>
           </div>
-          <div className="p-3.5 rounded-xl bg-[#161821] border border-white/5 space-y-1">
+          <div className="p-3.5 rounded-none bg-[#161821] border border-[#22252f] space-y-1">
             <div className="font-semibold text-white">Mobile (Phone / Tablet)</div>
             <p className="text-[11px] text-zinc-400">
               On iOS Safari tap <strong>Share → Add to Home Screen</strong>. On Android Chrome tap <strong>Install App</strong> for full offline capability.
@@ -660,9 +661,9 @@ create policy "Allow anon access" on expense_sync
       </div>
 
       {isLocalMode ? (
-        <div className="bg-[#12141a] border border-white/5 rounded-2xl p-5 sm:p-6 shadow-xl flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div className="bg-[#12141a] border border-[#22252f] rounded-none p-5 sm:p-6 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div className="flex items-center gap-3">
-            <div className="p-2.5 rounded-xl bg-white/5 text-zinc-300 border border-white/5 shrink-0">
+            <div className="p-2.5 rounded-none bg-[#16181f] text-zinc-300 border border-[#22252f] shrink-0">
               <HardDrive className="w-5 h-5 text-emerald-400" />
             </div>
             <div>
@@ -675,7 +676,7 @@ create policy "Allow anon access" on expense_sync
           <button
             type="button"
             onClick={handleEnableCloudMode}
-            className="px-3.5 py-2 rounded-xl text-xs font-medium text-zinc-300 hover:text-white bg-white/5 hover:bg-white/10 border border-white/10 transition-colors cursor-pointer shrink-0 flex items-center gap-1.5 self-start sm:self-auto"
+            className="px-3.5 py-2 rounded-none text-xs font-medium text-zinc-300 hover:text-white bg-[#16181f] hover:bg-[#20232e] border border-[#2c303d] transition-colors cursor-pointer shrink-0 flex items-center gap-1.5 self-start sm:self-auto"
           >
             <Cloud className="w-3.5 h-3.5 text-zinc-400" />
             <span>Configure Cloud Sync</span>
@@ -684,17 +685,17 @@ create policy "Allow anon access" on expense_sync
       ) : (
       <>
       {/* Cross-Device Cloud Sync Section (Supabase) */}
-      <div className="bg-[#12141a] border border-white/5 rounded-2xl p-6 shadow-xl space-y-5">
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between border-b border-white/5 pb-4 gap-3">
+      <div className="bg-[#12141a] border border-[#22252f] rounded-none p-6 space-y-5">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between border-b border-[#22252f] pb-4 gap-3">
           <div className="flex items-center gap-3">
-            <div className="p-2.5 rounded-xl bg-white/5 text-zinc-300 border border-white/5">
+            <div className="p-2.5 rounded-none bg-[#16181f] text-zinc-300 border border-[#22252f]">
               <Database className="w-5 h-5 text-emerald-400" />
             </div>
             <div>
               <div className="flex items-center gap-2">
                 <h3 className="font-bold text-white text-sm">Cross-Device Cloud Sync (Supabase)</h3>
                 <span className="text-[10px] text-emerald-400 font-medium flex items-center gap-1">
-                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-400" />
+                  <span className="w-1.5 h-1.5 rounded-none bg-emerald-400" />
                   Real-time
                 </span>
               </div>
@@ -706,24 +707,24 @@ create policy "Allow anon access" on expense_sync
           <div className="flex items-center gap-2 self-start sm:self-auto flex-wrap">
             {isConfigured ? (
               <span className="inline-flex items-center gap-1.5 text-xs font-medium text-emerald-400">
-                <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
+                <span className="w-1.5 h-1.5 rounded-none bg-emerald-400 animate-pulse" />
                 <span>Auto-Sync Active</span>
               </span>
             ) : (
               <span className="inline-flex items-center gap-1.5 text-xs font-medium text-zinc-400">
-                <span className="w-1.5 h-1.5 rounded-full bg-zinc-500" />
+                <span className="w-1.5 h-1.5 rounded-none bg-zinc-500" />
                 <span>Local Mode (Offline)</span>
               </span>
             )}
             {lastSyncTime && (
-              <span className="text-[11px] font-mono text-zinc-400 bg-white/5 px-2.5 py-1 rounded-lg border border-white/5">
+              <span className="text-[11px] font-mono text-zinc-400 bg-[#16181f] px-2.5 py-1 rounded-none border border-[#22252f]">
                 {new Date(lastSyncTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
               </span>
             )}
             <button
               type="button"
               onClick={handleSwitchToLocalMode}
-              className="text-[11px] font-medium text-zinc-400 hover:text-white bg-white/5 hover:bg-white/10 px-2.5 py-1 rounded-lg border border-white/10 transition-colors cursor-pointer"
+              className="text-[11px] font-medium text-zinc-400 hover:text-white bg-[#16181f] hover:bg-[#20232e] px-2.5 py-1 rounded-none border border-[#2c303d] transition-colors cursor-pointer"
               title="Disconnect cloud sync and store finances only on this device"
             >
               Use Local Only
@@ -742,7 +743,7 @@ create policy "Allow anon access" on expense_sync
                 placeholder="https://your-project.supabase.co"
                 value={supabaseUrl}
                 onChange={(e) => setSupabaseUrl(e.target.value)}
-                className="w-full bg-[#161821] text-white font-mono text-xs px-3.5 py-2.5 rounded-xl border border-white/10 focus:outline-none focus:border-white/30"
+                className="w-full bg-[#161821] text-white font-mono text-xs px-3.5 py-2.5 rounded-none border border-[#2c303d] focus:outline-none focus:border-[#52596e]"
               />
             </div>
 
@@ -755,7 +756,7 @@ create policy "Allow anon access" on expense_sync
                 placeholder="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
                 value={supabaseAnonKey}
                 onChange={(e) => setSupabaseAnonKey(e.target.value)}
-                className="w-full bg-[#161821] text-white font-mono text-xs px-3.5 py-2.5 rounded-xl border border-white/10 focus:outline-none focus:border-white/30"
+                className="w-full bg-[#161821] text-white font-mono text-xs px-3.5 py-2.5 rounded-none border border-[#2c303d] focus:outline-none focus:border-[#52596e]"
               />
             </div>
           </div>
@@ -769,7 +770,7 @@ create policy "Allow anon access" on expense_sync
               placeholder="main"
               value={supabaseVaultId}
               onChange={(e) => setSupabaseVaultId(e.target.value)}
-              className="w-full sm:w-1/2 bg-[#161821] text-white font-mono text-xs px-3.5 py-2.5 rounded-xl border border-white/10 focus:outline-none focus:border-white/30"
+              className="w-full sm:w-1/2 bg-[#161821] text-white font-mono text-xs px-3.5 py-2.5 rounded-none border border-[#2c303d] focus:outline-none focus:border-[#52596e]"
             />
             <p className="text-[10px] text-zinc-500 mt-1">
               Default is &quot;main&quot;. Use the exact same Vault ID on your phone to access the same financial workspace.
@@ -781,7 +782,7 @@ create policy "Allow anon access" on expense_sync
             <button
               type="button"
               onClick={handleSaveSupabase}
-              className="px-4 py-2.5 rounded-xl text-xs font-semibold text-zinc-950 bg-zinc-100 hover:bg-white transition-colors cursor-pointer shadow-sm flex items-center gap-1.5"
+              className="px-4 py-2.5 rounded-none text-xs font-semibold text-zinc-950 bg-zinc-100 hover:bg-white transition-colors cursor-pointer flex items-center gap-1.5"
             >
               <Check className="w-3.5 h-3.5" />
               <span>Save & Connect</span>
@@ -791,9 +792,9 @@ create policy "Allow anon access" on expense_sync
               type="button"
               onClick={handleTestConnection}
               disabled={isTesting}
-              className="px-4 py-2.5 rounded-xl text-xs font-semibold text-zinc-200 bg-[#181b23] hover:bg-[#20242f] border border-white/10 transition-colors cursor-pointer flex items-center gap-1.5 disabled:opacity-50"
+              className="px-4 py-2.5 rounded-none text-xs font-semibold text-zinc-200 bg-[#181b23] hover:bg-[#20242f] border border-[#2c303d] transition-colors cursor-pointer flex items-center gap-1.5 disabled:opacity-50"
             >
-              {isTesting ? <RefreshCw className="w-3.5 h-3.5 animate-spin" /> : <Sparkles className="w-3.5 h-3.5 text-amber-400" />}
+              {isTesting ? <RefreshCw className="w-3.5 h-3.5 animate-spin" /> : <CheckCircle2 className="w-3.5 h-3.5 text-amber-400" />}
               <span>{isTesting ? 'Testing...' : 'Test Connection'}</span>
             </button>
 
@@ -803,7 +804,7 @@ create policy "Allow anon access" on expense_sync
                   type="button"
                   onClick={handlePullSupabase}
                   disabled={isSyncing}
-                  className="px-3.5 py-2.5 rounded-xl text-xs font-medium text-zinc-300 bg-white/5 hover:bg-white/10 border border-white/10 transition-colors cursor-pointer flex items-center gap-1.5 disabled:opacity-50"
+                  className="px-3.5 py-2.5 rounded-none text-xs font-medium text-zinc-300 bg-[#16181f] hover:bg-[#20232e] border border-[#2c303d] transition-colors cursor-pointer flex items-center gap-1.5 disabled:opacity-50"
                   title="Force pull latest data from Supabase immediately"
                 >
                   <CloudDownload className="w-3.5 h-3.5" />
@@ -814,7 +815,7 @@ create policy "Allow anon access" on expense_sync
                   type="button"
                   onClick={handlePushSupabase}
                   disabled={isSyncing}
-                  className="px-3.5 py-2.5 rounded-xl text-xs font-medium text-zinc-300 bg-white/5 hover:bg-white/10 border border-white/10 transition-colors cursor-pointer flex items-center gap-1.5 disabled:opacity-50"
+                  className="px-3.5 py-2.5 rounded-none text-xs font-medium text-zinc-300 bg-[#16181f] hover:bg-[#20232e] border border-[#2c303d] transition-colors cursor-pointer flex items-center gap-1.5 disabled:opacity-50"
                   title="Force push current data to Supabase immediately"
                 >
                   <CloudUpload className="w-3.5 h-3.5" />
@@ -824,7 +825,7 @@ create policy "Allow anon access" on expense_sync
                 <button
                   type="button"
                   onClick={handleCopyMobileLink}
-                  className="px-3.5 py-2.5 rounded-xl text-xs font-medium text-zinc-300 bg-white/5 hover:bg-white/10 border border-white/10 transition-colors cursor-pointer flex items-center gap-1.5"
+                  className="px-3.5 py-2.5 rounded-none text-xs font-medium text-zinc-300 bg-[#16181f] hover:bg-[#20232e] border border-[#2c303d] transition-colors cursor-pointer flex items-center gap-1.5"
                   title="Copy direct sync link for mobile device setup"
                 >
                   {copiedMobileLink ? <Check className="w-3.5 h-3.5 text-emerald-400" /> : <Smartphone className="w-3.5 h-3.5 text-zinc-400" />}
@@ -834,7 +835,7 @@ create policy "Allow anon access" on expense_sync
                 <button
                   type="button"
                   onClick={handleCopyFriendLocalLink}
-                  className="px-3.5 py-2.5 rounded-xl text-xs font-medium text-emerald-400 bg-emerald-500/10 hover:bg-emerald-500/20 border border-emerald-500/25 transition-colors cursor-pointer flex items-center gap-1.5"
+                  className="px-3.5 py-2.5 rounded-none text-xs font-medium text-emerald-400 bg-[#0d241b] hover:bg-[#123326] border border-emerald-700 transition-colors cursor-pointer flex items-center gap-1.5"
                   title="Copy link for a friend to use on their phone with a 100% private local database (not connected to your database)"
                 >
                   {copiedFriendLink ? <Check className="w-3.5 h-3.5 text-emerald-400" /> : <Smartphone className="w-3.5 h-3.5 text-emerald-400" />}
@@ -847,10 +848,10 @@ create policy "Allow anon access" on expense_sync
           {/* Test connection feedback */}
           {testResult && (
             <div
-              className={`p-3 rounded-xl border text-xs flex items-center gap-2 ${
+              className={`p-3 rounded-none border text-xs flex items-center gap-2 ${
                 testResult.success
-                  ? 'bg-emerald-500/10 border-emerald-500/20 text-emerald-300'
-                  : 'bg-rose-500/10 border-rose-500/20 text-rose-300'
+                  ? 'bg-[#0d241b] border-emerald-800 text-emerald-300'
+                  : 'bg-[#261116] border-rose-800 text-rose-300'
               }`}
             >
               {testResult.success ? (
@@ -863,14 +864,14 @@ create policy "Allow anon access" on expense_sync
           )}
 
           {syncStatus && (
-            <div className="p-3 rounded-xl bg-white/[0.04] border border-white/10 text-xs text-zinc-300 flex items-center gap-2">
-              <div className="w-1.5 h-1.5 rounded-full bg-zinc-400" />
+            <div className="p-3 rounded-none bg-[#171922] border border-[#2c303d] text-xs text-zinc-300 flex items-center gap-2">
+              <div className="w-1.5 h-1.5 rounded-none bg-zinc-400" />
               <span>{syncStatus}</span>
             </div>
           )}
 
           {/* Collapsible Supabase SQL Setup Helper */}
-          <div className="p-3.5 rounded-xl bg-[#161821] border border-white/5 space-y-2">
+          <div className="p-3.5 rounded-none bg-[#161821] border border-[#22252f] space-y-2">
             <div className="flex items-center justify-between">
               <button
                 type="button"
@@ -878,12 +879,13 @@ create policy "Allow anon access" on expense_sync
                 className="text-xs font-semibold text-white flex items-center gap-1.5 hover:text-emerald-400 transition-colors cursor-pointer"
               >
                 <Code className="w-3.5 h-3.5 text-emerald-400" />
-                <span>1-Minute Supabase Database Setup Guide {showSqlGuide ? '▲' : '▼'}</span>
+                <span>1-Minute Supabase Database Setup Guide</span>
+                {showSqlGuide ? <ChevronUp className="w-3.5 h-3.5" /> : <ChevronDown className="w-3.5 h-3.5" />}
               </button>
               <button
                 type="button"
                 onClick={handleCopySql}
-                className="text-[11px] font-medium text-zinc-300 hover:text-white bg-white/5 hover:bg-white/10 px-2.5 py-1 rounded-lg border border-white/10 flex items-center gap-1 transition-colors cursor-pointer"
+                className="text-[11px] font-medium text-zinc-300 hover:text-white bg-[#16181f] hover:bg-[#20232e] px-2.5 py-1 rounded-none border border-[#2c303d] flex items-center gap-1 transition-colors cursor-pointer"
               >
                 {copiedSql ? <Check className="w-3 h-3 text-emerald-400" /> : <Copy className="w-3 h-3" />}
                 <span>{copiedSql ? 'Copied SQL!' : 'Copy SQL Script'}</span>
@@ -897,7 +899,7 @@ create policy "Allow anon access" on expense_sync
                   <li>In your Supabase dashboard, click <strong>SQL Editor</strong> on the left.</li>
                   <li>Click <strong>New Query</strong>, paste the script below, and click <strong>Run</strong>:</li>
                 </ol>
-                <pre className="p-3 rounded-xl bg-[#0b0c0f] border border-white/5 text-[11px] text-zinc-300 font-mono overflow-x-auto select-all">
+                <pre className="p-3 rounded-none bg-[#0b0c0f] border border-[#22252f] text-[11px] text-zinc-300 font-mono overflow-x-auto select-all">
 {`-- Run once in Supabase SQL Editor:
 create table if not exists expense_sync (
   id text primary key,
@@ -924,9 +926,9 @@ create policy "Allow anon access" on expense_sync
       )}
 
       {/* Data Backup & Disaster Recovery */}
-      <div className="bg-[#12141a] border border-white/5 rounded-2xl p-6 shadow-xl space-y-4">
-        <div className="flex items-center gap-3 border-b border-white/5 pb-4">
-          <div className="p-2.5 rounded-xl bg-white/5 text-zinc-300">
+      <div className="bg-[#12141a] border border-[#22252f] rounded-none p-6 space-y-4">
+        <div className="flex items-center gap-3 border-b border-[#22252f] pb-4">
+          <div className="p-2.5 rounded-none bg-[#16181f] text-zinc-300">
             <Download className="w-5 h-5" />
           </div>
           <div>
@@ -936,7 +938,7 @@ create policy "Allow anon access" on expense_sync
         </div>
 
         {/* Device Storage Capacity Gauge */}
-        <div className="p-3.5 rounded-xl bg-[#161821] border border-white/5 space-y-2">
+        <div className="p-3.5 rounded-none bg-[#161821] border border-[#22252f] space-y-2">
           <div className="flex items-center justify-between text-xs">
             <span className="font-semibold text-white flex items-center gap-1.5">
               <HardDrive className="w-3.5 h-3.5 text-zinc-400" />
@@ -946,9 +948,9 @@ create policy "Allow anon access" on expense_sync
               {storageStats.usedKB} KB / ~5,000 KB ({storageStats.percentUsed}% used)
             </span>
           </div>
-          <div className="w-full h-1.5 rounded-full bg-white/5 overflow-hidden">
+          <div className="w-full h-1.5 rounded-none bg-[#16181f] overflow-hidden">
             <div
-              className="h-full bg-zinc-300 rounded-full transition-all duration-500"
+              className="h-full bg-zinc-300 rounded-none transition-all duration-500"
               style={{ width: `${Math.max(1, parseFloat(storageStats.percentUsed))}%` }}
             />
           </div>
@@ -961,13 +963,13 @@ create policy "Allow anon access" on expense_sync
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-1">
           <button
             onClick={onExportBackup}
-            className="p-4 rounded-xl bg-[#161821] hover:bg-[#1f222e] border border-white/5 flex flex-col items-center justify-center gap-2 text-xs font-semibold text-zinc-200 transition-colors"
+            className="p-4 rounded-none bg-[#161821] hover:bg-[#1f222e] border border-[#22252f] flex flex-col items-center justify-center gap-2 text-xs font-semibold text-zinc-200 transition-colors"
           >
             <Download className="w-5 h-5 text-zinc-300" />
             <span>Export JSON Backup</span>
           </button>
 
-          <label className="p-4 rounded-xl bg-[#161821] hover:bg-[#1f222e] border border-white/5 flex flex-col items-center justify-center gap-2 text-xs font-semibold text-zinc-200 transition-colors cursor-pointer">
+          <label className="p-4 rounded-none bg-[#161821] hover:bg-[#1f222e] border border-[#22252f] flex flex-col items-center justify-center gap-2 text-xs font-semibold text-zinc-200 transition-colors cursor-pointer">
             <Upload className="w-5 h-5 text-zinc-300" />
             <span>Restore from Backup</span>
             <input type="file" accept=".json" onChange={handleFileUpload} className="hidden" />
@@ -975,7 +977,7 @@ create policy "Allow anon access" on expense_sync
 
           <button
             onClick={onExportCSV}
-            className="p-4 rounded-xl bg-[#161821] hover:bg-[#1f222e] border border-white/5 flex flex-col items-center justify-center gap-2 text-xs font-semibold text-zinc-200 transition-colors"
+            className="p-4 rounded-none bg-[#161821] hover:bg-[#1f222e] border border-[#22252f] flex flex-col items-center justify-center gap-2 text-xs font-semibold text-zinc-200 transition-colors"
           >
             <Download className="w-5 h-5 text-zinc-300" />
             <span>Export CSV Ledger</span>
@@ -983,7 +985,7 @@ create policy "Allow anon access" on expense_sync
         </div>
 
         {onResetKeepReminders && (
-          <div className="pt-4 border-t border-white/5 flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+          <div className="pt-4 border-t border-[#22252f] flex flex-col sm:flex-row sm:items-center justify-between gap-2">
             <div>
               <div className="text-xs font-semibold text-amber-400">Start Fresh (Keep Payables &amp; Receivables)</div>
               <div className="text-[11px] text-zinc-500">
@@ -997,14 +999,14 @@ create policy "Allow anon access" on expense_sync
                   onResetKeepReminders();
                 }
               }}
-              className="px-3.5 py-2 rounded-xl text-xs font-medium text-amber-300 hover:text-white bg-amber-500/10 hover:bg-amber-500/20 border border-amber-500/20 transition-colors cursor-pointer shrink-0 self-start sm:self-auto"
+              className="px-3.5 py-2 rounded-none text-xs font-medium text-amber-300 hover:text-white bg-[#241c0d] hover:bg-[#362911] border border-amber-800 transition-colors cursor-pointer shrink-0 self-start sm:self-auto"
             >
               Reset (Keep Bills)
             </button>
           </div>
         )}
 
-        <div className="pt-4 border-t border-white/5 flex items-center justify-between">
+        <div className="pt-4 border-t border-[#22252f] flex items-center justify-between">
           <div>
             <div className="text-xs font-semibold text-rose-400">Wipe All Data (Clean Slate)</div>
             <div className="text-[11px] text-zinc-500">Permanently delete all transactions, invoices, and savings goals</div>
@@ -1015,7 +1017,7 @@ create policy "Allow anon access" on expense_sync
                 onResetAllData();
               }
             }}
-            className="px-3.5 py-2 rounded-xl text-xs font-medium text-rose-400 hover:text-white bg-rose-500/10 hover:bg-rose-500/20 border border-rose-500/20 transition-colors cursor-pointer"
+            className="px-3.5 py-2 rounded-none text-xs font-medium text-rose-400 hover:text-white bg-[#261116] hover:bg-[#38161e] border border-rose-800 transition-colors cursor-pointer"
           >
             Wipe All Data
           </button>

@@ -66,7 +66,7 @@ export default function RootLayout({
           }}
         />
       </head>
-      <body className="min-h-screen bg-[#090a0d] text-zinc-100 antialiased selection:bg-white/20 selection:text-white overflow-x-hidden max-w-full w-full">
+      <body className="min-h-screen bg-[#090a0d] text-zinc-100 antialiased selection:bg-[#2d3240] selection:text-white overflow-x-hidden max-w-full w-full">
         {children}
       </body>
     </html>

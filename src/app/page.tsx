@@ -55,6 +55,7 @@ export default function Home() {
   const [cloudSyncStatus, setCloudSyncStatus] = useState<'synced' | 'syncing' | 'offline' | 'unconfigured' | 'error'>('unconfigured');
   const isInitialMount = useRef(true);
   const isImportingRef = useRef(false);
+  const isResettingRef = useRef(false);
   const mainScrollRef = useRef<HTMLDivElement>(null);
 
   // Lock & Security
@@ -222,6 +223,7 @@ export default function Home() {
 
     // Two-way synchronization engine
     const syncWithCloudAndServer = async () => {
+      if (isResettingRef.current) return;
       if (isLocalDatabaseMode()) {
         setCloudSyncStatus('offline');
         return;
@@ -268,15 +270,24 @@ export default function Home() {
       );
 
       if (!hasLocalData && remoteHasData) {
-        // Fresh device (e.g. Phone!): import remote snapshot immediately!
-        isImportingRef.current = true;
-        StorageService.importFullSnapshot(remotePayload);
-        reloadAllFromStorage();
-        if (remotePayload.settings?.isLockEnabled && remotePayload.settings?.passcodeHash) {
-          StorageService.setSessionLocked(true);
-          setIsLocked(true);
+        const remoteTime = new Date(remoteLastSyncedAt || remotePayload.updatedAt || 0).getTime();
+        const localTime = new Date(localSnapshot.updatedAt || 0).getTime();
+        if (localTime > remoteTime) {
+          // Local storage was explicitly wiped more recently than the remote backup:
+          // propagate the clean state instead of re-importing stale cloud data.
+          await pushAllSync(localSnapshot);
+          setCloudSyncStatus('synced');
+        } else {
+          // Fresh device (e.g. Phone!): import remote snapshot immediately!
+          isImportingRef.current = true;
+          StorageService.importFullSnapshot(remotePayload);
+          reloadAllFromStorage();
+          if (remotePayload.settings?.isLockEnabled && remotePayload.settings?.passcodeHash) {
+            StorageService.setSessionLocked(true);
+            setIsLocked(true);
+          }
+          setCloudSyncStatus('synced');
         }
-        setCloudSyncStatus('synced');
       } else if (hasLocalData && !remoteHasData) {
         // Source device (e.g. PC!): seed remote cloud & server with full snapshot!
         await pushAllSync(localSnapshot);
@@ -308,6 +319,7 @@ export default function Home() {
     let unsubscribeSync: (() => void) | null = null;
     if (isSupabaseConfigured()) {
       unsubscribeSync = subscribeToSupabaseUpdates((cloudPayload) => {
+        if (isResettingRef.current) return;
         isImportingRef.current = true;
         StorageService.importFullSnapshot(cloudPayload);
         reloadAllFromStorage();
@@ -485,7 +497,7 @@ export default function Home() {
     return (
       <div className="min-h-screen bg-[#090a0d] flex items-center justify-center p-4">
         <div className="flex flex-col items-center gap-4 text-center max-w-sm">
-          <div className="w-10 h-10 rounded-full border-2 border-emerald-500/20 border-t-emerald-400 animate-spin" />
+          <div className="w-10 h-10 rounded-none border-2 border-emerald-800 border-t-emerald-400 animate-spin" />
           <div>
             <div className="text-sm font-semibold text-white">Connecting Secure Vault...</div>
             <div className="text-xs text-zinc-400 mt-1">Retrieving encrypted settings & records</div>
@@ -499,7 +511,7 @@ export default function Home() {
     return (
       <div className="min-h-screen bg-[#090a0d] flex items-center justify-center">
         <div className="flex flex-col items-center gap-3">
-          <div className="w-8 h-8 rounded-full border-2 border-zinc-700 border-t-zinc-200 animate-spin" />
+          <div className="w-8 h-8 rounded-none border-2 border-zinc-700 border-t-zinc-200 animate-spin" />
           <span className="text-xs text-zinc-400 font-mono">Loading Expense Manager...</span>
         </div>
       </div>
@@ -778,27 +790,24 @@ export default function Home() {
     URL.revokeObjectURL(url);
   };
 
-  const handleResetAllData = () => {
-    StorageService.resetAllData();
-    setTransactions(StorageService.getTransactions());
-    setReminders(StorageService.getReminders());
-    setCategories(StorageService.getCategories());
-    setWallets(StorageService.getWallets());
-    setSavingsGoals(StorageService.getSavingsGoals());
-    setSimpleSavings(StorageService.getSimpleSavings());
-    setSettings(StorageService.getSettings());
+  const runResetAndSync = async (resetFn: () => void) => {
+    isResettingRef.current = true;
+    try {
+      resetFn();
+      reloadAllFromStorage();
+      if (!isLocalDatabaseMode()) {
+        setCloudSyncStatus('syncing');
+        await pushAllSync(StorageService.getFullSnapshot());
+        setCloudSyncStatus('synced');
+      }
+    } finally {
+      isResettingRef.current = false;
+    }
   };
 
-  const handleResetKeepReminders = () => {
-    StorageService.resetKeepReminders();
-    setTransactions(StorageService.getTransactions());
-    setReminders(StorageService.getReminders());
-    setCategories(StorageService.getCategories());
-    setWallets(StorageService.getWallets());
-    setSavingsGoals(StorageService.getSavingsGoals());
-    setSimpleSavings(StorageService.getSimpleSavings());
-    setSettings(StorageService.getSettings());
-  };
+  const handleResetAllData = () => runResetAndSync(() => StorageService.resetAllData());
+
+  const handleResetKeepReminders = () => runResetAndSync(() => StorageService.resetKeepReminders());
 
   const filteredTxs = transactions.filter((t) => {
     if (selectedWalletId !== 'all' && t.walletId !== selectedWalletId) return false;

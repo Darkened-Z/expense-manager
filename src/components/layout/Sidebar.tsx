@@ -7,7 +7,7 @@ import {
   Clock,
   Wallet,
   Tag,
-  Sparkles,
+  BarChart3,
   Settings,
   Lock,
   Search,
@@ -77,7 +77,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
     { id: 'savings', label: 'Savings & Goals', icon: PiggyBank },
     { id: 'wallets', label: 'Wallets & Accounts', icon: Wallet },
     { id: 'categories', label: 'Categories & Sources', icon: Tag },
-    { id: 'insights', label: 'Analytics', icon: Sparkles },
+    { id: 'insights', label: 'Analytics', icon: BarChart3 },
   ];
 
   const handleSelectTab = (tabId: string) => {
@@ -91,7 +91,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
         {/* Brand Header */}
         <div className="flex items-center justify-between px-2 pt-1">
           <div className="flex items-center gap-2.5">
-            <div className="w-9 h-9 rounded-xl overflow-hidden border border-white/15 shadow-md shrink-0 bg-white/5">
+            <div className="w-9 h-9 rounded-none overflow-hidden border border-[#353a4a] shrink-0 bg-[#16181f]">
               <img
                 src="/logo.png"
                 alt="Expense Manager Logo"
@@ -105,7 +105,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
           </div>
           <button
             onClick={() => setIsMobileOpen(false)}
-            className="md:hidden p-1.5 text-zinc-400 hover:text-white rounded-lg"
+            className="md:hidden p-1.5 text-zinc-400 hover:text-white rounded-none"
           >
             <X className="w-5 h-5" />
           </button>
@@ -120,9 +120,9 @@ export const Sidebar: React.FC<SidebarProps> = ({
               placeholder="Quick search..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full bg-[#14161d] text-xs text-zinc-200 placeholder-zinc-500 pl-9 pr-8 py-2 rounded-lg border border-white/5 focus:outline-none focus:border-white/30 transition-colors"
+              className="w-full bg-[#14161d] text-xs text-zinc-200 placeholder-zinc-500 pl-9 pr-8 py-2 rounded-none border border-[#22252f] focus:outline-none focus:border-[#52596e] transition-colors"
             />
-            <kbd className="hidden sm:inline-block absolute right-2.5 text-[10px] bg-zinc-800/80 text-zinc-400 px-1.5 py-0.5 rounded border border-white/5 pointer-events-none">
+            <kbd className="hidden sm:inline-block absolute right-2.5 text-[10px] bg-[#1f222c] text-zinc-400 px-1.5 py-0.5 rounded-none border border-[#22252f] pointer-events-none">
               /
             </kbd>
           </div>
@@ -138,10 +138,10 @@ export const Sidebar: React.FC<SidebarProps> = ({
               <button
                 key={item.id}
                 onClick={() => handleSelectTab(item.id)}
-                className={`w-full flex items-center justify-between px-3 py-2.5 rounded-xl text-xs font-medium transition-all ${
+                className={`w-full flex items-center justify-between px-3 py-2.5 rounded-none text-xs font-medium transition-all ${
                   isActive
-                    ? 'bg-white/[0.08] text-white shadow-sm border border-white/10 font-semibold'
-                    : 'text-zinc-400 hover:text-zinc-200 hover:bg-white/[0.03]'
+                    ? 'bg-[#1e212b] text-white border border-[#2c303d] font-semibold'
+                    : 'text-zinc-400 hover:text-zinc-200 hover:bg-[#15171e]'
                 }`}
               >
                 <div className="flex items-center gap-3">
@@ -166,12 +166,12 @@ export const Sidebar: React.FC<SidebarProps> = ({
       </div>
 
       {/* Bottom Profile and Settings Section */}
-      <div className="pt-4 border-t border-white/5 space-y-2">
+      <div className="pt-4 border-t border-[#22252f] space-y-2">
         <button
           onClick={() => handleSelectTab('settings')}
-          className={`w-full flex items-center gap-3 px-3 py-2 rounded-xl text-xs font-medium transition-colors ${
+          className={`w-full flex items-center gap-3 px-3 py-2 rounded-none text-xs font-medium transition-colors ${
             currentTab === 'settings'
-              ? 'bg-[#1c1f28] text-white border border-white/10'
+              ? 'bg-[#1c1f28] text-white border border-[#2c303d]'
               : 'text-zinc-400 hover:text-zinc-200 hover:bg-[#13151b]'
           }`}
         >
@@ -185,7 +185,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
               onLockApp();
               setIsMobileOpen(false);
             }}
-            className="w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs font-medium text-zinc-400 hover:text-white hover:bg-[#13151b] transition-colors"
+            className="w-full flex items-center justify-between px-3 py-2 rounded-none text-xs font-medium text-zinc-400 hover:text-white hover:bg-[#13151b] transition-colors"
             title="Lock application session"
           >
             <div className="flex items-center gap-3">
@@ -197,8 +197,8 @@ export const Sidebar: React.FC<SidebarProps> = ({
         )}
 
         {/* User Card */}
-        <div className="flex items-center gap-3 p-2 rounded-xl bg-[#13161c] border border-white/5 mt-2">
-          <div className="w-8 h-8 rounded-full bg-zinc-800 border border-white/10 flex items-center justify-center font-bold text-xs text-zinc-200 uppercase">
+        <div className="flex items-center gap-3 p-2 rounded-none bg-[#13161c] border border-[#22252f] mt-2">
+          <div className="w-8 h-8 rounded-none bg-zinc-800 border border-[#2c303d] flex items-center justify-center font-bold text-xs text-zinc-200 uppercase">
             {userName.charAt(0) || 'F'}
           </div>
           <div className="flex-1 min-w-0">
@@ -213,7 +213,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
   return (
     <>
       {/* Desktop Persistent Sidebar */}
-      <aside className="hidden md:flex w-64 h-screen bg-[#0d0e12] border-r border-white/5 flex-col shrink-0 select-none overflow-hidden sticky top-0 z-20">
+      <aside className="hidden md:flex w-64 h-screen bg-[#0d0e12] border-r border-[#22252f] flex-col shrink-0 select-none overflow-hidden sticky top-0 z-20">
         {sidebarContent}
       </aside>
 
@@ -221,20 +221,20 @@ export const Sidebar: React.FC<SidebarProps> = ({
       {isMobileOpen && (
         <div className="fixed inset-0 z-50 md:hidden flex">
           <div
-            className="fixed inset-0 bg-black/80 backdrop-blur-sm transition-opacity"
+            className="fixed inset-0 bg-black/80 transition-opacity"
             onClick={() => setIsMobileOpen(false)}
           />
-          <div className="relative w-72 max-w-[80vw] bg-[#0d0e12] border-r border-white/10 h-full shadow-2xl z-50 animate-in slide-in-from-left duration-200">
+          <div className="relative w-72 max-w-[80vw] bg-[#0d0e12] border-r border-[#2c303d] h-full z-50 animate-in slide-in-from-left duration-200">
             {sidebarContent}
           </div>
         </div>
       )}
 
-      {/* Mobile Bottom Navigation Bar - Dense, minimal, matte */}
-      <nav className="md:hidden fixed bottom-0 left-0 right-0 z-40 bg-[#090a0d]/95 backdrop-blur-xl border-t border-white/10 px-2 py-2 flex items-center justify-around safe-area-bottom">
+      {/* Mobile Bottom Navigation Bar - Strict flat bar */}
+      <nav className="md:hidden fixed bottom-0 left-0 right-0 z-40 bg-[#090a0c] border-t border-[#22252f] px-2 py-2 flex items-center justify-around safe-area-bottom">
         <button
           onClick={() => setCurrentTab('dashboard')}
-          className={`flex flex-col items-center gap-1 p-1 rounded-xl transition-colors ${
+          className={`flex flex-col items-center gap-1 p-1 rounded-none transition-colors ${
             currentTab === 'dashboard' ? 'text-white font-medium' : 'text-zinc-500 hover:text-zinc-300'
           }`}
         >
@@ -244,7 +244,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
 
         <button
           onClick={() => setCurrentTab('transactions')}
-          className={`flex flex-col items-center gap-1 p-1 rounded-xl transition-colors ${
+          className={`flex flex-col items-center gap-1 p-1 rounded-none transition-colors ${
             currentTab === 'transactions' ? 'text-white font-medium' : 'text-zinc-500 hover:text-zinc-300'
           }`}
         >
@@ -254,14 +254,14 @@ export const Sidebar: React.FC<SidebarProps> = ({
 
         <button
           onClick={() => setCurrentTab('receivables')}
-          className={`relative flex flex-col items-center gap-1 p-1 rounded-xl transition-colors cursor-pointer ${
+          className={`relative flex flex-col items-center gap-1 p-1 rounded-none transition-colors cursor-pointer ${
             currentTab === 'receivables' || currentTab === 'reminders' ? 'text-white font-medium' : 'text-zinc-500 hover:text-zinc-300'
           }`}
         >
           <ArrowUpRight className="w-5 h-5" />
           {(effectiveOverdueRec > 0 || effectivePendingRec > 0) && (
             <span
-              className={`absolute top-0 right-1 w-2 h-2 rounded-full ${
+              className={`absolute top-0 right-1 w-2 h-2 rounded-none ${
                 effectiveOverdueRec > 0 ? 'bg-rose-400' : 'bg-zinc-300'
               }`}
             />
@@ -271,14 +271,14 @@ export const Sidebar: React.FC<SidebarProps> = ({
 
         <button
           onClick={() => setCurrentTab('payables')}
-          className={`relative flex flex-col items-center gap-1 p-1 rounded-xl transition-colors cursor-pointer ${
+          className={`relative flex flex-col items-center gap-1 p-1 rounded-none transition-colors cursor-pointer ${
             currentTab === 'payables' ? 'text-white font-medium' : 'text-zinc-500 hover:text-zinc-300'
           }`}
         >
           <ArrowDownLeft className="w-5 h-5" />
           {(overduePayablesCount > 0 || pendingPayablesCount > 0) && (
             <span
-              className={`absolute top-0 right-1 w-2 h-2 rounded-full ${
+              className={`absolute top-0 right-1 w-2 h-2 rounded-none ${
                 overduePayablesCount > 0 ? 'bg-rose-400' : 'bg-zinc-300'
               }`}
             />
@@ -288,12 +288,12 @@ export const Sidebar: React.FC<SidebarProps> = ({
 
         <button
           onClick={() => setIsMobileOpen(true)}
-          className="flex flex-col items-center gap-1 p-1 rounded-xl text-zinc-500 hover:text-zinc-300 transition-colors"
+          className="flex flex-col items-center gap-1 p-1 rounded-none text-zinc-500 hover:text-zinc-300 transition-colors"
         >
           <div className="w-5 h-5 flex flex-col justify-center gap-1">
-            <span className="w-4 h-0.5 bg-zinc-400 rounded-full" />
-            <span className="w-4 h-0.5 bg-zinc-400 rounded-full" />
-            <span className="w-4 h-0.5 bg-zinc-400 rounded-full" />
+            <span className="w-4 h-0.5 bg-zinc-400 rounded-none" />
+            <span className="w-4 h-0.5 bg-zinc-400 rounded-none" />
+            <span className="w-4 h-0.5 bg-zinc-400 rounded-none" />
           </div>
           <span className="text-[10px]">More</span>
         </button>
