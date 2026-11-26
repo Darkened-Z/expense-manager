@@ -5,6 +5,7 @@ import { X, Clock, Calendar, DollarSign, User, FileText, Bell, ArrowUpRight, Arr
 import { Category, ReminderType, PaymentReminder, ReminderAmountType } from '@/types';
 import { formatDateDDMMYYYY } from '@/lib/formatters';
 import { SUPPORTED_CURRENCIES, getDefaultRate, getCurrencySymbol } from '@/lib/currencies';
+import { DateInputDDMMYYYY } from '@/components/ui/DateInputDDMMYYYY';
 
 interface AddReminderModalProps {
   isOpen: boolean;
@@ -662,10 +663,9 @@ export const AddReminderModal: React.FC<AddReminderModalProps> = ({
                   </span>
                 )}
               </div>
-              <input
-                type="date"
+              <DateInputDDMMYYYY
                 value={dueDate}
-                onChange={(e) => handleDueDateChange(e.target.value)}
+                onChange={handleDueDateChange}
                 className="w-full bg-[#12141a] text-white text-xs px-3 py-2 rounded-xl border border-white/10 focus:outline-none focus:border-white/30"
                 required
               />
@@ -686,10 +686,9 @@ export const AddReminderModal: React.FC<AddReminderModalProps> = ({
                   </span>
                 )}
               </div>
-              <input
-                type="date"
+              <DateInputDDMMYYYY
                 value={reminderDate}
-                onChange={(e) => setReminderDate(e.target.value)}
+                onChange={setReminderDate}
                 className="w-full bg-[#12141a] text-white text-xs px-3 py-2 rounded-xl border border-white/10 focus:outline-none focus:border-white/30"
                 required
               />

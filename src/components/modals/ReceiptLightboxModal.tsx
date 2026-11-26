@@ -3,7 +3,7 @@
 import React from 'react';
 import { X, Download, Receipt } from 'lucide-react';
 import { Transaction } from '@/types';
-import { formatCash } from '@/lib/formatters';
+import { formatCash, formatDateDDMMYYYY } from '@/lib/formatters';
 
 interface ReceiptLightboxModalProps {
   isOpen: boolean;
@@ -20,10 +20,12 @@ export const ReceiptLightboxModal: React.FC<ReceiptLightboxModalProps> = ({
 }) => {
   if (!isOpen || !transaction || !transaction.attachmentUrl) return null;
 
+  const formattedDate = formatDateDDMMYYYY(transaction.date);
+
   const handleDownload = () => {
     const a = document.createElement('a');
     a.href = transaction.attachmentUrl!;
-    a.download = `Receipt_${transaction.date}_${transaction.title.replace(/\s+/g, '_')}.jpg`;
+    a.download = `Receipt_${formattedDate.replace(/\//g, '-')}_${transaction.title.replace(/\s+/g, '_')}.jpg`;
     a.click();
   };
 
@@ -45,7 +47,7 @@ export const ReceiptLightboxModal: React.FC<ReceiptLightboxModalProps> = ({
             <div>
               <h3 className="text-sm font-bold text-white line-clamp-1">{transaction.title}</h3>
               <p className="text-[11px] font-mono text-zinc-400">
-                {transaction.date} • {currencySymbol}{formatCash(transaction.amount)}
+                {formattedDate} • {currencySymbol}{formatCash(transaction.amount)}
               </p>
             </div>
           </div>

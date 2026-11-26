@@ -15,7 +15,7 @@ import {
 } from 'lucide-react';
 import { Wallet, Transaction, PaymentReminder } from '@/types';
 import { calculateRunwayForecast } from '@/lib/forecast';
-import { formatCash, formatCurrency } from '@/lib/formatters';
+import { formatCash, formatCurrency, formatDateDDMMYYYY } from '@/lib/formatters';
 
 interface CashflowRunwaySectionProps {
   wallets: Wallet[];
@@ -158,7 +158,7 @@ export const CashflowRunwaySection: React.FC<CashflowRunwaySectionProps> = ({
                     {p.label}
                   </span>
                   <span className="text-[11px] font-mono text-zinc-400">
-                    Target: {p.targetDate}
+                    Target: {formatDateDDMMYYYY(p.targetDate)}
                   </span>
                 </div>
 

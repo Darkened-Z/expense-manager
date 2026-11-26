@@ -686,6 +686,17 @@
       return (state.settings.currency || 'Rs. ') + Math.round(amount || 0).toLocaleString();
     }
 
+    function formatDateDDMMYYYY(dateStr) {
+      if (!dateStr) return '';
+      const clean = String(dateStr).trim().split('T')[0];
+      if (/^\d{2}\/\d{2}\/\d{4}$/.test(clean)) return clean;
+      const parts = clean.split('-');
+      if (parts.length === 3 && parts[0].length === 4) {
+        return `${parts[2].padStart(2, '0')}/${parts[1].padStart(2, '0')}/${parts[0]}`;
+      }
+      return clean;
+    }
+
     // --- NAVIGATION ---
     let currentTab = 'dashboard';
     function switchTab(tab) {
@@ -782,7 +793,7 @@
           const sign = isExpense ? '-' : isIncome ? '+' : '';
           return `
             <tr>
-              <td style="color: var(--text-muted); font-size: 11px;">${t.date || ''}</td>
+              <td style="color: var(--text-muted); font-size: 11px;">${formatDateDDMMYYYY(t.date)}</td>
               <td style="font-weight: 600; color: #fff;">${t.title}</td>
               <td><span class="badge">${c ? c.name : 'General'}</span></td>
               <td style="color: var(--text-muted);">${w ? w.name : 'Account'}</td>
@@ -826,7 +837,7 @@
         const sign = isExpense ? '-' : isIncome ? '+' : '';
         return `
           <tr>
-            <td style="color: var(--text-muted); font-size: 11px;">${t.date} ${t.time || ''}</td>
+            <td style="color: var(--text-muted); font-size: 11px;">${formatDateDDMMYYYY(t.date)} ${t.time || ''}</td>
             <td style="font-weight: 600; color: #fff;">${t.title}</td>
             <td><span class="badge">${c ? c.name : 'General'}</span></td>
             <td style="color: var(--text-muted);">${w ? w.name : 'Account'}</td>
@@ -849,7 +860,7 @@
       container.innerHTML = state.reminders.map(r => {
         const isCollected = r.status === 'collected';
         const isPayable = r.type === 'payable';
-        const waText = encodeURIComponent(`Hi ${r.clientName}, gentle reminder regarding invoice for ${r.projectTitle} of ${state.settings.currency || 'Rs. '}${r.amount}. Due date: ${r.dueDate}. Thank you!`);
+        const waText = encodeURIComponent(`Hi ${r.clientName}, gentle reminder regarding invoice for ${r.projectTitle} of ${state.settings.currency || 'Rs. '}${r.amount}. Due date: ${formatDateDDMMYYYY(r.dueDate)}. Thank you!`);
         return `
           <div class="card" style="opacity: ${isCollected ? '0.6' : '1'};">
             <div style="display: flex; justify-content: space-between; align-items: flex-start;">
@@ -860,7 +871,7 @@
               </div>
               <div style="font-family: monospace; font-weight: 700; font-size: 1.1rem; color: #fff;">${formatMoney(r.amount)}</div>
             </div>
-            <div style="margin-top: 12px; font-size: 11px; color: var(--text-muted);">Due: <b>${r.dueDate}</b></div>
+            <div style="margin-top: 12px; font-size: 11px; color: var(--text-muted);">Due: <b>${formatDateDDMMYYYY(r.dueDate)}</b></div>
             <div style="display: flex; gap: 8px; margin-top: 14px; border-top: 1px solid var(--border); padding-top: 12px;">
               ${!isCollected ? `
                 <button class="btn btn-primary" style="flex: 1;" onclick="collectReminder('${r.id}')">✓ Collect</button>

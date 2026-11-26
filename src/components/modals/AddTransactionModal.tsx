@@ -7,6 +7,7 @@ import { formatDateDDMMYYYY, formatCash } from '@/lib/formatters';
 import { SUPPORTED_CURRENCIES, getDefaultRate, getCurrencySymbol } from '@/lib/currencies';
 import { compressImageToDataUrl } from '@/lib/images';
 import { StorageService } from '@/lib/storage';
+import { DateInputDDMMYYYY } from '@/components/ui/DateInputDDMMYYYY';
 
 interface AddTransactionModalProps {
   isOpen: boolean;
@@ -605,11 +606,11 @@ export const AddTransactionModal: React.FC<AddTransactionModalProps> = ({
                   </span>
                 )}
               </div>
-              <input
-                type="date"
+              <DateInputDDMMYYYY
                 value={date}
-                onChange={(e) => setDate(e.target.value)}
+                onChange={setDate}
                 className="w-full bg-[#171922] text-white text-xs px-3 py-2.5 rounded-xl border border-white/10 focus:outline-none focus:border-white/30"
+                required
               />
             </div>
             <div>

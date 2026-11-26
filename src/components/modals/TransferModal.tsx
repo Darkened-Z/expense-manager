@@ -1,9 +1,10 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { X, ArrowLeftRight, Calendar, Wallet as WalletIcon, AlertCircle, ArrowRight } from 'lucide-react';
+import { X, ArrowLeftRight, Wallet as WalletIcon, AlertCircle, ArrowRight } from 'lucide-react';
 import { Wallet } from '@/types';
 import { formatCash } from '@/lib/formatters';
+import { DateInputDDMMYYYY } from '@/components/ui/DateInputDDMMYYYY';
 
 interface TransferModalProps {
   isOpen: boolean;
@@ -209,17 +210,13 @@ export const TransferModal: React.FC<TransferModalProps> = ({
 
           {/* Date */}
           <div>
-            <label className="block text-[11px] font-medium text-zinc-400 mb-1">Date</label>
-            <div className="relative">
-              <Calendar className="w-3.5 h-3.5 text-zinc-500 absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" />
-              <input
-                type="date"
-                value={date}
-                onChange={(e) => setDate(e.target.value)}
-                className="w-full bg-[#181b23] text-xs text-zinc-200 pl-9 pr-3 py-2 rounded-xl border border-white/10 focus:outline-none focus:border-white/30"
-                required
-              />
-            </div>
+            <label className="block text-[11px] font-medium text-zinc-400 mb-1">Date (DD/MM/YYYY)</label>
+            <DateInputDDMMYYYY
+              value={date}
+              onChange={setDate}
+              className="w-full bg-[#181b23] text-xs text-zinc-200 px-3.5 py-2 rounded-xl border border-white/10 focus:outline-none focus:border-white/30"
+              required
+            />
           </div>
 
           {/* Notes */}

@@ -11,6 +11,10 @@ export function formatDateDDMMYYYY(dateStr?: string | null): string {
 
   // Handle YYYY-MM-DD or strings starting with YYYY-MM-DD
   const cleanStr = dateStr.trim();
+  if (/^\d{2}\/\d{2}\/\d{4}$/.test(cleanStr)) {
+    return cleanStr;
+  }
+
   const datePart = cleanStr.includes('T') ? cleanStr.split('T')[0] : cleanStr;
   const parts = datePart.split('-');
 
@@ -37,15 +41,10 @@ export function formatDateDDMMYYYY(dateStr?: string | null): string {
 
 /**
  * Formats a transaction or activity date with time into "DD/MM/YYYY • HH:MM"
- * or "Today, HH:MM" if the date is today.
  */
 export function formatDateTimeDDMMYYYY(dateStr: string, timeStr?: string): string {
   try {
-    const today = new Date().toISOString().split('T')[0];
     const formattedDate = formatDateDDMMYYYY(dateStr);
-    if (dateStr === today) {
-      return timeStr ? `Today, ${timeStr}` : 'Today';
-    }
     return timeStr ? `${formattedDate} • ${timeStr}` : formattedDate;
   } catch {
     return timeStr ? `${dateStr} ${timeStr}` : dateStr;

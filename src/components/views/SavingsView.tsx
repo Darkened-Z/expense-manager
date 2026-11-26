@@ -4,6 +4,7 @@ import React, { useState } from 'react';
 import { PiggyBank, Plus, TrendingUp, Target, Calendar, ArrowUpRight, ArrowDownLeft, Trash2, CheckCircle2, StickyNote, X, History } from 'lucide-react';
 import { SavingsGoal, Wallet, SimpleSaving, Transaction } from '@/types';
 import { formatCash, formatDateDDMMYYYY } from '@/lib/formatters';
+import { DateInputDDMMYYYY } from '@/components/ui/DateInputDDMMYYYY';
 
 interface SavingsViewProps {
   savingsGoals: SavingsGoal[];
@@ -561,11 +562,10 @@ export const SavingsView: React.FC<SavingsViewProps> = ({
 
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="block text-[11px] font-medium text-zinc-400 mb-1">Target Date</label>
-                  <input
-                    type="date"
+                  <label className="block text-[11px] font-medium text-zinc-400 mb-1">Target Date (DD/MM/YYYY)</label>
+                  <DateInputDDMMYYYY
                     value={targetDate}
-                    onChange={(e) => setTargetDate(e.target.value)}
+                    onChange={setTargetDate}
                     className="w-full bg-[#171922] text-white text-xs px-3.5 py-2.5 rounded-xl border border-white/10 focus:outline-none focus:border-white/30"
                   />
                 </div>
@@ -701,11 +701,10 @@ export const SavingsView: React.FC<SavingsViewProps> = ({
                 </div>
 
                 <div>
-                  <label className="block text-[11px] font-medium text-zinc-400 mb-1">Date</label>
-                  <input
-                    type="date"
+                  <label className="block text-[11px] font-medium text-zinc-400 mb-1">Date (DD/MM/YYYY)</label>
+                  <DateInputDDMMYYYY
                     value={simpleDate}
-                    onChange={(e) => setSimpleDate(e.target.value)}
+                    onChange={setSimpleDate}
                     className="w-full bg-[#171922] text-white text-xs px-3 py-2.5 rounded-xl border border-white/10 focus:outline-none focus:border-white/30"
                   />
                 </div>
