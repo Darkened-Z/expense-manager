@@ -32,6 +32,7 @@ import { formatDateDDMMYYYY, formatCash } from '@/lib/formatters';
 import { getWhatsAppReminderUrl } from '@/lib/whatsapp';
 import { DEFAULT_SETTINGS } from '@/lib/constants';
 import { formatForeignAmount, getCurrencySymbol } from '@/lib/currencies';
+import { PageSectionHeader } from '@/components/ui/PageSectionHeader';
 
 interface CollectOverrideAmounts {
   amountPKR: number;
@@ -344,25 +345,23 @@ export const FreelanceRemindersView: React.FC<FreelanceRemindersViewProps> = ({
   return (
     <div className="space-y-6">
       {/* Top Section Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-        <div>
-          <h2 className="text-base font-bold text-white tracking-wide">
-            {isPayablesMode ? 'Cash Payable' : 'Cash Receivable'}
-          </h2>
-          <p className="text-xs text-zinc-400">
-            {isPayablesMode
-              ? 'Track salaries, rent, vendor bills, and outgoing payables'
-              : 'Track client invoices, milestones, and incoming retainers'}
-          </p>
-        </div>
-        <button
-          onClick={onOpenAddModal}
-          className="bg-zinc-100 hover:bg-white text-zinc-950 font-semibold py-2 px-3.5 rounded-none text-xs flex items-center justify-center gap-1.5 transition-colors cursor-pointer self-start sm:self-auto"
-        >
-          <Plus className="w-4 h-4 stroke-[2.5]" />
-          <span>{isPayablesMode ? 'Add Payable Due Date' : 'Add Receivable Due Date'}</span>
-        </button>
-      </div>
+      <PageSectionHeader
+        title={isPayablesMode ? 'Cash Payable' : 'Cash Receivable'}
+        subtitle={
+          isPayablesMode
+            ? 'Track salaries, rent, vendor bills, and outgoing payables'
+            : 'Track client invoices, milestones, and incoming retainers'
+        }
+        actions={
+          <button
+            onClick={onOpenAddModal}
+            className="h-9 px-3.5 bg-zinc-100 hover:bg-white text-zinc-950 border border-zinc-100 font-semibold text-xs rounded-none flex items-center justify-center gap-1.5 whitespace-nowrap cursor-pointer transition-colors"
+          >
+            <Plus className="w-3.5 h-3.5 stroke-[2.5]" />
+            <span>{isPayablesMode ? 'Add Payable' : 'Add Receivable'}</span>
+          </button>
+        }
+      />
 
       {/* Top Banner Metric Cards (4 Cards) */}
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4 max-w-full">

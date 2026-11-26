@@ -15,6 +15,7 @@ import {
   PiggyBank,
   ArrowUpRight,
   ArrowDownLeft,
+  LogOut,
 } from 'lucide-react';
 
 interface SidebarProps {
@@ -28,6 +29,8 @@ interface SidebarProps {
   overdueRemindersCount?: number;
   isLockEnabled: boolean;
   onLockApp: () => void;
+  accountUsername?: string;
+  onLogout?: () => void;
   userName: string;
   userEmail: string;
   searchQuery: string;
@@ -47,6 +50,8 @@ export const Sidebar: React.FC<SidebarProps> = ({
   overdueRemindersCount = 0,
   isLockEnabled,
   onLockApp,
+  accountUsername,
+  onLogout,
   userName,
   userEmail,
   searchQuery,
@@ -138,10 +143,10 @@ export const Sidebar: React.FC<SidebarProps> = ({
               <button
                 key={item.id}
                 onClick={() => handleSelectTab(item.id)}
-                className={`w-full flex items-center justify-between px-3 py-2.5 rounded-none text-xs font-medium transition-all ${
+                className={`w-full h-9 flex items-center justify-between px-3 rounded-none text-xs font-medium transition-all ${
                   isActive
                     ? 'bg-[#1e212b] text-white border border-[#2c303d] font-semibold'
-                    : 'text-zinc-400 hover:text-zinc-200 hover:bg-[#15171e]'
+                    : 'text-zinc-400 hover:text-zinc-200 hover:bg-[#15171e] border border-transparent'
                 }`}
               >
                 <div className="flex items-center gap-3">
@@ -166,13 +171,13 @@ export const Sidebar: React.FC<SidebarProps> = ({
       </div>
 
       {/* Bottom Profile and Settings Section */}
-      <div className="pt-4 border-t border-[#22252f] space-y-2">
+      <div className="pt-4 border-t border-[#22252f] space-y-1.5">
         <button
           onClick={() => handleSelectTab('settings')}
-          className={`w-full flex items-center gap-3 px-3 py-2 rounded-none text-xs font-medium transition-colors ${
+          className={`w-full h-9 flex items-center gap-3 px-3 rounded-none text-xs font-medium transition-colors ${
             currentTab === 'settings'
               ? 'bg-[#1c1f28] text-white border border-[#2c303d]'
-              : 'text-zinc-400 hover:text-zinc-200 hover:bg-[#13151b]'
+              : 'text-zinc-400 hover:text-zinc-200 hover:bg-[#13151b] border border-transparent'
           }`}
         >
           <Settings className="w-4 h-4 text-zinc-400" />
@@ -185,7 +190,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
               onLockApp();
               setIsMobileOpen(false);
             }}
-            className="w-full flex items-center justify-between px-3 py-2 rounded-none text-xs font-medium text-zinc-400 hover:text-white hover:bg-[#13151b] transition-colors"
+            className="w-full h-9 flex items-center justify-between px-3 rounded-none text-xs font-medium text-zinc-400 hover:text-white hover:bg-[#13151b] border border-transparent transition-colors"
             title="Lock application session"
           >
             <div className="flex items-center gap-3">
@@ -196,13 +201,34 @@ export const Sidebar: React.FC<SidebarProps> = ({
           </button>
         )}
 
+        {onLogout && (
+          <button
+            onClick={() => {
+              onLogout();
+              setIsMobileOpen(false);
+            }}
+            className="w-full h-9 flex items-center justify-between px-3 rounded-none text-xs font-medium text-zinc-400 hover:text-rose-300 hover:bg-[#13151b] border border-transparent transition-colors cursor-pointer"
+            title="Sign out or switch user account"
+          >
+            <div className="flex items-center gap-3">
+              <LogOut className="w-4 h-4 text-zinc-400" />
+              <span>Sign Out</span>
+            </div>
+            {accountUsername && (
+              <span className="text-[10px] text-zinc-500 font-mono truncate max-w-[90px]">@{accountUsername}</span>
+            )}
+          </button>
+        )}
+
         {/* User Card */}
         <div className="flex items-center gap-3 p-2 rounded-none bg-[#13161c] border border-[#22252f] mt-2">
           <div className="w-8 h-8 rounded-none bg-zinc-800 border border-[#2c303d] flex items-center justify-center font-bold text-xs text-zinc-200 uppercase">
-            {userName.charAt(0) || 'F'}
+            {(accountUsername || userName).charAt(0) || 'F'}
           </div>
           <div className="flex-1 min-w-0">
-            <div className="text-xs font-medium text-zinc-200 truncate">{userName}</div>
+            <div className="text-xs font-medium text-zinc-200 truncate">
+              {accountUsername ? `@${accountUsername}` : userName}
+            </div>
             <div className="text-[10px] text-zinc-500 truncate">{userEmail}</div>
           </div>
         </div>
@@ -230,72 +256,72 @@ export const Sidebar: React.FC<SidebarProps> = ({
         </div>
       )}
 
-      {/* Mobile Bottom Navigation Bar - Strict flat bar */}
-      <nav className="md:hidden fixed bottom-0 left-0 right-0 z-40 bg-[#090a0c] border-t border-[#22252f] px-2 py-2 flex items-center justify-around safe-area-bottom">
+      {/* Mobile Bottom Navigation Bar - Equal grid width & fixed height */}
+      <nav className="md:hidden fixed bottom-0 left-0 right-0 z-40 h-14 bg-[#090a0c] border-t border-[#22252f] grid grid-cols-5 items-stretch safe-area-bottom">
         <button
           onClick={() => setCurrentTab('dashboard')}
-          className={`flex flex-col items-center gap-1 p-1 rounded-none transition-colors ${
-            currentTab === 'dashboard' ? 'text-white font-medium' : 'text-zinc-500 hover:text-zinc-300'
+          className={`flex flex-col items-center justify-center gap-1 rounded-none transition-colors ${
+            currentTab === 'dashboard' ? 'text-white font-medium bg-[#14161d]' : 'text-zinc-500 hover:text-zinc-300'
           }`}
         >
-          <LayoutDashboard className="w-5 h-5" />
-          <span className="text-[10px]">Dashboard</span>
+          <LayoutDashboard className="w-4 h-4" />
+          <span className="text-[10px] leading-none">Dashboard</span>
         </button>
 
         <button
           onClick={() => setCurrentTab('transactions')}
-          className={`flex flex-col items-center gap-1 p-1 rounded-none transition-colors ${
-            currentTab === 'transactions' ? 'text-white font-medium' : 'text-zinc-500 hover:text-zinc-300'
+          className={`flex flex-col items-center justify-center gap-1 rounded-none transition-colors ${
+            currentTab === 'transactions' ? 'text-white font-medium bg-[#14161d]' : 'text-zinc-500 hover:text-zinc-300'
           }`}
         >
-          <ArrowLeftRight className="w-5 h-5" />
-          <span className="text-[10px]">Ledger</span>
+          <ArrowLeftRight className="w-4 h-4" />
+          <span className="text-[10px] leading-none">Ledger</span>
         </button>
 
         <button
           onClick={() => setCurrentTab('receivables')}
-          className={`relative flex flex-col items-center gap-1 p-1 rounded-none transition-colors cursor-pointer ${
-            currentTab === 'receivables' || currentTab === 'reminders' ? 'text-white font-medium' : 'text-zinc-500 hover:text-zinc-300'
+          className={`relative flex flex-col items-center justify-center gap-1 rounded-none transition-colors cursor-pointer ${
+            currentTab === 'receivables' || currentTab === 'reminders' ? 'text-white font-medium bg-[#14161d]' : 'text-zinc-500 hover:text-zinc-300'
           }`}
         >
-          <ArrowUpRight className="w-5 h-5" />
+          <ArrowUpRight className="w-4 h-4" />
           {(effectiveOverdueRec > 0 || effectivePendingRec > 0) && (
             <span
-              className={`absolute top-0 right-1 w-2 h-2 rounded-none ${
+              className={`absolute top-1.5 right-3 w-2 h-2 rounded-none ${
                 effectiveOverdueRec > 0 ? 'bg-rose-400' : 'bg-zinc-300'
               }`}
             />
           )}
-          <span className="text-[10px]">Receivable</span>
+          <span className="text-[10px] leading-none">Receivable</span>
         </button>
 
         <button
           onClick={() => setCurrentTab('payables')}
-          className={`relative flex flex-col items-center gap-1 p-1 rounded-none transition-colors cursor-pointer ${
-            currentTab === 'payables' ? 'text-white font-medium' : 'text-zinc-500 hover:text-zinc-300'
+          className={`relative flex flex-col items-center justify-center gap-1 rounded-none transition-colors cursor-pointer ${
+            currentTab === 'payables' ? 'text-white font-medium bg-[#14161d]' : 'text-zinc-500 hover:text-zinc-300'
           }`}
         >
-          <ArrowDownLeft className="w-5 h-5" />
+          <ArrowDownLeft className="w-4 h-4" />
           {(overduePayablesCount > 0 || pendingPayablesCount > 0) && (
             <span
-              className={`absolute top-0 right-1 w-2 h-2 rounded-none ${
+              className={`absolute top-1.5 right-3 w-2 h-2 rounded-none ${
                 overduePayablesCount > 0 ? 'bg-rose-400' : 'bg-zinc-300'
               }`}
             />
           )}
-          <span className="text-[10px]">Payable</span>
+          <span className="text-[10px] leading-none">Payable</span>
         </button>
 
         <button
           onClick={() => setIsMobileOpen(true)}
-          className="flex flex-col items-center gap-1 p-1 rounded-none text-zinc-500 hover:text-zinc-300 transition-colors"
+          className="flex flex-col items-center justify-center gap-1 rounded-none text-zinc-500 hover:text-zinc-300 transition-colors"
         >
-          <div className="w-5 h-5 flex flex-col justify-center gap-1">
-            <span className="w-4 h-0.5 bg-zinc-400 rounded-none" />
-            <span className="w-4 h-0.5 bg-zinc-400 rounded-none" />
-            <span className="w-4 h-0.5 bg-zinc-400 rounded-none" />
+          <div className="w-4 h-4 flex flex-col items-center justify-center gap-1">
+            <span className="w-3.5 h-0.5 bg-zinc-400 rounded-none" />
+            <span className="w-3.5 h-0.5 bg-zinc-400 rounded-none" />
+            <span className="w-3.5 h-0.5 bg-zinc-400 rounded-none" />
           </div>
-          <span className="text-[10px]">More</span>
+          <span className="text-[10px] leading-none">More</span>
         </button>
       </nav>
     </>

@@ -28,6 +28,7 @@ import {
 } from 'lucide-react';
 import { Category, Transaction } from '@/types';
 import { formatCash, formatDateDDMMYYYY } from '@/lib/formatters';
+import { PageSectionHeader } from '@/components/ui/PageSectionHeader';
 
 interface CategoriesViewProps {
   categories: Category[];
@@ -135,49 +136,45 @@ export const CategoriesView: React.FC<CategoriesViewProps> = ({
 
   return (
     <div className="space-y-6">
-      {/* Top Banner & Tab Switcher */}
-      <div className="bg-[#12141a] border border-[#22252f] rounded-none p-4 sm:p-6 flex flex-col sm:flex-row sm:items-center justify-between gap-4 max-w-full overflow-hidden">
-        <div>
-          <h2 className="text-base font-bold text-white tracking-wide">
-            {activeTab === 'expense' ? 'Expense Categories & Budgets' : 'Income Sources'}
-          </h2>
-          <p className="text-xs text-zinc-400 mt-1">
-            {activeTab === 'expense'
-              ? 'Organize outgoing expenditures and configure monthly spending caps'
-              : 'Classify incoming freelance contracts, retainers, salary, and dividends'}
-          </p>
-        </div>
+      {/* Top Section Header & Tab Switcher */}
+      <PageSectionHeader
+        title={activeTab === 'expense' ? 'Expense Categories & Budgets' : 'Income Sources'}
+        subtitle={
+          activeTab === 'expense'
+            ? 'Organize outgoing expenditures and configure monthly spending caps'
+            : 'Classify incoming freelance contracts, retainers, salary, and dividends'
+        }
+        actions={
+          <>
+            <div className="h-9 flex items-center bg-[#181b23] p-1 rounded-none border border-[#2c303d] text-xs shrink-0">
+              <button
+                onClick={() => setActiveTab('expense')}
+                className={`h-7 px-3 rounded-none transition-colors font-medium shrink-0 whitespace-nowrap cursor-pointer ${
+                  activeTab === 'expense' ? 'bg-[#20232e] text-white' : 'text-zinc-400 hover:text-zinc-200'
+                }`}
+              >
+                Expense Categories
+              </button>
+              <button
+                onClick={() => setActiveTab('income')}
+                className={`h-7 px-3 rounded-none transition-colors font-medium shrink-0 whitespace-nowrap cursor-pointer ${
+                  activeTab === 'income' ? 'bg-[#20232e] text-white' : 'text-zinc-400 hover:text-zinc-200'
+                }`}
+              >
+                Income Sources
+              </button>
+            </div>
 
-        <div className="flex flex-wrap sm:flex-nowrap items-center gap-2 max-w-full">
-          {/* Tabs */}
-          <div className="flex items-center bg-[#181b23] p-1 rounded-none border border-[#2c303d] text-xs overflow-x-auto max-w-full scrollbar-none shrink-0">
             <button
-              onClick={() => setActiveTab('expense')}
-              className={`px-3 py-1.5 rounded-none transition-colors font-medium shrink-0 whitespace-nowrap ${
-                activeTab === 'expense' ? 'bg-[#20232e] text-white' : 'text-zinc-400 hover:text-zinc-200'
-              }`}
+              onClick={() => setShowAddModal(true)}
+              className="h-9 px-3.5 bg-zinc-100 hover:bg-white text-zinc-950 border border-zinc-100 font-semibold text-xs rounded-none flex items-center justify-center gap-1.5 transition-colors shrink-0 whitespace-nowrap cursor-pointer"
             >
-              Expense Categories
+              <Plus className="w-3.5 h-3.5 stroke-[2.5]" />
+              <span>New {activeTab === 'expense' ? 'Category' : 'Source'}</span>
             </button>
-            <button
-              onClick={() => setActiveTab('income')}
-              className={`px-3 py-1.5 rounded-none transition-colors font-medium shrink-0 whitespace-nowrap ${
-                activeTab === 'income' ? 'bg-[#20232e] text-white' : 'text-zinc-400 hover:text-zinc-200'
-              }`}
-            >
-              Income Sources
-            </button>
-          </div>
-
-          <button
-            onClick={() => setShowAddModal(true)}
-            className="bg-zinc-100 hover:bg-white text-zinc-950 font-semibold text-xs px-3.5 py-2 rounded-none flex items-center gap-1.5 transition-colors shrink-0 whitespace-nowrap cursor-pointer"
-          >
-            <Plus className="w-4 h-4 stroke-[2.5]" />
-            <span>New {activeTab === 'expense' ? 'Category' : 'Source'}</span>
-          </button>
-        </div>
-      </div>
+          </>
+        }
+      />
 
       {/* Grid or Empty State */}
       {displayedList.length === 0 ? (

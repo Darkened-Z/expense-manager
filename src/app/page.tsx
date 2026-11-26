@@ -16,6 +16,7 @@ import { CategoriesView } from '@/components/views/CategoriesView';
 import { InsightsView } from '@/components/views/InsightsView';
 import { SettingsView } from '@/components/views/SettingsView';
 import { PasscodeLockModal } from '@/components/auth/PasscodeLockModal';
+import { AuthScreen } from '@/components/auth/AuthScreen';
 import { AddTransactionModal } from '@/components/modals/AddTransactionModal';
 import { AddReminderModal } from '@/components/modals/AddReminderModal';
 import { TransferModal } from '@/components/modals/TransferModal';
@@ -23,6 +24,15 @@ import { MobileSpeedDialFAB } from '@/components/layout/MobileSpeedDialFAB';
 import { StorageService } from '@/lib/storage';
 import { NotificationService } from '@/lib/notifications';
 import { PwaInstallPrompt } from '@/components/pwa/PwaInstallPrompt';
+import { PageSectionHeader } from '@/components/ui/PageSectionHeader';
+import { Plus } from 'lucide-react';
+import {
+  AuthSession,
+  getStoredAuthSession,
+  saveAuthSession,
+  clearAuthSession,
+} from '@/lib/auth';
+import { getSupabaseConfig } from '@/lib/supabase';
 import { Transaction, PaymentReminder, Category, Wallet, AppSettings, TransactionType, SavingsGoal, ReminderType, SimpleSaving } from '@/types';
 import {
   isSupabaseConfigured,
@@ -58,7 +68,10 @@ export default function Home() {
   const isResettingRef = useRef(false);
   const mainScrollRef = useRef<HTMLDivElement>(null);
 
-  // Lock & Security
+  // Account Auth + Lock & Security
+  const [authUser, setAuthUser] = useState<AuthSession | null>(null);
+  const [authChecked, setAuthChecked] = useState<boolean>(false);
+  const justLoggedInRef = useRef(false);
   const [isLocked, setIsLocked] = useState<boolean>(true);
   const [showPasscodeSetup, setShowPasscodeSetup] = useState<boolean>(false);
   const [isSyncingDirectLink, setIsSyncingDirectLink] = useState<boolean>(() => {
@@ -79,13 +92,14 @@ export default function Home() {
   const [preselectedCollectId, setPreselectedCollectId] = useState<string | null>(null);
 
   // Helper function to push local data to both server /api/sync and Supabase
-  const pushAllSync = async (snapshot: any) => {
+  const pushAllSync = async (snapshot: any, vaultOverride?: string) => {
     if (isLocalDatabaseMode()) return;
+    const vaultId = vaultOverride || authUser?.vaultId || getSupabaseConfig().vaultId;
     try {
       await fetch('/api/sync', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ data: snapshot }),
+        body: JSON.stringify({ vaultId, data: snapshot }),
       });
     } catch {}
     if (isSupabaseConfigured()) {
@@ -129,9 +143,13 @@ export default function Home() {
         if (modeParam === 'local' || standaloneParam === 'true' || localParam === 'true') {
           setLocalDatabaseMode(true);
           window.history.replaceState({}, document.title, window.location.pathname);
+          const localSession = getStoredAuthSession() || { username: 'local', vaultId: 'local', rememberMe: true };
+          saveAuthSession(localSession);
+          setAuthUser(localSession);
           StorageService.syncFutureCollectedDates();
           reloadAllFromStorage();
           setIsLocked(false);
+          setAuthChecked(true);
           setMounted(true);
           setCloudSyncStatus('offline');
           return;
@@ -144,6 +162,7 @@ export default function Home() {
         if (urlParam && keyParam) {
           // Explicitly disable local mode when connecting to a remote cloud vault
           setLocalDatabaseMode(false);
+          const resolvedVault = vaultParam ? decodeURIComponent(vaultParam) : 'main';
 
           // Immediately enforce locked state for direct sync links
           StorageService.setSessionLocked(true);
@@ -152,8 +171,16 @@ export default function Home() {
           saveSupabaseConfig({
             url: decodeURIComponent(urlParam),
             anonKey: decodeURIComponent(keyParam),
-            vaultId: vaultParam ? decodeURIComponent(vaultParam) : 'main',
+            vaultId: resolvedVault,
           });
+
+          const linkSession = getStoredAuthSession() || {
+            username: resolvedVault,
+            vaultId: resolvedVault,
+            rememberMe: true,
+          };
+          saveAuthSession(linkSession);
+          setAuthUser(linkSession);
 
           // Clean query parameters from address bar so URL remains clean
           window.history.replaceState({}, document.title, window.location.pathname);
@@ -169,7 +196,7 @@ export default function Home() {
           }
 
           try {
-            const sRes = await fetch('/api/sync').then((r) => r.json());
+            const sRes = await fetch(`/api/sync?vaultId=${encodeURIComponent(resolvedVault)}`).then((r) => r.json());
             if (sRes?.success && sRes.data) {
               const snap = StorageService.getFullSnapshot();
               if ((snap.transactions?.length || 0) === 0 && (snap.reminders?.length || 0) === 0) {
@@ -190,44 +217,60 @@ export default function Home() {
           }
 
           setIsSyncingDirectLink(false);
+          setAuthChecked(true);
           setMounted(true);
           return;
         }
+      }
+
+      const savedAuth = getStoredAuthSession();
+      if (savedAuth) {
+        saveSupabaseConfig({ vaultId: savedAuth.vaultId });
+        setAuthUser(savedAuth);
       }
 
       StorageService.syncFutureCollectedDates();
       reloadAllFromStorage();
       const locked = StorageService.isSessionLocked();
       setIsLocked(locked);
+      setAuthChecked(true);
       setMounted(true);
 
       const currentSets = StorageService.getSettings();
-      if (currentSets.enableBrowserNotifications) {
+      if (currentSets.enableBrowserNotifications && savedAuth) {
         NotificationService.checkDueInvoicesAndNotify(StorageService.getReminders());
       }
     };
 
     initApp();
+  }, []);
 
-    // Auto-fetch server config so mobile & all client devices connect instantly with 0 manual steps
-    if (!isLocalDatabaseMode() && !isSupabaseConfigured()) {
-      fetch('/api/sync/config')
-        .then((res) => res.json())
-        .then((cfg) => {
-          if (cfg.url && cfg.anonKey) {
-            saveSupabaseConfig(cfg);
+  // Account-scoped cloud & local server sync + realtime listener
+  useEffect(() => {
+    if (!authUser) return;
+
+    const ensureConfig = async () => {
+      if (!isLocalDatabaseMode() && !isSupabaseConfigured()) {
+        try {
+          const cfg = await fetch('/api/sync/config').then((r) => r.json());
+          if (cfg?.url && cfg?.anonKey) {
+            saveSupabaseConfig({ url: cfg.url, anonKey: cfg.anonKey, vaultId: authUser.vaultId });
           }
-        })
-        .catch(() => {});
-    }
+        } catch {}
+      } else if (!isLocalDatabaseMode()) {
+        saveSupabaseConfig({ vaultId: authUser.vaultId });
+      }
+    };
 
-    // Two-way synchronization engine
+    // Two-way synchronization engine scoped strictly to authUser.vaultId
     const syncWithCloudAndServer = async () => {
       if (isResettingRef.current) return;
       if (isLocalDatabaseMode()) {
         setCloudSyncStatus('offline');
         return;
       }
+      await ensureConfig();
+
       const localSnapshot = StorageService.getFullSnapshot();
       const hasLocalData =
         (localSnapshot.transactions?.length || 0) > 0 ||
@@ -243,7 +286,7 @@ export default function Home() {
       let remoteLastSyncedAt: string | null = null;
 
       try {
-        const sRes = await fetch('/api/sync').then((r) => r.json());
+        const sRes = await fetch(`/api/sync?vaultId=${encodeURIComponent(authUser.vaultId)}`).then((r) => r.json());
         if (sRes?.success && sRes.data) {
           remotePayload = sRes.data;
           remoteLastSyncedAt = sRes.lastSyncedAt;
@@ -275,25 +318,35 @@ export default function Home() {
         if (localTime > remoteTime) {
           // Local storage was explicitly wiped more recently than the remote backup:
           // propagate the clean state instead of re-importing stale cloud data.
-          await pushAllSync(localSnapshot);
+          await pushAllSync(localSnapshot, authUser.vaultId);
           setCloudSyncStatus('synced');
         } else {
-          // Fresh device (e.g. Phone!): import remote snapshot immediately!
+          // Fresh device or account login: import remote snapshot immediately!
           isImportingRef.current = true;
           StorageService.importFullSnapshot(remotePayload);
           reloadAllFromStorage();
           if (remotePayload.settings?.isLockEnabled && remotePayload.settings?.passcodeHash) {
-            StorageService.setSessionLocked(true);
-            setIsLocked(true);
+            if (justLoggedInRef.current) {
+              justLoggedInRef.current = false;
+              StorageService.setSessionLocked(false, remotePayload.settings.passcodeHash);
+              setIsLocked(false);
+            } else {
+              StorageService.setSessionLocked(true);
+              setIsLocked(true);
+            }
+          } else {
+            justLoggedInRef.current = false;
           }
           setCloudSyncStatus('synced');
         }
       } else if (hasLocalData && !remoteHasData) {
-        // Source device (e.g. PC!): seed remote cloud & server with full snapshot!
-        await pushAllSync(localSnapshot);
+        // Source device: seed remote cloud & server with full snapshot!
+        justLoggedInRef.current = false;
+        await pushAllSync(localSnapshot, authUser.vaultId);
         setCloudSyncStatus('synced');
       } else if (hasLocalData && remoteHasData) {
         // Both have data: adopt the newer snapshot or sync
+        justLoggedInRef.current = false;
         const remoteTime = new Date(remoteLastSyncedAt || remotePayload.updatedAt || 0).getTime();
         const localTime = new Date(localSnapshot.updatedAt || 0).getTime();
         if (remoteTime > localTime) {
@@ -304,15 +357,16 @@ export default function Home() {
             setIsLocked(true);
           }
         } else if (localTime > remoteTime) {
-          await pushAllSync(localSnapshot);
+          await pushAllSync(localSnapshot, authUser.vaultId);
         }
         setCloudSyncStatus('synced');
       } else {
+        justLoggedInRef.current = false;
         setCloudSyncStatus('synced');
       }
     };
 
-    // Run sync on mount
+    // Run sync when account becomes active
     syncWithCloudAndServer();
 
     // Supabase Realtime subscription
@@ -352,7 +406,7 @@ export default function Home() {
       window.removeEventListener('focus', handleRefresh);
       document.removeEventListener('visibilitychange', handleRefresh);
     };
-  }, []);
+  }, [authUser?.vaultId]);
 
   // User activity tracker and auto-lock check
   useEffect(() => {
@@ -412,6 +466,7 @@ export default function Home() {
 
   // Automated background push on any modification (debounced 1000ms)
   useEffect(() => {
+    if (!authUser) return;
     if (isInitialMount.current) {
       isInitialMount.current = false;
       return;
@@ -432,7 +487,7 @@ export default function Home() {
         await fetch('/api/sync', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ data: snap }),
+          body: JSON.stringify({ vaultId: authUser.vaultId, data: snap }),
         });
       } catch {}
 
@@ -445,7 +500,7 @@ export default function Home() {
     }, 1000);
 
     return () => clearTimeout(timer);
-  }, [transactions, reminders, categories, wallets, savingsGoals, simpleSavings, settings]);
+  }, [transactions, reminders, categories, wallets, savingsGoals, simpleSavings, settings, authUser]);
 
   const playChime = () => {
     if (!settings?.enableAudioChime || typeof window === 'undefined') return;
@@ -507,7 +562,74 @@ export default function Home() {
     );
   }
 
-  if (!mounted || !settings) {
+  const handleAuthSuccess = async ({
+    mode,
+    username,
+    vaultId,
+    rememberMe,
+    carryOverLocalData,
+  }: {
+    mode: 'login' | 'register';
+    username: string;
+    vaultId: string;
+    rememberMe: boolean;
+    carryOverLocalData: boolean;
+  }) => {
+    saveAuthSession({ username, vaultId, rememberMe });
+
+    // Configure isolated database vault & ensure Supabase connection is active for this account
+    try {
+      const cfg = await fetch('/api/sync/config').then((r) => r.json());
+      if (cfg?.url && cfg?.anonKey) {
+        setLocalDatabaseMode(false);
+        saveSupabaseConfig({ url: cfg.url, anonKey: cfg.anonKey, vaultId });
+      } else {
+        saveSupabaseConfig({ vaultId });
+      }
+    } catch {
+      saveSupabaseConfig({ vaultId });
+    }
+
+    if (mode === 'register') {
+      if (!carryOverLocalData) {
+        StorageService.clearWorkspaceForAccountSwitch();
+      }
+      const currentSets = StorageService.getSettings();
+      if (!currentSets.userName || currentSets.userName === 'User') {
+        StorageService.saveSettings({ ...currentSets, userName: username });
+      } else {
+        StorageService.markLocalUpdate();
+      }
+    } else {
+      StorageService.clearWorkspaceForAccountSwitch();
+    }
+
+    isImportingRef.current = true;
+    reloadAllFromStorage();
+    const freshSets = StorageService.getSettings();
+    StorageService.setSessionLocked(false, freshSets.passcodeHash || undefined);
+    setIsLocked(false);
+    justLoggedInRef.current = true;
+    setAuthUser({ username, vaultId, rememberMe });
+
+    if (mode === 'register') {
+      await pushAllSync(StorageService.getFullSnapshot(), vaultId);
+    }
+  };
+
+  const handleLogout = async () => {
+    if (authUser && !isLocalDatabaseMode()) {
+      await pushAllSync(StorageService.getFullSnapshot(), authUser.vaultId);
+    }
+    clearAuthSession();
+    StorageService.clearWorkspaceForAccountSwitch();
+    isImportingRef.current = true;
+    reloadAllFromStorage();
+    setIsLocked(false);
+    setAuthUser(null);
+  };
+
+  if (!mounted || !authChecked || !settings) {
     return (
       <div className="min-h-screen bg-[#090a0d] flex items-center justify-center">
         <div className="flex flex-col items-center gap-3">
@@ -515,6 +637,15 @@ export default function Home() {
           <span className="text-xs text-zinc-400 font-mono">Loading Expense Manager...</span>
         </div>
       </div>
+    );
+  }
+
+  if (!authUser) {
+    return (
+      <AuthScreen
+        hasLegacyLocalData={StorageService.hasAnyLocalData()}
+        onAuthSuccess={handleAuthSuccess}
+      />
     );
   }
 
@@ -531,7 +662,9 @@ export default function Home() {
           savedHash={settings.passcodeHash}
           enableBiometrics={settings.enableBiometrics}
           biometricCredentialId={settings.biometricCredentialId}
+          username={authUser.username}
           onSuccess={handleUnlockSuccess}
+          onSwitchAccount={handleLogout}
         />
       </div>
     );
@@ -893,6 +1026,8 @@ export default function Home() {
           setIsLocked(true);
           StorageService.setSessionLocked(true);
         }}
+        accountUsername={authUser.username}
+        onLogout={handleLogout}
         userName={settings.userName}
         userEmail={settings.userEmail}
         searchQuery={searchQuery}
@@ -1004,6 +1139,22 @@ export default function Home() {
           {/* TAB: TRANSACTIONS */}
           {currentTab === 'transactions' && (
             <div className="space-y-6 animate-in fade-in duration-200">
+              <PageSectionHeader
+                title="Transactions Ledger"
+                subtitle="Search, filter, edit, and export your full transaction history"
+                actions={
+                  <button
+                    onClick={() => {
+                      setEditingTransaction(null);
+                      setAddTxModalType('expense');
+                    }}
+                    className="h-9 px-3.5 bg-zinc-100 hover:bg-white text-zinc-950 border border-zinc-100 font-semibold text-xs rounded-none flex items-center justify-center gap-1.5 whitespace-nowrap cursor-pointer transition-colors"
+                  >
+                    <Plus className="w-3.5 h-3.5 stroke-[2.5]" />
+                    <span>Add Transaction</span>
+                  </button>
+                }
+              />
               <TransactionsLedger
                 transactions={filteredTxs}
                 categories={categories}
@@ -1146,6 +1297,9 @@ export default function Home() {
             <div className="animate-in fade-in duration-200">
               <SettingsView
                 settings={settings}
+                accountUsername={authUser.username}
+                accountVaultId={authUser.vaultId}
+                onLogout={handleLogout}
                 onUpdateSettings={handleUpdateSettings}
                 onOpenSetPasscode={() => setShowPasscodeSetup(true)}
                 onExportBackup={handleExportBackup}

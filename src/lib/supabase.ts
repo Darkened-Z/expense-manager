@@ -240,7 +240,7 @@ export function subscribeToSupabaseUpdates(onUpdate: (payload: SyncPayload) => v
 
   try {
     const channel = client
-      .channel('expense_sync_realtime')
+      .channel(`expense_sync_${config.vaultId}`)
       .on(
         'postgres_changes',
         {

@@ -30,8 +30,12 @@ import {
   ScanFace,
   ChevronUp,
   ChevronDown,
+  LogOut,
+  UserPlus,
 } from 'lucide-react';
 import { AppSettings } from '@/types';
+import { PageSectionHeader } from '@/components/ui/PageSectionHeader';
+import { authenticateAccount } from '@/lib/auth';
 import { StorageService } from '@/lib/storage';
 import { BiometricService } from '@/lib/biometrics';
 import {
@@ -47,6 +51,9 @@ import {
 
 interface SettingsViewProps {
   settings: AppSettings;
+  accountUsername?: string;
+  accountVaultId?: string;
+  onLogout?: () => void;
   onUpdateSettings: (updates: Partial<AppSettings>) => void;
   onOpenSetPasscode: () => void;
   onExportBackup: () => void;
@@ -59,6 +66,9 @@ interface SettingsViewProps {
 
 export const SettingsView: React.FC<SettingsViewProps> = ({
   settings,
+  accountUsername,
+  accountVaultId,
+  onLogout,
   onUpdateSettings,
   onOpenSetPasscode,
   onExportBackup,
@@ -104,6 +114,69 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
   const [biometricsAvailable, setBiometricsAvailable] = useState(false);
   const [isRegisteringBiometric, setIsRegisteringBiometric] = useState(false);
   const [biometricMsg, setBiometricMsg] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
+
+  // In-app user creation (Friend / separate database)
+  const [newAccountUsername, setNewAccountUsername] = useState('');
+  const [newAccountPassword, setNewAccountPassword] = useState('');
+  const [isCreatingAccount, setIsCreatingAccount] = useState(false);
+  const [createdAccountInfo, setCreatedAccountInfo] = useState<{
+    success: boolean;
+    message: string;
+    username?: string;
+    password?: string;
+    vaultId?: string;
+  } | null>(null);
+  const [copiedNewLogin, setCopiedNewLogin] = useState(false);
+
+  const handleCreateUserAccount = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setCreatedAccountInfo(null);
+    const cleanUser = newAccountUsername.trim().toLowerCase();
+    if (!/^[a-z0-9][a-z0-9._-]{2,23}$/.test(cleanUser)) {
+      setCreatedAccountInfo({
+        success: false,
+        message: 'Username must be 3-24 characters (letters, numbers, ".", "_", or "-").',
+      });
+      return;
+    }
+    if (newAccountPassword.length < 4) {
+      setCreatedAccountInfo({
+        success: false,
+        message: 'Password must be at least 4 characters.',
+      });
+      return;
+    }
+    setIsCreatingAccount(true);
+    const res = await authenticateAccount('register', cleanUser, newAccountPassword);
+    setIsCreatingAccount(false);
+
+    if (!res.success || !res.user) {
+      setCreatedAccountInfo({
+        success: false,
+        message: res.error || 'Could not create user account.',
+      });
+      return;
+    }
+
+    const createdPass = newAccountPassword;
+    setNewAccountUsername('');
+    setNewAccountPassword('');
+    setCreatedAccountInfo({
+      success: true,
+      message: `Account @${res.user.username} created with its own private database (${res.user.vaultId}).`,
+      username: res.user.username,
+      password: createdPass,
+      vaultId: res.user.vaultId,
+    });
+  };
+
+  const handleCopyNewAccountLogin = () => {
+    if (!createdAccountInfo?.username || typeof window === 'undefined') return;
+    const text = `App Link: ${window.location.origin}\nUsername: ${createdAccountInfo.username}\nPassword: ${createdAccountInfo.password}`;
+    navigator.clipboard.writeText(text);
+    setCopiedNewLogin(true);
+    setTimeout(() => setCopiedNewLogin(false), 2500);
+  };
 
   React.useEffect(() => {
     if (typeof window !== 'undefined') {
@@ -337,7 +410,126 @@ create policy "Allow anon access" on expense_sync
   };
 
   return (
-    <div className="space-y-6 max-w-4xl">
+    <div className="space-y-6 w-full">
+      <PageSectionHeader
+        title="Settings & Security"
+        subtitle="Manage account login, PIN lock, backup & export, cloud auto-sync, and data reset"
+        actions={
+          onLogout ? (
+            <button
+              type="button"
+              onClick={onLogout}
+              className="h-9 px-3.5 bg-[#181b23] hover:bg-[#261116] text-zinc-200 hover:text-rose-300 border border-[#2c303d] hover:border-rose-800 font-semibold text-xs rounded-none flex items-center justify-center gap-1.5 transition-colors cursor-pointer whitespace-nowrap"
+            >
+              <LogOut className="w-3.5 h-3.5" />
+              <span>Sign Out / Switch Account</span>
+            </button>
+          ) : undefined
+        }
+      />
+
+      {/* Active Account & Isolated Database Info */}
+      {accountUsername && (
+        <div className="bg-[#12141a] border border-[#22252f] rounded-none p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+          <div className="flex items-center gap-3">
+            <div className="p-2.5 rounded-none bg-[#16181f] text-zinc-300 border border-[#22252f]">
+              <User className="w-5 h-5" />
+            </div>
+            <div>
+              <div className="text-sm font-bold text-white">Signed in as @{accountUsername}</div>
+              <div className="text-xs text-zinc-400 font-mono mt-0.5">
+                Database Vault: {accountVaultId || `user_${accountUsername}`}
+              </div>
+            </div>
+          </div>
+          <span className="text-[11px] font-mono text-emerald-400 bg-[#0d241b] border border-emerald-800 px-2.5 py-1 rounded-none self-start sm:self-center">
+            Isolated Private Database
+          </span>
+        </div>
+      )}
+
+      {/* Create Friend / Additional User Account (Separate Database) */}
+      {accountUsername && (
+        <div className="bg-[#12141a] border border-[#22252f] rounded-none p-6 space-y-4">
+          <div className="flex items-center gap-3 border-b border-[#22252f] pb-4">
+            <div className="p-2.5 rounded-none bg-[#16181f] text-zinc-300 border border-[#22252f]">
+              <UserPlus className="w-5 h-5" />
+            </div>
+            <div>
+              <h3 className="font-bold text-white text-sm">Create User Account (Separate Database)</h3>
+              <p className="text-xs text-zinc-400">
+                Create a username &amp; password for your friend. He logs in on the app URL and gets his own completely empty private database.
+              </p>
+            </div>
+          </div>
+
+          <form onSubmit={handleCreateUserAccount} className="grid grid-cols-1 sm:grid-cols-3 gap-3 items-end">
+            <div>
+              <label className="block text-[11px] font-medium text-zinc-400 mb-1">New Username</label>
+              <input
+                type="text"
+                required
+                placeholder="e.g. bilal"
+                value={newAccountUsername}
+                onChange={(e) => setNewAccountUsername(e.target.value)}
+                className="w-full h-9 bg-[#161821] text-white text-xs px-3 rounded-none border border-[#2c303d] focus:outline-none focus:border-[#52596e]"
+              />
+            </div>
+
+            <div>
+              <label className="block text-[11px] font-medium text-zinc-400 mb-1">Password</label>
+              <input
+                type="text"
+                required
+                placeholder="Min 4 characters"
+                value={newAccountPassword}
+                onChange={(e) => setNewAccountPassword(e.target.value)}
+                className="w-full h-9 bg-[#161821] text-white text-xs px-3 rounded-none border border-[#2c303d] focus:outline-none focus:border-[#52596e]"
+              />
+            </div>
+
+            <button
+              type="submit"
+              disabled={isCreatingAccount}
+              className="h-9 px-4 bg-zinc-100 hover:bg-white text-zinc-950 font-semibold text-xs rounded-none border border-zinc-100 flex items-center justify-center gap-1.5 transition-colors cursor-pointer disabled:opacity-50"
+            >
+              <UserPlus className="w-3.5 h-3.5" />
+              <span>{isCreatingAccount ? 'Creating...' : 'Create User Account'}</span>
+            </button>
+          </form>
+
+          {createdAccountInfo && (
+            <div
+              className={`p-3 rounded-none border text-xs flex flex-col sm:flex-row sm:items-center justify-between gap-2 ${
+                createdAccountInfo.success
+                  ? 'bg-[#0d241b] border-emerald-800 text-emerald-300'
+                  : 'bg-[#261116] border-rose-800 text-rose-300'
+              }`}
+            >
+              <div className="flex items-center gap-2">
+                {createdAccountInfo.success ? (
+                  <CheckCircle2 className="w-4 h-4 shrink-0 text-emerald-400" />
+                ) : (
+                  <AlertTriangle className="w-4 h-4 shrink-0 text-rose-400" />
+                )}
+                <span>{createdAccountInfo.message}</span>
+              </div>
+
+              {createdAccountInfo.success && (
+                <button
+                  type="button"
+                  onClick={handleCopyNewAccountLogin}
+                  className="h-8 px-3 bg-[#16181f] hover:bg-[#20232e] text-white border border-[#2c303d] text-[11px] font-semibold rounded-none flex items-center gap-1.5 cursor-pointer shrink-0 self-start sm:self-auto"
+                >
+                  {copiedNewLogin ? <Check className="w-3.5 h-3.5 text-emerald-400" /> : <Copy className="w-3.5 h-3.5" />}
+                  <span>{copiedNewLogin ? 'Copied Login Details!' : 'Copy Login Info for Friend'}</span>
+                </button>
+              )}
+            </div>
+          )}
+        </div>
+      )}
+
       {/* Security & Passcode Section */}
       <div className="bg-[#12141a] border border-[#22252f] rounded-none p-6 space-y-5">
         <div className="flex items-center justify-between border-b border-[#22252f] pb-4">

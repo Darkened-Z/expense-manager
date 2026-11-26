@@ -11,8 +11,10 @@ interface PasscodeLockModalProps {
   savedHash: string | null;
   enableBiometrics?: boolean;
   biometricCredentialId?: string | null;
+  username?: string;
   onSuccess: (newHash?: string) => void;
   onCancel?: () => void;
+  onSwitchAccount?: () => void;
 }
 
 export const PasscodeLockModal: React.FC<PasscodeLockModalProps> = ({
@@ -21,8 +23,10 @@ export const PasscodeLockModal: React.FC<PasscodeLockModalProps> = ({
   savedHash,
   enableBiometrics = false,
   biometricCredentialId = null,
+  username,
   onSuccess,
   onCancel,
+  onSwitchAccount,
 }) => {
   const [pin, setPin] = useState<string>('');
   const [confirmPin, setConfirmPin] = useState<string>('');
@@ -170,7 +174,9 @@ export const PasscodeLockModal: React.FC<PasscodeLockModalProps> = ({
         </h2>
         <p className="text-xs text-zinc-400 mt-1">
           {step === 'enter'
-            ? 'Unlock your private freelance financial records'
+            ? username
+              ? `Unlock @${username}'s private financial records`
+              : 'Unlock your private freelance financial records'
             : step === 'create'
             ? 'Choose a 4-digit PIN to secure your expense manager'
             : 'Re-enter your 4-digit PIN to confirm'}
@@ -281,6 +287,17 @@ export const PasscodeLockModal: React.FC<PasscodeLockModalProps> = ({
             className="mt-6 text-xs text-zinc-500 hover:text-zinc-300 transition-colors"
           >
             Cancel
+          </button>
+        )}
+
+        {/* Switch Account / Sign Out option on lock screen */}
+        {!isSetupMode && onSwitchAccount && (
+          <button
+            type="button"
+            onClick={onSwitchAccount}
+            className="mt-5 text-xs text-zinc-400 hover:text-white underline transition-colors cursor-pointer"
+          >
+            Sign out / Switch account
           </button>
         )}
       </div>

@@ -5,6 +5,7 @@ import { PiggyBank, Plus, TrendingUp, Target, Calendar, ArrowUpRight, ArrowDownL
 import { SavingsGoal, Wallet, SimpleSaving, Transaction } from '@/types';
 import { formatCash, formatDateDDMMYYYY } from '@/lib/formatters';
 import { DateInputDDMMYYYY } from '@/components/ui/DateInputDDMMYYYY';
+import { PageSectionHeader } from '@/components/ui/PageSectionHeader';
 
 interface SavingsViewProps {
   savingsGoals: SavingsGoal[];
@@ -127,37 +128,35 @@ export const SavingsView: React.FC<SavingsViewProps> = ({
   return (
     <div className="space-y-6">
       {/* Top Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 max-w-full overflow-hidden">
-        <div>
-          <h2 className="text-base font-bold text-white tracking-wide">Savings & Reserve Funds</h2>
-          <p className="text-xs text-zinc-400">
-            Record simple savings with notes or establish structured reserve goals
-          </p>
-        </div>
-        <div className="flex flex-wrap sm:flex-nowrap items-center gap-2 self-start sm:self-auto">
-          <button
-            onClick={() => {
-              setSimpleError(null);
-              setSimpleAmount('');
-              setSimpleNote('');
-              setSimpleWalletId('');
-              setSimpleDate(new Date().toISOString().split('T')[0]);
-              setShowSimpleSavingModal(true);
-            }}
-            className="bg-[#20232e] hover:bg-[#262a37] text-white border border-[#2c303d] font-semibold py-2 px-3.5 rounded-none text-xs flex items-center justify-center gap-1.5 transition-colors cursor-pointer shrink-0 whitespace-nowrap"
-          >
-            <StickyNote className="w-4 h-4 text-amber-400" />
-            <span>+ Add Simple Saving</span>
-          </button>
-          <button
-            onClick={() => setShowAddModal(true)}
-            className="bg-zinc-100 hover:bg-white text-zinc-950 font-semibold py-2 px-3.5 rounded-none text-xs flex items-center justify-center gap-1.5 transition-colors cursor-pointer shrink-0 whitespace-nowrap"
-          >
-            <Plus className="w-4 h-4 stroke-[2.5]" />
-            <span>Create Goal</span>
-          </button>
-        </div>
-      </div>
+      <PageSectionHeader
+        title="Savings & Reserve Funds"
+        subtitle="Record simple savings with notes or establish structured reserve goals"
+        actions={
+          <>
+            <button
+              onClick={() => {
+                setSimpleError(null);
+                setSimpleAmount('');
+                setSimpleNote('');
+                setSimpleWalletId('');
+                setSimpleDate(new Date().toISOString().split('T')[0]);
+                setShowSimpleSavingModal(true);
+              }}
+              className="h-9 px-3.5 bg-[#181b23] hover:bg-[#20242f] text-zinc-200 border border-[#2c303d] font-semibold text-xs rounded-none flex items-center justify-center gap-1.5 transition-colors cursor-pointer whitespace-nowrap"
+            >
+              <Plus className="w-3.5 h-3.5 text-amber-400 stroke-[2.5]" />
+              <span>Simple Saving</span>
+            </button>
+            <button
+              onClick={() => setShowAddModal(true)}
+              className="h-9 px-3.5 bg-zinc-100 hover:bg-white text-zinc-950 border border-zinc-100 font-semibold text-xs rounded-none flex items-center justify-center gap-1.5 transition-colors cursor-pointer whitespace-nowrap"
+            >
+              <Plus className="w-3.5 h-3.5 stroke-[2.5]" />
+              <span>Create Goal</span>
+            </button>
+          </>
+        }
+      />
 
       {/* Overview Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 max-w-full">
@@ -226,10 +225,10 @@ export const SavingsView: React.FC<SavingsViewProps> = ({
               setSimpleDate(new Date().toISOString().split('T')[0]);
               setShowSimpleSavingModal(true);
             }}
-            className="self-start sm:self-auto text-xs text-zinc-200 hover:text-white flex items-center gap-1.5 font-medium bg-[#16181f] hover:bg-[#20232e] px-3 py-1.5 rounded-none border border-[#22252f] transition-colors cursor-pointer"
+            className="h-8 self-start sm:self-auto text-xs text-zinc-200 hover:text-white flex items-center gap-1.5 font-medium bg-[#181b23] hover:bg-[#20242f] px-3 rounded-none border border-[#2c303d] transition-colors cursor-pointer"
           >
             <Plus className="w-3.5 h-3.5" />
-            <span>Add Simple Saving</span>
+            <span>Simple Saving</span>
           </button>
         </div>
 
@@ -327,7 +326,7 @@ export const SavingsView: React.FC<SavingsViewProps> = ({
 
           <button
             onClick={() => setShowAddModal(true)}
-            className="text-xs text-zinc-200 hover:text-white flex items-center gap-1.5 font-medium bg-[#16181f] hover:bg-[#20232e] px-3 py-1.5 rounded-none border border-[#22252f] transition-colors cursor-pointer"
+            className="h-8 text-xs text-zinc-200 hover:text-white flex items-center gap-1.5 font-medium bg-[#181b23] hover:bg-[#20242f] px-3 rounded-none border border-[#2c303d] transition-colors cursor-pointer"
           >
             <Plus className="w-3.5 h-3.5" />
             <span>Create Goal</span>

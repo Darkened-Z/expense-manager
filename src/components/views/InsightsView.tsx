@@ -5,6 +5,7 @@ import { TrendingUp, TrendingDown, Target, ShieldCheck, DollarSign, PieChart, Us
 import { Transaction, PaymentReminder, Category, Wallet } from '@/types';
 import { formatCash, formatCurrency } from '@/lib/formatters';
 import { CashflowRunwaySection } from '@/components/dashboard/CashflowRunwaySection';
+import { PageSectionHeader } from '@/components/ui/PageSectionHeader';
 
 interface InsightsViewProps {
   transactions: Transaction[];
@@ -95,6 +96,11 @@ export const InsightsView: React.FC<InsightsViewProps> = ({
 
   return (
     <div className="space-y-6">
+      <PageSectionHeader
+        title="Financial Insights & Runway"
+        subtitle="Profitability, spending breakdown, and 30/60/90-day cashflow forecast"
+      />
+
       {/* Top Health Metrics */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         <div className="bg-[#12141a] border border-[#22252f] rounded-none p-5">

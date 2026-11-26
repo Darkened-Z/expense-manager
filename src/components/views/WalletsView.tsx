@@ -23,6 +23,7 @@ import {
 } from 'lucide-react';
 import { Wallet, Transaction } from '@/types';
 import { formatCash, formatDateDDMMYYYY } from '@/lib/formatters';
+import { PageSectionHeader } from '@/components/ui/PageSectionHeader';
 
 interface WalletsViewProps {
   wallets: Wallet[];
@@ -118,37 +119,32 @@ export const WalletsView: React.FC<WalletsViewProps> = ({
 
   return (
     <div className="space-y-6">
-      {/* Overview Banner */}
-      <div className="bg-[#12141a] border border-[#22252f] rounded-none p-4 sm:p-6 flex flex-col sm:flex-row sm:items-center justify-between gap-4 max-w-full overflow-hidden">
-        <div>
-          <div className="text-xs text-zinc-400 font-medium">Total Liquidity & Balance</div>
-          <div className="text-3xl font-extrabold text-white font-mono mt-1">
-            {currencySymbol}{formatCash(totalAssets)}
-          </div>
-          <p className="text-xs text-zinc-500 mt-1">Combined balance across {wallets.length} active channels</p>
-        </div>
-
-        <div className="flex flex-wrap sm:flex-nowrap items-center gap-2 self-start sm:self-center">
-          {onOpenTransfer && (
+      {/* Top Section Header */}
+      <PageSectionHeader
+        title={`Wallets & Accounts — ${currencySymbol}${formatCash(totalAssets)}`}
+        subtitle={`Combined balance across ${wallets.length} active channels`}
+        actions={
+          <>
+            {onOpenTransfer && (
+              <button
+                onClick={onOpenTransfer}
+                className="h-9 px-3.5 bg-[#181b23] hover:bg-[#20242f] text-zinc-200 border border-[#2c303d] font-semibold text-xs rounded-none flex items-center justify-center gap-1.5 transition-colors whitespace-nowrap cursor-pointer"
+                title="Transfer funds between accounts"
+              >
+                <ArrowLeftRight className="w-3.5 h-3.5 text-sky-400" />
+                <span>Transfer Funds</span>
+              </button>
+            )}
             <button
-              onClick={onOpenTransfer}
-              className="bg-[#181b23] hover:bg-[#20242f] text-zinc-200 border border-[#2c303d] font-semibold text-xs px-3.5 py-2.5 rounded-none flex items-center gap-1.5 transition-colors shrink-0 whitespace-nowrap cursor-pointer"
-              title="Transfer funds between accounts"
+              onClick={() => setShowAddModal(true)}
+              className="h-9 px-3.5 bg-zinc-100 hover:bg-white text-zinc-950 border border-zinc-100 font-semibold text-xs rounded-none flex items-center justify-center gap-1.5 transition-colors whitespace-nowrap cursor-pointer"
             >
-              <ArrowLeftRight className="w-3.5 h-3.5 text-sky-400" />
-              <span>Transfer Funds</span>
+              <Plus className="w-3.5 h-3.5 stroke-[2.5]" />
+              <span>Add Wallet</span>
             </button>
-          )}
-
-          <button
-            onClick={() => setShowAddModal(true)}
-            className="bg-zinc-100 hover:bg-white text-zinc-950 font-semibold text-xs px-4 py-2.5 rounded-none flex items-center gap-1.5 transition-colors shrink-0 whitespace-nowrap cursor-pointer"
-          >
-            <Plus className="w-4 h-4 stroke-[2.5]" />
-            <span>Add Account / Wallet</span>
-          </button>
-        </div>
-      </div>
+          </>
+        }
+      />
 
       {/* Wallets Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4 max-w-full">

@@ -106,56 +106,57 @@ export const Header: React.FC<HeaderProps> = ({
   const { title, sub } = getPageTitle();
 
   return (
-    <header className="px-3.5 sm:px-6 lg:px-8 py-3.5 sm:py-5 border-b border-[#22252f] bg-[#090a0c] sticky top-0 z-30 flex flex-col gap-3 max-w-full">
-      {/* Click-outside backdrop for open dropdowns */}
-      {(showWalletDropdown || showDateDropdown || showNotifications) && (
-        <div
-          className="fixed inset-0 z-40 bg-transparent"
-          onClick={() => {
-            setShowWalletDropdown(false);
-            setShowDateDropdown(false);
-            setShowNotifications(false);
-          }}
-        />
-      )}
+    <header className="border-b border-[#22252f] bg-[#090a0c] sticky top-0 z-30 w-full">
+      <div className="max-w-7xl w-full mx-auto px-3.5 sm:px-6 lg:px-8 py-3.5 flex flex-col gap-3">
+        {/* Click-outside backdrop for open dropdowns */}
+        {(showWalletDropdown || showDateDropdown || showNotifications) && (
+          <div
+            className="fixed inset-0 z-40 bg-transparent"
+            onClick={() => {
+              setShowWalletDropdown(false);
+              setShowDateDropdown(false);
+              setShowNotifications(false);
+            }}
+          />
+        )}
 
-      <div className="flex items-center justify-between gap-2 max-w-full">
-        {/* Left: Mobile Menu Trigger + Title */}
-        <div className="flex items-center gap-2.5 sm:gap-3">
-          <button
-            onClick={onToggleMobileMenu}
-            className="md:hidden p-2 -ml-1 text-zinc-400 hover:text-white rounded-none bg-[#16181f] border border-[#22252f]"
-            title="Open navigation menu"
-          >
-            <Menu className="w-5 h-5" />
-          </button>
-          <div className="md:hidden w-8 h-8 rounded-none overflow-hidden border border-[#2c303d] shrink-0 bg-[#16181f]">
-            <img src="/logo.png" alt="Logo" className="w-full h-full object-cover" />
-          </div>
-          <div>
-            <h1 className="text-base sm:text-xl font-bold tracking-tight text-white">{title}</h1>
-            <p className="text-[11px] sm:text-xs text-zinc-400 hidden xs:block">{sub}</p>
-          </div>
-        </div>
-
-        {/* Right: Quick Controls & Notification Bell */}
-        <div className="flex items-center gap-2">
-          {/* Wallet Dropdown */}
-          <div className="relative">
+        <div className="flex items-center justify-between gap-3 min-h-[40px] max-w-full">
+          {/* Left: Mobile Menu Trigger + Title */}
+          <div className="flex items-center gap-2.5 sm:gap-3 min-w-0">
             <button
-              onClick={() => {
-                setShowWalletDropdown(!showWalletDropdown);
-                setShowDateDropdown(false);
-                setShowNotifications(false);
-              }}
-              className="flex items-center gap-1.5 bg-[#14161d] hover:bg-[#1a1d26] border border-[#2c303d] px-2.5 sm:px-3 py-1.5 rounded-none text-xs font-medium text-zinc-300 transition-colors"
+              onClick={onToggleMobileMenu}
+              className="md:hidden w-8 h-8 flex items-center justify-center text-zinc-400 hover:text-white rounded-none bg-[#16181f] border border-[#22252f] shrink-0"
+              title="Open navigation menu"
             >
-              <WalletIcon className="w-3.5 h-3.5 text-zinc-400 shrink-0" />
-              <span className="font-mono text-zinc-200 max-w-[85px] sm:max-w-none truncate">
-                {selectedWallet ? (selectedWallet.accountNumber || selectedWallet.name) : 'All Wallets'}
-              </span>
-              <ChevronDown className="w-3 h-3 text-zinc-500 shrink-0" />
+              <Menu className="w-4 h-4" />
             </button>
+            <div className="md:hidden w-8 h-8 rounded-none overflow-hidden border border-[#2c303d] shrink-0 bg-[#16181f]">
+              <img src="/logo.png" alt="Logo" className="w-full h-full object-cover" />
+            </div>
+            <div className="min-w-0">
+              <h1 className="text-base sm:text-lg font-bold tracking-tight text-white leading-tight truncate">{title}</h1>
+              <p className="text-[11px] text-zinc-400 hidden sm:block leading-tight mt-0.5 truncate">{sub}</p>
+            </div>
+          </div>
+
+          {/* Right: Quick Controls & Notification Bell (all uniform h-8) */}
+          <div className="flex items-center gap-2 shrink-0">
+            {/* Wallet Dropdown */}
+            <div className="relative">
+              <button
+                onClick={() => {
+                  setShowWalletDropdown(!showWalletDropdown);
+                  setShowDateDropdown(false);
+                  setShowNotifications(false);
+                }}
+                className="h-8 flex items-center gap-1.5 bg-[#14161d] hover:bg-[#1a1d26] border border-[#2c303d] px-2.5 sm:px-3 rounded-none text-xs font-medium text-zinc-300 transition-colors"
+              >
+                <WalletIcon className="w-3.5 h-3.5 text-zinc-400 shrink-0" />
+                <span className="font-mono text-zinc-200 max-w-[85px] sm:max-w-[140px] truncate">
+                  {selectedWallet ? (selectedWallet.accountNumber || selectedWallet.name) : 'All Wallets'}
+                </span>
+                <ChevronDown className="w-3 h-3 text-zinc-500 shrink-0" />
+              </button>
 
             {showWalletDropdown && (
               <div className="absolute right-0 mt-2 w-60 bg-[#14161d] border border-[#2c303d] rounded-none py-1 z-50 animate-in fade-in zoom-in-95 duration-100 max-h-80 overflow-y-auto">
@@ -203,7 +204,7 @@ export const Header: React.FC<HeaderProps> = ({
                 setShowWalletDropdown(false);
                 setShowNotifications(false);
               }}
-              className="flex items-center gap-1.5 bg-[#14161d] hover:bg-[#1a1d26] border border-[#2c303d] px-2.5 sm:px-3 py-1.5 rounded-none text-xs font-medium text-zinc-300 transition-colors"
+              className="h-8 flex items-center gap-1.5 bg-[#14161d] hover:bg-[#1a1d26] border border-[#2c303d] px-2.5 sm:px-3 rounded-none text-xs font-medium text-zinc-300 transition-colors"
             >
               <Calendar className="w-3.5 h-3.5 text-zinc-400" />
               <span>
@@ -253,7 +254,7 @@ export const Header: React.FC<HeaderProps> = ({
           {onOpenSyncSettings && (
             <button
               onClick={onOpenSyncSettings}
-              className="flex items-center gap-1.5 bg-[#14161d] hover:bg-[#1a1d26] border border-[#2c303d] px-2.5 py-1.5 rounded-none text-xs font-medium transition-colors cursor-pointer"
+              className="h-8 flex items-center gap-1.5 bg-[#14161d] hover:bg-[#1a1d26] border border-[#2c303d] px-2.5 sm:px-3 rounded-none text-xs font-medium transition-colors cursor-pointer"
               title={
                 cloudSyncStatus === 'synced'
                   ? 'Cloud Auto-Sync Active (Live with Supabase)'
@@ -292,7 +293,7 @@ export const Header: React.FC<HeaderProps> = ({
                 setShowWalletDropdown(false);
                 setShowDateDropdown(false);
               }}
-              className="relative p-2 rounded-none bg-[#14161d] hover:bg-[#1a1d26] border border-[#2c303d] text-zinc-300 hover:text-white transition-colors"
+              className="relative h-8 w-8 flex items-center justify-center rounded-none bg-[#14161d] hover:bg-[#1a1d26] border border-[#2c303d] text-zinc-300 hover:text-white transition-colors"
               title="Freelance Payment Reminders"
             >
               <Bell className="w-4 h-4" />
@@ -403,39 +404,39 @@ export const Header: React.FC<HeaderProps> = ({
         </div>
       </div>
 
-      {/* Action Buttons Row - Dense minimal cohesive suite */}
-      <div className="flex items-center gap-2 overflow-x-auto pb-1 no-scrollbar scrollbar-none max-w-full">
+      {/* Action Buttons Row - Uniform height, consistent borders & icons */}
+      <div className="flex items-center gap-2 overflow-x-auto no-scrollbar scrollbar-none max-w-full">
         <button
           onClick={() => onOpenAddTx('expense')}
-          className="flex-1 sm:flex-initial flex items-center justify-center gap-1.5 bg-[#14151b] hover:bg-[#1b1d26] text-zinc-300 hover:text-white border border-[#2c303d] px-3.5 py-1.5 rounded-none text-xs font-medium transition-colors whitespace-nowrap"
+          className="h-8 flex-1 sm:flex-initial flex items-center justify-center gap-1.5 bg-[#14151b] hover:bg-[#1b1d26] text-zinc-200 hover:text-white border border-[#2c303d] px-3 rounded-none text-xs font-medium transition-colors whitespace-nowrap cursor-pointer"
           title="Add Expense"
         >
-          <span className="w-1.5 h-1.5 rounded-none bg-rose-500" />
-          <span>+ Expense</span>
+          <Plus className="w-3.5 h-3.5 text-rose-400 stroke-[2.5]" />
+          <span>Expense</span>
         </button>
 
         <button
           onClick={() => onOpenAddTx('income')}
-          className="flex-1 sm:flex-initial flex items-center justify-center gap-1.5 bg-[#14151b] hover:bg-[#1b1d26] text-zinc-300 hover:text-white border border-[#2c303d] px-3.5 py-1.5 rounded-none text-xs font-medium transition-colors whitespace-nowrap"
+          className="h-8 flex-1 sm:flex-initial flex items-center justify-center gap-1.5 bg-[#14151b] hover:bg-[#1b1d26] text-zinc-200 hover:text-white border border-[#2c303d] px-3 rounded-none text-xs font-medium transition-colors whitespace-nowrap cursor-pointer"
           title="Add Income"
         >
-          <span className="w-1.5 h-1.5 rounded-none bg-emerald-500" />
-          <span>+ Income</span>
+          <Plus className="w-3.5 h-3.5 text-emerald-400 stroke-[2.5]" />
+          <span>Income</span>
         </button>
 
         <button
           onClick={() => onOpenAddTx('deposit')}
-          className="flex-1 sm:flex-initial flex items-center justify-center gap-1.5 bg-[#14151b] hover:bg-[#1b1d26] text-zinc-300 hover:text-white border border-[#2c303d] px-3.5 py-1.5 rounded-none text-xs font-medium transition-colors whitespace-nowrap"
+          className="h-8 flex-1 sm:flex-initial flex items-center justify-center gap-1.5 bg-[#14151b] hover:bg-[#1b1d26] text-zinc-200 hover:text-white border border-[#2c303d] px-3 rounded-none text-xs font-medium transition-colors whitespace-nowrap cursor-pointer"
           title="Add Personal Money / Family Inflow (Non-Income)"
         >
-          <span className="w-1.5 h-1.5 rounded-none bg-purple-400" />
-          <span>+ Add Money</span>
+          <Plus className="w-3.5 h-3.5 text-purple-400 stroke-[2.5]" />
+          <span>Add Money</span>
         </button>
 
         {onOpenTransfer && (
           <button
             onClick={onOpenTransfer}
-            className="flex-1 sm:flex-initial flex items-center justify-center gap-1.5 bg-[#14151b] hover:bg-[#1b1d26] text-zinc-300 hover:text-white border border-[#2c303d] px-3.5 py-1.5 rounded-none text-xs font-medium transition-colors whitespace-nowrap"
+            className="h-8 flex-1 sm:flex-initial flex items-center justify-center gap-1.5 bg-[#14151b] hover:bg-[#1b1d26] text-zinc-200 hover:text-white border border-[#2c303d] px-3 rounded-none text-xs font-medium transition-colors whitespace-nowrap cursor-pointer"
             title="Transfer Money Between Accounts"
           >
             <ArrowLeftRight className="w-3.5 h-3.5 text-sky-400" />
@@ -445,12 +446,13 @@ export const Header: React.FC<HeaderProps> = ({
 
         <button
           onClick={onOpenAddReminder}
-          className="flex-1 sm:flex-initial flex items-center justify-center gap-1.5 bg-zinc-100 hover:bg-white text-zinc-950 font-semibold px-3.5 py-1.5 rounded-none text-xs transition-colors whitespace-nowrap"
+          className="h-8 flex-1 sm:flex-initial flex items-center justify-center gap-1.5 bg-zinc-100 hover:bg-white text-zinc-950 border border-zinc-100 font-semibold px-3 rounded-none text-xs transition-colors whitespace-nowrap cursor-pointer"
           title="New Receivable / Invoice"
         >
           <Plus className="w-3.5 h-3.5 stroke-[2.5]" />
-          <span>+ Invoice Due</span>
+          <span>Invoice Due</span>
         </button>
+      </div>
       </div>
     </header>
   );

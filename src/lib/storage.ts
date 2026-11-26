@@ -1090,6 +1090,34 @@ export const StorageService = {
     localStorage.removeItem(KEYS.LAST_SYNC);
   },
 
+  hasAnyLocalData(): boolean {
+    if (typeof window === 'undefined') return false;
+    const snap = this.getFullSnapshot();
+    return (
+      (snap.transactions?.length || 0) > 0 ||
+      (snap.reminders?.length || 0) > 0 ||
+      (snap.simpleSavings?.length || 0) > 0 ||
+      (snap.wallets || []).some((w: any) => (w.balance || 0) !== 0) ||
+      Boolean(snap.settings?.passcodeHash)
+    );
+  },
+
+  clearWorkspaceForAccountSwitch(): void {
+    if (typeof window === 'undefined') return;
+    localStorage.setItem(KEYS.TRANSACTIONS, JSON.stringify(INITIAL_TRANSACTIONS));
+    localStorage.setItem(KEYS.REMINDERS, JSON.stringify(INITIAL_REMINDERS));
+    localStorage.setItem(KEYS.CATEGORIES, JSON.stringify(DEFAULT_CATEGORIES));
+    localStorage.setItem(KEYS.WALLETS, JSON.stringify(DEFAULT_WALLETS));
+    localStorage.setItem(KEYS.SAVINGS, JSON.stringify(INITIAL_SAVINGS_GOALS));
+    localStorage.removeItem(KEYS.SIMPLE_SAVINGS);
+    localStorage.setItem(KEYS.SETTINGS, JSON.stringify(DEFAULT_SETTINGS));
+    localStorage.removeItem(KEYS.LAST_UPDATE);
+    localStorage.removeItem(KEYS.LAST_SYNC);
+    localStorage.removeItem(KEYS.SYNC_PASSKEY);
+    sessionStorage.removeItem(KEYS.IS_LOCKED);
+    sessionStorage.removeItem(KEYS.UNLOCKED_HASH);
+  },
+
   getStorageStats(): { usedBytes: number; usedKB: string; quotaMB: number; percentUsed: string; approximateCapacity: string } {
     if (typeof window === 'undefined') {
       return { usedBytes: 0, usedKB: '0', quotaMB: 5, percentUsed: '0.00', approximateCapacity: '~30,000 to 50,000 records' };

@@ -9,7 +9,22 @@ const FALLBACK_KEY = Buffer.from(
   'base64'
 ).toString('utf-8');
 
-const DATA_FILE = path.join(process.cwd(), 'data', 'sync_vault.json');
+const VAULTS_DIR = path.join(process.cwd(), 'data', 'vaults');
+
+function getVaultFile(vaultId: string): string {
+  const safeId = vaultId.replace(/[^a-zA-Z0-9_-]/g, '_');
+  return path.join(VAULTS_DIR, `${safeId}.json`);
+}
+
+function resolveVaultId(rawVaultId?: string | null, passkey?: string | null): string {
+  if (rawVaultId && rawVaultId.trim().length > 0 && rawVaultId.trim() !== 'local') {
+    return rawVaultId.trim();
+  }
+  if (passkey && passkey.trim().length >= 4) {
+    return passkey.trim().toUpperCase();
+  }
+  return process.env.NEXT_PUBLIC_SUPABASE_VAULT_ID || 'main';
+}
 
 function getSupabaseServerClient() {
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL || FALLBACK_URL;
@@ -23,16 +38,14 @@ function getSupabaseServerClient() {
 export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url);
-    const passkey = searchParams.get('passkey');
-    const vaultId = (passkey && passkey.trim().length >= 4)
-      ? passkey.trim().toUpperCase()
-      : (process.env.NEXT_PUBLIC_SUPABASE_VAULT_ID || 'main');
+    const vaultId = resolveVaultId(searchParams.get('vaultId'), searchParams.get('passkey'));
+    const vaultFile = getVaultFile(vaultId);
 
-    // 1. Try reading from local file cache first (instant local LAN sync for mobile)
+    // 1. Try reading from per-vault local file cache first (instant local LAN sync for mobile)
     try {
-      const raw = await fs.readFile(DATA_FILE, 'utf-8');
+      const raw = await fs.readFile(vaultFile, 'utf-8');
       const parsed = JSON.parse(raw);
-      if (parsed && (parsed.id === vaultId || !parsed.id) && parsed.data) {
+      if (parsed && parsed.id === vaultId && parsed.data) {
         return NextResponse.json({
           success: true,
           source: 'local_disk',
@@ -55,11 +68,11 @@ export async function GET(request: NextRequest) {
           .single();
 
         if (!error && data?.data) {
-          // Cache to local file for instant subsequent mobile requests
+          // Cache to per-vault local file for instant subsequent mobile requests
           try {
-            await fs.mkdir(path.dirname(DATA_FILE), { recursive: true });
+            await fs.mkdir(VAULTS_DIR, { recursive: true });
             await fs.writeFile(
-              DATA_FILE,
+              vaultFile,
               JSON.stringify({ id: vaultId, data: data.data, updatedAt: data.updated_at }, null, 2)
             );
           } catch {
@@ -95,11 +108,13 @@ export async function GET(request: NextRequest) {
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const { passkey, data } = body;
+    const { vaultId: rawVaultId, passkey, data } = body;
 
-    const vaultId = (passkey && typeof passkey === 'string' && passkey.trim().length >= 4)
-      ? passkey.trim().toUpperCase()
-      : (process.env.NEXT_PUBLIC_SUPABASE_VAULT_ID || 'main');
+    const vaultId = resolveVaultId(
+      typeof rawVaultId === 'string' ? rawVaultId : null,
+      typeof passkey === 'string' ? passkey : null
+    );
+    const vaultFile = getVaultFile(vaultId);
 
     if (!data || typeof data !== 'object') {
       return NextResponse.json(
@@ -111,11 +126,11 @@ export async function POST(request: NextRequest) {
     const updatedAt = data.updatedAt || new Date().toISOString();
     const payloadWithTime = { ...data, updatedAt };
 
-    // 1. Save immediately to local disk cache
+    // 1. Save immediately to per-vault local disk cache
     try {
-      await fs.mkdir(path.dirname(DATA_FILE), { recursive: true });
+      await fs.mkdir(VAULTS_DIR, { recursive: true });
       await fs.writeFile(
-        DATA_FILE,
+        vaultFile,
         JSON.stringify({ id: vaultId, data: payloadWithTime, updatedAt }, null, 2)
       );
     } catch (fsErr) {
